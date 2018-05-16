@@ -166,7 +166,8 @@ int InitPara (VAST_NetModel model, VASTPara_Net &netpara, SimPara &simpara, cons
             para_count++;
         }
     }
-	    
+	 
+    printf("ReadPara from InitPara\n");   
     // see if simulation behavior file exists for simulated behavior            
     if (ReadPara (simpara) == true)
     {
@@ -225,10 +226,11 @@ int InitPara (VAST_NetModel model, VASTPara_Net &netpara, SimPara &simpara, cons
 }
 
 // read parameters from input file
-bool ReadPara (SimPara &para)
+bool ReadPara (SimPara &para, const char * filename /* = "VASTsim.ini*/)
 {
+    printf("ReadPara called\n");
     FILE *fp;
-    if ((fp = fopen ("VASTsim.ini", "rt")) == NULL)
+    if ((fp = fopen (filename, "rt")) == NULL)
         return false;
 
     int *p[] = {
@@ -271,6 +273,7 @@ bool ReadPara (SimPara &para)
             return false;
         n++;
 
+        //Null Pointer, i.e. ending of the struct?
         if (p[n] == 0)
             return true;
     }
@@ -335,11 +338,13 @@ int InitSim (SimPara &para, VASTPara_Net &netpara)
     i = 1;
     while (num_relays < para.RELAY_SIZE)
     {
-        //if (rand () % 100 <= ((float)para.RELAY_SIZE / (float)para.NODE_SIZE * 100))
+        //if (rand () % 100 <= ((float)para.RELAY_SIZE / (float)para.NODE_SIZE * 100))  //This would help with random assignment
         //{    
             g_as_relay[i] = true;
             num_relays++;
         //}
+
+        // Restart counting from first node
         if (++i == para.NODE_SIZE)
             i = 0;
     }

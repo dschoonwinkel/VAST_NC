@@ -63,6 +63,11 @@ VAST *          g_self  = NULL;     // pointer to VAST
 NodeState       g_state = ABSENT;     //State of joining node
 Vast::id_t      g_sub_id = 0;       // subscription # for my client (peer)  
 
+//Variables for the second node, i.e. node 2
+VAST *          g_self2  = NULL;     // pointer to VAST
+NodeState       g_state2 = ABSENT;     //State of joining node
+Vast::id_t      g_sub_id2 = 0;       // subscription # for my client (peer)  
+
 // socket-specific variables
 Vast::id_t      g_socket_id = NET_ID_UNASSIGNED;    // socket ID
 
@@ -241,6 +246,13 @@ int main (int argc, char *argv[])
     g_world = new VASTVerse (is_gateway, string (GWstr), &netpara, NULL, NULL, 20);
     g_world->createVASTNode(g_world_id, g_aoi, VAST_EVENT_LAYER);
 
+
+    //Randomize position before adding another node
+    g_aoi.center.x = (coord_t)(rand () % 100);
+    g_aoi.center.y = (coord_t)(rand () % 100);
+
+    //I expect this to be false: can only use createVASTNode once... What should I do then?
+    cout << "Creating another new node: success == " << g_world->createVASTNode(g_world_id, g_aoi, VAST_EVENT_LAYER) << endl;
     
 
     //

@@ -188,7 +188,8 @@ namespace Vast
 
             return NULL;
         }
-        
+
+
         Area &prev_aoi = _sub.aoi;
 
         if (_state == JOINED)

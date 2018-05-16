@@ -1,5 +1,5 @@
 
-VASTsim_console = ../../bin/VASTsim_console
+myVASTsim = ../../bin/myVASTsim
 
 .PHONY: all noace
 
@@ -16,12 +16,12 @@ else
     LIBS = $(LIBS_COMMON) $(LIBS_ACE)
 endif
 
-all: VASTsim_console.cpp
+all: myVASTsim.cpp
 	g++ -Wall -I../../common -I../../VASTsim -L../../lib -L.. $< $(LIBS) \
-	-o $(VASTsim_console)
+	-o $(myVASTsim)
 
 noace:
 	make TARGET=noace
 
 clean:
-	rm -f $(VASTsim_console)
+	rm -f $(myVASTsim)

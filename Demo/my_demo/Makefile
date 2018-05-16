@@ -10,12 +10,12 @@ LIBS_ACE    = -lACE
 LIBS_THREAD = -lpthread
 LIBS_DL	    = -ldl
 
-ACE_PATH    = ../../../ACE_wrappers
+ACE_PATH    = /usr
 
 # CFLAGS      = -Wall -static 
 CFLAGS      = -Wall -fPIC
 
-INC_PATHS   = -I../../common -I../../VASTsim -I$(ACE_PATH) 
+INC_PATHS   = -I../../common -I../../VASTsim -I$(ACE_PATH)/include 
 
 LIB_PATHS   = -L../../lib -L../../Dependencies/lib/Release -L$(ACE_PATH)/lib 
 
