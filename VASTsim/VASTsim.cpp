@@ -611,9 +611,18 @@ std::vector<line2d> *GetEdges (int index)
     return &v->getedges ();
 }
 
+bool isNodeMatcher(int index) {
+    return g_nodes[index]->getVerse()->isMatcher();
+}
+
+
 bool GetBoundingBox (int index, point2d& min, point2d& max)
 {
     return false;
+}
+
+Area * GetNodeMatcherAOI(int index) {
+    return g_nodes[index]->getVerse()->getMatcherAOI();
 }
 
 int ShutSim ()

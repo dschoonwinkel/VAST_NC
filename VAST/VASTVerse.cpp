@@ -321,6 +321,7 @@ namespace Vast
                 printf ("if this hangs, check if physical coordinate is obtained correctly\n");
 
                 bool hasPhysCoord = !(_netpara.phys_coord.x == 0 && _netpara.phys_coord.y == 0);
+                printf("Starting new VASTRelay as %s\n", _netpara.is_relay ? "relay" : "client");
                 handlers->relay = new VASTRelay (_netpara.is_relay, _netpara.client_limit, _netpara.relay_limit, hasPhysCoord ? &_netpara.phys_coord : NULL);
 
                 handlers->msgqueue->registerHandler (handlers->relay);

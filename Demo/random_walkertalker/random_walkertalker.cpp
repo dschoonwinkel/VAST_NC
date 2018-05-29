@@ -7,11 +7,6 @@
  */
 
 
-#ifdef WIN32
-// disable warning about "unsafe functions"
-#pragma warning(disable: 4996)
-#endif
-
 #include "ace/ACE.h"    // for sleep functions
 //#include "ace/OS.h"
 #include "ace/Init_ACE.h"
@@ -21,10 +16,6 @@
 #include <stdio.h>
 #include <iostream>
 
-#ifdef WIN32
-#include <conio.h>      // for getting keyboard inputs
-#endif
-
 #include "Movement.h"
 
 // use VAST for functions
@@ -32,7 +23,7 @@
 #include "VASTUtil.h"
 #include "VASTCallback.h"       // for creating callback handler
 
-#include "my_demo.h"
+#include "random_walkertalker.h"
 
 #define VAST_EVENT_LAYER    1                   // layer ID for sending events 
 #define VAST_UPDATE_LAYER   2                   // layer ID for sending updates

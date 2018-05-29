@@ -288,6 +288,10 @@
         return &_self;
     }
 
+    VASTVerse *SimNode::getVerse() {
+        return _world;
+    }
+
     Vast::id_t SimNode::getID ()
     {
         return _self.id;

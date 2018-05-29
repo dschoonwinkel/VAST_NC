@@ -70,6 +70,7 @@ public:
     Position &get_pos ();
 
     Node *getSelf ();
+    VASTVerse *getVerse();
 
     // get unique ID
     Vast::id_t getID ();

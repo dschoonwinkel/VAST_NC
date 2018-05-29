@@ -77,6 +77,8 @@ vector<Vast::Node *>*GetNeighbors (int index);
 EXPORT vector<Vast::id_t> * GetEnclosingNeighbors (int index, int level = 1);
 EXPORT int                  ShutSim ();
 EXPORT vector<Vast::line2d>*GetEdges (int index);
+EXPORT bool					isNodeMatcher(int index);
+EXPORT Area                 *GetNodeMatcherAOI(int index);
 EXPORT bool                 GetBoundingBox (int index, point2d& min, point2d& max);
 
 
