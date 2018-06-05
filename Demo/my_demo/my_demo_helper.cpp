@@ -3,7 +3,7 @@
 #include "my_demo.h"
 using namespace Vast;
 
-size_t send_to_neighbours (VAST* vastclient, string to_send) {
+void send_to_neighbours (VAST* vastclient, string to_send) {
 // send off input to AOI neighbors
     // note: self is also included as the 1st neighbor
     Message send_msg (12);

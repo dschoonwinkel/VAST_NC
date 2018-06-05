@@ -1,3 +1,4 @@
+test_helper.cpp
 random_walkertalker.cpp
 random_walkertalker.h
 random_walkertalker_helper.cpp

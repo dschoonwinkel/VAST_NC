@@ -177,7 +177,7 @@ void printNeighbors (unsigned long long curr_msec, Vast::id_t selfID, bool scree
         if (i % 2 == 0)
             printf ("\n");
 
-        printf ("[%llu] (%d, %d) ", (neighbors[i]->id), (int)neighbors[i]->aoi.center.x, (int)neighbors[i]->aoi.center.y);            
+        printf ("[%lu] (%d, %d) ", (neighbors[i]->id), (int)neighbors[i]->aoi.center.x, (int)neighbors[i]->aoi.center.y);
     }
     printf ("\n");  
 }
@@ -202,8 +202,15 @@ int main (int argc, char *argv[])
     //
     g_world_id     = VAST_DEFAULT_WORLD_ID;
 
-    g_aoi.center.x = (coord_t)(rand () % 100);
-    g_aoi.center.y = (coord_t)(rand () % 100);
+//    g_aoi.center.x = (coord_t)(rand () % 100);
+//    g_aoi.center.y = (coord_t)(rand () % 100);
+
+    //These are the join coordinate of the demo_chatva_Qt program (I do not know why it is this, and always the same...)
+    g_aoi.center.x = 103;
+    g_aoi.center.y = 454;
+
+
+
     g_aoi.radius   = 200;
 
     // make backup of AOI, to detect position change so we can move the client
@@ -256,9 +263,10 @@ int main (int argc, char *argv[])
     g_world->createVASTNode(g_world_id, g_aoi, VAST_EVENT_LAYER);
 
 
-    //Randomize position before adding another node
-    g_aoi.center.x = (coord_t)(rand () % 100);
-    g_aoi.center.y = (coord_t)(rand () % 100);
+//    Randomize position before adding another node
+//    g_aoi.center.x = (coord_t)(rand () % 100);
+//    g_aoi.center.y = (coord_t)(rand () % 100);
+
 
     //I expect this to be false: can only use createVASTNode once... What should I do then?
     cout << "Creating another new node: success == " << g_world->createVASTNode(g_world_id, g_aoi, VAST_EVENT_LAYER) << endl;
@@ -283,9 +291,9 @@ int main (int argc, char *argv[])
             // cout << "Moving... apparently" << endl;
             // g_aoi.center.x = (coord_t)(rand () % 100);
             // g_aoi.center.y = (coord_t)(rand () % 100);
-            Position *pos = g_move_model.getPos(0, g_steps%10000);
-            g_aoi.center = *pos;
-            g_self->move(g_sub_id, g_aoi);
+//            Position *pos = g_move_model.getPos(0, g_steps%10000);
+//            g_aoi.center = *pos;
+//            g_self->move(g_sub_id, g_aoi);
             // g_self->move(g_sub_id, g_aoi);
         }
 
@@ -302,12 +310,16 @@ int main (int argc, char *argv[])
                 recv_buf[size]=0;
 
                 string chatmsg (recv_buf, size);
-                std::cout << "Received message from " << from << " : " << chatmsg << std::endl;
+//                std::cout << "Received message from " << from << " : " << chatmsg << std::endl;
+                debug_print("Received message from %lu %s\n", from, chatmsg.c_str());
             }
 
-            char random_text[10];
-            gen_random_str(random_text, 10);
-            send_to_neighbours(g_self, string(random_text));
+            if (g_steps % 20 == 0) {
+                char random_text[50];
+                gen_random_sentence(random_text, 50);
+                send_to_neighbours(g_self, string(random_text));
+                g_finished = true;
+            }
 
         }
 

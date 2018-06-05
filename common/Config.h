@@ -84,6 +84,15 @@
 #define DEBUG_DETAIL_       // show detail debug messages
 #endif
 
+
+#define _DANIEL_DEBUG
+
+#ifdef _DANIEL_DEBUG
+ #define CPPDEBUG(x) do {std::cout << x; } while(0)
+#else 
+ #define CPPDEBUG(x) do {} while(0) 
+#endif
+
 // force to enable debug message
 #define DEBUG_DETAIL_
 

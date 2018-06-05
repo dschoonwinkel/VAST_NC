@@ -26,6 +26,8 @@ MainWindow::MainWindow(QWidget *parent) :
         exit(0);
     }
 
+    std::cout << "Starting pos: " << g_aoi.center.x << ":" << g_aoi.center.y << std::endl;
+
     m_timerId = startTimer(TIMER_INTERVAL);
 
     setFixedSize(DIM_X, DIM_Y);
@@ -201,7 +203,8 @@ void MainWindow::MoveOnce ()
         Message *msg = NULL;
         if ((msg = g_self->receive ()) != NULL)
         {
-            size = msg->extract (from);
+//            size = msg->extract (from);
+            from = msg->from;
             size = msg->extract (recv_buf, 0);
             recv_buf[size]=0;
         }
@@ -211,7 +214,7 @@ void MainWindow::MoveOnce ()
         if (size > 0)
         {
             string chatmsg (recv_buf, size);
-            chatmsg = string(from) + ":" + chatmsg;
+            chatmsg = std::to_string(from) + " : " + chatmsg;
             StoreChat (chatmsg);
         }
     }

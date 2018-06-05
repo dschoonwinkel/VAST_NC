@@ -1,5 +1,6 @@
 
 random_walkertalker = ../../bin/random_walkertalker
+test_helper = ./test_helper
 
 .PHONY: all noace
 
@@ -13,7 +14,7 @@ LIBS_DL	    = -ldl
 ACE_PATH    = /usr
 
 # CFLAGS      = -Wall -static 
-CFLAGS      = -Wall -fPIC
+CFLAGS      = -Wall -fPIC -g
 
 INC_PATHS   = -I../../common -I../../VASTsim -I$(ACE_PATH)/include 
 
@@ -24,3 +25,7 @@ LIBS = $(LIBS_COMMON) $(LIBS_ACE) $(LIBS_THREAD) $(LIBS_DL)
 all: random_walkertalker.cpp random_walkertalker_helper.cpp
 	g++ $(CFLAGS) $(INC_PATHS) $(LIB_PATHS) $< $(LIBS) \
         -o $(random_walkertalker) random_walkertalker_helper.cpp
+
+test: test_helper.cpp random_walkertalker_helper.cpp
+	g++ $(CFLAGS) $(INC_PATHS) $(LIB_PATHS) $< $(LIBS) \
+        -o $(test_helper) random_walkertalker_helper.cpp

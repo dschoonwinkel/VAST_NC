@@ -186,7 +186,7 @@ void printNeighbors (unsigned long long curr_msec, Vast::id_t selfID, bool scree
         if (i % 2 == 0)
             printf ("\n");
 
-        printf ("[%llu] (%d, %d) ", (neighbors[i]->id), (int)neighbors[i]->aoi.center.x, (int)neighbors[i]->aoi.center.y);            
+        printf ("[%lu] (%d, %d) ", (neighbors[i]->id), (int)neighbors[i]->aoi.center.x, (int)neighbors[i]->aoi.center.y);            
     }
     printf ("\n");  
 }
