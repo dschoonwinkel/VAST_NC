@@ -210,6 +210,7 @@ namespace Vast
             CPPDEBUG(string);
         }
         CPPDEBUG("\n");
+        CPPDEBUG("VASTHeader size: " << sizeof(VASTHeader) << std::endl);
 
         // collect download transmission stat
         updateTransmissionStat (target, msg.msgtype, msg.size + sizeof (VASTHeader), 1);

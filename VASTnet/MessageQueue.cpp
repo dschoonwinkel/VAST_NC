@@ -1,6 +1,7 @@
 
 
 #include "MessageQueue.h"
+#include <iostream>
 
 namespace Vast
 {   
@@ -66,10 +67,14 @@ namespace Vast
         id_t target;
         id_t host_id;
 
-        CPPDEBUG("Buffer state after sendMessage enqueue: \n");
-        for (size_t i = 0; i < buf->size; i++) {
+        CPPDEBUG("Msg state before multiplex in MessageQueue: \n");
+        size_t total_size = msg.serialize(NULL);
+        CPPDEBUG("Message size: " << total_size << std::endl);
+        char buffer[total_size];
+        msg.serialize(buffer);
+        for (size_t i = 0; i < total_size; i++) {
             char string[20];
-            sprintf(string, "%02x ", buf->data[i]);
+            sprintf(string, "%02x ", buffer[i]);
             CPPDEBUG(string);
         }
         CPPDEBUG("\n");

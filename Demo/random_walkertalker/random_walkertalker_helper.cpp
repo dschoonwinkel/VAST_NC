@@ -117,7 +117,7 @@ void printMessage(Vast::Message msg) {
 }
 
 
-//   fa 16 00 50 -- Header bytes, but there are a lot of them missing?
+//   fa 16 00 50 -- Header bytes, four parts: start_seq = 1010, msg_type = 3 Regular, msg_size = 0x187, end_seq = 0101
 //   01 00 0e 04 01 01 00 7f -- from id_t = 9151315546691469313
 //   41 00 00 00 -- size_t = 65 (probably with all the extra bits
 //   2f 7b -- msg_type = SEND type (i.e. for particular targets) + 123 - demo message type
@@ -128,9 +128,12 @@ void printMessage(Vast::Message msg) {
 //   01 00 0d 04 01 01 00 7f -- Target - Matcher - yes, this is the matcher ID
 //   2c 00 00 00 -- store size variable, 4 bytes = 44 -> there are 44 characters
 //
-//   6f 6e 65 20 63 68 69 6c 64 20 68 65 6c 70
-//   20 69 6e 74 6f 20 61 6e 79 20 74 69 6d 65 20 68
-//   65 6c 70 20 61 62 6f 76 65 20 74 68 65 20 -- Text message = one child help into any time help above the
+//   6f 6e 65 20 63 68 69 6c
+//   64 20 68 65 6c 70 20 69 
+//   6e 74 6f 20 61 6e 79 20 
+//   74 69 6d 65 20 68 65 6c 
+//   70 20 61 62 6f 76 65 20 
+//   74 68 65 20 -- Text message = one child help into any time help above the
 //
 //
 //   02 40 0d 04 01 01 00 7f     -- One of the nodes
