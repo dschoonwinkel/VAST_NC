@@ -203,14 +203,14 @@ namespace Vast
         buf->add ((char *)&header, sizeof (VASTHeader));
         buf->add (&msg);
 
-        CPPDEBUG("Buffer state after sendMessage enqueue: \n");
-        for (size_t i = 0; i < buf->size; i++) {
-            char string[20];
-            sprintf(string, "%02x ", buf->data[i]);
-            CPPDEBUG(string);
-        }
-        CPPDEBUG("\n");
-        CPPDEBUG("VASTHeader size: " << sizeof(VASTHeader) << std::endl);
+//        CPPDEBUG("Buffer state after sendMessage enqueue: \n");
+//        for (size_t i = 0; i < buf->size; i++) {
+//            char string[20];
+//            sprintf(string, "%02x ", buf->data[i]);
+//            CPPDEBUG(string);
+//        }
+//        CPPDEBUG("\n");
+//        CPPDEBUG("VASTHeader size: " << sizeof(VASTHeader) << std::endl);
 
         // collect download transmission stat
         updateTransmissionStat (target, msg.msgtype, msg.size + sizeof (VASTHeader), 1);

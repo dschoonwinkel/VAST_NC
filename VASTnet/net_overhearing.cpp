@@ -19,59 +19,62 @@
  */
 
 #include "net_overhearing.h"
+#include <map>
+
+
 
 namespace Vast
 {
     net_overhearing::net_overhearing (timestamp_t sec2timestamp)
     {
-        // initialize rand generator (for node fail simulation, NOTE: same seed is used to produce exactly same results)
-        //srand ((unsigned int)time (NULL));
-        srand (0);
+//        // initialize rand generator (for node fail simulation, NOTE: same seed is used to produce exactly same results)
+//        //srand ((unsigned int)time (NULL));
+//        srand (0);
 
-        // create the netbridge used by simulations, if needed
-        if (g_bridge == NULL)
-        {
-            // create a shared net-bridge (used in simulation to locate other simulated nodes)
-            // NOTE: g_bridge may be shared across different VASTVerse instances            
-            //g_bridge = new net_overhearingbridge (_simpara.loss_rate, _simpara.fail_rate, 1, _simpara.step_persec, 1);
-            g_bridge = new net_overhearingbridge (0, 0, 1, (size_t)sec2timestamp, 1);
-        }
+//        // create the netbridge used by simulations, if needed
+//        if (g_bridge == NULL)
+//        {
+//            // create a shared net-bridge (used in simulation to locate other simulated nodes)
+//            // NOTE: g_bridge may be shared across different VASTVerse instances
+//            //g_bridge = new net_overhearingbridge (_simpara.loss_rate, _simpara.fail_rate, 1, _simpara.step_persec, 1);
+//            g_bridge = new net_overhearingbridge (0, 0, 1, (size_t)sec2timestamp, 1);
+//        }
 
-        g_bridge_ref++;
+//        g_bridge_ref++;
 
-        // NOTE: we mimic what happens with net_ace, where the IP/port is first obtained
-        //       but unique ID is yet assigned (need to query gateway)
+//        // NOTE: we mimic what happens with net_ace, where the IP/port is first obtained
+//        //       but unique ID is yet assigned (need to query gateway)
 
-        // obtain a temporary id first        
-        id_t id = g_bridge->obtain_id (this);
+//        // obtain a temporary id first
+//        id_t id = g_bridge->obtain_id (this);
 
-        // store artificial IP:port for this host (127.0.0.1:1037 + id - 1)
-        _self_addr.setPublic (2130706433, (uint16_t)(1037 + id - 1));
+//        // store artificial IP:port for this host (127.0.0.1:1037 + id - 1)
+//        _self_addr.setPublic (2130706433, (uint16_t)(1037 + id - 1));
 
-        // self-determine preliminary hostID first
-        _self_addr.host_id = this->resolveHostID (&_self_addr.publicIP);
+//        // self-determine preliminary hostID first
+//        _self_addr.host_id = this->resolveHostID (&_self_addr.publicIP);
         
-        // make sure the bridge stores proper unique ID
-        g_bridge->replaceHostID (id, _self_addr.host_id);
+//        // make sure the bridge stores proper unique ID
+//        g_bridge->replaceHostID (id, _self_addr.host_id);
 
-        // set the conversion rate between seconds and timestamp unit
-        // for net_overhearing it's the same as tick_persec
-        _sec2timestamp = sec2timestamp;
+//        // set the conversion rate between seconds and timestamp unit
+//        // for net_overhearing it's the same as tick_persec
+//        _sec2timestamp = sec2timestamp;
     }
 
     net_overhearing::~net_overhearing ()
     {
-        // remove from bridge so that others can't find me
-        g_bridge->releaseHostID (_id);
+//        // remove from bridge so that others can't find me
+//        g_bridge->releaseHostID (_id);
 
-        g_bridge_ref--;
+//        g_bridge_ref--;
 
-        // only delete the bridge if no other VASTVerse's using it
-        if (g_bridge != NULL && g_bridge_ref == 0)
-        {
-            delete g_bridge;
-            g_bridge = NULL;
-        }
+//        // only delete the bridge if no other VASTVerse's using it
+//        if (g_bridge != NULL && g_bridge_ref == 0)
+//        {
+//            delete g_bridge;
+//            g_bridge = NULL;
+//        }
     }
 
     void 
@@ -85,7 +88,7 @@ namespace Vast
     net_overhearing::stop ()
     {
         net_manager::stop ();
-		g_bridge->releaseHostID (_self_addr.host_id);
+//		g_bridge->releaseHostID (_self_addr.host_id);
         _active = false;
     }
 
@@ -93,10 +96,10 @@ namespace Vast
     timestamp_t 
     net_overhearing::getTimestamp ()
     {
-        if (g_bridge)
-            return g_bridge->getTimestamp ();
-        else
-            return 0;
+//        if (g_bridge)
+//            return g_bridge->getTimestamp ();
+//        else
+//            return 0;
     }
 
     // get IP address from host name
@@ -111,16 +114,16 @@ namespace Vast
     bool 
     net_overhearing::getRemoteAddress (id_t host_id, IPaddr &addr)
     {
-        if (g_bridge)
-        {
-            net_overhearing *receiver = (net_overhearing *)g_bridge->getNetworkInterface (host_id);
+//        if (g_bridge)
+//        {
+//            net_overhearing *receiver = (net_overhearing *)g_bridge->getNetworkInterface (host_id);
 
-            if (receiver == NULL)
-                return false;
+//            if (receiver == NULL)
+//                return false;
 
-            addr = receiver->getAddress ().publicIP;
-            return true;
-        }
+//            addr = receiver->getAddress ().publicIP;
+//            return true;
+//        }
 
         return false;
     }
@@ -145,16 +148,16 @@ namespace Vast
             return false;
 
         // notify remote node of the connection
-        net_overhearing *receiver = (net_overhearing *)g_bridge->getNetworkInterface (target);
+//        net_overhearing *receiver = (net_overhearing *)g_bridge->getNetworkInterface (target);
 
-        if (receiver == NULL)
-            return false;
+//        if (receiver == NULL)
+//            return false;
 
         // create a dummy connection record
         this->socket_connected (target, NULL, is_secure);
 
         // notify remote host of connection
-        receiver->remoteConnect (_self_addr.host_id, _self_addr);
+//        receiver->remoteConnect (_self_addr.host_id, _self_addr);
         
         return true;
     }
@@ -172,13 +175,13 @@ namespace Vast
 #endif
 
         // do a remote disconnect
-        net_overhearing *receiver = (net_overhearing *)g_bridge->getNetworkInterface (target);
+//        net_overhearing *receiver = (net_overhearing *)g_bridge->getNetworkInterface (target);
         
-        if (receiver == NULL)
-            return false;
+//        if (receiver == NULL)
+//            return false;
 
         this->socket_disconnected (target);
-        receiver->remoteDisconnect (_id);  
+//        receiver->remoteDisconnect (_id);
 
         return true;
     }
@@ -192,22 +195,22 @@ namespace Vast
             return 0;
 
         // find the receiver network record
-        net_overhearing *receiver = (net_overhearing *)g_bridge->getNetworkInterface (target);
+//        net_overhearing *receiver = (net_overhearing *)g_bridge->getNetworkInterface (target);
 
-        if (receiver == NULL)
-            return 0;
+//        if (receiver == NULL)
+//            return 0;
 
         bool reliable = (addr == NULL);
 
         // create the message receive time, do not send if dropped (arrival time is -1)
         timestamp_t recvtime;
 
-        if ((recvtime = g_bridge->getArrivalTime (_id, target, size, reliable)) == (timestamp_t)(-1))
-            return 0;
+//        if ((recvtime = g_bridge->getArrivalTime (_id, target, size, reliable)) == (timestamp_t)(-1))
+//            return 0;
         
         // TODO: try not to dual allocate message size?  
         //receiver->msg_received (_id, msg, size, recvtime);
-        receiver->msg_received (_self_addr.host_id, msg, size, recvtime);
+//        receiver->msg_received (_self_addr.host_id, msg, size, recvtime);
 
         // update last access time for connection
         if (_id2conn.find (target) != _id2conn.end ())
@@ -315,8 +318,8 @@ namespace Vast
     void 
     net_overhearing::tickLogicalClock ()
     {
-        if (g_bridge)
-            g_bridge->tick ();
+//        if (g_bridge)
+//            g_bridge->tick ();
     }
 
     // store a message into priority queue
@@ -373,7 +376,7 @@ namespace Vast
     net_overhearing::socket_disconnected (id_t id)
     {
         // cut connection
-        map<id_t, ConnectInfo>::iterator it = _id2conn.find (id); 
+        std::map<id_t, ConnectInfo>::iterator it = _id2conn.find (id);
         
         // error connection doesn't exist
         if (it == _id2conn.end ())

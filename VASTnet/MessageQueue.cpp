@@ -1,7 +1,7 @@
 
 
 #include "MessageQueue.h"
-#include <iostream>
+//#include <iostream>
 
 namespace Vast
 {   
@@ -67,17 +67,17 @@ namespace Vast
         id_t target;
         id_t host_id;
 
-        CPPDEBUG("Msg state before multiplex in MessageQueue: \n");
-        size_t total_size = msg.serialize(NULL);
-        CPPDEBUG("Message size: " << total_size << std::endl);
-        char buffer[total_size];
-        msg.serialize(buffer);
-        for (size_t i = 0; i < total_size; i++) {
-            char string[20];
-            sprintf(string, "%02x ", buffer[i]);
-            CPPDEBUG(string);
-        }
-        CPPDEBUG("\n");
+//        CPPDEBUG("Msg state before multiplex in MessageQueue: \n");
+//        size_t total_size = msg.serialize(NULL);
+//        CPPDEBUG("Message size: " << total_size << std::endl);
+//        char buffer[total_size];
+//        msg.serialize(buffer);
+//        for (size_t i = 0; i < total_size; i++) {
+//            char string[20];
+//            sprintf(string, "%02x ", buffer[i]);
+//            CPPDEBUG(string);
+//        }
+//        CPPDEBUG("\n");
 
         vector<id_t> &targets = msg.targets;               
         map<id_t, vector<id_t> *> host2targets;     // mapping of the logical nodes stored at each host

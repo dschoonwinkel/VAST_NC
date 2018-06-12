@@ -17,12 +17,12 @@
     // Wireless overhearing class
 
 namespace Vast {
-    class net_overhearing
+    class net_overhearing : public Vast::net_manager
     {
     public:
 
-        net_overhearing () {};
-        virtual ~net_overhearing () {};
+        net_overhearing (timestamp_t sec2timestamp);
+        virtual ~net_overhearing();
      
         //
         // basic services 
@@ -65,11 +65,15 @@ namespace Vast {
         
         // store a message into priority queue
         // returns success or not
-        bool msg_received (id_t fromhost, const char *message, size_t size, timestamp_t recvtime, bool in_front = false);
+        bool msg_received (id_t fromhost, const char *message, size_t size, timestamp_t recvtime = 0, bool in_front = false);
 
         bool socket_connected (id_t id, void *stream, bool is_secure);
         bool socket_disconnected (id_t id);
-        
+
+        bool remoteConnect (Vast::id_t remote_id, const Addr &addr);
+        void remoteDisconnect (Vast::id_t remote_id);
+
+    };
 } // end namespace Vast
 
 #endif // VAST_NET_OVERHEARING
