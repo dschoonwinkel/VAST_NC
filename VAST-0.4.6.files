@@ -810,6 +810,9 @@ VASTnet/net_emubridge_bl.h
 VASTnet/net_manager.cpp
 VASTnet/net_overhearing.cpp
 VASTnet/net_overhearing.h
+VASTnet/Makefile
+VASTnet/net_overhearing_handler.cpp
+VASTnet/net_overhearing_handler.h
 VASTsim/SimNode.cpp
 VASTsim/SimNode.h
 VASTsim/Statistics.h

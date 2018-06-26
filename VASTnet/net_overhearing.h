@@ -15,13 +15,19 @@
 
 #include "VASTnet.h"
     // Wireless overhearing class
+#include "net_overhearing_handler.h"
+
+#include <boost/asio.hpp>
+#include <mutex>
 
 namespace Vast {
     class net_overhearing : public Vast::net_manager
     {
+    friend class net_overhearing_handler;
+
     public:
 
-        net_overhearing (timestamp_t sec2timestamp);
+        net_overhearing (uint16_t port);
         virtual ~net_overhearing();
      
         //
@@ -36,7 +42,7 @@ namespace Vast {
         timestamp_t getTimestamp ();
 
         // get IP address from host name
-        const char *getIPFromHost (const char *hostname);
+        const char *getIPFromHost (const char *host = NULL);
 
         // obtain the IP / port of a remotely connected host
         bool getRemoteAddress (id_t host_id, IPaddr &addr);
@@ -57,12 +63,12 @@ namespace Vast {
         bool switchID (id_t prevID, id_t newID);
 
         // perform a tick of the logical clock 
-        void tickLogicalClock ();
+        void tickLogicalClock () {}
 
         //
         // callback services called by specific network binding (e.g. ACE or emulation)
         //
-        
+
         // store a message into priority queue
         // returns success or not
         bool msg_received (id_t fromhost, const char *message, size_t size, timestamp_t recvtime = 0, bool in_front = false);
@@ -70,8 +76,24 @@ namespace Vast {
         bool socket_connected (id_t id, void *stream, bool is_secure);
         bool socket_disconnected (id_t id);
 
-        bool remoteConnect (Vast::id_t remote_id, const Addr &addr);
-        void remoteDisconnect (Vast::id_t remote_id);
+    private:
+        // bind port for this node
+        uint16_t                    _port_self;
+
+        // hostname & IP of current host
+        char                        _hostname[255];
+        char                        _IPaddr[17];
+
+        //Handler for receiving UDP packets
+        net_overhearing_handler     *_udphandler;
+
+        //Event loop for handling async IO.
+        boost::asio::io_service     *_io_service;
+
+        std::mutex                  _msg_mutex;
+        std::mutex                  _conn_mutex;
+
+
 
     };
 } // end namespace Vast

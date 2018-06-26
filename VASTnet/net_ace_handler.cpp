@@ -22,6 +22,8 @@
 #include "net_ace_handler.h"
 #include "net_ace.h"
 
+#include <iostream>
+
 namespace Vast {
 
     // default constructor
@@ -46,6 +48,7 @@ namespace Vast {
         // obtain remote host's detected IP for public IP check
         // TODO: should move this function elsewhere?
         ACE_INET_Addr remote_addr;
+        std::cout << "#####################################################################New unassigned address in net_ace_handler " << remote_addr.get_host_addr() << std::endl;
 
 #ifdef VAST_USE_SSL
         if (_secure)
@@ -58,6 +61,7 @@ namespace Vast {
             this->_stream.get_remote_addr (remote_addr);
         _remote_addr.host = remote_addr.get_ip_address ();
         _remote_addr.port = remote_addr.get_port_number ();
+        std::cout << "#####################################################################Magically different address in net_ace_handler " << remote_addr.get_host_addr() << std::endl;
 
         char remote_host[80];
         _remote_addr.getString (remote_host);

@@ -20,112 +20,139 @@
 
 #include "net_overhearing.h"
 #include <map>
+#include <chrono>
+#include <iostream>
+#include <arpa/inet.h>
+#include <cstring>
 
-
+using namespace boost::asio;
+using namespace std::chrono_literals;
 
 namespace Vast
 {
-    net_overhearing::net_overhearing (timestamp_t sec2timestamp)
+    net_overhearing::net_overhearing (uint16_t port): _port_self (port)
     {
+
 //        // initialize rand generator (for node fail simulation, NOTE: same seed is used to produce exactly same results)
 //        //srand ((unsigned int)time (NULL));
-//        srand (0);
+        srand (0);
 
-//        // create the netbridge used by simulations, if needed
-//        if (g_bridge == NULL)
-//        {
-//            // create a shared net-bridge (used in simulation to locate other simulated nodes)
-//            // NOTE: g_bridge may be shared across different VASTVerse instances
-//            //g_bridge = new net_overhearingbridge (_simpara.loss_rate, _simpara.fail_rate, 1, _simpara.step_persec, 1);
-//            g_bridge = new net_overhearingbridge (0, 0, 1, (size_t)sec2timestamp, 1);
-//        }
+        _hostname[0] = 0;
+        _IPaddr[0] = 0;
 
-//        g_bridge_ref++;
+        printf ("net_overhearing::net_overhearing(): Host IP: %s\n", getIPFromHost ());
 
-//        // NOTE: we mimic what happens with net_ace, where the IP/port is first obtained
-//        //       but unique ID is yet assigned (need to query gateway)
+        uint32_t addr_bytes = 0;
+        if (inet_pton(AF_INET, _IPaddr, &addr_bytes) == 0)
+        {
+            std::cerr << "Could not convert inet_addr to bytes" << std::endl;
+        }
+        _self_addr.setPublic(addr_bytes, _port_self);
 
-//        // obtain a temporary id first
-//        id_t id = g_bridge->obtain_id (this);
+        // set the conversion rate between seconds and timestamp unit
+        // for net_ace it's 1000 timestamp units = 1 second (each step is 1 ms)
+        _sec2timestamp = 1000;
 
-//        // store artificial IP:port for this host (127.0.0.1:1037 + id - 1)
-//        _self_addr.setPublic (2130706433, (uint16_t)(1037 + id - 1));
-
-//        // self-determine preliminary hostID first
-//        _self_addr.host_id = this->resolveHostID (&_self_addr.publicIP);
-        
-//        // make sure the bridge stores proper unique ID
-//        g_bridge->replaceHostID (id, _self_addr.host_id);
-
-//        // set the conversion rate between seconds and timestamp unit
-//        // for net_overhearing it's the same as tick_persec
-//        _sec2timestamp = sec2timestamp;
+        _io_service = new io_service();
     }
 
     net_overhearing::~net_overhearing ()
     {
-//        // remove from bridge so that others can't find me
-//        g_bridge->releaseHostID (_id);
-
-//        g_bridge_ref--;
-
-//        // only delete the bridge if no other VASTVerse's using it
-//        if (g_bridge != NULL && g_bridge_ref == 0)
-//        {
-//            delete g_bridge;
-//            g_bridge = NULL;
-//        }
+        //Maybe this should rather be done in net_overhearing lifecycle?
+//        _io_service.stop();
+//        _io_service.reset();
+        delete _io_service;
+        _io_service = NULL;
     }
 
     void 
     net_overhearing::start ()
     {
         _active = true;
-        net_manager::start ();          
+        net_manager::start ();
+        //Consider putting net_overhearing_handler->open() here
     }
 
     void 
     net_overhearing::stop ()
     {
+        //Consider putting net_overhearing_handler->close() here
         net_manager::stop ();
-//		g_bridge->releaseHostID (_self_addr.host_id);
+        if (_udphandler) {
+            _udphandler->close();
+        }
         _active = false;
+
     }
 
     // get current physical timestamp
     timestamp_t 
     net_overhearing::getTimestamp ()
     {
-//        if (g_bridge)
-//            return g_bridge->getTimestamp ();
-//        else
-//            return 0;
+        uint64_t time_now = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+        return time_now;
     }
 
     // get IP address from host name
     const char *
-    net_overhearing::getIPFromHost (const char *hostname)
+    net_overhearing::getIPFromHost (const char *host)
     {
-        return "127.0.0.1";
+        char hostname[255];
+
+        //if host is NULL, then we use our own hostname
+        if (host == NULL)
+        {
+
+            //if we've already looked up, return previous record
+            if (_IPaddr[0] != 0) {
+                return _IPaddr;
+            }
+
+            strcpy(hostname, _hostname);
+        }
+        else
+        {
+            strcpy (hostname, host);
+        }
+
+        using boost::asio::ip::tcp;
+
+        tcp::resolver resolver(*_io_service);
+        tcp::resolver::query query(hostname, "");
+        tcp::resolver::iterator iter = resolver.resolve(query);
+        tcp::resolver::iterator end; // End marker.
+        if(iter != end) {
+            tcp::endpoint ep = *iter++;
+//            std::cout << ep << std::endl;
+//            std::cout << ep.address().to_string() << std::endl;
+
+            //If we do not know our own host IP and it has now been resolved
+            if (_IPaddr[0] == 0 && host == NULL)
+            {
+                strcpy(_IPaddr, ep.address().to_string().c_str());
+            }
+            return ep.address().to_string().c_str();
+        }
+        else {
+            return NULL;
+        }
     }
 
     // obtain the IP / port of a remotely connected host
-    // returns NULL if not available
+    // returns a null address if not available
+    //This function only returns a value if we have heard from this host before
     bool 
     net_overhearing::getRemoteAddress (id_t host_id, IPaddr &addr)
     {
-//        if (g_bridge)
-//        {
-//            net_overhearing *receiver = (net_overhearing *)g_bridge->getNetworkInterface (host_id);
+        bool result = false;
 
-//            if (receiver == NULL)
-//                return false;
+        addr = _udphandler->getRemoteAddress (host_id);
 
-//            addr = receiver->getAddress ().publicIP;
-//            return true;
-//        }
+        //We could not resolve an address for this host_id
+        if (addr.host == 0 && addr.port == 0)
+            result = false;
 
-        return false;
+        return result;
     }
 
     // Note:
@@ -144,21 +171,23 @@ namespace Vast
             return false;
 
         // avoid self-connection & re-connection
-        if (target == _id)
+        if (target == _id || isConnected (target))
+        {
+            printf ("net_overhearing::connect () connection for [%lu] already exists\n", target);
             return false;
+        }
 
-        // notify remote node of the connection
-//        net_overhearing *receiver = (net_overhearing *)g_bridge->getNetworkInterface (target);
+        std::cout << "Host addr bytes to ip addr: " << ip::address_v4(host) << std::endl;
+        ip::udp::endpoint target_addr(ip::address_v4(host), port);
 
-//        if (receiver == NULL)
-//            return false;
+        net_overhearing_handler *handler;
+        handler = new net_overhearing_handler();
 
-        // create a dummy connection record
-        this->socket_connected (target, NULL, is_secure);
+        //UDP is NOT a connection orientated protocol, thus no connecting is done here
 
-        // notify remote host of connection
-//        receiver->remoteConnect (_self_addr.host_id, _self_addr);
-        
+        //If the UDP socket is not open yet, open it now
+        handler->open(_io_service, this, target);
+
         return true;
     }
 
@@ -166,23 +195,28 @@ namespace Vast
     net_overhearing::
     disconnect (Vast::id_t target)
     {
-        // check if connection exists
-        if (_id2conn.find (target) == _id2conn.end ())
-            return false;
+        net_overhearing_handler *handler = NULL;
+        std::map<id_t, ConnectInfo>::iterator it;
+
+        //Use conn mutex to ensure that the handler is deleted correctly and
+        //cleanly
+        _conn_mutex.lock();
+
+        if ((it = _id2conn.find(target)) != _id2conn.end ())
+            handler = (net_overhearing_handler *)(it->second.stream);
 
 #ifdef DEBUG_DETAIL
         printf ("[%lu] disconnection success\n", target);
 #endif
+        if (handler == NULL)
+            return false;
 
-        // do a remote disconnect
-//        net_overhearing *receiver = (net_overhearing *)g_bridge->getNetworkInterface (target);
-        
-//        if (receiver == NULL)
-//            return false;
+        //General UDP socket should not close, unlike TCP connection
+//        handler->close();
+
+        CPPDEBUG("net_overhearing::disconnect " << target << " disconnected");
 
         this->socket_disconnected (target);
-//        receiver->remoteDisconnect (_id);
-
         return true;
     }
 
@@ -191,51 +225,10 @@ namespace Vast
     size_t 
     net_overhearing::send (id_t target, char const *msg, size_t size, const Addr *addr)
     {        
-        if (_active == false || isConnected (target) == false)
+        if (_active == false)
             return 0;
-
-        // find the receiver network record
-//        net_overhearing *receiver = (net_overhearing *)g_bridge->getNetworkInterface (target);
-
-//        if (receiver == NULL)
-//            return 0;
-
-        bool reliable = (addr == NULL);
-
-        // create the message receive time, do not send if dropped (arrival time is -1)
-        timestamp_t recvtime;
-
-//        if ((recvtime = g_bridge->getArrivalTime (_id, target, size, reliable)) == (timestamp_t)(-1))
-//            return 0;
-        
-        // TODO: try not to dual allocate message size?  
-        //receiver->msg_received (_id, msg, size, recvtime);
-//        receiver->msg_received (_self_addr.host_id, msg, size, recvtime);
-
-        // update last access time for connection
-        if (_id2conn.find (target) != _id2conn.end ())
-            _id2conn[target].lasttime = this->getTimestamp ();
-
-        /*
-        // loop through the bytestring, as this msg could contain several 
-        // distinct messages to different target logical nodes
-        // this is to simulate message de-multiplex in real network
-        char *p = (char *)msg;
-        VASTHeader header;
-
-        while (p < (msg + size))
-        {            
-            memcpy (&header, p, sizeof (VASTHeader));
-            p += sizeof (VASTHeader);
-
-            // TODO: record recvtime?
-            // NOTE: my actual IP is sent for processing, so that public/private IP check will pass
-            receiver->processVASTMessage (header, p, _id, &_addr.publicIP);
-            p += header.msg_size;
-        }
-        */
-
-        return size;
+        ip::udp::endpoint target_addr(ip::address_v4(addr->publicIP.host), addr->publicIP.port);
+        return _udphandler->send(msg, size, target_addr);
     }
 
     // receive an incoming message
@@ -256,70 +249,44 @@ namespace Vast
         if (_recv_queue.size () == 0)
             return NULL;
 
-        // obtain current time
-        timestamp_t now = getTimestamp ();
+        //FIFO, return the first message in queue
+        _msg_mutex.lock();
+        _recvmsg = _recv_queue[0];
+        _recv_queue.erase (_recv_queue.begin ());
+        _msg_mutex.unlock();
 
-        NetSocketMsg *msg;
-        
-        // go through all messages to find the first message ready to be processed
-        // NOTE: if we do not do logical time check, then it'll be possible
-        // for a node to process messages from another node that had sent
-        // a message earlier in the same time-step (this makes 0 latency). 
-
-        for (size_t i=0; i < _recv_queue.size (); i++)
-        {
-            msg = _recv_queue[i];
-            
-            if (msg->recvtime == 0 || now > msg->recvtime)
-            {
-                _recvmsg = msg;
-                _recv_queue.erase (_recv_queue.begin () + i);
-                return _recvmsg;
-            }
-        }
-
-        /*
-        for (multimap<byte_t, QMSG *>::iterator it = _msgqueue.begin (); it != _msgqueue.end (); it++)
-        {
-            qmsg = it->second;
-            if (qmsg->recvtime == 0 || now > qmsg->recvtime)
-            {
-                _msgqueue.erase (it);
-
-                return qmsg;
-            }
-        }
-        */
-
-        return NULL;
+        return _recvmsg;
     }
 
     // change the ID for a remote host
     bool 
     net_overhearing::switchID (id_t prevID, id_t newID)
     {
-        // new ID already in use
+        bool result = false;
+
+        _conn_mutex.lock();
+
+        //new ID already in use
         if (_id2conn.find (newID) != _id2conn.end () || _id2conn.find (prevID) == _id2conn.end ())
         {
-            printf ("[%llu] net_overhearing::switchID () old ID not found or new ID already exists\n");
-            return false;
+            printf("[%lu] net_overhearing::switchID () old ID not found or new ID already exists\n", _id);
         }
+        else
+        {
+            printf("[%lu] net_overhearing::switchID () replace [%lu] with [%lu]\n", _id, prevID, newID);
 
-        // copy to new ID
-        _id2conn[newID] = _id2conn[prevID];
+            //copy to new ID
+            _id2conn[newID] = _id2conn[prevID];
 
-        // erase old ID mapping
-        _id2conn.erase (prevID);
+            //erase old ID mapping
+            _id2conn.erase (prevID);
 
-        return true;
-    }
+            //change to remote ID knowledge at stream
+            result = ((net_overhearing_handler *)(_id2conn[newID].stream))->switchRemoteID (prevID, newID);
+        }
+        _conn_mutex.unlock();
 
-    // perform a tick of the logical clock 
-    void 
-    net_overhearing::tickLogicalClock ()
-    {
-//        if (g_bridge)
-//            g_bridge->tick ();
+        return result;
     }
 
     // store a message into priority queue
@@ -331,6 +298,7 @@ namespace Vast
 
         msg->fromhost = fromhost;
         msg->recvtime = recvtime;
+        msg->size     = size;
 
         if (size > 0)
         {
@@ -343,15 +311,22 @@ namespace Vast
             msg->recvtime = this->getTimestamp ();
 
         // we store message according to message priority
-        _recv_queue.push_back (msg);
+        _msg_mutex.lock();
+        if (in_front)
+            _recv_queue.insert (_recv_queue.begin(), msg);
+        else
+            _recv_queue.push_back (msg);
+        _msg_mutex.unlock();
 
         // update last access time of the connection
+        _conn_mutex.lock();
         std::map<id_t, ConnectInfo>::iterator it = _id2conn.find (fromhost);
         if (it != _id2conn.end ())
         {
             if (msg->recvtime > it->second.lasttime)
                 it->second.lasttime = msg->recvtime; 
         }
+        _conn_mutex.unlock();
 
         return true;
     }
@@ -361,63 +336,57 @@ namespace Vast
     bool
     net_overhearing::socket_connected (id_t id, void *stream, bool is_secure)
     {
-        if (_id2conn.find (id) != _id2conn.end ())
+        if (id == NET_ID_UNASSIGNED)
+        {
+            printf("net_overhearing::socket_connected () empty id given\n");
             return false;
+        }
 
-        ConnectInfo info (stream, getTimestamp (), is_secure);
-        
-        // make a record of connection
-        _id2conn.insert (std::map<id_t, ConnectInfo>::value_type (id, info)); 
+        //store the connection info
+        ConnectInfo conn (stream, getTimestamp (), is_secure);
+        bool stored = false;
 
-        return true;
+        _conn_mutex.lock ();
+        if (_id2conn.find (id) == _id2conn.end ())
+        {
+            _id2conn.insert(std::map<id_t, ConnectInfo>::value_type (id, conn));
+            stored = true;
+        }
+        _conn_mutex.unlock();
+
+        //If the connection was not stored successfully, it was probably already established
+        if (stored == false)
+        {
+            printf("net_overhearing::socket_connected () stream already registered");
+        }
+
+        return stored;
     }
 
     bool
     net_overhearing::socket_disconnected (id_t id)
     {
-        // cut connection
-        std::map<id_t, ConnectInfo>::iterator it = _id2conn.find (id);
-        
-        // error connection doesn't exist
-        if (it == _id2conn.end ())
-            return false;
-      
-        _id2conn.erase (it);
-
-        // store a NULL message to indicate disconnection to message queue
-        this->msg_received (id, NULL, 0);
-
-        return true;
-    }
-
-    // remote host has connected to me
-    bool
-    net_overhearing::
-    remoteConnect (Vast::id_t remote_id, const Addr &addr)
-    {
         if (_active == false)
             return false;
 
-        // store dummy (NULL) stream connection, note: by default assuming non-secure
-        this->socket_connected (remote_id, NULL, false);
-        
-        // TODO: move this to VASTnet
-        //storeMapping (addr);
+        bool success = false;
 
-        return true;
-    }
-    
-    // remote host has disconnected me
-    void 
-    net_overhearing::
-    remoteDisconnect (Vast::id_t remote_id)
-    {
-        // NOTE: this will cause a DISCONNECT message be stored in local message queue
-        this->socket_disconnected (remote_id);
+        _conn_mutex.lock();
+        // Cut connection if it exists
+        if (_id2conn.find (id) != _id2conn.end ())
+        {
+            _id2conn.erase (id);
+            success = true;
+        }
+        _conn_mutex.unlock();
 
-        // send a DISCONNECT notification
-        //Message *msg = new Message (DISCONNECT);
-        //storeRawMessage (remote_id, msg);
+        if (success)
+        {
+            // store a NULL message to indicate disconnection to message queue
+            this->msg_received (id, NULL, 0, this->getTimestamp());
+        }
+
+        return success;
     }
 
 } // end namespace Vast
