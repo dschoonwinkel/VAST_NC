@@ -75,7 +75,7 @@ namespace Vast {
                 Message *msg = new Message(0);
                 if (0 == msg->deserialize (p, header.msg_size))
                 {
-                    printf("net_overhearing_handler::handle_input deserialize message fail: size = %lu\n", header.msg_size);
+                    printf("net_overhearing_handler::handle_input deserialize message fail: size = %u\n", header.msg_size);
                 }
                 remote_id = msg->from;
 

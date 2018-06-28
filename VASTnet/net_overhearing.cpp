@@ -32,6 +32,7 @@ namespace Vast
 {
     net_overhearing::net_overhearing (uint16_t port): _port_self (port)
     {
+        std::cout << "net_overhearing::constructor called" << std::endl;
 
 //        // initialize rand generator (for node fail simulation, NOTE: same seed is used to produce exactly same results)
 //        //srand ((unsigned int)time (NULL));
@@ -39,6 +40,8 @@ namespace Vast
 
         _hostname[0] = 0;
         _IPaddr[0] = 0;
+
+        _io_service = new io_service();
 
         printf ("net_overhearing::net_overhearing(): Host IP: %s\n", getIPFromHost ());
 
@@ -53,7 +56,7 @@ namespace Vast
         // for net_ace it's 1000 timestamp units = 1 second (each step is 1 ms)
         _sec2timestamp = 1000;
 
-        _io_service = new io_service();
+
     }
 
     net_overhearing::~net_overhearing ()
@@ -108,7 +111,7 @@ namespace Vast
                 return _IPaddr;
             }
 
-            strcpy(hostname, _hostname);
+            strcpy(hostname, boost::asio::ip::host_name().c_str());
         }
         else
         {
@@ -130,6 +133,7 @@ namespace Vast
             if (_IPaddr[0] == 0 && host == NULL)
             {
                 strcpy(_IPaddr, ep.address().to_string().c_str());
+                strcpy(_hostname, hostname);
             }
             return ep.address().to_string().c_str();
         }

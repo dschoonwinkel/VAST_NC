@@ -7,7 +7,7 @@ CC = g++
 
 ACE_ROOT = /usr
 
-CFLAGS = -static -c -Wall -I../common -I../VASTnet  -I$(ACE_ROOT)/include
+CFLAGS = -static -c -Wall -I../common -I../VASTnet  -I$(ACE_ROOT)/include -ggdb
 #CFLAGS = -fPIC -c -Wall -I../common -I../VASTnet  -I$(ACE_ROOT)
 
 sources = VASTClient.cpp  VASTMatcher.cpp  VASTRelay.cpp  VASTVerse.cpp  VASTThread.cpp VONPeer.cpp  VSOPeer.cpp

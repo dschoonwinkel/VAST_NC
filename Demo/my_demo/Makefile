@@ -4,7 +4,7 @@ my_demo = ../../bin/my_demo
 .PHONY: all noace
 
 # IMPORTANT NOTE: the least dependent library must begin from the rightmost (often vastcommon) 
-LIBS_COMMON = -lvastsim -lvast -lvastnet -lvastcommon 
+LIBS_COMMON = -lvastsim -lvast -lvastnet -lvastcommon -lboost_system -lboost_thread
 #-lz -ldl -lpthread
 LIBS_ACE    = -lACE 
 LIBS_THREAD = -lpthread

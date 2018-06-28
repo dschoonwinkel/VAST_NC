@@ -101,7 +101,7 @@ void printMessage(Vast::Message msg) {
     {
         std::cout << target << std::endl;
     }
-    for (int i = 0; i < msg.size; i++)
+    for (size_t i = 0; i < msg.size; i++)
     {
         char a = msg.data[i];
         if (a >= ' ' && a <= 'z') {

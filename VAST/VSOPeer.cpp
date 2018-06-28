@@ -68,7 +68,7 @@ namespace Vast
             }
             else
             {
-                printf ("[%llu] VSOPeer::handleMessage () VSO_CANDIDATE received by non-gateway\r\n", _self.id);
+                printf ("[%lu] VSOPeer::handleMessage () VSO_CANDIDATE received by non-gateway\r\n", _self.id);
             }
             break;
         */
@@ -78,7 +78,7 @@ namespace Vast
             // only the gateway can process it
             if (_self.id != _policy->getGatewayID ())
             {
-                printf ("[%llu] VSOPeer::handleMessage () VSO_INSERT received by non-gateway\r\n", _self.id);
+                printf ("[%lu] VSOPeer::handleMessage () VSO_INSERT received by non-gateway\r\n", _self.id);
             }
             else
             {
@@ -141,7 +141,7 @@ namespace Vast
                 // join at the specified position, but only if I'm available
                 join (aoi, &origin);
 
-                printf ("VSO_PROMOTE: promoted to join at (%f, %f) for origin [%llu]\n", join_pos.x, join_pos.y, origin.id);
+                printf ("VSO_PROMOTE: promoted to join at (%f, %f) for origin [%lu]\n", join_pos.x, join_pos.y, origin.id);
             }
             break;
 
@@ -151,7 +151,7 @@ namespace Vast
                 // received not my enclosing neighbor's help signal
                 if (_Voronoi->is_enclosing (in_msg.from) == false)
                 {
-                    printf ("[%llu] VSO_MOVE received from non-enclosing neighbor [%llu]\r\n", _self.id, in_msg.from);                    
+                    printf ("[%lu] VSO_MOVE received from non-enclosing neighbor [%lu]\r\n", _self.id, in_msg.from);
                     break;
                 }
 
@@ -176,11 +176,11 @@ namespace Vast
             // only the gateway can process it
             if (_self.id != _policy->getGatewayID ())
             {
-                printf ("[%llu] VSOPeer::handleMessage () VSO_JOINED received by non-gateway\r\n", _self.id);
+                printf ("[%lu] VSOPeer::handleMessage () VSO_JOINED received by non-gateway\r\n", _self.id);
             }
             else
             {
-                printf ("[%llu] VSOPeer: VSO_JOINED received, new VSO node [%llu] joined\r\n", _self.id, in_msg.from);
+                printf ("[%lu] VSOPeer: VSO_JOINED received, new VSO node [%lu] joined\r\n", _self.id, in_msg.from);
                 
                 if (_promote_requests.find (in_msg.from) != _promote_requests.end ())
                     _promote_requests.erase (in_msg.from);
@@ -205,7 +205,7 @@ namespace Vast
                 // check if object exists
                 if (_objects.find (obj_id) == _objects.end ())
                 {
-                    printf ("[%llu] VSOPeer: TRANSFER_ACK received for unknown object [%llu]\n", _self.id, obj_id);
+                    printf ("[%lu] VSOPeer: TRANSFER_ACK received for unknown object [%lu]\n", _self.id, obj_id);
                     break;
                 }
 
@@ -425,7 +425,7 @@ namespace Vast
         _newpos.aoi.radius = (length_t)(longest + VSO_PEER_AOI_BUFFER);
 
 #ifdef DEBUG_DETAIL
-        printf ("[%llu] VSOPeer::adjustPeerRadius () to (%.2f, %.2f) r: %u\n", _self.id, _newpos.aoi.center.x, _newpos.aoi.center.y, (unsigned)_newpos.aoi.radius);
+        printf ("[%lu] VSOPeer::adjustPeerRadius () to (%.2f, %.2f) r: %u\n", _self.id, _newpos.aoi.center.x, _newpos.aoi.center.y, (unsigned)_newpos.aoi.radius);
 #endif
     }
 
@@ -526,7 +526,7 @@ namespace Vast
             for (size_t i=0; i < remove_list.size (); i++)
             {
 #ifdef DEBUG_DETAIL
-                printf ("[%llu]\n", remove_list[i]);
+                printf ("[%lu]\n", remove_list[i]);
 #endif
 
                 // deleteSharedObject should be called automatically
@@ -712,7 +712,7 @@ namespace Vast
                 // queue the message & request the object
                 if (to_me)
                 {
-                    printf ("[%llu] VSOPeer::processTransfer () unknown object [%llu], requesting object first...", _self.id, transfer.obj_id);
+                    printf ("[%lu] VSOPeer::processTransfer () unknown object [%lu], requesting object first...", _self.id, transfer.obj_id);
                                         
                     request_list.push_back (transfer.obj_id);
                 
@@ -763,7 +763,7 @@ namespace Vast
     void 
     VSOPeer::claimOwnership (id_t obj_id, VSOSharedObject &so)
     {
-        printf ("[%llu] VSOPeer::claimOwnership () for object [%llu]\n", _self.id, obj_id);
+        printf ("[%lu] VSOPeer::claimOwnership () for object [%lu]\n", _self.id, obj_id);
 
         so.is_owner = true;
         so.in_transit = 0;
@@ -834,8 +834,8 @@ namespace Vast
         //string str;
         //new_node.addr.toString (str);
 
-        //printf ("\n[%llu] promoting [%llu] %s as new node\n\n", _self.id, new_node.id, str.c_str ());
-        printf ("\n[%llu] promoting [%llu] as new node\n\n", _self.id, new_node.id);
+        //printf ("\n[%lu] promoting [%lu] %s as new node\n\n", _self.id, new_node.id, str.c_str ());
+        printf ("\n[%lu] promoting [%lu] as new node\n\n", _self.id, new_node.id);
 
         return true;
     }
@@ -930,7 +930,7 @@ namespace Vast
         // avoid redundent insert
         if (_objects.find (obj_id) != _objects.end ())
         {
-            printf ("VSOPeer::insertSharedObject () object [%llu] already inserted\n", obj_id);
+            printf ("VSOPeer::insertSharedObject () object [%lu] already inserted\n", obj_id);
             return false;
         }
 
@@ -969,7 +969,7 @@ namespace Vast
 
         if (it == _objects.end ())
         {
-            printf ("VSOPeer::updateSharedObject () object [%llu] not found\n", obj_id);
+            printf ("VSOPeer::updateSharedObject () object [%lu] not found\n", obj_id);
             return false;
         }
 
@@ -995,7 +995,7 @@ namespace Vast
 
         if (it == _objects.end ())
         {
-            printf ("VSOPeer::deleteSharedObject () object [%llu] not found\n", obj_id);
+            printf ("VSOPeer::deleteSharedObject () object [%lu] not found\n", obj_id);
             return false;
         }
 
@@ -1013,7 +1013,7 @@ namespace Vast
 
         if (it == _objects.end ())
         {
-            printf ("VSOPeer::getSharedObject () object [%llu] not found\n", obj_id);
+            printf ("VSOPeer::getSharedObject () object [%lu] not found\n", obj_id);
             return NULL;
         }
         else

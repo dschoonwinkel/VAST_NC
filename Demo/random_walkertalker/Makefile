@@ -10,6 +10,7 @@ LIBS_COMMON = -lvastsim -lvast -lvastnet -lvastcommon
 LIBS_ACE    = -lACE 
 LIBS_THREAD = -lpthread
 LIBS_DL	    = -ldl
+LIBS_BOOST = -lboost_system -lboost_thread
 
 ACE_PATH    = /usr
 
@@ -20,7 +21,7 @@ INC_PATHS   = -I../../common -I../../VASTsim -I$(ACE_PATH)/include
 
 LIB_PATHS   = -L../../lib -L../../Dependencies/lib/Release -L$(ACE_PATH)/lib 
 
-LIBS = $(LIBS_COMMON) $(LIBS_ACE) $(LIBS_THREAD) $(LIBS_DL)
+LIBS = $(LIBS_COMMON) $(LIBS_ACE) $(LIBS_THREAD) $(LIBS_DL) $(LIBS_BOOST)
 
 all: random_walkertalker.cpp random_walkertalker_helper.cpp
 	g++ $(CFLAGS) $(INC_PATHS) $(LIB_PATHS) $< $(LIBS) \

@@ -10,8 +10,8 @@
  *      init:   2010-09-30
  */
 
-#ifndef VAST_NET_OVERHEARING
-#define VAST_NET_OVERHEARING
+#ifndef VAST_NET_OVERHEARING_H
+#define VAST_NET_OVERHEARING_H
 
 #include "VASTnet.h"
     // Wireless overhearing class
@@ -98,4 +98,4 @@ namespace Vast {
     };
 } // end namespace Vast
 
-#endif // VAST_NET_OVERHEARING
+#endif // VAST_NET_OVERHEARING_H

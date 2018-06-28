@@ -317,7 +317,7 @@ namespace Vast
             // NOTE we will try to determine physical coordinate only after unique ID is gotten
             if (id != NET_ID_UNASSIGNED)
             {
-                printf ("unique ID obtained [%llu]\n", id);
+                printf ("unique ID obtained [%lu]\n", id);
                 printf ("if this hangs, check if physical coordinate is obtained correctly\n");
 
                 bool hasPhysCoord = !(_netpara.phys_coord.x == 0 && _netpara.phys_coord.y == 0);
@@ -336,7 +336,7 @@ namespace Vast
         {             
             // relay has just been properly created, get physical coordinates
             physcoord = handlers->relay->getPhysicalCoordinate ();
-            printf ("[%llu] physical coord: (%.3f, %.3f)\n", handlers->net->getHostID (), physcoord->x, physcoord->y);
+            printf ("[%lu] physical coord: (%.3f, %.3f)\n", handlers->net->getHostID (), physcoord->x, physcoord->y);
 
             // create (idle) 'matcher' instance
             handlers->matcher = new VASTMatcher (_netpara.is_matcher, _netpara.overload_limit, _netpara.is_static, (_netpara.matcher_coord.isEmpty () ? NULL : &_netpara.matcher_coord));
@@ -510,7 +510,7 @@ namespace Vast
                         else
                         {
                             _timeout++;
-                            if (_timeout > timeout_period)
+                            if ((timestamp_t)_timeout > timeout_period)
                             {
                                 LogManager::instance ()->writeLogFile ("VASTVerse::tick () VASTClient join timeout after %d seconds, revert to ABSENT state", VASTVERSE_RETRY_PERIOD);
                                 _timeout = 0;
@@ -542,7 +542,7 @@ namespace Vast
                         {
                             _timeout++;
         
-                            if (_timeout > timeout_period)
+                            if ((timestamp_t)_timeout > timeout_period)
                             {
                                 LogManager::instance ()->writeLogFile ("VASTVerse::tick () wait for subscription ID timeout after %d seconds, revert to JOINING state", VASTVERSE_RETRY_PERIOD);
                                 _timeout = 0;
@@ -551,6 +551,9 @@ namespace Vast
                         }
                     }
                     break;
+
+                default:
+                    printf("VASTVerse::tick some state landed us here...");
                 }
             } // end creating VASTNode
 

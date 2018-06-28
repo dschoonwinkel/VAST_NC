@@ -58,7 +58,8 @@ namespace Vast {
     {
         VAST_NET_EMULATED = 1,      // simulaion layer
         //VAST_NET_EMULATED_BL,     // simulaton layer with bandwidth limitation
-        VAST_NET_ACE                // real network layer using ACE
+        VAST_NET_ACE = 2,                // real network layer using ACE
+        VAST_NET_OVERHEARING = 3,        //real network layer using Boost, used for wireless overhearing
     } VAST_NetModel;
 
     // common message types

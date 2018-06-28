@@ -62,10 +62,6 @@ VAST *          g_self  = NULL;     // pointer to VAST
 NodeState       g_state = ABSENT;     //State of joining node
 Vast::id_t      g_sub_id = 0;       // subscription # for my client (peer)  
 
-//Variables for the second node, i.e. node 2
-VAST *          g_self2  = NULL;     // pointer to VAST
-NodeState       g_state2 = ABSENT;     //State of joining node
-Vast::id_t      g_sub_id2 = 0;       // subscription # for my client (peer)
 
 //Movement Model
 MovementGenerator g_move_model;  
@@ -77,89 +73,6 @@ enum Move_Model {
 
 // socket-specific variables
 Vast::id_t      g_socket_id = NET_ID_UNASSIGNED;    // socket ID
-
-
-
-// // obtain keyboard input, currently only available under Win32
-// void getInput ()
-// {
-
-// #ifdef WIN32
-
-//     while (kbhit ())
-//     {
-//         char c = (char)getch ();
-
-//         switch (c)
-//         {
-//         // quit
-//         case 'q':
-//             g_finished = true;
-//             break;
-
-//         // join matcher
-//         case 'j':
-//             // ESSENTIAL: must specify which world to join
-//             g_world->createVASTNode (g_world_id, g_aoi, VAST_EVENT_LAYER);
-//             break;
-
-//         // leave matcher
-//         case 'l':
-//             // ESSENTIAL: before we leave must clean up resources
-//             g_world->destroyVASTNode (g_self);
-//             break;
-
-//         // send a socket message
-//         case 's':
-//             {
-//                 if (g_socket_id == NET_ID_UNASSIGNED)
-//                 {
-//                     // store gateway's IP & port for later use (make socket connection)
-//                     IPaddr gateway = g_world->getGateway ();
-
-//                     g_socket_id = g_world->openSocket (gateway);
-//                     printf ("obtain socket_id: [%llu]\n", g_socket_id);
-//                 }
-
-//                 if (g_socket_id != NET_ID_UNASSIGNED)
-//                 {
-//                     char teststr[] = "hello world!\0";
-//                     g_world->sendSocket (g_socket_id, teststr, strlen (teststr)+1);
-//                 }
-//             }
-//             break;
-
-//         // movements
-//         case -32:
-//             switch (getch ())
-//             {
-//             // LEFT
-//             case 75:
-//                 g_aoi.center.x -= 5;
-//                 break;
-//             // RIGHT
-//             case 77:
-//                 g_aoi.center.x += 5;
-//                 break;
-//             // UP
-//             case 72:
-//                 g_aoi.center.y -= 5;
-//                 break;
-//             // DOWN
-//             case 80:
-//                 g_aoi.center.y += 5;
-//                 break;
-//             }
-//             break;
-
-//         default:
-//             g_lastcommand = c;
-//             break;
-//         }
-//     }
-// #endif
-
-// }
 
 
 // print out current list of observed neighbors
@@ -217,7 +130,7 @@ int main (int argc, char *argv[])
     g_prev_aoi = g_aoi;
 
     // set network parameters
-    VASTPara_Net netpara (VAST_NET_ACE);
+    VASTPara_Net netpara (VAST_NET_OVERHEARING);
     netpara.port = GATEWAY_DEFAULT_PORT;
 
     //
@@ -266,10 +179,6 @@ int main (int argc, char *argv[])
 //    Randomize position before adding another node
 //    g_aoi.center.x = (coord_t)(rand () % 100);
 //    g_aoi.center.y = (coord_t)(rand () % 100);
-
-
-    //I expect this to be false: can only use createVASTNode once... What should I do then?
-    cout << "Creating another new node: success == " << g_world->createVASTNode(g_world_id, g_aoi, VAST_EVENT_LAYER) << endl;
     
     g_move_model.initModel(Move_Model::RANDOM, NULL, false, Position(0,0), Position(DIM_X, DIM_Y), 1, 10000, 1);
 
@@ -314,11 +223,11 @@ int main (int argc, char *argv[])
                 debug_print("Received message from %lu %s\n", from, chatmsg.c_str());
             }
 
-            if (g_steps % 20 == 0) {
+            if (g_steps % 200 == 0) {
                 char random_text[50];
                 gen_random_sentence(random_text, 50);
                 send_to_neighbours(g_self, string(random_text));
-                g_finished = true;
+//                g_finished = true;
             }
 
         }

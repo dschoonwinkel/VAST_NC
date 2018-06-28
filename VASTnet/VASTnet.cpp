@@ -21,6 +21,7 @@
 #include "VASTnet.h"
 #include "net_ace.h"
 #include "net_emu.h"
+#include "net_overhearing.h"
 #include <iostream>
 
 namespace Vast
@@ -45,6 +46,9 @@ namespace Vast
         else if (_model == VAST_NET_ACE)
             _manager = new net_ace (port);
 
+        else if (_model == VAST_NET_OVERHEARING)
+            _manager = new net_overhearing (port);
+
         _recvmsg = NULL;
         _recvmsg_socket = NULL;
 
@@ -63,6 +67,8 @@ namespace Vast
 #ifndef ACE_DISABLED
         else if (_model == VAST_NET_ACE)
             delete ((net_ace *)_manager);
+        else if (_model == VAST_NET_OVERHEARING)
+            delete ((net_overhearing *)_manager);
 #endif
 
         // de-allocate message buffers
@@ -863,7 +869,7 @@ namespace Vast
         
         if (msg->deserialize (p, header.msg_size) == 0)
         {
-            printf ("VASTnet::processVASTMessage () deserialize message fail, from [%lu], size: %lu\n", remote_id, header.msg_size);
+            printf ("VASTnet::processVASTMessage () deserialize message fail, from [%lu], size: %u\n", remote_id, header.msg_size);
             delete msg;
             return false;
         }

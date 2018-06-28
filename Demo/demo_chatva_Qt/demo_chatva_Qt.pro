@@ -37,7 +37,8 @@ HEADERS += \
 FORMS += \
         mainwindow.ui
 
-LIBS += -L$$PWD/../../lib/ -lvastsim -lvast -lvastnet -lvastcommon -lACE
+LIBS += -L$$PWD/../../lib/ -lvastsim -lvast -lvastnet -lvastcommon -lACE -lboost_system -lboost_thread
 
 INCLUDEPATH += $$PWD/../../
 DEPENDPATH += $$PWD/../../
+DESTDIR = ../../bin

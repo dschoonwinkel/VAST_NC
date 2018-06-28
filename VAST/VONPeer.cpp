@@ -488,7 +488,7 @@ namespace Vast
                     }
                     else
                     {
-                        printf ("VONPeer::handleMessage () MOVE_x received from unknown neighbor %llu\n", in_msg.from);
+                        printf ("VONPeer::handleMessage () MOVE_x received from unknown neighbor %lu\n", in_msg.from);
                         break;                      
                     }
                 }
@@ -561,7 +561,7 @@ namespace Vast
     {
         if (isJoined () && isTimelyNeighbor (_self.id, MAX_TIMELY_PERIOD/2) == false)
         {
-            printf ("[%llu] sendKeepAlive ()\n", _self.id);
+            printf ("[%lu] sendKeepAlive ()\n", _self.id);
             move (_self.aoi);
         }
     }

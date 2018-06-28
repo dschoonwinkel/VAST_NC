@@ -221,7 +221,7 @@ namespace Vast
         case REQUEST:
             {
                 // send back a list of known relays
-                printf ("REQUEST received from [%llu]\n", in_msg.from);
+                printf ("REQUEST received from [%lu]\n", in_msg.from);
                 sendRelayList (in_msg.from, MAX_CONCURRENT_PING);
             }
             break;
@@ -237,7 +237,7 @@ namespace Vast
                 pong (in_msg.from, senttime, true);
 
                 // send back a list of known relays
-                //printf ("REQUEST received from [%llu]\n", in_msg.from);
+                //printf ("REQUEST received from [%lu]\n", in_msg.from);
                 sendRelayList (in_msg.from, MAX_CONCURRENT_PING);
             }
             break;
@@ -260,7 +260,7 @@ namespace Vast
                 float rtt = (float)(current - querytime);
                 if (rtt == 0)
                 {
-                    printf ("[%llu] processing PONG: RTT = 0 error, removing neighbor [%llu] currtime: %lu querytime: %lu\n", _self.id, in_msg.from, current, querytime);
+                    printf ("[%lu] processing PONG: RTT = 0 error, removing neighbor [%lu] currtime: %lu querytime: %lu\n", _self.id, in_msg.from, current, querytime);
                     removeRelay (in_msg.from);
                     //_relays.erase (in_msg.from);
                     break;
@@ -270,7 +270,7 @@ namespace Vast
                 vivaldi (rtt, _temp_coord, xj, _error, ej);
 
 #ifdef DEBUG_DETAIL
-                printf ("[%llu] physcoord (%.3f, %.3f) rtt to [%llu]: %.3f error: %.3f requests: %d\n", 
+                printf ("[%lu] physcoord (%.3f, %.3f) rtt to [%lu]: %.3f error: %.3f requests: %d\n",
                          _self.id, _temp_coord.x, _temp_coord.y, in_msg.from, rtt, _error, _request_times);
 #endif
 
@@ -285,7 +285,7 @@ namespace Vast
                     // print a small message to show it
                     if (_request_times > 0)
                     {
-                        printf ("[%llu] physcoord (%.3f, %.3f) rtt to [%llu]: %.3f error: %.3f requests: %d\n", 
+                        printf ("[%lu] physcoord (%.3f, %.3f) rtt to [%lu]: %.3f error: %.3f requests: %d\n",
                                 _self.id, _temp_coord.x, _temp_coord.y, in_msg.from, rtt, _error, _request_times);
 
                         // reset
@@ -367,7 +367,7 @@ namespace Vast
                         if (sendRelay (msg) == 0)
                         {
                             // if the relay provided cannot be reached, drop this request
-                            printf ("[%llu] VASTRelay::handleMessage () RELAY_QUERY relay supplied [%llu] is no longer valid\n", _self.id, relay.host_id);
+                            printf ("[%lu] VASTRelay::handleMessage () RELAY_QUERY relay supplied [%lu] is no longer valid\n", _self.id, relay.host_id);
                         }
                         // whether success or not, we have to leave the loop
                         break;
@@ -520,7 +520,7 @@ namespace Vast
                 // if a known relay leaves, remove it
                 if (_relays.find (in_msg.from) != _relays.end ())
                 {
-                    printf ("[%llu] VASTRelay::handleMessage () removes disconnected relay [%llu]\n", _self.id, in_msg.from);
+                    printf ("[%lu] VASTRelay::handleMessage () removes disconnected relay [%lu]\n", _self.id, in_msg.from);
                     
                     // remove the disconnecting relay from relay list
                     removeRelay (in_msg.from);
@@ -571,7 +571,7 @@ namespace Vast
                     else
                     {
                         // record unresolved client targets
-                        printf ("VASTRelay: cannot translate received subscriptionID [%llu] to clientID\n", target);
+                        printf ("VASTRelay: cannot translate received subscriptionID [%lu] to clientID\n", target);
                         unknown_clients.push_back (target);                        
                     }
                 }
@@ -891,7 +891,7 @@ namespace Vast
         if (it != _relays.end ())
         {
 #ifdef DEBUG_DETAIL
-            printf ("[%llu] VASTRelay::addRelay () updating relay [%llu]..\n", _self.id, relay.id);
+            printf ("[%lu] VASTRelay::addRelay () updating relay [%lu]..\n", _self.id, relay.id);
 #endif
 
             it->second = relay;
@@ -909,7 +909,7 @@ namespace Vast
         else
         {
 #ifdef DEBUG_DETAIL
-            printf ("[%llu] VASTRelay::addRelay () adding relay [%llu]..\n", _self.id, relay.id);
+            printf ("[%lu] VASTRelay::addRelay () adding relay [%lu]..\n", _self.id, relay.id);
 #endif
             _relays[relay.id] = relay;            
         }
@@ -948,7 +948,7 @@ namespace Vast
             if (it->second->id == id)
             {
 #ifdef DEBUG_DETAIL
-                printf ("[%lld] VASTRelay::removeRelay () removing relay [%lld]..\n", _self.id, id);
+                printf ("[%lu] VASTRelay::removeRelay () removing relay [%lu]..\n", _self.id, id);
 #endif
                 
                 _dist2relay.erase (it);                
@@ -983,7 +983,7 @@ namespace Vast
             // remove failed relays
             for (size_t i=0; i < failed.size (); i++)
             {
-                printf ("removing failed relay (%lld) ", failed[i]);
+                printf ("removing failed relay (%lu) ", failed[i]);
                 removeRelay (failed[i]);
             }
         
@@ -1024,7 +1024,7 @@ namespace Vast
                 rit++;
             }
 
-            printf ("[%llu] VASTRelay::cleanupRelays () remove %lu relays\n", _self.id, remove_list.size ());
+            printf ("[%lu] VASTRelay::cleanupRelays () remove %lu relays\n", _self.id, remove_list.size ());
             for (size_t i=0; i < remove_list.size (); i++)  
                 removeRelay (remove_list[i]);
         }
@@ -1063,7 +1063,7 @@ namespace Vast
              }
          }
 
-         printf ("\n[%llu] responds with %d relays to [%llu]\n", _self.id, n, target);
+         printf ("\n[%lu] responds with %d relays to [%lu]\n", _self.id, n, target);
          
          msg.addTarget (target);                
          sendMessage (msg);
@@ -1138,7 +1138,7 @@ namespace Vast
         // estblish link to the joining client
         notifyMapping (client.id, &client.addr);
 
-        printf ("\n[%llu] VASTRelay accepts join request from [%llu]\n\n", _self.id, from_host); 
+        printf ("\n[%lu] VASTRelay accepts join request from [%lu]\n\n", _self.id, from_host);
     }
 
     // remove a client no longer connected

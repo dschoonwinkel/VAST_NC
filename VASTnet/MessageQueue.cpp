@@ -272,7 +272,7 @@ namespace Vast
                         local_targets.push_back (target);
                     else
                     {
-                        printf ("MessageQueue::processMessages () [%llu] received target [%llu] not for me\n", _net->getHostID (), target);
+                        printf ("MessageQueue::processMessages () [%lu] received target [%lu] not for me\n", _net->getHostID (), target);
                         //forward_targets.push_back (target);
                     }                        
                 }

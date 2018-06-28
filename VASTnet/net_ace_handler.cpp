@@ -53,7 +53,7 @@ namespace Vast {
 #ifdef VAST_USE_SSL
         if (_secure)
         {
-            printf ("\nnet_ace_handler::open () getting remote addr from secure stream, handle: %llu\n", _ssl_stream.get_handle ());
+            printf ("\nnet_ace_handler::open () getting remote addr from secure stream, handle: %lu\n", _ssl_stream.get_handle ());
             this->_ssl_stream.get_remote_addr (remote_addr);
         }
         else
@@ -75,15 +75,15 @@ namespace Vast {
             if (remote_id == NET_ID_UNASSIGNED)
             {
                 remote_id = ((net_manager *)msghandler)->resolveHostID (&_remote_addr);
-                //ACE_DEBUG ((LM_DEBUG, "\nnet_ace_handler::open () detecting remote_id as: [%llu]\n", remote_id));
-                printf ("\nnet_ace_handler::open () detecting remote_id as: [%llu]\n", remote_id);
+                //ACE_DEBUG ((LM_DEBUG, "\nnet_ace_handler::open () detecting remote_id as: [%lu]\n", remote_id));
+                printf ("\nnet_ace_handler::open () detecting remote_id as: [%lu]\n", remote_id);
             }
         
             if (((net_ace *)msghandler)->socket_connected (remote_id, this, _secure) == false)
             {
                 // possible a remote connection is already established (remote connect)
                 ACE_ERROR_RETURN ((LM_ERROR,
-                               "(%5t) [%llu] socket registeration failed, maybe connection already exists\n", remote_id), 
+                               "(%5t) [%lu] socket registeration failed, maybe connection already exists\n", remote_id),
                                -1);            
             }
         }
