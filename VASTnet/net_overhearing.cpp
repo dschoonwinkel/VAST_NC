@@ -156,13 +156,16 @@ namespace Vast
     {
         bool result = false;
 
-        addr = _udphandler->getRemoteAddress (host_id);
+        IPaddr *resolved_addr = _udphandler->getRemoteAddress (host_id);
 
-        //We could not resolve an address for this host_id
-        if (addr.host == 0 && addr.port == 0)
-            result = false;
+        //IPaddr could not be found, probably because we have never communicated with it
+        if (resolved_addr == NULL)
+            return false;
 
-        return result;
+        //Assign the address if it was found
+        addr = *resolved_addr;
+
+        return true;
     }
 
     // Note:
@@ -234,6 +237,19 @@ namespace Vast
     {        
         if (_active == false)
             return 0;
+
+        //Resolve addr from id_t if not given
+        if (addr == NULL)
+        {
+            IPaddr *resolved_addr = _udphandler->getRemoteAddress(target);
+            if (resolved_addr == NULL)
+            {
+                std::cerr << "net_overhearing::send IPaddr could not be resolved for id_t " << target << std::endl;
+                return 0;
+            }
+            addr = new Addr(target, resolved_addr);
+        }
+
         ip::udp::endpoint target_addr(ip::address_v4(addr->publicIP.host), addr->publicIP.port);
         return _udphandler->send(msg, size, target_addr);
     }

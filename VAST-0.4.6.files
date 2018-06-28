@@ -22,6 +22,7 @@ Demo/demo_chatva_Qt/mainwindow.h
 Demo/demo_chatva_Qt/moc_mainwindow.cpp
 Demo/demo_chatva_Qt/moc_predefs.h
 Demo/demo_chatva_Qt/ui_mainwindow.h
+Demo/demo_chatva_Qt/Makefile
 Demo/demo_console/demo_console.cpp
 Demo/demo_console_C/demo_console_C.cpp
 Demo/myVASTsim/myVASTsim.cpp
@@ -33,6 +34,7 @@ Demo/random_walkertalker/random_walkertalker.cpp
 Demo/random_walkertalker/random_walkertalker.h
 Demo/random_walkertalker/random_walkertalker_helper.cpp
 Demo/random_walkertalker/test_helper.cpp
+Demo/random_walkertalker/Makefile
 Demo/test_console/test_console.cpp
 Demo/vastplayground/vastplayground.cpp
 Dependencies/include/ace/ACE.h

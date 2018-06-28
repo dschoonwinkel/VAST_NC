@@ -25,7 +25,7 @@ namespace Vast {
         int close (void);
 
         // obtain address of remote host
-        IPaddr getRemoteAddress(id_t host_id);
+        IPaddr *getRemoteAddress(id_t host_id);
 
         // swtich remote ID to a new one
         bool switchRemoteID (id_t oldID, id_t newID);

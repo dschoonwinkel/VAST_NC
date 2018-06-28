@@ -15,7 +15,7 @@ LIBS_BOOST = -lboost_system -lboost_thread
 ACE_PATH    = /usr
 
 # CFLAGS      = -Wall -static 
-CFLAGS      = -Wall -fPIC -g
+CFLAGS      = -Wall -fPIC -g -std=c++14
 
 INC_PATHS   = -I../../common -I../../VASTsim -I$(ACE_PATH)/include 
 

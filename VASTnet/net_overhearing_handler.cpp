@@ -167,15 +167,15 @@ namespace Vast {
         }
     }
 
-    IPaddr net_overhearing_handler::getRemoteAddress (id_t host_id)
+    IPaddr* net_overhearing_handler::getRemoteAddress (id_t host_id)
     {
         //Return the address if we have heard from this host before
-        if (_remote_addrs.find(host_id) != _remote_addrs.end())
+        if (_remote_addrs.find (host_id) != _remote_addrs.end ())
         {
-            return _remote_addrs[host_id];
+            return &_remote_addrs[host_id];
         }
         //There was no address found for this host id, return a null address
-        else return IPaddr();
+        else return NULL;
     }
 
     uint16_t net_overhearing_handler::getPort ()
