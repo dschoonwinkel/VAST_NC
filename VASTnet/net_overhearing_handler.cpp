@@ -4,11 +4,12 @@
 
 namespace Vast {
 
-    net_overhearing_handler::net_overhearing_handler()
+    net_overhearing_handler::net_overhearing_handler(char IPaddr[], uint16_t port)
     {
         _udp = NULL;
         _io_service = NULL;
         _iosthread = NULL;
+        _local_endpoint = ip::udp::endpoint(ip::address::from_string(IPaddr), port);
     }
 
     net_overhearing_handler::~net_overhearing_handler()
@@ -18,20 +19,38 @@ namespace Vast {
             delete _udp;
     }
 
-    int net_overhearing_handler::open(boost::asio::io_service *io_service, void *msghandler, id_t remote_id) {
+    int net_overhearing_handler::open(boost::asio::io_service *io_service, void *msghandler) {
         _io_service = io_service;
         _msghandler = msghandler;
 
-        if (remote_id != NET_ID_UNASSIGNED) {
-//            remote_id = ((net_manager *)msghandler)->resolveHostID(&_remote_addr);
-            _remote_ids.push_back(remote_id);
-            if (((net_overhearing*)msghandler)->socket_connected(remote_id, this, _secure) == false)
+        //Open the UDP socket for listening
+        if (_udp == NULL) {
+            _udp = new ip::udp::socket(*_io_service);
+            _udp->open(ip::udp::v4());
+
+            boost::system::error_code ec;
+            uint16_t port = _local_endpoint.port();
+
+            do
             {
-                std::cerr << "Socket connection failed, maybe connection is already established" << std::endl;
-            }
-        }
-        else {
-            std::cerr << "net_overhearing_handler::open opening to NET_ID_UNASSIGNED failed" << std::endl;
+                //Search for an open port to use
+                //Save port number
+                _local_endpoint.port(port);
+                _udp->bind(_local_endpoint, ec);
+                CPPDEBUG(ec.message());
+                //Try the next port
+                port++;
+
+            } while (ec);
+
+            //Add async receive to io_service queue
+            start_receive();
+
+            CPPDEBUG("net_overhearing_handler::open _udp->_local_endpoint" << _udp->local_endpoint() << " _local_endpoint" << _local_endpoint << std::endl);
+
+            //Start the thread handling async receives
+            _iosthread = new boost::thread(boost::bind(&boost::asio::io_service::run, io_service));
+
         }
 
         return 0;
@@ -123,8 +142,9 @@ namespace Vast {
 
         if (_udp == NULL)
         {
-            return -1;
             std::cerr << "net_overhearing_handler: trying to send before socket is ready" << std::endl;
+            return -1;
+
         }
 
         return _udp->send_to(buffer(buf, n), remote_endpoint);
@@ -147,7 +167,7 @@ namespace Vast {
         }
     }
 
-    IPaddr net_overhearing_handler::getRemoteAddress(id_t host_id)
+    IPaddr net_overhearing_handler::getRemoteAddress (id_t host_id)
     {
         //Return the address if we have heard from this host before
         if (_remote_addrs.find(host_id) != _remote_addrs.end())
@@ -156,6 +176,11 @@ namespace Vast {
         }
         //There was no address found for this host id, return a null address
         else return IPaddr();
+    }
+
+    uint16_t net_overhearing_handler::getPort ()
+    {
+        return _local_endpoint.port();
     }
 
 }

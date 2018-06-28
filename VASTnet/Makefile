@@ -6,7 +6,7 @@ CC = g++
 
 ACE_ROOT = /usr
 
-CFLAGS = -static -c -Wall -Wextra -I../common -I$(ACE_ROOT)/include -g
+CFLAGS = -static -c -Wall -Wextra -I../common -I$(ACE_ROOT)/include -g -std=c++14
 #CFLAGS = -fPIC -c -Wall -I../common -I$(ACE_ROOT)
 
 #Note that ACE path is not included here, as we assume it's already properly installed on the system

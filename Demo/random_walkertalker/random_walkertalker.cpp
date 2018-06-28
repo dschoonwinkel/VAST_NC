@@ -65,11 +65,14 @@ Vast::id_t      g_sub_id = 0;       // subscription # for my client (peer)
 
 //Movement Model
 MovementGenerator g_move_model;  
-enum Move_Model {
-    RANDOM  = 1 ,
-    CLUSTER,
-    GROUP
-};
+namespace MoveModel {
+    enum Move_Model {
+        RANDOM  = 1 ,
+        CLUSTER,
+        GROUP
+    };
+}
+
 
 // socket-specific variables
 Vast::id_t      g_socket_id = NET_ID_UNASSIGNED;    // socket ID
@@ -180,7 +183,7 @@ int main (int argc, char *argv[])
 //    g_aoi.center.x = (coord_t)(rand () % 100);
 //    g_aoi.center.y = (coord_t)(rand () % 100);
     
-    g_move_model.initModel(Move_Model::RANDOM, NULL, false, Position(0,0), Position(DIM_X, DIM_Y), 1, 10000, 1);
+    g_move_model.initModel(MoveModel::RANDOM, NULL, false, Position(0,0), Position(DIM_X, DIM_Y), 1, 10000, 1);
 
     //
     // main loop
