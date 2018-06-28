@@ -17,15 +17,12 @@ namespace Vast {
     friend class net_overhearing;
 
     public:
-        net_overhearing_handler ();
+        net_overhearing_handler (char IPaddr[], uint16_t port);
 
-        int open (io_service *io_service, void *msghandler, id_t remote_id = 0);
+        int open (io_service *io_service, void *msghandler);
 
         // close connection & unregister from io_service
         int close (void);
-
-        // open a UDP sender / receiver at a given port
-        ip::udp::socket *openUDP (ip::udp::endpoint addr);
 
         // obtain address of remote host
         IPaddr getRemoteAddress(id_t host_id);
@@ -47,6 +44,8 @@ namespace Vast {
 
         size_t send(const void *buf, size_t n, ip::udp::endpoint remote_endpoint);
 
+        uint16_t getPort();
+
     private:
 
         ~net_overhearing_handler ();
@@ -59,7 +58,7 @@ namespace Vast {
         bool                        _secure;
 
         ip::udp::socket             *_udp;
-        ip::udp::endpoint           _local_addr;
+        ip::udp::endpoint           _local_endpoint;
         ip::udp::endpoint           _remote_endpoint_;
 
         // the same io_service as net_overhearing

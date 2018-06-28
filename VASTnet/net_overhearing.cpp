@@ -52,10 +52,11 @@ namespace Vast
         }
         _self_addr.setPublic(addr_bytes, _port_self);
 
+        _udphandler = new net_overhearing_handler(_IPaddr, _port_self);
+
         // set the conversion rate between seconds and timestamp unit
         // for net_ace it's 1000 timestamp units = 1 second (each step is 1 ms)
         _sec2timestamp = 1000;
-
 
     }
 
@@ -73,7 +74,12 @@ namespace Vast
     {
         _active = true;
         net_manager::start ();
-        //Consider putting net_overhearing_handler->open() here
+
+        _udphandler->open(_io_service, this);
+
+        //Update the port number once it was determine by the _udphandler
+        _port_self = _udphandler->getPort();
+        _self_addr.setPublic(_self_addr.publicIP.host, _port_self);
     }
 
     void 
@@ -81,9 +87,9 @@ namespace Vast
     {
         //Consider putting net_overhearing_handler->close() here
         net_manager::stop ();
-        if (_udphandler) {
-            _udphandler->close();
-        }
+        if (_udphandler)
+            _udphandler->close ();
+
         _active = false;
 
     }
@@ -179,18 +185,15 @@ namespace Vast
         {
             printf ("net_overhearing::connect () connection for [%lu] already exists\n", target);
             return false;
-        }
-
-        std::cout << "Host addr bytes to ip addr: " << ip::address_v4(host) << std::endl;
-        ip::udp::endpoint target_addr(ip::address_v4(host), port);
-
-        net_overhearing_handler *handler;
-        handler = new net_overhearing_handler();
-
-        //UDP is NOT a connection orientated protocol, thus no connecting is done here
+        }        
 
         //If the UDP socket is not open yet, open it now
-        handler->open(_io_service, this, target);
+        _udphandler->open(_io_service, this);
+
+        //UDP is NOT a connection orientated protocol, thus no connecting is done here
+        //As long as the UDP socket is open and we have an addr, it is assumed to be
+        //connected
+        socket_connected(target, _udphandler, is_secure);
 
         return true;
     }

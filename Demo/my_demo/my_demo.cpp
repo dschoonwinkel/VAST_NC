@@ -78,97 +78,16 @@ Vast::id_t      g_sub_id2 = 0;       // subscription # for my client (peer)
 
 //Movement Model
 MovementGenerator g_move_model;  
+namespace MoveModel {
 enum Move_Model {
     RANDOM  = 1 ,
     CLUSTER,
-    GROUP
+    GROUP,
 };
+}
 
 // socket-specific variables
 Vast::id_t      g_socket_id = NET_ID_UNASSIGNED;    // socket ID
-
-
-
-// // obtain keyboard input, currently only available under Win32
-// void getInput ()
-// {
-
-// #ifdef WIN32
-
-//     while (kbhit ())
-//     {
-//         char c = (char)getch ();
-
-//         switch (c)
-//         {
-//         // quit
-//         case 'q':
-//             g_finished = true;
-//             break;
-
-//         // join matcher
-//         case 'j':
-//             // ESSENTIAL: must specify which world to join
-//             g_world->createVASTNode (g_world_id, g_aoi, VAST_EVENT_LAYER);
-//             break;
-
-//         // leave matcher
-//         case 'l':
-//             // ESSENTIAL: before we leave must clean up resources
-//             g_world->destroyVASTNode (g_self);
-//             break;
-
-//         // send a socket message
-//         case 's':
-//             {
-//                 if (g_socket_id == NET_ID_UNASSIGNED)
-//                 {
-//                     // store gateway's IP & port for later use (make socket connection)
-//                     IPaddr gateway = g_world->getGateway ();
-
-//                     g_socket_id = g_world->openSocket (gateway);
-//                     printf ("obtain socket_id: [%llu]\n", g_socket_id);
-//                 }
-
-//                 if (g_socket_id != NET_ID_UNASSIGNED)
-//                 {
-//                     char teststr[] = "hello world!\0";
-//                     g_world->sendSocket (g_socket_id, teststr, strlen (teststr)+1);
-//                 }
-//             }
-//             break;
-
-//         // movements
-//         case -32:
-//             switch (getch ())
-//             {
-//             // LEFT
-//             case 75:
-//                 g_aoi.center.x -= 5;
-//                 break;
-//             // RIGHT
-//             case 77:
-//                 g_aoi.center.x += 5;
-//                 break;
-//             // UP
-//             case 72:
-//                 g_aoi.center.y -= 5;
-//                 break;
-//             // DOWN
-//             case 80:
-//                 g_aoi.center.y += 5;
-//                 break;
-//             }
-//             break;
-
-//         default:
-//             g_lastcommand = c;
-//             break;
-//         }
-//     }
-// #endif
-
-// }
 
 
 // print out current list of observed neighbors
@@ -272,7 +191,7 @@ int main (int argc, char *argv[])
     //I expect this to be false: can only use createVASTNode once... What should I do then?
     cout << "Creating another new node: success == " << g_world->createVASTNode(g_world_id, g_aoi, VAST_EVENT_LAYER) << endl;
     
-    g_move_model.initModel(Move_Model::RANDOM, NULL, false, Position(0,0), Position(DIM_X, DIM_Y), 1, 10000, 1);
+    g_move_model.initModel(MoveModel::RANDOM, NULL, false, Position(0,0), Position(DIM_X, DIM_Y), 1, 10000, 1);
 
     //
     // main loop

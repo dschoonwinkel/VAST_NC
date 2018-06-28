@@ -91,7 +91,7 @@ int main (int argc, char *argv[])
 
         //Get each node in the simulation and print its position
         for (int i = 0; i < simpara.NODE_SIZE; i++) {
-            auto node = GetNode(i);
+            Node* node = GetNode(i);
             if (node == NULL)
                 break;
 
