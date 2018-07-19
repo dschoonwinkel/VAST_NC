@@ -9,17 +9,16 @@ LIBS_BOOST = -lboost_system -lboost_thread
 
 ACE_ROOT = /usr
 
-CFLAGS = -static -c -Wall -I../common -I$(ACE_ROOT)/include -g
+CFLAGS = -static -c -Wall -std=c++14 -g -I../common -I$(ACE_ROOT)/include -I../../common -I../../VASTsim -L../../lib -L..
 
 ifeq ($(TARGET),noace)
-    LIBS = $(LIBS_COMMON) 
+	LIBS = $(LIBS_COMMON) 
 else
-    LIBS = $(LIBS_COMMON) $(LIBS_ACE) $(LIBS_BOOST)
+	LIBS = $(LIBS_COMMON) $(LIBS_ACE) $(LIBS_BOOST)
 endif
 
 all: myVASTsim.cpp
-	g++ -Wall -I../../common -I../../VASTsim -L../../lib -L.. $< $(LIBS) \
-	-o $(myVASTsim)
+	g++ $(CFLAGS) $< $(LIBS) -o $(myVASTsim)
 
 noace:
 	make TARGET=noace

@@ -17,7 +17,7 @@ namespace Vast {
     friend class net_overhearing;
 
     public:
-        net_overhearing_handler (char IPaddr[], uint16_t port);
+        net_overhearing_handler (ip::udp::endpoint local_endpoint);
 
         int open (io_service *io_service, void *msghandler);
 
@@ -25,7 +25,10 @@ namespace Vast {
         int close (void);
 
         // obtain address of remote host
-        IPaddr *getRemoteAddress(id_t host_id);
+        IPaddr *getRemoteAddress (id_t host_id);
+
+        //Store address of remote host by ID
+        void storeRemoteAddress (id_t host_id, IPaddr addr);
 
         // swtich remote ID to a new one
         bool switchRemoteID (id_t oldID, id_t newID);
@@ -33,7 +36,7 @@ namespace Vast {
     protected:
 
         //Start the receiving loop
-        void start_receive();
+        void start_receive ();
 
         // handling incoming message
         int handle_input (const boost::system::error_code& error,
@@ -42,9 +45,9 @@ namespace Vast {
         // if handle_input() returns -1, reactor would call handle_close()
         int handle_close ();
 
-        size_t send(const void *buf, size_t n, ip::udp::endpoint remote_endpoint);
+        size_t send (const void *buf, size_t n, ip::udp::endpoint remote_endpoint);
 
-        uint16_t getPort();
+        uint16_t getPort ();
 
     private:
 

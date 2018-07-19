@@ -45,14 +45,11 @@ namespace Vast
 
         printf ("net_overhearing::net_overhearing(): Host IP: %s\n", getIPFromHost ());
 
-        uint32_t addr_bytes = 0;
-        if (inet_pton(AF_INET, _IPaddr, &addr_bytes) == 0)
-        {
-            std::cerr << "Could not convert inet_addr to bytes" << std::endl;
-        }
-        _self_addr.setPublic(addr_bytes, _port_self);
+        ip::udp::endpoint endpoint(ip::address::from_string(_IPaddr), port);
 
-        _udphandler = new net_overhearing_handler(_IPaddr, _port_self);
+        _self_addr.setPublic(endpoint.address().to_v4().to_ulong(), _port_self);
+
+        _udphandler = new net_overhearing_handler(endpoint);
 
         // set the conversion rate between seconds and timestamp unit
         // for net_ace it's 1000 timestamp units = 1 second (each step is 1 ms)
@@ -154,7 +151,6 @@ namespace Vast
     bool 
     net_overhearing::getRemoteAddress (id_t host_id, IPaddr &addr)
     {
-        bool result = false;
 
         IPaddr *resolved_addr = _udphandler->getRemoteAddress (host_id);
 
@@ -192,6 +188,9 @@ namespace Vast
 
         //If the UDP socket is not open yet, open it now
         _udphandler->open(_io_service, this);
+
+        //Store the address for later use
+        _udphandler->storeRemoteAddress(target, IPaddr(host, port));
 
         //UDP is NOT a connection orientated protocol, thus no connecting is done here
         //As long as the UDP socket is open and we have an addr, it is assumed to be

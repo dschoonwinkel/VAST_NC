@@ -2,7 +2,7 @@
 lib_vastsim = ../lib/libvastsim.a
 AR = ar
 CC = g++
-CFLAGS = -static -c -Wall -I../common -O -ggdb -g3
+CFLAGS = -static -c -Wall -I../common -O -ggdb -g3 -std=c++14
 #CFLAGS = -fPIC -c -Wall -I../common
 
 

@@ -13,7 +13,7 @@ LIBS_DL	    = -ldl
 ACE_PATH    = /usr
 
 # CFLAGS      = -Wall -static 
-CFLAGS      = -Wall -fPIC
+CFLAGS      = -Wall -fPIC -std=c++14
 
 INC_PATHS   = -I../../common -I../../VASTsim -I$(ACE_PATH)/include 
 

@@ -79,6 +79,8 @@ namespace Vast
 //        }
 //        CPPDEBUG("\n");
 
+        CPPDEBUG("MessageQueue::sendMessage \n" << msg.toString() << std::endl);
+
         vector<id_t> &targets = msg.targets;               
         map<id_t, vector<id_t> *> host2targets;     // mapping of the logical nodes stored at each host
         

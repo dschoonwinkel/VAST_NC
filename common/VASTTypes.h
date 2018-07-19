@@ -35,6 +35,9 @@
 #include <string.h>     // memcpy
 #include <math.h>       // abs ()
 #include <stdlib.h>     // atoi
+#include <cstring>      //strncpy
+#include <string>
+#include <iostream>
 
 // include standard integer depending on compiler used
 #ifdef _WIN32
@@ -1629,6 +1632,45 @@ public:
                 sizeof (listsize_t) +               // target length
                 sizeof (id_t) * targets.size () +   // targets                                
                 size);                              // msg content                
+    }
+
+    //Assign all the variables to a string and return
+    std::string toString ()
+    {
+        std::string str;
+        char sub_data[11];
+        char hexdata[34];
+
+        str += "from " + std::to_string(from) + "\n";
+        str += "size " + std::to_string(size) + "\n";
+        str += "msgtype " + std::to_string(msgtype) + "\n";
+        str += "msggroup " + std::to_string(msggroup) + "\n";
+        str += "priority " + std::to_string(priority) + "\n";
+        str += "reliable " + std::to_string(reliable) + "\n";
+
+        if (size > 0)
+        {
+            size_t sub_data_size = size > 10 ? 10 : size;
+            strncpy (sub_data, data, sub_data_size);
+            for (int i = 0; i < sub_data_size; i++)
+            {
+                sprintf(hexdata+3*i, "%2X ", sub_data[i] & 0xff);
+            }
+            str += "data: " + std::string(hexdata) + "\n";
+        }
+
+        if (targets.size () > 0)
+        {
+            str += "targets: ";
+            for (id_t target : targets)
+            {
+                str += std::to_string(target) + ", ";
+            }
+            str += "\n";
+        }
+
+        return str;
+
     }
 
     //

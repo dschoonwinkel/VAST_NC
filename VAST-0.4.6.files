@@ -10,7 +10,9 @@ Demo/VASTsim_Qt/moc_mainwindow.cpp
 Demo/VASTsim_Qt/moc_predefs.h
 Demo/VASTsim_Qt/ui_mainwindow.h
 Demo/VASTsim_console/VASTsim_console.cpp
+Demo/VASTsim_console/Makefile
 Demo/VASTsim_consoleDev/VASTsim_console.cpp
+Demo/VASTsim_consoleDev/Makefile
 Demo/VASTsim_gui/VASTsim_gui.cpp
 Demo/build-demo_chatva_Qt-Desktop_Qt_5_10_1_GCC_64bit-Debug/moc_mainwindow.cpp
 Demo/build-demo_chatva_Qt-Desktop_Qt_5_10_1_GCC_64bit-Debug/moc_predefs.h
@@ -27,6 +29,7 @@ Demo/demo_console/demo_console.cpp
 Demo/demo_console_C/demo_console_C.cpp
 Demo/myVASTsim/myVASTsim.cpp
 Demo/my_demo/demo_console.cpp
+Demo/my_demo/Makefile
 Demo/my_demo/my_demo.cpp
 Demo/my_demo/my_demo.h
 Demo/my_demo/my_demo_helper.cpp
@@ -880,3 +883,4 @@ common/VoronoiSFAlgorithm.h
 common/net_manager.h
 common/net_msg.h
 common/standard/stdint.h
+common/Makefile

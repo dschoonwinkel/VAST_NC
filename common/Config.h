@@ -88,6 +88,7 @@
 #define _DANIEL_DEBUG
 
 #ifdef _DANIEL_DEBUG
+#include <iostream>
  #define CPPDEBUG(x) do {std::cout << x; } while(0)
 #else 
  #define CPPDEBUG(x) do {} while(0) 

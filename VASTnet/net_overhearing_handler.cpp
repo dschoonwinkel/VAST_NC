@@ -4,12 +4,12 @@
 
 namespace Vast {
 
-    net_overhearing_handler::net_overhearing_handler(char IPaddr[], uint16_t port)
+    net_overhearing_handler::net_overhearing_handler(ip::udp::endpoint local_endpoint)
     {
         _udp = NULL;
         _io_service = NULL;
         _iosthread = NULL;
-        _local_endpoint = ip::udp::endpoint(ip::address::from_string(IPaddr), port);
+        _local_endpoint = local_endpoint;
     }
 
     net_overhearing_handler::~net_overhearing_handler()
@@ -59,7 +59,7 @@ namespace Vast {
     void net_overhearing_handler::start_receive()
     {
         _udp->async_receive_from(
-            boost::asio::buffer(_buf.data, _buf.size), _remote_endpoint_,
+            boost::asio::buffer(_buf.data, _buf.getSize()), _remote_endpoint_,
             boost::bind(&net_overhearing_handler::handle_input, this,
               boost::asio::placeholders::error,
               boost::asio::placeholders::bytes_transferred));
@@ -87,9 +87,12 @@ namespace Vast {
                 n -= sizeof(VASTHeader);
                 p += sizeof(VASTHeader);
 
-                //Next message
-                p += header.msg_size;
-                n -= header.msg_size;
+                //Check if it is really a VAST message: Start and end bytes of header should be correct
+                if (!(header.start == 10 && header.end == 5))
+                {
+                    CPPDEBUG("net_overhearing_handler::handle_input Non-VAST message received on UDP socket" << std::endl);
+                    return -1;
+                }
 
                 Message *msg = new Message(0);
                 if (0 == msg->deserialize (p, header.msg_size))
@@ -103,6 +106,10 @@ namespace Vast {
                 _remote_addrs[remote_id] = remote_addr;
 
                 ((net_overhearing*)_msghandler)->msg_received(remote_id, p, header.msg_size);
+
+                //Next message
+                p += header.msg_size;
+                n -= header.msg_size;
             }
 
 
@@ -142,11 +149,12 @@ namespace Vast {
 
         if (_udp == NULL)
         {
-            std::cerr << "net_overhearing_handler: trying to send before socket is ready" << std::endl;
+            std::cerr << "net_overhearing_handler::send trying to send before socket is ready" << std::endl;
             return -1;
 
         }
 
+        CPPDEBUG("net_overhearing_handler::send size of sent packet: " << n << std::endl);
         return _udp->send_to(buffer(buf, n), remote_endpoint);
 
     }
@@ -176,6 +184,11 @@ namespace Vast {
         }
         //There was no address found for this host id, return a null address
         else return NULL;
+    }
+
+    void net_overhearing_handler::storeRemoteAddress (id_t host_id, IPaddr addr)
+    {
+        _remote_addrs[host_id] = addr;
     }
 
     uint16_t net_overhearing_handler::getPort ()
