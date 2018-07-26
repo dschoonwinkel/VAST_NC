@@ -30,3 +30,6 @@ all: random_walkertalker.cpp random_walkertalker_helper.cpp
 test: test_helper.cpp random_walkertalker_helper.cpp
 	g++ $(CFLAGS) $(INC_PATHS) $(LIB_PATHS) $< $(LIBS) \
         -o $(test_helper) random_walkertalker_helper.cpp
+
+clean:
+	-rm $(random_walkertalker) $(test_helper)

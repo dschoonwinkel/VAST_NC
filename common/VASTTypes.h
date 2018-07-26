@@ -1652,7 +1652,7 @@ public:
         {
             size_t sub_data_size = size > 10 ? 10 : size;
             strncpy (sub_data, data, sub_data_size);
-            for (int i = 0; i < sub_data_size; i++)
+            for (size_t i = 0; i < sub_data_size; i++)
             {
                 sprintf(hexdata+3*i, "%2X ", sub_data[i] & 0xff);
             }

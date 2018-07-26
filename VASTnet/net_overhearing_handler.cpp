@@ -37,6 +37,7 @@ namespace Vast {
                 //Save port number
                 _local_endpoint.port(port);
                 _udp->bind(_local_endpoint, ec);
+
                 CPPDEBUG(ec.message());
                 //Try the next port
                 port++;
@@ -59,7 +60,7 @@ namespace Vast {
     void net_overhearing_handler::start_receive()
     {
         _udp->async_receive_from(
-            boost::asio::buffer(_buf.data, _buf.getSize()), _remote_endpoint_,
+            boost::asio::buffer(_buf, VAST_BUFSIZ), _remote_endpoint_,
             boost::bind(&net_overhearing_handler::handle_input, this,
               boost::asio::placeholders::error,
               boost::asio::placeholders::bytes_transferred));
@@ -77,7 +78,7 @@ namespace Vast {
         {
             //Store UDP messages
 
-            char *p = _buf.data;
+            char *p = _buf;
 
             //NOTE: there may be several valid UDP messages received at once -- is this really necessary?
             while (n > sizeof (VASTHeader))
@@ -105,7 +106,13 @@ namespace Vast {
                 IPaddr remote_addr(_remote_endpoint_.address().to_v4().to_ulong(), _remote_endpoint_.port());
                 _remote_addrs[remote_id] = remote_addr;
 
-                ((net_overhearing*)_msghandler)->msg_received(remote_id, p, header.msg_size);
+                //Break up messages into VASTMessage sizes
+                //msg start at p - 4, i.e. start of header
+                //msgsize = header.msg_size + 4 for header
+                ((net_overhearing*)_msghandler)->msg_received(remote_id, p - sizeof(VASTHeader), header.msg_size + sizeof(VASTHeader));
+
+                //We assume if we can get a packet from the host, we are connected to that host
+                ((net_overhearing*)_msghandler)->socket_connected(remote_id, this, false);
 
                 //Next message
                 p += header.msg_size;

@@ -52,7 +52,7 @@ const int REPORT_INTERVAL        = 10;
 int         g_steps = 0;
 Area        g_aoi;              // my AOI (with center as current position)
 Area        g_prev_aoi;         // previous AOI (to detect if AOI has changed)
-world_t     g_world_id = 0;     // world ID
+world_t     g_world_id = 1;     // world ID
 bool        g_finished = false; // whether we're done for this program execution
 char        g_lastcommand = 0;  // last keyboard character typed 
 
@@ -150,9 +150,9 @@ int main (int argc, char *argv[])
     if (argc > 2)        
         sprintf (GWstr, "%s:%d", argv[2], netpara.port);
 
-    // world id
-    if (argc > 3)
-        g_world_id = (world_t)atoi (argv[3]);
+//    // world id
+//    if (argc > 3)
+//        g_world_id = (world_t)atoi (argv[3]);
 
     //
     // setup gateway
@@ -226,7 +226,7 @@ int main (int argc, char *argv[])
                 debug_print("Received message from %lu %s\n", from, chatmsg.c_str());
             }
 
-            if (g_steps % 200 == 0) {
+            if (g_steps % 50 == 0) {
                 char random_text[50];
                 gen_random_sentence(random_text, 50);
                 send_to_neighbours(g_self, string(random_text));

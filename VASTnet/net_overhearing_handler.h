@@ -70,7 +70,8 @@ namespace Vast {
         void                        *_msghandler;
 
         // generic buffer
-        VASTBuffer       _buf;
+//        VASTBuffer       _buf;
+        char _buf[VAST_BUFSIZ];
     };
 
 } // end namespace Vast
