@@ -238,7 +238,8 @@ int main (int argc, char *argv[])
         // NOTE the 2nd parameter is specified in microseconds (us) not milliseconds
         ACE_Time_Value duration (0, 100000);            
         ACE_OS::sleep (duration);
-        g_world->tick(); 
+        g_world->tick();
+        g_world->tickLogicalClock();
     }
     
     //

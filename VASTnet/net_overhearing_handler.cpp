@@ -161,7 +161,7 @@ namespace Vast {
 
         }
 
-        CPPDEBUG("net_overhearing_handler::send size of sent packet: " << n << std::endl);
+//        CPPDEBUG("net_overhearing_handler::send size of sent packet: " << n << std::endl);
         return _udp->send_to(buffer(buf, n), remote_endpoint);
 
     }

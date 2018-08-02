@@ -55,6 +55,7 @@ void MainWindow::nextTimestep() {
         // NOTE that we will process for as long as needed
         // (so possibly will run out of the time budget)
         g_world->tick (0);
+        g_world->tickLogicalClock();
 
         if (g_state == JOINED)
         {

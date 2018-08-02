@@ -25,7 +25,9 @@ void send_to_neighbours (VAST* vastclient, string to_send) {
         Vast::id_t id      = nodes[j]->id;
         send_msg.addTarget (id);
     }
-    printMessage(send_msg);
+//    std::cout << "random_walkertalker_helper::send_to_neighbours " << std::endl;
+//    printMessage(send_msg);
+
     // send away message
     vastclient->send (send_msg);
 

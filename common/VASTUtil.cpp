@@ -79,6 +79,9 @@ bool LogManager::writeLogFile (const char *format, ...)
 	time (&rawtime);
 	tm *timeinfo = gmtime (&rawtime);
 
+//    if (!_logfile)
+//        std:cerr << "Logfile is not open" << std::endl;
+
     if (_logfile)
     {
         // print formatted date/time in string

@@ -63,7 +63,7 @@ namespace Vast {
         bool switchID (id_t prevID, id_t newID);
 
         // perform a tick of the logical clock 
-        void tickLogicalClock () {}
+        void tickLogicalClock ();
 
         //
         // callback services called by specific network binding (e.g. ACE or emulation)
@@ -93,7 +93,7 @@ namespace Vast {
         std::mutex                  _msg_mutex;
         std::mutex                  _conn_mutex;
 
-
+        const double                UDP_TIMEOUT = 5000;
 
     };
 } // end namespace Vast
