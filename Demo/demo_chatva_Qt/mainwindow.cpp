@@ -190,6 +190,7 @@ void MainWindow::MoveOnce ()
     // we don't want to move too fast (not as fast as frame rate)
     if (g_steps % (UPDATE_INTERVAL/TIMER_INTERVAL) == 0)
     {
+        g_aoi.radius = 300;
         g_self->move (g_sub_no, g_aoi);
     }
 

@@ -183,7 +183,7 @@ int main (int argc, char *argv[])
 //    g_aoi.center.x = (coord_t)(rand () % 100);
 //    g_aoi.center.y = (coord_t)(rand () % 100);
     
-    g_move_model.initModel(MoveModel::RANDOM, NULL, false, Position(0,0), Position(DIM_X, DIM_Y), 1, 10000, 1);
+    g_move_model.initModel(MoveModel::RANDOM, NULL, false, Position(0,0), Position(DIM_X, DIM_Y), 1, 100000, 1);
 
     //
     // main loop
@@ -203,9 +203,9 @@ int main (int argc, char *argv[])
             // cout << "Moving... apparently" << endl;
             // g_aoi.center.x = (coord_t)(rand () % 100);
             // g_aoi.center.y = (coord_t)(rand () % 100);
-//            Position *pos = g_move_model.getPos(0, g_steps%10000);
-//            g_aoi.center = *pos;
-//            g_self->move(g_sub_id, g_aoi);
+            Position *pos = g_move_model.getPos(0, g_steps%10000);
+            g_aoi.center = *pos;
+            g_self->move(g_sub_id, g_aoi);
             // g_self->move(g_sub_id, g_aoi);
         }
 
