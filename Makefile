@@ -15,7 +15,7 @@ random_walkertalker := Demo/random_walkertalker
 demo_chatva_Qt := Demo/demo_chatva_Qt
 
 # tells make that the following labels are make targets, not filenames
-.PHONY: all clean $(VASTnet) $(VAST) $(VASTsim) $(common) $(test_console) $(VASTsim_Qt) $(demo_console) $(my_demo) $(VASTsim_console) $(myVASTsim) $(random_walkertalker)
+.PHONY: all clean $(VASTnet) $(VAST) $(VASTsim) $(common) $(test_console) $(VASTsim_Qt) $(demo_console) $(my_demo) $(VASTsim_console) $(myVASTsim) $(random_walkertalker) $(demo_chatva_Qt)
 
 #all: $(common) $(VASTnet) $(VAST) $(VASTsim) $(test_console) $(VASTsim_Qt)
 #all: $(common) $(VASTnet) $(VAST) $(VASTsim) $(test_console) $(demo_console) $(my_demo) $(demo_chatva_Qt)
@@ -33,7 +33,7 @@ $(demo_console) : $(VASTsim)
 $(VASTsim_console) : $(VASTsim)
 $(my_demo) : $(VASTsim)
 $(random_walkertalker) : $(VASTsim)
-$(demo_chatva_Qt) : $(VASTsim)
+$(demo_chatva_Qt) : $(VAST)
 
 clean: 
 	make TARGET=clean

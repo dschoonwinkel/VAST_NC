@@ -374,12 +374,17 @@ namespace Vast
             _id2conn.insert(std::map<id_t, ConnectInfo>::value_type (id, conn));
             stored = true;
         }
+        else {
+            //Update last received
+            CPPDEBUG("net_overhearing::socket_connected Updating lasttime from conn " << id << " to current timestamp " << getTimestamp() << std::endl);
+            _id2conn[id].lasttime = getTimestamp();
+        }
         _conn_mutex.unlock();
 
-        //If the connection was not stored successfully, it was probably already established
-        if (stored == false)
+        //An error occurred - unknown reason
+        if (_id2conn.find(id) == _id2conn.end() && stored == false)
         {
-            printf("net_overhearing::socket_connected () stream already registered");
+            printf("net_overhearing::socket_connected () connection was not stored\n");
         }
 
         return stored;
@@ -409,6 +414,29 @@ namespace Vast
         }
 
         return success;
+    }
+
+    //Calculate the UDP timeouts here
+    void net_overhearing::tickLogicalClock ()
+    {
+//        CPPDEBUG("net_overhearing::tickLogicalClock ()");
+        timestamp_t time_now = getTimestamp();
+        std::vector<ConnectInfo> dead_connections;
+
+        std::map<id_t, ConnectInfo>::iterator it;
+
+        for (it = _id2conn.begin(); it != _id2conn.end(); it++ )
+        {
+//            std::cout << "net_overhearing::tickLogicalClock: " << it->first  // string (key)
+//                      << ':'
+//                      << it->second.lasttime   // string's value
+//                      << std::endl ;
+            if  (time_now > it->second.lasttime + UDP_TIMEOUT)
+            {
+                     dead_connections.push_back(it->second);
+                    CPPDEBUG("Dead connection found: " << it->first << " dead for " << time_now - it->second.lasttime << std::endl);
+            }
+        }
     }
 
 } // end namespace Vast
