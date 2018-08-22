@@ -1,4 +1,6 @@
 Makefile
+VAST/vaststatlog.cpp
+VAST/vaststatlog.h
 VASTnet/dest_unr_listener.cpp
 VASTnet/dest_unr_listener.h
 bin/Makefile
