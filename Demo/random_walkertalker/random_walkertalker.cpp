@@ -111,7 +111,11 @@ int main (int argc, char *argv[])
     // NOTE: do not use time () as nodes at different sites may have very close time () values
     ACE_Time_Value now = ACE_OS::gettimeofday ();
     printf ("Setting random seed as: %d\n", (int)now.usec ());
-    srand (now.usec ());
+
+    //Keep randominess constant
+    srand (2);
+//    Or changing, if required later
+//    srand (now.usec ());
                       
     //
     // set default values
@@ -205,8 +209,7 @@ int main (int argc, char *argv[])
             // g_aoi.center.y = (coord_t)(rand () % 100);
             Position *pos = g_move_model.getPos(0, g_steps%10000);
             g_aoi.center = *pos;
-            g_self->move(g_sub_id, g_aoi);
-            // g_self->move(g_sub_id, g_aoi);
+             g_self->move(g_sub_id, g_aoi);
         }
 
         if (g_state == JOINED) {

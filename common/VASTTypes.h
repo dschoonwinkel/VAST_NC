@@ -686,6 +686,17 @@ public:
         return (adr.host == host && adr.port == port);
     }
 
+    inline bool operator< (const IPaddr & adr) const
+    {
+        if (adr.host == host)
+        {
+            return adr.port < port;
+        }
+        else {
+            return adr.host < host;
+        }
+    }
+
     // size of this class
     size_t sizeOf () const
     {

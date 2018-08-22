@@ -14,6 +14,9 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    //Keep randominess constant
+    srand (0);
+
     g_origin.setX(0);
     g_origin.setY(0);
 
@@ -105,7 +108,7 @@ void MainWindow::paintEvent(QPaintEvent *event) {
     int n = nodes.size();
 
 //    painter.setPen(QColor(255,255,255));
-    painter.setPen(nodeColors[self->id % 20]);
+    painter.setPen(nodeColors[self->id % nodeColors.size()]);
     painter.drawEllipse(QPointF(g_aoi.center.x, g_aoi.center.y), NODE_RADIUS, NODE_RADIUS);
     painter.drawEllipse(QPointF(g_aoi.center.x, g_aoi.center.y), g_aoi.radius, g_aoi.radius);
 
@@ -325,7 +328,7 @@ void MainWindow::setUpColors() {
     nodeColors.push_back(QColor(230, 25, 75));
     nodeColors.push_back(QColor(60, 180, 75));
     nodeColors.push_back(QColor(255, 225, 25));
-    nodeColors.push_back(QColor(0, 130, 200));
+//    nodeColors.push_back(QColor(0, 130, 200));
     nodeColors.push_back(QColor(245, 130, 48));
     nodeColors.push_back(QColor(145, 30, 180));
     nodeColors.push_back(QColor(70, 240, 240));
@@ -341,7 +344,7 @@ void MainWindow::setUpColors() {
     nodeColors.push_back(QColor(128, 128, 0));
     nodeColors.push_back(QColor(255, 215, 180));
     nodeColors.push_back(QColor(0, 0, 128));
-    nodeColors.push_back(QColor(128, 128, 128));
+    nodeColors.push_back(QColor(160, 160, 160));
 }
 
 MainWindow::~MainWindow()

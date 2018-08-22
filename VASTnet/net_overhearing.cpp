@@ -375,9 +375,9 @@ namespace Vast
             stored = true;
         }
         else {
-            //Update last received
-            CPPDEBUG("net_overhearing::socket_connected Updating lasttime from conn " << id << " to current timestamp " << getTimestamp() << std::endl);
-            _id2conn[id].lasttime = getTimestamp();
+//            //Update last received
+//            CPPDEBUG("net_overhearing::socket_connected Updating lasttime from conn " << id << " to current timestamp " << getTimestamp() << std::endl);
+//            _id2conn[id].lasttime = getTimestamp();
         }
         _conn_mutex.unlock();
 

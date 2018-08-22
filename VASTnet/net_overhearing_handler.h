@@ -4,6 +4,7 @@
 #include "VASTTypes.h"
 #include "VASTBuffer.h"
 #include "net_manager.h"
+#include "dest_unr_listener.h"
 
 #include <boost/asio.hpp>
 #include <boost/thread.hpp>
@@ -15,6 +16,7 @@ namespace Vast {
     class net_overhearing_handler
     {
     friend class net_overhearing;
+    friend class dest_unreachable_listener;
 
     public:
         net_overhearing_handler (ip::udp::endpoint local_endpoint);
@@ -27,11 +29,16 @@ namespace Vast {
         // obtain address of remote host
         IPaddr *getRemoteAddress (id_t host_id);
 
+        // obtain id_t of remote host IP
+        id_t getRemoteIDByIP (IPaddr ip);
+
         //Store address of remote host by ID
         void storeRemoteAddress (id_t host_id, IPaddr addr);
 
         // swtich remote ID to a new one
         bool switchRemoteID (id_t oldID, id_t newID);
+
+        void handle_disconnect (IPaddr ip_addr);
 
     protected:
 
@@ -56,6 +63,7 @@ namespace Vast {
         // info the remote nodes using this socket
         std::vector<id_t>           _remote_ids;
         std::map<id_t, IPaddr>      _remote_addrs;
+        std::map<IPaddr, id_t>      _remote_ids_IPs;
 
         // secure connection stream
         bool                        _secure;
@@ -68,6 +76,7 @@ namespace Vast {
         io_service                  *_io_service;
         boost::thread               *_iosthread;
         void                        *_msghandler;
+        dest_unreachable_listener   *_disconn_listener;
 
         // generic buffer
 //        VASTBuffer       _buf;

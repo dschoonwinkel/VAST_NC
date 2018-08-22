@@ -1,4 +1,6 @@
 Makefile
+VASTnet/dest_unr_listener.cpp
+VASTnet/dest_unr_listener.h
 bin/Makefile
 bin/VASTsim.ini
 Demo/SimNode_demo/SimNode_demo.cpp
@@ -78,6 +80,9 @@ VASTATEsim/SimPeer.h
 VASTATEsim/Statistics.h
 VASTATEsim/VASTATEsim.cpp
 VASTATEsim/VASTATEsim.h
+VASTnet/ipv4_header.hpp
+VASTnet/udp_header.hpp
+VASTnet/icmp_header.hpp
 VASTnet/IDMapper.h
 VASTnet/MessageHandler.cpp
 VASTnet/MessageQueue.cpp

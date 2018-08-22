@@ -33,7 +33,7 @@ $(demo_console) : $(VASTsim)
 $(VASTsim_console) : $(VASTsim)
 $(my_demo) : $(VASTsim)
 $(random_walkertalker) : $(VASTsim)
-$(demo_chatva_Qt) : $(VAST)
+$(demo_chatva_Qt) : $(VASTsim)
 
 clean: 
 	make TARGET=clean

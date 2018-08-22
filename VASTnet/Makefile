@@ -6,13 +6,13 @@ CC = g++
 
 ACE_ROOT = /usr
 
-CFLAGS = -static -c -Wall -Wextra -I../common -I$(ACE_ROOT)/include -g -std=c++14
+CFLAGS = -static -c -Wall -Wextra -I../common -I$(ACE_ROOT)/include -ggdb -std=c++14
 #CFLAGS = -fPIC -c -Wall -I../common -I$(ACE_ROOT)
 
 #Note that ACE path is not included here, as we assume it's already properly installed on the system
 
 sources_o = MessageHandler.cpp MessageQueue.cpp net_emu.cpp net_emubridge.cpp \
-            net_manager.cpp VASTnet.cpp net_overhearing.cpp net_overhearing_handler.cpp
+            net_manager.cpp VASTnet.cpp net_overhearing.cpp net_overhearing_handler.cpp dest_unr_listener.cpp
 sources_ace = net_ace.cpp net_ace_handler.cpp
 
 ifeq ($(TARGET),noace)

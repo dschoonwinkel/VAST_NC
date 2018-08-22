@@ -13,7 +13,7 @@ void send_to_neighbours (VAST* vastclient, string to_send) {
 
     send_msg.clear (123);
 //    send_msg.store(vastclient->getSelf()->id);
-//    send_msg.from = vastclient->getSelf()->id;    // This is done automatically by the VASTClient
+    send_msg.from = vastclient->getSelf()->id;    // This is done automatically by the VASTClient
     send_msg.store (to_send.c_str(), to_send.length(), true);
 
     /* SEND-based */
