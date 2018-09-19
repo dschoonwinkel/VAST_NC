@@ -32,12 +32,23 @@ namespace Vast {
     private:
         //The properties marked with a # will be saved to logfile
         timestamp_t timestamp;                      // #
-        VAST* _client;                              // #
+        Node * clientNode;                          // #
+        bool clientIsRelay;                         // #
+        std::map<Vast::id_t, Node*> _neighbors;     // #
+
+        int worldConnSize = -1;                     // #
+        StatType worldSendStat;                     // #
+        StatType worldRecvStat;                     // #
+        bool worldIsGateway;                        // #
+
+
         long _min_aoi, _total_aoi;
         int _max_CN, _total_CN;
-        std::map<Vast::id_t, Node*> _neighbors;     // #
-        VASTVerse* _world;                          // # Some of these
         int _steps_recorded;
+
+        //Used for sourcing data points. Not reconstructed in deserialise
+        VAST* _client;                              //
+        VASTVerse* _world;                          //
 
     };
 }   //end namespace Vast

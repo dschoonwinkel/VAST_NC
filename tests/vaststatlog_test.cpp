@@ -90,14 +90,17 @@ int main (int argc, char *argv[])
             char *buffer = new char[g_statlog->sizeOf()];
 
             g_statlog->serialize(buffer);
+            g_statlog->deserialize(buffer, g_statlog->sizeOf());
 
         }
     }
 
-    Node node1 = *g_self->getSelf();
-    Node node2 = node1;
+//    Node node1 = *g_self->getSelf();
+//    Node node2 = node1;
+//    Node node3;
 
-    std::cout << "Nodes are equal: " << (node1 == node2) << std::endl;
+//    std::cout << "Nodes are equal: " << (node1 == node2) << std::endl;
+//    std::cout << "Nodes are equal: " << (node1 == node3) << std::endl;
 
 
     g_world->destroyVASTNode(g_self);
