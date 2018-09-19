@@ -165,8 +165,11 @@ namespace Vast {
         ip_addr.getString(ip_addr_str);
         CPPDEBUG("net_overhearing_handler::handle_disconnect: Incoming addr to disconnect" << std::string(ip_addr_str) << std::endl);
         id_t remote_disconnected_id = getRemoteIDByIP(ip_addr);
-        CPPDEBUG("net_overhearing_handler::handle_disconnect. Disconnecting ID " << remote_disconnected_id << std::endl);
-        ((net_overhearing*)_msghandler)->socket_disconnected(remote_disconnected_id);
+        if (remote_disconnected_id != NET_ID_UNASSIGNED)
+        {
+            CPPDEBUG("net_overhearing_handler::handle_disconnect. Disconnecting ID " << remote_disconnected_id << std::endl);
+            ((net_overhearing*)_msghandler)->socket_disconnected(remote_disconnected_id);
+        }
     }
 
     size_t net_overhearing_handler::send(const void *buf, size_t n, ip::udp::endpoint remote_endpoint) {

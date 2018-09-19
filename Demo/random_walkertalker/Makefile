@@ -17,7 +17,7 @@ ACE_PATH    = /usr
 # CFLAGS      = -Wall -static 
 CFLAGS      = -Wall -fPIC -g -std=c++14
 
-INC_PATHS   = -I../../common -I../../VASTsim -I$(ACE_PATH)/include 
+INC_PATHS   = -I../../common -I../../VASTsim -I$(ACE_PATH)/include -I../../VAST
 
 LIB_PATHS   = -L../../lib -L../../Dependencies/lib/Release -L$(ACE_PATH)/lib 
 

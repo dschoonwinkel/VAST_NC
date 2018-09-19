@@ -22,6 +22,7 @@
 #include "VASTVerse.h"
 #include "VASTUtil.h"
 #include "VASTCallback.h"       // for creating callback handler
+#include "vaststatlog.h"
 
 #include "random_walkertalker.h"
 
@@ -60,7 +61,10 @@ char        g_lastcommand = 0;  // last keyboard character typed
 VASTVerse *     g_world = NULL;     // factory for creating a VAST node
 VAST *          g_self  = NULL;     // pointer to VAST
 NodeState       g_state = ABSENT;     //State of joining node
-Vast::id_t      g_sub_id = 0;       // subscription # for my client (peer)  
+Vast::id_t      g_sub_id = 0;       // subscription # for my client (peer)
+
+//VAST statistics
+VASTStatLog*    g_statlog = NULL;    //Logger for statistics
 
 
 //Movement Model
@@ -200,6 +204,7 @@ int main (int argc, char *argv[])
             if ((g_self = g_world->getVASTNode()) != NULL) {
                 g_sub_id = g_self->getSubscriptionID();
                 g_state = JOINED;
+                g_statlog = new VASTStatLog(g_world, g_self);
             }
         }
         //Move AOI subscription somewhere
@@ -245,6 +250,11 @@ int main (int argc, char *argv[])
         ACE_OS::sleep (duration);
         g_world->tick();
         g_world->tickLogicalClock();
+        if (g_statlog != NULL)
+        {
+//            g_statlog->recordStat();
+//            g_statlog->printStat();
+        }
     }
     
     //

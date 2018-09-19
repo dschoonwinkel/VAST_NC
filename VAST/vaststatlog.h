@@ -1,24 +1,45 @@
 #ifndef VASTSTATLOG_H
 #define VASTSTATLOG_H
+#include <map>
+#include <VASTTypes.h>
 
-class VASTClient; //Forward declaration
-class VASTVerse; //Forward declaration
+namespace Vast {
 
-namespace VAST {
+    struct NodeDetails {    //Initial details to store about node
+        SimPara       _para;  //Experimental setup struct
+        id_t          _node_no;        // Node number
+    };
+
+    class VAST; //Forward declaration
+    class VASTVerse; //Forward declaration
+
     class VASTStatLog
     {
     public:
-        VASTStatLog();
+        VASTStatLog(VASTVerse *world, VAST *client);
 
         void recordStat ();
+        void printStat ();
+
+        //Implement the serialize functions
+        size_t sizeOf ();
+        size_t serialize (char *buffer);
+        size_t deserialize (const char *buffer, size_t size);
+
+        bool operator==(const VASTStatLog);
+
 
     private:
+        //The properties marked with a # will be saved to logfile
+        timestamp_t timestamp;                      // #
+        VAST* _client;                              // #
         long _min_aoi, _total_aoi;
         int _max_CN, _total_CN;
+        std::map<Vast::id_t, Node*> _neighbors;     // #
+        VASTVerse* _world;                          // # Some of these
         int _steps_recorded;
-        VASTClient* _client;
-        VASTVerse* _world;
+
     };
-}
+}   //end namespace Vast
 
 #endif // VASTSTATLOG_H

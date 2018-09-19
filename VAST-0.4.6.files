@@ -1,3 +1,4 @@
+tests/vaststatlog_test.cpp
 Makefile
 VAST/vaststatlog.cpp
 VAST/vaststatlog.h
