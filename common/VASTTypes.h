@@ -945,6 +945,15 @@ public:
         return *this;
     }
 
+    bool operator==(const Node other) {
+        bool equals = this->id == other.id;
+        equals = equals && this->time == other.time;
+        equals = equals && this->aoi == other.aoi;
+        equals = equals && this->addr == other.addr;
+
+        return equals;
+    }
+
     // size of this class
     size_t sizeOf () const
     {
