@@ -155,7 +155,14 @@ namespace Vast {
         bool equals = true;
 
         equals = equals && this->timestamp == other.timestamp;
-        equals = equals && this->_client == other._client;
+        equals = equals && this->clientIsRelay == other.clientIsRelay;
+        equals = equals && this->clientNode == other.clientNode;
+        equals = equals && this->_neighbors == other._neighbors;
+        equals = equals && this->worldConnSize == other.worldConnSize;
+        equals = equals && this->worldSendStat == other.worldSendStat;
+        equals = equals && this->worldRecvStat == other.worldRecvStat;
+        equals = equals && this->worldIsGateway == other.worldIsGateway;
+        equals = equals && this->worldIsMatcher == other.worldIsMatcher;
 
         return equals;
     }

@@ -40,7 +40,7 @@ namespace Vast {
         StatType worldSendStat;                     // #
         StatType worldRecvStat;                     // #
         bool worldIsGateway;                        // #
-
+        bool worldIsMatcher;                        // #
 
         long _min_aoi, _total_aoi;
         int _max_CN, _total_CN;

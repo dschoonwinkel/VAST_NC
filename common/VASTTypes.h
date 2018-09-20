@@ -284,6 +284,17 @@ public:
         return 0;
     }
 
+    bool operator==(const StatType other)
+    {
+        bool equals = this->minimum == other.minimum;
+        equals = equals && this->maximum == other.maximum;
+        equals = equals && this->total == other.total;
+        equals = equals && this->num_records == other.num_records;
+        equals = equals && this->average == other.average;
+
+        return equals;
+    }
+
     size_t  minimum;        // minimum single record
     size_t  maximum;        // maximum single record    
 
