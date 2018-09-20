@@ -82,31 +82,33 @@ namespace Vast {
         size_t total_size = 0;
 
         total_size+= sizeof(timestamp);
-        std::cout << "sizeof timestamp" << sizeof(timestamp) << std::endl;
+        std::cout << "sizeof timestamp                      " << sizeof(timestamp) << std::endl;
 
         total_size+= _client->getSelf()->sizeOf();
-        std::cout << "getSelf()->sizeof" << _client->getSelf()->sizeOf() << std::endl;
+        std::cout << "getSelf()->sizeof                     " << _client->getSelf()->sizeOf() << std::endl;
 
         total_size+= _client->list().size()*sizeof(Node);
-        std::cout << "sizeof neighbor Node list" << _client->list().size()*sizeof(Node) << std::endl;
+        std::cout << "sizeof neighbor Node list             " << _client->list().size()*sizeof(Node) << std::endl;
 
         total_size+= sizeof(_client->isRelay());
-        std::cout << "sizeof isRelay()" << sizeof(_client->isRelay()) << std::endl;
+        std::cout << "sizeof isRelay()                      " << sizeof(_client->isRelay()) << std::endl;
 
         total_size+= sizeof(_world->getConnectionSize());
-        std::cout << "sizeof _world->getConnectionSize()" << sizeof(_world->getConnectionSize()) << std::endl;
+        std::cout << "sizeof _world->getConnectionSize()    " << sizeof(_world->getConnectionSize()) << std::endl;
 
         total_size+= _world->getSendStat().sizeOf();
-        std::cout << "sizeof getSendStat" << _world->getSendStat().sizeOf() << std::endl;
+        std::cout << "sizeof getSendStat                    " << _world->getSendStat().sizeOf() << std::endl;
 
         total_size+= _world->getReceiveStat().sizeOf();
-        std::cout << "sizeof getReceiveStat" << _world->getReceiveStat().sizeOf() << std::endl;
+        std::cout << "sizeof getReceiveStat                 " << _world->getReceiveStat().sizeOf() << std::endl;
 
         total_size+= sizeof(_world->isGateway());
-        std::cout << "sizeof timestamp" << sizeof(_world->isGateway()) << std::endl;
+        std::cout << "sizeof _world->isGateway()            " << sizeof(_world->isGateway()) << std::endl;
 
         total_size+= sizeof(_world->isMatcher());
-        std::cout << "sizeof timestamp" << sizeof(_world->isMatcher()) << std::endl;
+        std::cout << "sizeof _world->isMatcher()            " << sizeof(_world->isMatcher()) << std::endl;
+
+        std::cout << std::endl;
 
         /*
          * if (_world.isMatcher()) {
