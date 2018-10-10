@@ -3,6 +3,11 @@
 #include <map>
 #include <VASTTypes.h>
 
+#include <fstream>
+#include <boost/archive/text_iarchive.hpp>
+#include <boost/archive/text_oarchive.hpp>
+#include <iostream>
+
 namespace Vast {
 
     struct NodeDetails {    //Initial details to store about node
@@ -17,24 +22,41 @@ namespace Vast {
     {
     public:
         VASTStatLog(VASTVerse *world, VAST *client);
+        ~VASTStatLog();
 
         void recordStat ();
         void printStat ();
 
         //Implement the serialize functions
         size_t sizeOf ();
-        size_t serialize (char *buffer);
-        size_t deserialize (const char *buffer, size_t size);
+//        size_t serialize (char *buffer);
+//        size_t deserialize (const char *buffer, size_t size);
 
         bool operator==(const VASTStatLog);
+
+
+        //Boost Serialization functions
+
+        friend class boost::serialization::access;
+        template<typename Archive>
+        void serialize(Archive& ar, const unsigned /*version*/)
+        {
+            ar & timestamp;
+        }
+
+        void openLogFile();
+        void restoreFromLogFile(string filename);
+
+        friend std::ostream& operator<<(std::ostream&, VASTStatLog const& log);
 
 
     private:
         //The properties marked with a # will be saved to logfile
         timestamp_t timestamp;                      // #
-        Node * clientNode;                          // #
-        bool clientIsRelay;                         // #
-        std::map<Vast::id_t, Node*> _neighbors;     // #
+        Node clientNode;                            // #
+        int clientIsRelay;                          // #
+        size_t neighbors_size;                      // #
+        std::vector<Node*> _neighbors;              // #
 
         int worldConnSize = -1;                     // #
         StatType worldSendStat;                     // #

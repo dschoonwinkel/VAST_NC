@@ -17,6 +17,8 @@ ACE_PATH    = /usr
 INC_PATHS   = -I../common -I../VASTsim -I$(ACE_PATH)/include -I../VAST
 LIB_PATHS   = -L../lib -L../Dependencies/lib/Release -L$(ACE_PATH)/lib
 
+.PHONY: vaststatlog_test
+
 vaststatlog_test: vaststatlog_test.cpp
 	$(CC) -Wall -fPIC -g -std=c++14 $(INC_PATHS) $(LIB_PATHS) $< $(LIBS) \
 	-o $(vaststatlog_test)

@@ -90,7 +90,25 @@ int main (int argc, char *argv[])
             char *buffer = new char[g_statlog->sizeOf()];
 
             g_statlog->serialize(buffer);
-            g_statlog->deserialize(buffer, g_statlog->sizeOf());
+
+
+            FILE* fptr = fopen("vaststatlog_save1.bin", "wb");
+            fwrite(buffer, g_statlog->sizeOf(), 1, fptr);
+
+            fclose(fptr);
+            fptr = fopen("vaststatlog_save1.bin", "rb");
+            char *new_buffer = new char[g_statlog->sizeOf()];
+            fread(new_buffer, g_statlog->sizeOf(), 1, fptr);
+
+            VASTStatLog newLog(NULL, NULL);
+            newLog.deserialize(new_buffer, g_statlog->sizeOf());
+
+            std::cout << "Deserialized == original: " << (newLog == *g_statlog) << std::endl;
+
+            std::cout << "Original: " << std::endl;
+            g_statlog->printStat();
+            std::cout << "Deserialized: " << std::endl;
+            newLog.printStat();
 
         }
     }
