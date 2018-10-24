@@ -252,8 +252,10 @@ int main (int argc, char *argv[])
         g_world->tickLogicalClock();
         if (g_statlog != NULL)
         {
-//            g_statlog->recordStat();
-//            g_statlog->printStat();
+            g_statlog->recordStat();
+            g_statlog->printStat();
+//            if (g_steps > 10)
+//                g_finished = true;
         }
     }
     

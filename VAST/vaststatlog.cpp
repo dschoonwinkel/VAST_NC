@@ -22,11 +22,16 @@ namespace Vast {
 
         if (_world != NULL)
             _world->clearStat();
+
+       _logfilename = _logfilename + "_N" + std::to_string(client->getSelf()->id) + ".txt";
+        ofs = new std::ofstream(_logfilename);
+        ar = new boost::archive::text_oarchive(*ofs);
+
     }
 
     void VASTStatLog::recordStat()
     {
-
+        timestamp = _world->getTimestamp();
 
         if (_client == NULL)
         {
@@ -46,7 +51,16 @@ namespace Vast {
 
 
         // set up neighbor view
-        _neighbors= _client->list ();
+        _neighbors.clear();
+        std::vector<Node*> clientlist = _client->list ();
+        for (Node* node : clientlist)
+        {
+            if (node != NULL) {
+                _neighbors.push_back(*node);
+            }
+        }
+
+
         neighbors_size = _neighbors.size();
         clientIsRelay = _client->isRelay();
 
@@ -63,6 +77,7 @@ namespace Vast {
         worldIsMatcher = _world->isMatcher();
 
         _steps_recorded++;
+        saveToLogFile(_steps_recorded, _logfilename);
     }
 
     void VASTStatLog::printStat ()
@@ -87,9 +102,9 @@ namespace Vast {
 
         printf("Num neighbors: %lu\n", neighbors_size);
         printf("My neighbour IDs: \n");
-        for (std::vector<Node*>::iterator it = _neighbors.begin(); it != _neighbors.end(); it++)
+        for (std::vector<Node>::iterator it = _neighbors.begin(); it != _neighbors.end(); it++)
         {
-            printf("%lu\n", (*it)->id);
+            printf("%lu\n", (*it).id);
         }
 
         printf("Relay: %d \n\n", clientIsRelay);
@@ -149,83 +164,34 @@ namespace Vast {
         return total_size;
     }
 
-//    void VASTStatLog::serialize (Archive &ar)
-//    {
+    void VASTStatLog::saveToLogFile(int step, std::string filename) {
 
+        this->serialize(*ar, 0);
+        ofs->flush();
 
+    }
 
-        // NOTE: average is not sent
-//        if (p != NULL)
-//        {
-//            memcpy (p, &timestamp,    sizeof (timestamp));  p += sizeof (timestamp);
+    void VASTStatLog::restoreFirstFromLogFile(std::string filename) {
+        std::ifstream ifs(filename);
+        boost::archive::text_iarchive ar(ifs);
 
-//            clientNode.serialize(p);               p += sizeof(clientNode.sizeOf());
+        this->serialize(ar, 0);
+    }
 
-//            std::cout << "Size of client Node" << clientNode.sizeOf() << std::endl;
-//            std::cout << "sizeof(Node)" << sizeof(Node) << std::endl;
+    std::vector<VASTStatLog> VASTStatLog::restoreAllFromLogFile(std::string filename) {
 
-//            neighbors_size = _neighbors.size();
-//            std::cout << neighbors_size << std::endl;
-//            std::cout << "Client neighbor count " << _client->list().size() << std::endl;
-//            memcpy(p, &neighbors_size, sizeof(neighbors_size)); p += sizeof(neighbors_size);
+        std::vector<VASTStatLog> restoredLogs;
+        std::ifstream ifs(filename);
+        boost::archive::text_iarchive ar(ifs);
 
-//            for (Node* neighbor : _neighbors)
-//            printf("Pointer p in buffer%x\n", p);
-//            for (std::vector<Node*>::iterator it=_neighbors.begin(); it < _neighbors.end(); it++)
-//            {
-////                std::cout << "Serializing Neighbor ID: " << neighbor->id << std::endl;
-////                neighbor->serialize(p); p+= neighbor->sizeOf();
-//                (*it)->serialize(p); p+= (*it)->sizeOf();
-//                printf("Pointer p in buffer%x\n", p);
-//            }
-//            printf("Pointer p in buffer%x\n", p);
+        while(!ifs.eof()) {
+            VASTStatLog log;
+            log.serialize(ar,0);
+            restoredLogs.push_back(log);
+        }
 
-//            memcpy(p, &clientIsRelay, sizeof(clientIsRelay)); p += sizeof(clientIsRelay);
-//            memcpy(p, &worldConnSize, sizeof(worldConnSize)); p += sizeof(worldConnSize);
-//            memcpy(p, &_steps_recorded, sizeof(_steps_recorded)); p += sizeof(_steps_recorded);
-
-//            memcpy(p, &worldSendStat, sizeof(worldSendStat)); p += sizeof(worldSendStat);
-//            memcpy(p, &worldRecvStat, sizeof(worldRecvStat)); p += sizeof(worldRecvStat);
-//            memcpy(p, &worldIsGateway, sizeof(worldIsGateway)); p += sizeof(worldIsGateway);
-//            memcpy(p, &worldIsMatcher, sizeof(worldIsMatcher)); p += sizeof(worldIsMatcher);
-
-//        }
-//        return sizeOf ();
-
-//    }
-
-//    size_t VASTStatLog::deserialize (const char *buffer, size_t size)
-//    {
-//        if (buffer != NULL && size >= sizeOf()) {
-////            std::cout << "Deserializing" << std::endl;
-
-//            memcpy(&timestamp, buffer, sizeof(timestamp)); buffer += sizeof(timestamp);
-//            clientNode.deserialize(buffer, clientNode.sizeOf()); buffer += sizeof(clientNode.sizeOf());
-
-////            memcpy(&neighbors_size, buffer, sizeof(neighbors_size)); buffer += sizeof(neighbors_size);
-
-////            printf("Pointer p in buffer%x\n", buffer);
-////            for (size_t i = 0; i < neighbors_size; i++)
-////            {
-////                Node *newNode = new Node();
-////                newNode->deserialize(buffer, newNode->sizeOf()); buffer += newNode->sizeOf();
-////                _neighbors.push_back(newNode);
-////                printf("Pointer p in buffer%x\n", buffer);
-////            }
-////            printf("Pointer p in buffer%x\n", buffer);
-
-//            memcpy(&clientIsRelay, buffer, sizeof(clientIsRelay)); buffer += sizeof(clientIsRelay);
-//            memcpy(&worldConnSize, buffer, sizeof(worldConnSize)); buffer += sizeof(worldConnSize);
-//            memcpy(&_steps_recorded, buffer, sizeof(_steps_recorded)); buffer += sizeof(_steps_recorded);
-////            memcpy(&worldSendStat, buffer, sizeof(worldSendStat)); buffer += sizeof(worldSendStat);
-////            memcpy(&worldRecvStat, buffer, sizeof(worldRecvStat)); buffer += sizeof(worldRecvStat);
-////            memcpy(&worldIsGateway, buffer, sizeof(worldIsGateway)); buffer += sizeof(worldIsGateway);
-////            memcpy(&worldIsMatcher, buffer, sizeof(worldIsMatcher)); buffer += sizeof(worldIsMatcher);
-
-////            return size;
-//        }
-//        return 0;
-//    }
+        return restoredLogs;
+    }
 
     bool VASTStatLog::operator==(const VASTStatLog other) {
 
@@ -234,7 +200,7 @@ namespace Vast {
         equals = equals && this->timestamp == other.timestamp;
         equals = equals && this->clientNode == other.clientNode;
         equals = equals && this->neighbors_size == other.neighbors_size;
-        equals = equals && this->_neighbors == other._neighbors;
+//        equals = equals && _neighbors == other._neighbors;
         equals = equals && this->clientIsRelay == other.clientIsRelay;
         equals = equals && this->worldConnSize == other.worldConnSize;
         equals = equals && this->worldSendStat == other.worldSendStat;
@@ -248,6 +214,107 @@ namespace Vast {
     VASTStatLog::~VASTStatLog()
     {
         //Do memory free here....
+        if (ofs != NULL)
+        {
+            ofs->flush();
+            ofs->close();
+        }
+    }
+
+    std::ostream& operator<<(std::ostream& output, Vast::VASTStatLog const& stat )
+    {
+
+            output << "VASTStatLog::stream >> output: ******************************\n";
+            output << "Timestamp " <<  stat.timestamp << std::endl;
+            output << "My Node ID \n" <<  stat.clientNode.id << std::endl;
+
+            output << "My Node host_id \n" <<  stat.clientNode.id << std::endl;
+            output << "My Node lasttime " <<  stat.clientNode.time << std::endl;
+            output << "My Node AOI x corrd " <<  stat.clientNode.aoi.center.x << std::endl;
+            output << "My Node AOI y corrd " <<  stat.clientNode.aoi.center.y << std::endl;
+            output << "My Node AOI z corrd " <<  stat.clientNode.aoi.center.z << std::endl;
+            output << "My Node AOI " <<  stat.clientNode.aoi.radius << std::endl;
+
+            output << "My Node Addr host ID \n" <<  stat.clientNode.addr.host_id << std::endl;
+            output << "My Node Addr last acc " <<  stat.clientNode.addr.lastAccessed << std::endl;
+            output << "My Node Addr IP host " <<  stat.clientNode.addr.publicIP.host << std::endl;
+            output << "My Node Addr IP port " <<  stat.clientNode.addr.publicIP.port << std::endl;
+
+            output << "Num neighbors: " <<  stat.neighbors_size << std::endl;
+            output << "My neighbour IDs: \n" << std::endl;
+            for (size_t i = 0; i < stat._neighbors.size(); i++)
+            {
+                output << "" <<  stat._neighbors[i].id << std::endl;
+            }
+
+            output << "Relay: " <<  stat.clientIsRelay << std::endl;
+
+            output << "\nCN: " <<  stat.worldConnSize << std::endl;
+            output << "GetSendStat: " <<  stat.worldSendStat.average << std::endl;
+            output << "GetRecvStat: " <<  stat.worldRecvStat.average << std::endl;
+
+            output << "GW: " <<  (stat.worldIsGateway ? "true" : "false") << std::endl;
+            output << "Matcher: " <<  (stat.worldIsMatcher ? "true" : "false") << std::endl;
+
+
+            output << "steps_recorded: " <<  stat._steps_recorded << std::endl;
+            output << "******************************************************" << std::endl;
+
+
+            return output;
+    }
+
+
+    //Getters
+    timestamp_t VASTStatLog::getTimestamp()
+    {
+        return timestamp;
+    }
+
+    int VASTStatLog::isRelay()
+    {
+        return clientIsRelay;
+    }
+
+
+    Node VASTStatLog::getClientNode()
+    {
+        return clientNode;
+    }
+
+    size_t VASTStatLog::getNeighborsSize()
+    {
+        return neighbors_size;
+    }
+    std::vector<Node> VASTStatLog::getNeighbors()
+    {
+        return _neighbors;
+    }
+
+    int VASTStatLog::getWorldConnSize()
+    {
+        return worldConnSize;
+    }
+
+    StatType VASTStatLog::getWorldSendStat()
+    {
+        return worldSendStat;
+    }
+    StatType VASTStatLog::getWorldRecvStat()
+    {
+        return worldRecvStat;
+    }
+
+    bool VASTStatLog::getWorldIsGateway()
+    {
+        return worldIsGateway;
+    }
+    bool VASTStatLog::getWorldIsMatcher()
+    {
+        return worldIsMatcher;
     }
 
 }
+
+
+

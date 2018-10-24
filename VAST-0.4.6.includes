@@ -5,6 +5,8 @@ Demo/demo_chatva_Qt
 Demo/my_demo
 Demo/random_walkertalker
 Demo/VASTsim_Qt
+Demo/VASTStatReplay
+Demo/VASTStatReplayQt
 Dependencies/include
 Dependencies/include/ace
 Dependencies/include/ace/os_include

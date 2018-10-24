@@ -25,7 +25,7 @@ objects = $(subst .cpp,.o,$(sources))
 all: $(lib_vastcommon)	
 
 # $@ refers $(lib_vast) and $^ refers to $(objects)
-$(lib_vastcommon): $(objects)
+$(lib_vastcommon): $(objects) VASTTypes.h
 	$(AR) rcs $@ $^
 	
 .cpp.o:

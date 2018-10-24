@@ -6,12 +6,14 @@
 
 namespace Vast {
 
-    net_overhearing_handler::net_overhearing_handler(ip::udp::endpoint local_endpoint)
+    net_overhearing_handler::net_overhearing_handler(ip::udp::endpoint local_endpoint) :_remote_ids()
     {
         _udp = NULL;
         _io_service = NULL;
         _iosthread = NULL;
         _local_endpoint = local_endpoint;
+        _remote_ids.clear();
+        _remote_ids.push_back(0);
     }
 
     net_overhearing_handler::~net_overhearing_handler()
@@ -47,7 +49,7 @@ namespace Vast {
             } while (ec);
 
             //Open dest_unr_listener as well to receive disconnects
-            _disconn_listener = new dest_unreachable_listener(*io_service, _local_endpoint.address().to_string().c_str(), this);
+//            _disconn_listener = new dest_unreachable_listener(*io_service, _local_endpoint.address().to_string().c_str(), this);
 
             //Add async receive to io_service queue
             start_receive();
@@ -143,17 +145,24 @@ namespace Vast {
     {
         //Unregister from message handler, do this first to avoid sending messages
         //on a closed socket
-        for (id_t remote_id : _remote_ids)
-        {
-            ((net_overhearing*)_msghandler)->socket_disconnected(remote_id);
-        }
+        CPPDEBUG("net_overhearing_handler::handle_close() - _remote_ids.size(): " << _remote_ids.size());
+//        for (id_t remote_id : _remote_ids)
+//        {
+//            CPPDEBUG("net_overhearing_handler::handle_close() - remote id" << remote_id << std::endl;);
+//            if (_msghandler == NULL)
+//                CPPDEBUG("net_overhearing_handler::handle_close() _msghandler was null");
+//            ((net_overhearing*)_msghandler)->socket_disconnected(remote_id);
+//        }
+
 
         if (_io_service != NULL) {
+//            _io_service->reset();
+            _udp->close();
+
             _io_service->stop();
             _iosthread->join();
         }
 
-        _udp->close();
         delete this;
         return 0;
     }

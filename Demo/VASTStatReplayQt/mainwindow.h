@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include "VASTsim.h"
+#include "VAST/vaststatlog.h"
 
 namespace Ui {
 class MainWindow;
@@ -37,11 +38,19 @@ private:
     int create_countdown = 0;
 
     //Simulation moves
-    int steps = 0;
+//    size_t steps = 0;
     bool running = true;
 
     void setUpColors();
     vector<QColor> nodeColors;
+    std::vector<Vast::VASTStatLog> restoredLogs;
+    std::map<Vast::id_t, std::vector<VASTStatLog>> allRestoredLogs;
+    std::vector<Vast::id_t> logIDs;
+    std::vector<size_t> log_steps;
+    timestamp_t latest_timestamp;
+
+    #define DIM_X 768
+    #define DIM_Y 768
 
 };
 

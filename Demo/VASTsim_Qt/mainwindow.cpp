@@ -59,11 +59,11 @@ void MainWindow::nextTimestep() {
 
 }
 
-void MainWindow::paintEvent(QPaintEvent *event) {
+void MainWindow::paintEvent(QPaintEvent * /*event*/) {
 
     QPainter painter(this);
 
-    QPen pen(QColor(255,255,0));
+    QPen pen(QColor(255,255,255));
     pen.setWidth(1);
 
     for (int node_index = 0; node_index < simpara.NODE_SIZE; node_index++)

@@ -6,7 +6,9 @@
 #include <fstream>
 #include <boost/archive/text_iarchive.hpp>
 #include <boost/archive/text_oarchive.hpp>
+#include <boost/serialization/vector.hpp>
 #include <iostream>
+#include <string>
 
 namespace Vast {
 
@@ -22,6 +24,7 @@ namespace Vast {
     {
     public:
         VASTStatLog(VASTVerse *world, VAST *client);
+        VASTStatLog() {}
         ~VASTStatLog();
 
         void recordStat ();
@@ -29,8 +32,6 @@ namespace Vast {
 
         //Implement the serialize functions
         size_t sizeOf ();
-//        size_t serialize (char *buffer);
-//        size_t deserialize (const char *buffer, size_t size);
 
         bool operator==(const VASTStatLog);
 
@@ -42,12 +43,46 @@ namespace Vast {
         void serialize(Archive& ar, const unsigned /*version*/)
         {
             ar & timestamp;
+
+            ar & clientNode;
+            ar & clientIsRelay;
+
+            ar & neighbors_size;
+            ar & _neighbors;
+
+            ar & worldConnSize;
+
+            ar & worldSendStat;
+            ar & worldRecvStat;
+
+            ar & worldIsMatcher;
+            ar & worldIsGateway;
+
+            ar & _steps_recorded;
         }
 
-        void openLogFile();
-        void restoreFromLogFile(string filename);
+        void saveToLogFile(int step, std::string filename);
+        void restoreFirstFromLogFile(std::string filename);
+        static std::vector<VASTStatLog> restoreAllFromLogFile(std::string filename);
 
         friend std::ostream& operator<<(std::ostream&, VASTStatLog const& log);
+
+
+        //Getters
+        timestamp_t getTimestamp();
+        Node getClientNode();
+        int isRelay();
+
+        size_t getNeighborsSize();
+        std::vector<Node> getNeighbors();
+
+        int getWorldConnSize();
+        StatType getWorldSendStat();
+        StatType getWorldRecvStat();
+
+        bool getWorldIsGateway();
+        bool getWorldIsMatcher();
+
 
 
     private:
@@ -56,7 +91,7 @@ namespace Vast {
         Node clientNode;                            // #
         int clientIsRelay;                          // #
         size_t neighbors_size;                      // #
-        std::vector<Node*> _neighbors;              // #
+        std::vector<Node> _neighbors;              // #
 
         int worldConnSize = -1;                     // #
         StatType worldSendStat;                     // #
@@ -71,6 +106,10 @@ namespace Vast {
         //Used for sourcing data points. Not reconstructed in deserialise
         VAST* _client;                              //
         VASTVerse* _world;                          //
+
+        std::string _logfilename = "./logs/VASTStat";
+        std::ofstream *ofs = NULL;
+        boost::archive::text_oarchive *ar = NULL;
 
     };
 }   //end namespace Vast

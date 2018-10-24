@@ -14,6 +14,7 @@ Demo/VASTsim_Qt/mainwindow.h
 Demo/VASTsim_Qt/moc_mainwindow.cpp
 Demo/VASTsim_Qt/moc_predefs.h
 Demo/VASTsim_Qt/ui_mainwindow.h
+Demo/VASTsim_Qt/VASTsim_Qt.pro
 Demo/VASTsim_console/VASTsim_console.cpp
 Demo/VASTsim_console/Makefile
 Demo/VASTsim_consoleDev/VASTsim_console.cpp
@@ -45,6 +46,13 @@ Demo/random_walkertalker/test_helper.cpp
 Demo/random_walkertalker/Makefile
 Demo/test_console/test_console.cpp
 Demo/vastplayground/vastplayground.cpp
+Demo/VASTStatReplay/vaststat_replay.cpp
+Demo/VASTStatReplay/Makefile
+Demo/VASTStatReplayQt/mainwindow.cpp
+Demo/VASTStatReplayQt/mainwindow.h
+Demo/VASTStatReplayQt/mainwindow.cpp
+Demo/VASTStatReplayQt/VASTStatReplayQt.pro
+Demo/VASTStatReplayQt/Makefile
 VAST/Makefile
 VAST/VASTClient.cpp
 VAST/VASTClient.h

@@ -39,6 +39,9 @@
 #include <string>
 #include <iostream>
 
+#include <boost/archive/text_iarchive.hpp>
+#include <boost/archive/text_oarchive.hpp>
+
 // include standard integer depending on compiler used
 #ifdef _WIN32
 #include "./standard/stdint.h"
@@ -283,6 +286,20 @@ public:
         }
         return 0;
     }
+
+    //Boost serialization
+    friend class boost::serialization::access;
+    template<typename Archive>
+    void serialize(Archive& ar, const unsigned /*version*/)
+    {
+        ar & minimum;
+        ar & maximum;
+        ar & total;
+        ar & num_records;
+        ar & average;
+
+    }
+
 
     bool operator==(const StatType other)
     {
@@ -956,11 +973,11 @@ public:
         return *this;
     }
 
-    bool operator==(const Node other) {
-        bool equals = this->id == other.id;
-        equals = equals && this->time == other.time;
-        equals = equals && this->aoi == other.aoi;
-        equals = equals && this->addr == other.addr;
+    bool operator==(Node other) {
+        bool equals = id == other.id;
+        equals = equals && time == other.time;
+        equals = equals && aoi == other.aoi;
+        equals = equals && addr == other.addr;
 
         return equals;
     }
@@ -995,6 +1012,24 @@ public:
             return sizeOf ();
         }
         return 0;        
+    }
+
+    //Boost serialization
+    friend class boost::serialization::access;
+    template<typename Archive>
+    void serialize(Archive& ar, const unsigned /*version*/)
+    {
+        ar & id;
+        ar & aoi.center.x;
+        ar & aoi.center.y;
+        ar & aoi.center.z;
+        ar & aoi.radius;
+        ar & aoi.height;
+
+        ar & addr.host_id;
+        ar & addr.lastAccessed;
+        ar & addr.publicIP.host;
+        ar & addr.publicIP.port;
     }
 
     id_t            id;         // unique ID for the node   
