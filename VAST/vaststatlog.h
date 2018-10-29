@@ -46,6 +46,8 @@ namespace Vast {
 
             ar & clientNode;
             ar & clientIsRelay;
+            ar & subID;
+            ar & clientIsJoined;
 
             ar & neighbors_size;
             ar & _neighbors;
@@ -72,6 +74,10 @@ namespace Vast {
         timestamp_t getTimestamp();
         Node getClientNode();
         int isRelay();
+        bool isJoined();
+
+        bool in_view (Node &remote_node);
+        bool knows (Node &remote_node);
 
         size_t getNeighborsSize();
         std::vector<Node> getNeighbors();
@@ -89,15 +95,18 @@ namespace Vast {
         //The properties marked with a # will be saved to logfile
         timestamp_t timestamp;                      // #
         Node clientNode;                            // #
+        Vast::id_t subID;                           // #
         int clientIsRelay;                          // #
         size_t neighbors_size;                      // #
         std::vector<Node> _neighbors;              // #
+        bool clientIsJoined;                        // #
 
         int worldConnSize = -1;                     // #
         StatType worldSendStat;                     // #
         StatType worldRecvStat;                     // #
         bool worldIsGateway;                        // #
         bool worldIsMatcher;                        // #
+
 
         long _min_aoi, _total_aoi;
         int _max_CN, _total_CN;

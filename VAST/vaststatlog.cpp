@@ -40,6 +40,8 @@ namespace Vast {
         }
 
         clientNode = *(_client->getSelf());
+        subID = _client->getSubscriptionID();
+        clientIsJoined = _client->isJoined();
 
         // record keeping
         long aoi = clientNode.aoi.radius;
@@ -264,6 +266,26 @@ namespace Vast {
             return output;
     }
 
+    // distance to a point
+    bool
+    VASTStatLog::in_view (Node &remote_node)
+    {
+        return (clientNode.aoi.center.distance (remote_node.aoi.center) < (double)clientNode.aoi.radius);
+    }
+
+    // returns true if known
+    bool
+    VASTStatLog::knows (Node &node)
+    {
+        // see if 'node' is a known neighbor of me
+        for (size_t i = 0; i < _neighbors.size(); i++)
+        {
+            if (_neighbors[i].id == node.id)
+                return true;
+        }
+        return false;
+    }
+
 
     //Getters
     timestamp_t VASTStatLog::getTimestamp()
@@ -274,6 +296,11 @@ namespace Vast {
     int VASTStatLog::isRelay()
     {
         return clientIsRelay;
+    }
+
+    bool VASTStatLog::isJoined()
+    {
+        return clientIsJoined;
     }
 
 

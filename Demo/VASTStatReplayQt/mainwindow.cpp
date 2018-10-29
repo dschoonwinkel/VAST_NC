@@ -140,34 +140,42 @@ void MainWindow::paintEvent(QPaintEvent * /*event*/) {
         painter.setPen(nodeColors[log_iter%nodeColors.size()]);
         restoredLogs = allRestoredLogs[logIDs[log_iter]];
 
+        //Get client node state
+        Node node = restoredLogs[log_steps[log_iter]].getClientNode();
+
+        //Check if log entry indexes should be moved along
         if (log_steps[log_iter] < restoredLogs.size() &&
                 restoredLogs[log_steps[log_iter]].getTimestamp() <= latest_timestamp)
         {
-//            std::cout << restoredLogs[steps];
+            log_steps[log_iter]++;
+            latest_timestamp = restoredLogs[log_steps[log_iter]].getTimestamp();
+            Node node = restoredLogs[log_steps[log_iter]].getClientNode();
+        }
 
-            for (size_t i =0; i < restoredLogs[log_steps[log_iter]].getNeighbors().size(); i++)
+
+        std::cout << "Neighbors: " << std::endl;
+        for (size_t i =0; i < restoredLogs[log_steps[log_iter]].getNeighbors().size(); i++)
+        {
+            //Print neighbor for debugging purposes
+            std::cout << restoredLogs[log_steps[log_iter]].getNeighbors()[i].id << std::endl;
+
+            //Check if I know the neighbors around me
+            for (size_t j = 0; j < log_iter.size(); j++)
             {
-//                std::cout << restoredLogs[log_steps[log_iter]].getNeighbors()[i].id << std::endl;
+
             }
 
-            Node node = restoredLogs[log_steps[log_iter]].getClientNode();
+
+        }
+        std::cout << std::endl;
 
 
+        //Check if the timestamp has caught up with the log entries yet
+        if (restoredLogs[0].getTimestamp() <= latest_timestamp) {
             //Draw AOI
             painter.drawEllipse(QPointF(node.aoi.center.x, node.aoi.center.y), node.aoi.radius, node.aoi.radius);
             //Just draw center
             painter.drawEllipse(QPointF(node.aoi.center.x, node.aoi.center.y), 1,1);
-
-    //        std::vector<Node> neighbors = restoredLogs[steps].getNeighbors();
-    //        for (size_t i = 0; i < restoredLogs[steps].getNeighborsSize(); i++)
-    //        {
-    //            Node node = neighbors[i];
-    //            painter.drawEllipse(QPointF(node.aoi.center.x, node.aoi.center.y), 1,1);
-    //        }
-
-            log_steps[log_iter]++;
-            latest_timestamp = restoredLogs[log_steps[log_iter]].getTimestamp();
-
         }
     }
 
@@ -175,6 +183,53 @@ void MainWindow::paintEvent(QPaintEvent * /*event*/) {
 
 
 }
+
+//void calc_consistency (size_t i, size_t &AN_actual, size_t &AN_visible, size_t &total_drift, size_t &max_drift, size_t &drift_nodes)
+//{
+//    size_t n = _simnodes.size ();
+//    Node *neighbor;
+//    AN_actual = AN_visible = total_drift = max_drift = drift_nodes = 0;
+
+//    // loop through all nodes
+//    for (size_t j=0; j<n; ++j)
+//    {
+//        // skip self-check or failed / not yet joined node
+//#ifdef STAT_JOINED_NODE_ONLY
+//        if (i == j || _simnodes[j]->isJoined () == false)
+//#else
+//        if (i == j || _simnodes[j]->isFailed ())
+//#endif
+//            continue;
+
+//        // visible neighbors
+//        if (_simnodes[i]->in_view (_simnodes[j]))
+//        {
+//            AN_actual++;
+
+//            if ((neighbor = _simnodes[i]->knows (_simnodes[j])) != NULL)
+//            {
+//                AN_visible++;
+
+//                // calculate drift distance (except self)
+//                // NOTE: drift distance is calculated for all known AOI neighbors
+//                drift_nodes++;
+
+//                size_t drift = (size_t)neighbor->aoi.center.distance (_simnodes[j]->get_pos ());
+//                total_drift += drift;
+
+//                if (max_drift < drift)
+//                {
+//                    max_drift = drift;
+//#ifdef DEBUG_DETAIL
+//                    printf ("%4d - max drift updated: [%d] info on [%d] drift: %d\n", _steps+1, (int)_simnodes[i]->getID (), (int)neighbor->id, (int)drift);
+//#endif
+//                }
+//            }
+//        }
+//    } // end looping through all other nodes
+
+
+//}
 
 void MainWindow::timerEvent(QTimerEvent *event) {
     if (event->timerId() == m_timerId) {
