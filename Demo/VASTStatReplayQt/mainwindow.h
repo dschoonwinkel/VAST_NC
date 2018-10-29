@@ -45,7 +45,7 @@ private:
 
     void setUpColors();
     vector<QColor> nodeColors;
-    std::vector<Vast::VASTStatLog> restoredLogs;
+//    std::vector<Vast::VASTStatLog> restoredLogs;
     std::map<Vast::id_t, std::vector<VASTStatLog>> allRestoredLogs;
     std::vector<Vast::id_t> logIDs;
     std::vector<size_t> log_steps;
