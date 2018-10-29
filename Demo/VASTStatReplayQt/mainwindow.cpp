@@ -160,7 +160,7 @@ void MainWindow::paintEvent(QPaintEvent * /*event*/) {
             std::cout << restoredLogs[log_steps[log_iter]].getNeighbors()[i].id << std::endl;
 
             //Check if I know the neighbors around me
-            for (size_t j = 0; j < log_iter.size(); j++)
+            for (size_t j = 0; j < logIDs.size(); j++)
             {
 
             }

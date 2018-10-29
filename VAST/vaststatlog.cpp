@@ -268,19 +268,19 @@ namespace Vast {
 
     // distance to a point
     bool
-    VASTStatLog::in_view (Node &remote_node)
+    VASTStatLog::in_view (VASTStatLog &remote_log)
     {
-        return (clientNode.aoi.center.distance (remote_node.aoi.center) < (double)clientNode.aoi.radius);
+        return (clientNode.aoi.center.distance (remote_log.clientNode.aoi.center) < (double)clientNode.aoi.radius);
     }
 
     // returns true if known
     bool
-    VASTStatLog::knows (Node &node)
+    VASTStatLog::knows (VASTStatLog &remote_log)
     {
         // see if 'node' is a known neighbor of me
         for (size_t i = 0; i < _neighbors.size(); i++)
         {
-            if (_neighbors[i].id == node.id)
+            if (_neighbors[i].id == remote_log.clientNode.id)
                 return true;
         }
         return false;

@@ -76,8 +76,8 @@ namespace Vast {
         int isRelay();
         bool isJoined();
 
-        bool in_view (Node &remote_node);
-        bool knows (Node &remote_node);
+        bool in_view (VASTStatLog &remote_log);
+        bool knows (VASTStatLog &remote_log);
 
         size_t getNeighborsSize();
         std::vector<Node> getNeighbors();
