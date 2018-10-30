@@ -3,7 +3,7 @@
 
 #include <QMainWindow>
 #include "VASTsim.h"
-#include "VAST/vaststatlog_entry.h"
+#include "VAST/vaststatlog.h"
 
 namespace Ui {
 class MainWindow;
@@ -45,10 +45,8 @@ private:
 
     void setUpColors();
     vector<QColor> nodeColors;
-//    std::vector<Vast::VASTStatLogEntry> restoredLogs;
-    std::map<Vast::id_t, std::vector<VASTStatLogEntry>> allRestoredLogs;
+    std::map<Vast::id_t, VASTStatLog> allRestoredLogs;
     std::vector<Vast::id_t> logIDs;
-    std::vector<size_t> log_steps;
     timestamp_t latest_timestamp;
 
     #define DIM_X 768

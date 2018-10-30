@@ -15,6 +15,7 @@ namespace Vast {
         void nextStep();
 
         timestamp_t getTimestamp();
+        timestamp_t getFirstTimestamp();
         Node getClientNode();
         int isRelay();
         bool isJoined();
@@ -33,6 +34,10 @@ namespace Vast {
 
         bool getWorldIsGateway();
         bool getWorldIsMatcher();
+
+        size_t getRecordedSteps();
+
+        bool finished();
 
     private:
         std::vector<Vast::VASTStatLogEntry> _restoredLogs;

@@ -9,6 +9,7 @@ TEMPLATE = app
 INCLUDEPATH += . \
                 ../../common \
                 ../../VASTsim
+                ../../VAST
 
 QT += gui
 QT += widgets

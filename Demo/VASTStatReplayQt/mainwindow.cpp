@@ -18,57 +18,37 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
-//    QSettings settings("/home/daniel/Development/VAST-0.4.6/Demo/VASTsim_Qt/VASTsim.INI",
-//                       QSettings::IniFormat);
-//    std::cout << "MOVE_MODEL: " << settings.value("MOVE_MODEL").toInt() << std::endl;
-
-//    InitPara (VAST_NET_EMULATED, netpara, simpara);
-
-//    InitSim (simpara, netpara);
-
     m_timerId = startTimer(100);
 
     setFixedSize(DIM_X, DIM_Y);
     setUpColors();
-
-    std::cout << "Hello there!!" << std::endl;
 
     path dir_path("./logs");
     directory_iterator end_itr;
     for (directory_iterator itr(dir_path); itr != end_itr; ++itr) {
         std::cout << itr->path() << std::endl;
 
-    //    std::string filename = "./logs/VASTStat_N9151315546691403777.txt";
-//        std::string filename = "./logs/VASTStat_N9151315546691469313.txt";
         std::string filename = itr->path().string();
         std::vector<Vast::VASTStatLogEntry> restoredLogs = Vast::VASTStatLogEntry::restoreAllFromLogFile(filename);
+        VASTStatLog restoredLog(restoredLogs);
 
         //Cut off .txt
         std::string id_string = filename.substr(0, filename.find(".txt"));
         //Extract id_t
         id_string = id_string.substr(id_string.find("N") + 1);
 
-    //    std::cout << id_string << std::endl;
         Vast::id_t restoredLogID = stoll(id_string);
-    //    std::cout << "Converted to id_t: " << restoredLogID << std::endl;
-        allRestoredLogs[restoredLogID] = restoredLogs;
+        allRestoredLogs[restoredLogID] = restoredLog;
         logIDs.push_back(restoredLogID);
-        //Insert the starting step
-        log_steps.push_back(0);
-
-    //    for (Vast::VASTStatLogEntry log : restoredLogs)
-    //    {
-    //        std::cout << log;
-    //    }
 
         latest_timestamp = ULONG_LONG_MAX;
         //Initiate latest_timestamp to the earliest timestamp
         for (size_t log_iter = 0; log_iter < logIDs.size(); log_iter++)
         {
-          std::cout << "Stariting timestamp: " << allRestoredLogs[logIDs[log_iter]].at(0).getTimestamp() << std::endl;
-          if (allRestoredLogs[logIDs[log_iter]].at(0).getTimestamp() < latest_timestamp)
+          std::cout << "Starting timestamp: " << allRestoredLogs[logIDs[log_iter]].getTimestamp() << std::endl;
+          if (allRestoredLogs[logIDs[log_iter]].getTimestamp() < latest_timestamp)
           {
-              latest_timestamp = allRestoredLogs[logIDs[log_iter]].at(0).getTimestamp();
+              latest_timestamp = allRestoredLogs[logIDs[log_iter]].getTimestamp();
           }
 
 
@@ -85,39 +65,12 @@ MainWindow::MainWindow(QWidget *parent) :
 
 void MainWindow::nextTimestep() {
 
-//    steps++;
-//    printf("step %lu\n", steps);
-
-//    // create nodes
-//    if (nodes_created < simpara.NODE_SIZE)
-//    {
-//        if (create_countdown == 0)
-//        {
-//            CreateNode (nodes_created == 0);
-//            nodes_created++;
-//            printf("Creating node %d \n%3d %%\n", nodes_created, (int) ((double) (nodes_created * 100) / (double) simpara.NODE_SIZE));
-//            create_countdown = simpara.JOIN_RATE;
-//        }
-//        else
-//            create_countdown--;
-//    }
-
-//    //If the maximum simulation timesteps have been reached, stop the simulation
-//    if (NextStep () < 0)
-//    {
-//        //Stop the screen updates
-//        killTimer(m_timerId);
-//        //        close();
-//    }
-
-
-
-    //TODO: Check all restoredLogs, not just the last one!
-
+    //Check all restoredLogs, not just the last one!
     bool finished = true;
-    for (size_t log_iter = 0; log_iter < log_steps.size(); log_iter++) {
+    for (size_t log_iter = 0; log_iter < logIDs.size(); log_iter++) {
 
-        finished = finished && log_steps[log_iter] >= allRestoredLogs[logIDs[log_iter]].size();
+        finished = finished && allRestoredLogs[logIDs[log_iter]].finished();
+        std::cout << logIDs[log_iter] << "  " << allRestoredLogs[logIDs[log_iter]].finished() << std::endl;
     }
     if (finished) {
         killTimer(m_timerId);
@@ -134,31 +87,30 @@ void MainWindow::paintEvent(QPaintEvent * /*event*/) {
     pen.setWidth(1);
     painter.setPen(pen);
 
+    //VASTStatLog approach - instead of working with vectors of entries
     for (size_t log_iter = 0; log_iter < logIDs.size(); log_iter++) {
 
         std::cout << "Plotting node: " << logIDs[log_iter] << std::endl;
         painter.setPen(nodeColors[log_iter%nodeColors.size()]);
 
-        std::vector<Vast::VASTStatLogEntry> &restoredLogs = allRestoredLogs[logIDs[log_iter]];
+        VASTStatLog &restoredLog = allRestoredLogs[logIDs[log_iter]];
 
         //Get client node state
-        Node node = restoredLogs[log_steps[log_iter]].getClientNode();
+        Node node = restoredLog.getClientNode();
 
         //Check if log entry indexes should be moved along
-        if (log_steps[log_iter] < restoredLogs.size() &&
-                restoredLogs[log_steps[log_iter]].getTimestamp() <= latest_timestamp)
+        if (restoredLog.getTimestamp() <= latest_timestamp)
         {
-            log_steps[log_iter]++;
-            latest_timestamp = restoredLogs[log_steps[log_iter]].getTimestamp();
-            node = restoredLogs[log_steps[log_iter]].getClientNode();
+            restoredLog.nextStep();
+            latest_timestamp = restoredLog.getTimestamp();
+            node = restoredLog.getClientNode();
         }
 
-
         std::cout << "Neighbors: " << std::endl;
-        for (size_t i =0; i < restoredLogs[log_steps[log_iter]].getNeighbors().size(); i++)
+        for (size_t i =0; i < restoredLog.getNeighbors().size(); i++)
         {
             //Print neighbor for debugging purposes
-            std::cout << restoredLogs[log_steps[log_iter]].getNeighbors()[i].id << std::endl;
+            std::cout << restoredLog.getNeighbors()[i].id << std::endl;
 
             //Check if I know the neighbors around me
             for (size_t j = 0; j < logIDs.size(); j++)
@@ -169,16 +121,18 @@ void MainWindow::paintEvent(QPaintEvent * /*event*/) {
 
 
         }
+
         std::cout << std::endl;
 
 
         //Check if the timestamp has caught up with the log entries yet
-        if (restoredLogs[0].getTimestamp() <= latest_timestamp) {
+        if (restoredLog.getFirstTimestamp() <= latest_timestamp) {
             //Draw AOI
             painter.drawEllipse(QPointF(node.aoi.center.x, node.aoi.center.y), node.aoi.radius, node.aoi.radius);
             //Just draw center
             painter.drawEllipse(QPointF(node.aoi.center.x, node.aoi.center.y), 1,1);
         }
+
     }
 
 
@@ -234,9 +188,12 @@ void MainWindow::paintEvent(QPaintEvent * /*event*/) {
 //}
 
 void MainWindow::timerEvent(QTimerEvent *event) {
+    static size_t counter = 0;
+
     if (event->timerId() == m_timerId) {
         nextTimestep();
         update();
+        std::cout << counter++ << std::endl;
     }
 }
 

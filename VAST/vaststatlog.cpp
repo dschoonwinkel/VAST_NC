@@ -5,6 +5,7 @@ namespace Vast {
     VASTStatLog::VASTStatLog(std::vector<VASTStatLogEntry> entries)
     {
         _restoredLogs = entries;
+        recorded_steps = _restoredLogs.size();
     }
 
     void VASTStatLog::nextStep()
@@ -45,6 +46,11 @@ namespace Vast {
     timestamp_t VASTStatLog::getTimestamp()
     {
         return getEntry().timestamp;
+    }
+
+    timestamp_t VASTStatLog::getFirstTimestamp()
+    {
+        return _restoredLogs[0].timestamp;
     }
 
     int VASTStatLog::isRelay()
@@ -93,6 +99,17 @@ namespace Vast {
     bool VASTStatLog::getWorldIsMatcher()
     {
         return getEntry().worldIsMatcher;
+    }
+
+    size_t VASTStatLog::getRecordedSteps()
+    {
+        return recorded_steps;
+    }
+
+    bool VASTStatLog::finished()
+    {
+        //Check if this is the final step (index off by one)
+        return (current_step+1) == recorded_steps;
     }
 
 }
