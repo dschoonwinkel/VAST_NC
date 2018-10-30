@@ -41,7 +41,7 @@ MainWindow::MainWindow(QWidget *parent) :
     //    std::string filename = "./logs/VASTStat_N9151315546691403777.txt";
 //        std::string filename = "./logs/VASTStat_N9151315546691469313.txt";
         std::string filename = itr->path().string();
-        std::vector<Vast::VASTStatLog> restoredLogs = Vast::VASTStatLog::restoreAllFromLogFile(filename);
+        std::vector<Vast::VASTStatLogEntry> restoredLogs = Vast::VASTStatLogEntry::restoreAllFromLogFile(filename);
 
         //Cut off .txt
         std::string id_string = filename.substr(0, filename.find(".txt"));
@@ -56,7 +56,7 @@ MainWindow::MainWindow(QWidget *parent) :
         //Insert the starting step
         log_steps.push_back(0);
 
-    //    for (Vast::VASTStatLog log : restoredLogs)
+    //    for (Vast::VASTStatLogEntry log : restoredLogs)
     //    {
     //        std::cout << log;
     //    }
@@ -139,7 +139,7 @@ void MainWindow::paintEvent(QPaintEvent * /*event*/) {
         std::cout << "Plotting node: " << logIDs[log_iter] << std::endl;
         painter.setPen(nodeColors[log_iter%nodeColors.size()]);
 
-        std::vector<Vast::VASTStatLog> &restoredLogs = allRestoredLogs[logIDs[log_iter]];
+        std::vector<Vast::VASTStatLogEntry> &restoredLogs = allRestoredLogs[logIDs[log_iter]];
 
         //Get client node state
         Node node = restoredLogs[log_steps[log_iter]].getClientNode();
@@ -163,7 +163,7 @@ void MainWindow::paintEvent(QPaintEvent * /*event*/) {
             //Check if I know the neighbors around me
             for (size_t j = 0; j < logIDs.size(); j++)
             {
-                restoredLogs[log_steps[log_iter]]
+//                restoredLogs[log_steps[log_iter]]
 
             }
 

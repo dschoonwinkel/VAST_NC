@@ -1,7 +1,9 @@
-tests/vaststatlog_test.cpp
-Makefile
 VAST/vaststatlog.cpp
 VAST/vaststatlog.h
+VAST/vaststatlog_entry.cpp
+VAST/vaststatlog_entry.h
+tests/vaststatlog_test.cpp
+Makefile
 VASTnet/dest_unr_listener.cpp
 VASTnet/dest_unr_listener.h
 bin/Makefile

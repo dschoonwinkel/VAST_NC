@@ -7,7 +7,7 @@
 #include "VASTVerse.h"
 #include "VASTUtil.h"
 #include "VASTCallback.h"       // for creating callback handler
-#include "vaststatlog.h"
+#include "vaststatlog_entry.h"
 
 #define VAST_EVENT_LAYER    1                   // layer ID for sending events
 #define VAST_UPDATE_LAYER   2                   // layer ID for sending updates
@@ -28,7 +28,7 @@ NodeState       g_state = ABSENT;     //State of joining node
 Vast::id_t      g_sub_id = 0;       // subscription # for my client (peer)
 
 //VAST statistics
-VASTStatLog*    g_statlog = NULL;    //Logger for statistics
+VASTStatLogEntry*    g_statlog = NULL;    //Logger for statistics
 
 
 int main (int argc, char *argv[])
@@ -75,7 +75,7 @@ int main (int argc, char *argv[])
             if ((g_self = g_world->getVASTNode()) != NULL) {
                 g_sub_id = g_self->getSubscriptionID();
                 g_state = JOINED;
-                g_statlog = new VASTStatLog(g_world, g_self);
+                g_statlog = new VASTStatLogEntry(g_world, g_self);
             }
         }
 
@@ -100,7 +100,7 @@ int main (int argc, char *argv[])
             char *new_buffer = new char[g_statlog->sizeOf()];
             fread(new_buffer, g_statlog->sizeOf(), 1, fptr);
 
-            VASTStatLog newLog(NULL, NULL);
+            VASTStatLogEntry newLog(NULL, NULL);
             newLog.deserialize(new_buffer, g_statlog->sizeOf());
 
             std::cout << "Deserialized == original: " << (newLog == *g_statlog) << std::endl;
