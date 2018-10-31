@@ -823,7 +823,7 @@ public:
     }
 */
     
-    const bool toString (std::string &str)
+    bool toString (std::string &str)
     {
         //static std::string str;
 

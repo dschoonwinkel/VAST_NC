@@ -18,25 +18,19 @@ namespace Vast {
 
     // distance to a point
     bool
-    VASTStatLog::in_view (VASTStatLogEntry &remote_log)
+    VASTStatLog::in_view (const VASTStatLogEntry &remote_log) const
     {
-        return (getEntry().clientNode.aoi.center.distance (remote_log.clientNode.aoi.center) < (double)getEntry().clientNode.aoi.radius);
+        return (getEntry().in_view(remote_log));
     }
 
     // returns true if known
     bool
-    VASTStatLog::knows (VASTStatLogEntry &remote_log)
+    VASTStatLog::knows (const VASTStatLogEntry &remote_log) const
     {
-        // see if 'node' is a known neighbor of me
-        for (size_t i = 0; i < getEntry()._neighbors.size(); i++)
-        {
-            if (getEntry()._neighbors[i].id == remote_log.clientNode.id)
-                return true;
-        }
-        return false;
+        return getEntry().knows(remote_log);
     }
 
-    VASTStatLogEntry VASTStatLog::getEntry()
+    VASTStatLogEntry VASTStatLog::getEntry() const
     {
         return _restoredLogs[current_step];
     }
@@ -45,60 +39,70 @@ namespace Vast {
     //Getters
     timestamp_t VASTStatLog::getTimestamp()
     {
-        return getEntry().timestamp;
+        return getEntry().getTimestamp();
     }
 
     timestamp_t VASTStatLog::getFirstTimestamp()
     {
-        return _restoredLogs[0].timestamp;
+        return _restoredLogs[0].getTimestamp();
     }
 
     int VASTStatLog::isRelay()
     {
-        return getEntry().clientIsRelay;
+        return getEntry().isRelay();
     }
 
-    bool VASTStatLog::isJoined()
+    bool VASTStatLog::isJoined() const
     {
-        return getEntry().clientIsJoined;
+        return getEntry().isJoined() && current_step >0 && !finished();
     }
 
 
-    Node VASTStatLog::getClientNode()
+    Node VASTStatLog::getClientNode() const
     {
-        return getEntry().clientNode;
+        return getEntry().getClientNode();
+    }
+
+    id_t VASTStatLog::getSubID() const
+    {
+        return getEntry().getSubID();
+    }
+
+    Node VASTStatLog::getNeighborByID(Vast::id_t neighbor_id) const
+    {
+        return getEntry().getNeighborByID(neighbor_id);
     }
 
     size_t VASTStatLog::getNeighborsSize()
     {
-        return getEntry().neighbors_size;
+        return getEntry().getNeighborsSize();
     }
     std::vector<Node> VASTStatLog::getNeighbors()
     {
-        return getEntry()._neighbors;
+        return getEntry().getNeighbors();
     }
 
     int VASTStatLog::getWorldConnSize()
     {
-        return getEntry().worldConnSize;
+        return getEntry().getWorldConnSize();
     }
 
     StatType VASTStatLog::getWorldSendStat()
     {
-        return getEntry().worldSendStat;
+        return getEntry().getWorldSendStat();
     }
     StatType VASTStatLog::getWorldRecvStat()
     {
-        return getEntry().worldRecvStat;
+        return getEntry().getWorldRecvStat();
     }
 
     bool VASTStatLog::getWorldIsGateway()
     {
-        return getEntry().worldIsGateway;
+        return getEntry().getWorldIsGateway();
     }
     bool VASTStatLog::getWorldIsMatcher()
     {
-        return getEntry().worldIsMatcher;
+        return getEntry().getWorldIsMatcher();
     }
 
     size_t VASTStatLog::getRecordedSteps()
@@ -106,7 +110,7 @@ namespace Vast {
         return recorded_steps;
     }
 
-    bool VASTStatLog::finished()
+    bool VASTStatLog::finished() const
     {
         //Check if this is the final step (index off by one)
         return (current_step+1) == recorded_steps;

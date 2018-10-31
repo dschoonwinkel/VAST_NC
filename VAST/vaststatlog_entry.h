@@ -74,11 +74,13 @@ namespace Vast {
         //Getters
         timestamp_t getTimestamp();
         Node getClientNode();
+        Node getNeighborByID(Vast::id_t neighbor_id) const;
+        id_t getSubID() const;
         int isRelay();
         bool isJoined();
 
-        bool in_view (VASTStatLogEntry &remote_log);
-        bool knows (VASTStatLogEntry &remote_log);
+        bool in_view (const VASTStatLogEntry &remote_log);
+        bool knows (const VASTStatLogEntry &remote_log);
 
         size_t getNeighborsSize();
         std::vector<Node> getNeighbors();

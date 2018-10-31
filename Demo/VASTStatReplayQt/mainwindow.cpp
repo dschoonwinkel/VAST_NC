@@ -6,6 +6,8 @@
 #include <QPainter>
 #include <QSettings>
 #include <QPointF>
+#include <jsoncpp/json/json.h>
+#include <jsoncpp/json/writer.h>
 
 #include <climits>
 
@@ -14,7 +16,7 @@ using namespace boost::filesystem;
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
-    ui(new Ui::MainWindow), netpara(VAST_NET_EMULATED)
+    ui(new Ui::MainWindow), netpara(VAST_NET_EMULATED), ofs(results_file)
 {
     ui->setupUi(this);
 
@@ -25,9 +27,13 @@ MainWindow::MainWindow(QWidget *parent) :
 
     path dir_path("./logs");
     directory_iterator end_itr;
-    for (directory_iterator itr(dir_path); itr != end_itr; ++itr) {
-        std::cout << itr->path() << std::endl;
 
+    for (directory_iterator itr(dir_path); itr != end_itr; ++itr) {
+
+        //Skip subfolders
+        if (is_directory(itr->path())) continue;
+
+        std::cout << itr->path() << std::endl;
         std::string filename = itr->path().string();
         std::vector<Vast::VASTStatLogEntry> restoredLogs = Vast::VASTStatLogEntry::restoreAllFromLogFile(filename);
         VASTStatLog restoredLog(restoredLogs);
@@ -54,10 +60,12 @@ MainWindow::MainWindow(QWidget *parent) :
 
         }
 
-        std::cout << "First timestamp: " << latest_timestamp << std::endl;
-
     }
 
+    std::cout << "First timestamp: " << latest_timestamp << std::endl;
+
+    ofs << "timestamp" << "active_nodes" << "AN_actual" << "AN_visible"
+        << "Total drift" << "Max drift" << "drift nodes" << std::endl;
 
     update();
 
@@ -70,7 +78,6 @@ void MainWindow::nextTimestep() {
     for (size_t log_iter = 0; log_iter < logIDs.size(); log_iter++) {
 
         finished = finished && allRestoredLogs[logIDs[log_iter]].finished();
-        std::cout << logIDs[log_iter] << "  " << allRestoredLogs[logIDs[log_iter]].finished() << std::endl;
     }
     if (finished) {
         killTimer(m_timerId);
@@ -87,19 +94,28 @@ void MainWindow::paintEvent(QPaintEvent * /*event*/) {
     pen.setWidth(1);
     painter.setPen(pen);
 
+    //Drift distance and topology consistency
+    size_t AN_actual =0, AN_visible =0, total_drift =0, max_drift =0, drift_nodes =0, active_nodes =0;
+
+
     //VASTStatLog approach - instead of working with vectors of entries
     for (size_t log_iter = 0; log_iter < logIDs.size(); log_iter++) {
 
-        std::cout << "Plotting node: " << logIDs[log_iter] << std::endl;
         painter.setPen(nodeColors[log_iter%nodeColors.size()]);
 
         VASTStatLog &restoredLog = allRestoredLogs[logIDs[log_iter]];
+
+        //If the log entries are finished, skip
+         if (restoredLog.finished())
+             continue;
+
+        std::cout << "Plotting node: " << logIDs[log_iter] << std::endl;
 
         //Get client node state
         Node node = restoredLog.getClientNode();
 
         //Check if log entry indexes should be moved along
-        if (restoredLog.getTimestamp() <= latest_timestamp)
+        if (restoredLog.getTimestamp() <= latest_timestamp && !restoredLog.finished())
         {
             restoredLog.nextStep();
             latest_timestamp = restoredLog.getTimestamp();
@@ -115,8 +131,28 @@ void MainWindow::paintEvent(QPaintEvent * /*event*/) {
             //Check if I know the neighbors around me
             for (size_t j = 0; j < logIDs.size(); j++)
             {
-//                restoredLogs[log_steps[log_iter]]
+                //Skip myself
+                if (allRestoredLogs[logIDs[j]].getClientNode().id == restoredLog.getClientNode().id)
+                    continue;
 
+
+//                std::cout << "Does " << restoredLog.getClientNode().id << " know "
+//                          << allRestoredLogs[logIDs[j]].getClientNode().id << ": "
+//                          << restoredLog.knows(allRestoredLogs[logIDs[j]].getEntry())
+//                          << std::endl;
+            }
+
+            //Check if I know the neighbors around me
+            for (size_t j = 0; j < logIDs.size(); j++)
+            {
+                //Skip myself
+                if (allRestoredLogs[logIDs[j]].getClientNode().id == restoredLog.getClientNode().id)
+                    continue;
+
+//                std::cout << "Is " << restoredLog.getClientNode().id << " in  range of "
+//                          << allRestoredLogs[logIDs[j]].getClientNode().id << "?: "
+//                          << restoredLog.knows(allRestoredLogs[logIDs[j]].getEntry())
+//                          << std::endl;
             }
 
 
@@ -131,61 +167,103 @@ void MainWindow::paintEvent(QPaintEvent * /*event*/) {
             painter.drawEllipse(QPointF(node.aoi.center.x, node.aoi.center.y), node.aoi.radius, node.aoi.radius);
             //Just draw center
             painter.drawEllipse(QPointF(node.aoi.center.x, node.aoi.center.y), 1,1);
+            painter.drawText(node.aoi.center.x, node.aoi.center.y, QString("%1").arg(node.id % 1000));
+
+            //Draw neighbor centers
+            for (size_t j = 0; j < restoredLog.getNeighbors().size(); j++)
+            {
+                Node &neighbor = restoredLog.getNeighbors()[j];
+                coord_t x_offset = neighbor.aoi.center.x;
+                coord_t y_offset = neighbor.aoi.center.y;
+
+                const coord_t cross_size = 3;
+
+                painter.drawLine(-cross_size + x_offset, -cross_size + y_offset, cross_size + x_offset,   cross_size + y_offset);
+                painter.drawLine(-cross_size + x_offset,  cross_size + y_offset, cross_size + x_offset,   -cross_size + y_offset);
+//                painter.drawEllipse(QPointF(neighbor.aoi.center.x, neighbor.aoi.center.y), 1,1);
+            }
+
+            //Count the number of active nodes at the moment
+            active_nodes++;
         }
 
+        calc_consistency(restoredLog, AN_actual, AN_visible, total_drift, max_drift, drift_nodes);
+
     }
+
+    painter.setPen(QColor(255,255,255));
+    painter.drawText(0, 30, QString("Topo consistency(ANs): %1 / %2").arg(AN_actual).arg(AN_visible));
+    painter.drawText(180, 30, QString("Total drift: %1, max drift: %2, drift nodes %3").arg(total_drift).arg(max_drift).arg(drift_nodes));
+    painter.drawText(430, 30, QString("Active nodes %1").arg(active_nodes));
+
+
+//    Json::Value step;
+//    Json::StyledStreamWriter writer;
+
+//    step["timestamp"] = latest_timestamp;
+//    step["active_nodes"] = active_nodes;
+//    step["AN_actual"] = AN_actual;
+//    step["AN_visible"] = AN_visible;
+//    step["Total drift"] = total_drift;
+//    step["Max drift"] = max_drift;
+//    step["drift nodes"] = drift_nodes;
+
+//    writer.write(ofs, step);
+
+    ofs << latest_timestamp << "," << active_nodes << "," << AN_actual <<
+           "," << AN_visible << "," << total_drift << "," << max_drift << ","
+        << drift_nodes << std::endl;
+
 
 
 
 
 }
 
-//void calc_consistency (size_t i, size_t &AN_actual, size_t &AN_visible, size_t &total_drift, size_t &max_drift, size_t &drift_nodes)
-//{
-//    size_t n = _simnodes.size ();
-//    Node *neighbor;
-//    AN_actual = AN_visible = total_drift = max_drift = drift_nodes = 0;
+void MainWindow::calc_consistency (const Vast::VASTStatLog &restoredLog, size_t &AN_actual,
+                                   size_t &AN_visible, size_t &total_drift, size_t &max_drift,
+                                   size_t &drift_nodes)
+{
+    AN_actual = AN_visible = total_drift = max_drift = drift_nodes = 0;
 
-//    // loop through all nodes
-//    for (size_t j=0; j<n; ++j)
-//    {
-//        // skip self-check or failed / not yet joined node
-//#ifdef STAT_JOINED_NODE_ONLY
-//        if (i == j || _simnodes[j]->isJoined () == false)
-//#else
-//        if (i == j || _simnodes[j]->isFailed ())
-//#endif
-//            continue;
+    // loop through all nodes
+    for (size_t j=0; j< allRestoredLogs.size (); ++j)
+    {
+        const VASTStatLog &otherLog = allRestoredLogs[logIDs[j]];
 
-//        // visible neighbors
-//        if (_simnodes[i]->in_view (_simnodes[j]))
-//        {
-//            AN_actual++;
+        // skip self-check or failed / not yet joined node
+        if (restoredLog.getClientNode().id == otherLog.getClientNode().id || otherLog.isJoined () == false)
+            continue;
 
-//            if ((neighbor = _simnodes[i]->knows (_simnodes[j])) != NULL)
-//            {
-//                AN_visible++;
+        // visible neighbors
+        if (restoredLog.in_view (otherLog.getEntry()))
+        {
+            AN_actual++;
 
-//                // calculate drift distance (except self)
-//                // NOTE: drift distance is calculated for all known AOI neighbors
-//                drift_nodes++;
+            if (restoredLog.knows (otherLog.getEntry()))
+            {
+                AN_visible++;
 
-//                size_t drift = (size_t)neighbor->aoi.center.distance (_simnodes[j]->get_pos ());
-//                total_drift += drift;
+                // calculate drift distance (except self)
+                // NOTE: drift distance is calculated for all known AOI neighbors
+                drift_nodes++;
 
-//                if (max_drift < drift)
-//                {
-//                    max_drift = drift;
-//#ifdef DEBUG_DETAIL
-//                    printf ("%4d - max drift updated: [%d] info on [%d] drift: %d\n", _steps+1, (int)_simnodes[i]->getID (), (int)neighbor->id, (int)drift);
-//#endif
-//                }
-//            }
-//        }
-//    } // end looping through all other nodes
+                size_t drift = (size_t)restoredLog.getNeighborByID(otherLog.getSubID()).aoi.center.distance (otherLog.getClientNode().aoi.center);
+                total_drift += drift;
+
+                if (max_drift < drift)
+                {
+                    max_drift = drift;
+#ifdef DEBUG_DETAIL
+                    printf ("%4d - max drift updated: [%d] info on [%d] drift: %d\n", _steps+1, (int)_simnodes[i]->getID (), (int)neighbor->id, (int)drift);
+#endif
+                }
+            }
+        }
+    } // end looping through all other nodes
 
 
-//}
+}
 
 void MainWindow::timerEvent(QTimerEvent *event) {
     static size_t counter = 0;
@@ -224,4 +302,6 @@ void MainWindow::setUpColors() {
 MainWindow::~MainWindow()
 {
     delete ui;
+    ofs.flush();
+    ofs.close();
 }

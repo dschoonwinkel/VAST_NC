@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include "VASTsim.h"
 #include "VAST/vaststatlog.h"
+#include <fstream>
 
 namespace Ui {
 class MainWindow;
@@ -17,7 +18,7 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
-    void calc_consistency (size_t i, size_t &AN_actual, size_t &AN_visible, size_t &total_drift, size_t &max_drift, size_t &drift_nodes);
+    void calc_consistency (const Vast::VASTStatLog &restoredLog, size_t &AN_actual, size_t &AN_visible, size_t &total_drift, size_t &max_drift, size_t &drift_nodes);
 
 protected:
     void paintEvent(QPaintEvent*) override;
@@ -48,6 +49,9 @@ private:
     std::map<Vast::id_t, VASTStatLog> allRestoredLogs;
     std::vector<Vast::id_t> logIDs;
     timestamp_t latest_timestamp;
+
+    std::string results_file = "./logs/results/results1.txt";
+    std::ofstream ofs;
 
     #define DIM_X 768
     #define DIM_Y 768

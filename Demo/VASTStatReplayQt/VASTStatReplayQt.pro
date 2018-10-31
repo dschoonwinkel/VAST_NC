@@ -37,7 +37,7 @@ FORMS += \
         mainwindow.ui
 
 
-LIBS += -L$$PWD/../../lib/ -lvastsim -lvast -lvastnet -lvastcommon -lACE -lboost_system -lboost_thread -lboost_serialization -lboost_filesystem
+LIBS += -L$$PWD/../../lib/ -lvastsim -lvast -lvastnet -lvastcommon -lACE -lboost_system -lboost_thread -lboost_serialization -lboost_filesystem -ljsoncpp
 
 INCLUDEPATH += $$PWD/../../
 DEPENDPATH += $$PWD/../../

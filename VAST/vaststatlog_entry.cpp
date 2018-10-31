@@ -6,6 +6,7 @@
 #include <fstream>
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_oarchive.hpp>
+#include <stdexcept>
 
 namespace Vast {
 
@@ -40,6 +41,7 @@ namespace Vast {
         }
 
         clientNode = *(_client->getSelf());
+
         subID = _client->getSubscriptionID();
         clientIsJoined = _client->isJoined();
 
@@ -268,19 +270,19 @@ namespace Vast {
 
     // distance to a point
     bool
-    VASTStatLogEntry::in_view (VASTStatLogEntry &remote_log)
+    VASTStatLogEntry::in_view (const VASTStatLogEntry &remote_log)
     {
         return (clientNode.aoi.center.distance (remote_log.clientNode.aoi.center) < (double)clientNode.aoi.radius);
     }
 
     // returns true if known
     bool
-    VASTStatLogEntry::knows (VASTStatLogEntry &remote_log)
+    VASTStatLogEntry::knows (const VASTStatLogEntry &remote_log)
     {
         // see if 'node' is a known neighbor of me
         for (size_t i = 0; i < _neighbors.size(); i++)
         {
-            if (_neighbors[i].id == remote_log.clientNode.id)
+            if (_neighbors[i].id == remote_log.getSubID())
                 return true;
         }
         return false;
@@ -307,6 +309,24 @@ namespace Vast {
     Node VASTStatLogEntry::getClientNode()
     {
         return clientNode;
+    }
+
+    Node VASTStatLogEntry::getNeighborByID(Vast::id_t neighbor_id) const {
+        for (Node i : _neighbors)
+        {
+            if (i.id == neighbor_id)
+            {
+                return i;
+            }
+        }
+
+        throw std::invalid_argument("vaststatlog_entry::getNeighborByID: Node requested is not in vector");
+        return Node();
+    }
+
+    Vast::id_t VASTStatLogEntry::getSubID() const
+    {
+        return subID;
     }
 
     size_t VASTStatLogEntry::getNeighborsSize()
