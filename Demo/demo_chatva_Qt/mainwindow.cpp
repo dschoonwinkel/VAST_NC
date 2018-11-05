@@ -83,7 +83,7 @@ void MainWindow::nextTimestep() {
     update();
 }
 
-void MainWindow::paintEvent(QPaintEvent *event) {
+void MainWindow::paintEvent(QPaintEvent*) {
 
     QPainter painter(this);
 

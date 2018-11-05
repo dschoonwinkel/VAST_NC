@@ -2,6 +2,8 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QWidget>
+#include <QtGui>
 #include "VASTsim.h"
 #include "VAST/vaststatlog.h"
 #include <fstream>
@@ -23,6 +25,8 @@ public:
 protected:
     void paintEvent(QPaintEvent*) override;
     void timerEvent(QTimerEvent *event) override;
+    void keyPressEvent(QKeyEvent *event) override;
+    void mousePressEvent(QMouseEvent *event) override;
 
 private:
 
@@ -53,8 +57,13 @@ private:
     std::string results_file = "./logs/results/results1.txt";
     std::ofstream ofs;
 
+    bool paused = false;
+
     #define DIM_X 768
     #define DIM_Y 768
+
+    QPoint lastMouseClickPoint;
+    Vast::id_t activeNode = -1;
 
 };
 

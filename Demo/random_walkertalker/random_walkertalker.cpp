@@ -141,7 +141,7 @@ int main (int argc, char *argv[])
     g_prev_aoi = g_aoi;
 
     // set network parameters
-    VASTPara_Net netpara (VAST_NET_OVERHEARING);
+    VASTPara_Net netpara (VAST_NET_ACE);
     netpara.port = GATEWAY_DEFAULT_PORT;
 
     //

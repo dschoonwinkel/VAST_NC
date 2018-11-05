@@ -6,13 +6,14 @@
 #include <QPainter>
 #include <QSettings>
 #include <QPointF>
-#include <jsoncpp/json/json.h>
-#include <jsoncpp/json/writer.h>
+#include <QKeyEvent>
 
 #include <climits>
 
 #include "boost/filesystem.hpp"
 using namespace boost::filesystem;
+
+#define TIMERINTERVAL 25
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -20,7 +21,7 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    m_timerId = startTimer(100);
+    m_timerId = startTimer(TIMERINTERVAL);
 
     setFixedSize(DIM_X, DIM_Y);
     setUpColors();
@@ -35,6 +36,12 @@ MainWindow::MainWindow(QWidget *parent) :
 
         std::cout << itr->path() << std::endl;
         std::string filename = itr->path().string();
+        //If this is not a TXT file, it is probably not a VASTStatLog file
+        if (filename.find(".txt") == string::npos)
+        {
+            std::cout << "Skipping " << filename << std::endl;
+            continue;
+        }
         std::vector<Vast::VASTStatLogEntry> restoredLogs = Vast::VASTStatLogEntry::restoreAllFromLogFile(filename);
         VASTStatLog restoredLog(restoredLogs);
 
@@ -106,16 +113,19 @@ void MainWindow::paintEvent(QPaintEvent * /*event*/) {
         VASTStatLog &restoredLog = allRestoredLogs[logIDs[log_iter]];
 
         //If the log entries are finished, skip
-         if (restoredLog.finished())
-             continue;
+        if (restoredLog.finished())
+            continue;
 
         std::cout << "Plotting node: " << logIDs[log_iter] << std::endl;
 
         //Get client node state
         Node node = restoredLog.getClientNode();
 
+        std::cout << "timestamp: " << restoredLog.getTimestamp() << std::endl;
+        std::cout << "latest timestamp: " << latest_timestamp << std::endl;
+
         //Check if log entry indexes should be moved along
-        if (restoredLog.getTimestamp() <= latest_timestamp && !restoredLog.finished())
+        if (restoredLog.getTimestamp() <= latest_timestamp + 1 && !restoredLog.finished())
         {
             restoredLog.nextStep();
             latest_timestamp = restoredLog.getTimestamp();
@@ -163,10 +173,15 @@ void MainWindow::paintEvent(QPaintEvent * /*event*/) {
 
         //Check if the timestamp has caught up with the log entries yet
         if (restoredLog.getFirstTimestamp() <= latest_timestamp) {
-            //Draw AOI
-            painter.drawEllipse(QPointF(node.aoi.center.x, node.aoi.center.y), node.aoi.radius, node.aoi.radius);
+
+            if (restoredLog.getClientNode().id == activeNode)
+            {
+                //Draw AOI
+                painter.drawEllipse(QPointF(node.aoi.center.x, node.aoi.center.y), node.aoi.radius, node.aoi.radius);
+            }
+
             //Just draw center
-            painter.drawEllipse(QPointF(node.aoi.center.x, node.aoi.center.y), 1,1);
+            painter.drawEllipse(QPointF(node.aoi.center.x, node.aoi.center.y), 10,10);
             painter.drawText(node.aoi.center.x, node.aoi.center.y, QString("%1").arg(node.id % 1000));
 
             //Draw neighbor centers
@@ -197,26 +212,52 @@ void MainWindow::paintEvent(QPaintEvent * /*event*/) {
     painter.drawText(430, 30, QString("Active nodes %1").arg(active_nodes));
 
 
-//    Json::Value step;
-//    Json::StyledStreamWriter writer;
-
-//    step["timestamp"] = latest_timestamp;
-//    step["active_nodes"] = active_nodes;
-//    step["AN_actual"] = AN_actual;
-//    step["AN_visible"] = AN_visible;
-//    step["Total drift"] = total_drift;
-//    step["Max drift"] = max_drift;
-//    step["drift nodes"] = drift_nodes;
-
-//    writer.write(ofs, step);
-
     ofs << latest_timestamp << "," << active_nodes << "," << AN_actual <<
            "," << AN_visible << "," << total_drift << "," << max_drift << ","
         << drift_nodes << std::endl;
 
 
 
+}
 
+void MainWindow::keyPressEvent(QKeyEvent *event)
+{
+    if (event->key() == Qt::Key_Space)
+    {
+        paused = !paused;
+    }
+
+    if (paused)
+    {
+        killTimer(m_timerId);
+    }
+    else {
+        m_timerId = startTimer(TIMERINTERVAL);
+    }
+}
+
+void MainWindow::mousePressEvent(QMouseEvent *event)
+{
+    if (event->button() == Qt::LeftButton)
+    {
+        lastMouseClickPoint = event->pos();
+
+        for (size_t log_iter = 0; log_iter < logIDs.size(); log_iter++)
+        {
+            VASTStatLog &restoredLog = allRestoredLogs[logIDs[log_iter]];
+
+            if (restoredLog.isJoined())
+            {
+                //If the click point is within the little circle, make this node the active node
+                Vast::Position clickPos(lastMouseClickPoint.x(), lastMouseClickPoint.y());
+                if (restoredLog.getClientNode().aoi.center.distance(clickPos) <= 10)
+                {
+                    activeNode = restoredLog.getClientNode().id;
+                    update();
+                }
+            }
+        }
+    }
 
 }
 
@@ -304,4 +345,5 @@ MainWindow::~MainWindow()
     delete ui;
     ofs.flush();
     ofs.close();
+    killTimer(m_timerId);
 }
