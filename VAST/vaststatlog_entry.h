@@ -72,12 +72,12 @@ namespace Vast {
         friend class VASTStatLog;
 
         //Getters
-        timestamp_t getTimestamp();
+        timestamp_t getTimestamp() const;
         Node getClientNode();
         Node getNeighborByID(Vast::id_t neighbor_id) const;
         id_t getSubID() const;
-        int isRelay();
-        bool isJoined();
+        int isRelay() const;
+        bool isJoined() const;
 
         bool in_view (const VASTStatLogEntry &remote_log);
         bool knows (const VASTStatLogEntry &remote_log);

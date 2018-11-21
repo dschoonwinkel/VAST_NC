@@ -14,6 +14,7 @@
 using namespace boost::filesystem;
 
 #define TIMERINTERVAL 25
+#define NEIGHBOR_LINES
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -71,8 +72,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     std::cout << "First timestamp: " << latest_timestamp << std::endl;
 
-    ofs << "timestamp" << "active_nodes" << "AN_actual" << "AN_visible"
-        << "Total drift" << "Max drift" << "drift nodes" << std::endl;
+    ofs << "timestamp," << "active_nodes," << "AN_actual," << "AN_visible,"
+        << "Total drift," << "Max drift," << "drift nodes," << std::endl;
 
     update();
 
@@ -91,6 +92,56 @@ void MainWindow::nextTimestep() {
         std::cout << "Stopping timer" << std::endl;
     }
 
+    calculateUpdate();
+
+
+}
+
+void MainWindow::calculateUpdate() {
+
+    //Drift distance and topology consistency
+    total_AN_actual =0, total_AN_visible =0, total_drift =0, max_drift =0, drift_nodes =0;
+
+
+    //VASTStatLog approach - instead of working with vectors of entries
+    for (size_t log_iter = 0; log_iter < logIDs.size(); log_iter++) {
+
+        VASTStatLog &restoredLog = allRestoredLogs[logIDs[log_iter]];
+
+        //If the log entries are finished, skip
+        if (restoredLog.finished())
+            continue;
+
+        //Get client node state
+        Node node = restoredLog.getClientNode();
+
+//        CPPDEBUG("MainWindow::calcUpdate:: timestamp: " << restoredLog.getTimestamp() << std::endl);
+//        CPPDEBUG("MainWindow::calcUpdate:: latest timestamp: " << latest_timestamp << std::endl);
+
+        //Check if log entry indexes should be moved along
+        if (restoredLog.getTimestamp() <= latest_timestamp + 1 && !restoredLog.finished())
+        {
+            restoredLog.nextStep();
+            latest_timestamp = restoredLog.getTimestamp();
+            node = restoredLog.getClientNode();
+        }
+
+        if (restoredLog.isJoinedAt(latest_timestamp))
+        {
+            calc_consistency(restoredLog, total_AN_actual, total_AN_visible, total_drift, max_drift, drift_nodes, latest_timestamp);
+        }
+
+        if (restoredLog.getClientNode().id == activeNode)
+        {
+            //Calculate active node's specific parameters
+        }
+
+    }
+
+
+
+
+
 }
 
 void MainWindow::paintEvent(QPaintEvent * /*event*/) {
@@ -101,8 +152,7 @@ void MainWindow::paintEvent(QPaintEvent * /*event*/) {
     pen.setWidth(1);
     painter.setPen(pen);
 
-    //Drift distance and topology consistency
-    size_t AN_actual =0, AN_visible =0, total_drift =0, max_drift =0, drift_nodes =0, active_nodes =0;
+    total_active_nodes =0;
 
 
     //VASTStatLog approach - instead of working with vectors of entries
@@ -121,54 +171,50 @@ void MainWindow::paintEvent(QPaintEvent * /*event*/) {
         //Get client node state
         Node node = restoredLog.getClientNode();
 
-        std::cout << "timestamp: " << restoredLog.getTimestamp() << std::endl;
-        std::cout << "latest timestamp: " << latest_timestamp << std::endl;
+//        CPPDEBUG("timestamp: " << restoredLog.getTimestamp() << std::endl);
+//        std::cout << "latest timestamp: " << latest_timestamp << std::endl;
 
-        //Check if log entry indexes should be moved along
-        if (restoredLog.getTimestamp() <= latest_timestamp + 1 && !restoredLog.finished())
+        //Only print neighbors if the node has already joined
+        if (restoredLog.isJoinedAt(latest_timestamp))
         {
-            restoredLog.nextStep();
-            latest_timestamp = restoredLog.getTimestamp();
-            node = restoredLog.getClientNode();
-        }
-
-        std::cout << "Neighbors: " << std::endl;
-        for (size_t i =0; i < restoredLog.getNeighbors().size(); i++)
-        {
-            //Print neighbor for debugging purposes
-            std::cout << restoredLog.getNeighbors()[i].id << std::endl;
-
-            //Check if I know the neighbors around me
-            for (size_t j = 0; j < logIDs.size(); j++)
+            std::cout << "Neighbors: " << std::endl;
+            for (size_t i =0; i < restoredLog.getNeighbors().size(); i++)
             {
-                //Skip myself
-                if (allRestoredLogs[logIDs[j]].getClientNode().id == restoredLog.getClientNode().id)
-                    continue;
+                //Print neighbor for debugging purposes
+                std::cout << restoredLog.getNeighbors()[i].id << std::endl;
+
+                //Check if I know the neighbors around me
+                for (size_t j = 0; j < logIDs.size(); j++)
+                {
+                    //Skip myself
+                    if (allRestoredLogs[logIDs[j]].getClientNode().id == restoredLog.getClientNode().id)
+                        continue;
 
 
-//                std::cout << "Does " << restoredLog.getClientNode().id << " know "
-//                          << allRestoredLogs[logIDs[j]].getClientNode().id << ": "
-//                          << restoredLog.knows(allRestoredLogs[logIDs[j]].getEntry())
-//                          << std::endl;
+    //                std::cout << "Does " << restoredLog.getClientNode().id << " know "
+    //                          << allRestoredLogs[logIDs[j]].getClientNode().id << ": "
+    //                          << restoredLog.knows(allRestoredLogs[logIDs[j]].getEntry())
+    //                          << std::endl;
+                }
+
+                //Check if I know the neighbors around me
+                for (size_t j = 0; j < logIDs.size(); j++)
+                {
+                    //Skip myself
+                    if (allRestoredLogs[logIDs[j]].getClientNode().id == restoredLog.getClientNode().id)
+                        continue;
+
+    //                std::cout << "Is " << restoredLog.getClientNode().id << " in  range of "
+    //                          << allRestoredLogs[logIDs[j]].getClientNode().id << "?: "
+    //                          << restoredLog.knows(allRestoredLogs[logIDs[j]].getEntry())
+    //                          << std::endl;
+                }
+
+
             }
 
-            //Check if I know the neighbors around me
-            for (size_t j = 0; j < logIDs.size(); j++)
-            {
-                //Skip myself
-                if (allRestoredLogs[logIDs[j]].getClientNode().id == restoredLog.getClientNode().id)
-                    continue;
-
-//                std::cout << "Is " << restoredLog.getClientNode().id << " in  range of "
-//                          << allRestoredLogs[logIDs[j]].getClientNode().id << "?: "
-//                          << restoredLog.knows(allRestoredLogs[logIDs[j]].getEntry())
-//                          << std::endl;
-            }
-
-
+            std::cout << std::endl;
         }
-
-        std::cout << std::endl;
 
 
         //Check if the timestamp has caught up with the log entries yet
@@ -178,6 +224,16 @@ void MainWindow::paintEvent(QPaintEvent * /*event*/) {
             {
                 //Draw AOI
                 painter.drawEllipse(QPointF(node.aoi.center.x, node.aoi.center.y), node.aoi.radius, node.aoi.radius);
+
+                //Calc consistency for active node
+                size_t active_AN_actual = 0, active_AN_visible = 0, active_total_drift = 0, active_max_drift,
+                        active_drift_nodes = 0;
+
+                calc_consistency(restoredLog, active_AN_actual, active_AN_visible, active_total_drift,
+                                 active_max_drift, active_drift_nodes, latest_timestamp);
+
+                painter.drawText(0, 50, QString("Active node: (ANs): %1 / %2   Total drift: %3, drift nodes %5")
+                                 .arg(active_AN_actual).arg(active_AN_visible).arg(active_total_drift).arg(active_drift_nodes));
             }
 
             //Just draw center
@@ -198,26 +254,47 @@ void MainWindow::paintEvent(QPaintEvent * /*event*/) {
 //                painter.drawEllipse(QPointF(neighbor.aoi.center.x, neighbor.aoi.center.y), 1,1);
             }
 
+#ifdef NEIGHBOR_LINES
+            //Draw lines to neighbors - only for debugging purposes
+            for (size_t j = 0; j < restoredLog.getNeighbors().size(); j++)
+            {
+                Node &neighbor = restoredLog.getNeighbors()[j];
+                coord_t x_offset = neighbor.aoi.center.x;
+                coord_t y_offset = neighbor.aoi.center.y;
+
+
+                if (node.aoi.center.distance(neighbor.aoi.center) < (double) node.aoi.radius)
+                    painter.drawLine(x_offset,y_offset, node.aoi.center.x,   node.aoi.center.y);
+            }
+
+#endif
+
             //Count the number of active nodes at the moment
-            active_nodes++;
+            total_active_nodes++;
         }
 
-        calc_consistency(restoredLog, AN_actual, AN_visible, total_drift, max_drift, drift_nodes);
+        //Draw inactive log nodes in grey
+        else
+        {
+            painter.setPen(QPen(QColor(100,100,100)));
+            //Just draw center
+            painter.drawEllipse(QPointF(node.aoi.center.x, node.aoi.center.y), 10,10);
+            painter.drawText(node.aoi.center.x, node.aoi.center.y, QString("%1").arg(node.id % 1000));
 
+        }
     }
 
     painter.setPen(QColor(255,255,255));
-    painter.drawText(0, 30, QString("Topo consistency(ANs): %1 / %2").arg(AN_actual).arg(AN_visible));
-    painter.drawText(180, 30, QString("Total drift: %1, max drift: %2, drift nodes %3").arg(total_drift).arg(max_drift).arg(drift_nodes));
-    painter.drawText(430, 30, QString("Active nodes %1").arg(active_nodes));
+    painter.drawText(0, 30, QString("Topo consistency(ANs): %1 / %2   Total drift: %3, max drift: %4, drift nodes %5,   Active nodes %6    Timestamp: %7")
+                     .arg(total_AN_actual).arg(total_AN_visible).arg(total_drift).arg(max_drift)
+                     .arg(drift_nodes).arg(total_active_nodes).arg(latest_timestamp));
+}
 
+void MainWindow::outputResults() {
 
-    ofs << latest_timestamp << "," << active_nodes << "," << AN_actual <<
-           "," << AN_visible << "," << total_drift << "," << max_drift << ","
+    ofs << latest_timestamp << "," << total_active_nodes << "," << total_AN_actual <<
+           "," << total_AN_visible << "," << total_drift << "," << max_drift << ","
         << drift_nodes << std::endl;
-
-
-
 }
 
 void MainWindow::keyPressEvent(QKeyEvent *event)
@@ -261,11 +338,11 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
 
 }
 
-void MainWindow::calc_consistency (const Vast::VASTStatLog &restoredLog, size_t &AN_actual,
-                                   size_t &AN_visible, size_t &total_drift, size_t &max_drift,
-                                   size_t &drift_nodes)
+void MainWindow::calc_consistency (const Vast::VASTStatLog &restoredLog, size_t &total_AN_actual,
+                                   size_t &total_AN_visible, size_t &total_drift, size_t &max_drift,
+                                   size_t &drift_nodes, timestamp_t latest_timestamp)
 {
-    AN_actual = AN_visible = total_drift = max_drift = drift_nodes = 0;
+//    AN_actual = AN_visible = total_drift = max_drift = drift_nodes = 0;
 
     // loop through all nodes
     for (size_t j=0; j< allRestoredLogs.size (); ++j)
@@ -273,17 +350,19 @@ void MainWindow::calc_consistency (const Vast::VASTStatLog &restoredLog, size_t 
         const VASTStatLog &otherLog = allRestoredLogs[logIDs[j]];
 
         // skip self-check or failed / not yet joined node
-        if (restoredLog.getClientNode().id == otherLog.getClientNode().id || otherLog.isJoined () == false)
+        if (restoredLog.getClientNode().id == otherLog.getClientNode().id || otherLog.isJoinedAt(latest_timestamp) == false)
+        {
             continue;
+        }
 
         // visible neighbors
-        if (restoredLog.in_view (otherLog.getEntry()))
+        if (restoredLog.in_view (otherLog))
         {
-            AN_actual++;
+            total_AN_actual++;
 
-            if (restoredLog.knows (otherLog.getEntry()))
+            if (restoredLog.knows (otherLog))
             {
-                AN_visible++;
+                total_AN_visible++;
 
                 // calculate drift distance (except self)
                 // NOTE: drift distance is calculated for all known AOI neighbors
@@ -310,8 +389,11 @@ void MainWindow::timerEvent(QTimerEvent *event) {
     static size_t counter = 0;
 
     if (event->timerId() == m_timerId) {
+
         nextTimestep();
         update();
+        outputResults();
+
         std::cout << counter++ << std::endl;
     }
 }

@@ -290,17 +290,17 @@ namespace Vast {
 
 
     //Getters
-    timestamp_t VASTStatLogEntry::getTimestamp()
+    timestamp_t VASTStatLogEntry::getTimestamp() const
     {
         return timestamp;
     }
 
-    int VASTStatLogEntry::isRelay()
+    int VASTStatLogEntry::isRelay() const
     {
         return clientIsRelay;
     }
 
-    bool VASTStatLogEntry::isJoined()
+    bool VASTStatLogEntry::isJoined() const
     {
         return clientIsJoined;
     }

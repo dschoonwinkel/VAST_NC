@@ -18,16 +18,16 @@ namespace Vast {
 
     // distance to a point
     bool
-    VASTStatLog::in_view (const VASTStatLogEntry &remote_log) const
+    VASTStatLog::in_view (const VASTStatLog &remote_log) const
     {
-        return (getEntry().in_view(remote_log));
+        return (getEntry().in_view(remote_log.getEntry()) && remote_log.getFirstTimestamp() <= getTimestamp());
     }
 
     // returns true if known
     bool
-    VASTStatLog::knows (const VASTStatLogEntry &remote_log) const
+    VASTStatLog::knows (const VASTStatLog &remote_log) const
     {
-        return getEntry().knows(remote_log);
+        return (getEntry().knows(remote_log.getEntry()) && remote_log.getFirstTimestamp() <= getTimestamp());
     }
 
     VASTStatLogEntry VASTStatLog::getEntry() const
@@ -37,12 +37,12 @@ namespace Vast {
 
 
     //Getters
-    timestamp_t VASTStatLog::getTimestamp()
+    timestamp_t VASTStatLog::getTimestamp() const
     {
         return getEntry().getTimestamp();
     }
 
-    timestamp_t VASTStatLog::getFirstTimestamp()
+    timestamp_t VASTStatLog::getFirstTimestamp() const
     {
         return _restoredLogs[0].getTimestamp();
     }
@@ -55,6 +55,11 @@ namespace Vast {
     bool VASTStatLog::isJoined() const
     {
         return getEntry().isJoined() && current_step >0 && !finished();
+    }
+
+    bool VASTStatLog::isJoinedAt(timestamp_t timestamp) const
+    {
+        return (isJoined() && getFirstTimestamp() <= timestamp);
     }
 
 

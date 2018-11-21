@@ -20,7 +20,9 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
-    void calc_consistency (const Vast::VASTStatLog &restoredLog, size_t &AN_actual, size_t &AN_visible, size_t &total_drift, size_t &max_drift, size_t &drift_nodes);
+    void calc_consistency (const Vast::VASTStatLog &restoredLog, size_t &total_AN_actual,
+                           size_t &total_AN_visible, size_t &total_drift, size_t &max_drift,
+                           size_t &drift_nodes, timestamp_t latest_timestamp);
 
 protected:
     void paintEvent(QPaintEvent*) override;
@@ -31,7 +33,8 @@ protected:
 private:
 
     void nextTimestep();
-
+    void calculateUpdate();
+    void outputResults();
 
     Ui::MainWindow *ui;
     int m_timerId;
@@ -64,6 +67,12 @@ private:
 
     QPoint lastMouseClickPoint;
     Vast::id_t activeNode = -1;
+
+    //Variables needed for calc_consistency
+    size_t total_AN_actual =0, total_AN_visible =0, total_drift =0, max_drift =0, drift_nodes =0;
+
+
+    size_t total_active_nodes =0;
 
 };
 

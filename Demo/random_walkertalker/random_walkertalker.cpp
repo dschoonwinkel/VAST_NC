@@ -103,7 +103,7 @@ void printNeighbors (unsigned long long curr_msec, Vast::id_t selfID, bool scree
 }
 
 int main (int argc, char *argv[])
-{   
+{
     // 
     // Initialization
     //
@@ -117,9 +117,9 @@ int main (int argc, char *argv[])
     printf ("Setting random seed as: %d\n", (int)now.usec ());
 
     //Keep randominess constant
-    srand (2);
+//    srand (2);
 //    Or changing, if required later
-//    srand (now.usec ());
+    srand (now.usec ());
                       
     //
     // set default values

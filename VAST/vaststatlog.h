@@ -14,16 +14,17 @@ namespace Vast {
 
         void nextStep();
 
-        timestamp_t getTimestamp();
-        timestamp_t getFirstTimestamp();
+        timestamp_t getTimestamp() const;
+        timestamp_t getFirstTimestamp() const;
         Node getClientNode() const;
         id_t getSubID() const;
         Node getNeighborByID(Vast::id_t neighbor_id) const;
         int isRelay();
         bool isJoined() const;
+        bool isJoinedAt(timestamp_t timestamp) const;
 
-        bool in_view (const VASTStatLogEntry &remote_log) const;
-        bool knows (const VASTStatLogEntry &remote_log) const;
+        bool in_view (const VASTStatLog &remote_log) const;
+        bool knows (const VASTStatLog &remote_log) const;
 
         VASTStatLogEntry getEntry() const;
 
