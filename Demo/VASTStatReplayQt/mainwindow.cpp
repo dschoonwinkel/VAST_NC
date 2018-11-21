@@ -30,17 +30,19 @@ MainWindow::MainWindow(QWidget *parent) :
     path dir_path("./logs");
     directory_iterator end_itr;
 
+    CPPDEBUG("MainWindow::Starting VASTStatReplayQt"<<std::endl);
+
     for (directory_iterator itr(dir_path); itr != end_itr; ++itr) {
 
         //Skip subfolders
         if (is_directory(itr->path())) continue;
 
-        std::cout << itr->path() << std::endl;
+        CPPDEBUG(itr->path() << std::endl);
         std::string filename = itr->path().string();
         //If this is not a TXT file, it is probably not a VASTStatLog file
         if (filename.find(".txt") == string::npos)
         {
-            std::cout << "Skipping " << filename << std::endl;
+            CPPDEBUG("Skipping " << filename << std::endl);
             continue;
         }
         std::vector<Vast::VASTStatLogEntry> restoredLogs = Vast::VASTStatLogEntry::restoreAllFromLogFile(filename);
@@ -59,7 +61,7 @@ MainWindow::MainWindow(QWidget *parent) :
         //Initiate latest_timestamp to the earliest timestamp
         for (size_t log_iter = 0; log_iter < logIDs.size(); log_iter++)
         {
-          std::cout << "Starting timestamp: " << allRestoredLogs[logIDs[log_iter]].getTimestamp() << std::endl;
+          CPPDEBUG("Starting timestamp: " << allRestoredLogs[logIDs[log_iter]].getTimestamp() << std::endl);
           if (allRestoredLogs[logIDs[log_iter]].getTimestamp() < latest_timestamp)
           {
               latest_timestamp = allRestoredLogs[logIDs[log_iter]].getTimestamp();
@@ -70,7 +72,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     }
 
-    std::cout << "First timestamp: " << latest_timestamp << std::endl;
+    CPPDEBUG("MainWindow::First timestamp: " << latest_timestamp << std::endl);
 
     ofs << "timestamp," << "active_nodes," << "AN_actual," << "AN_visible,"
         << "Total drift," << "Max drift," << "drift nodes," << std::endl;
@@ -89,7 +91,7 @@ void MainWindow::nextTimestep() {
     }
     if (finished) {
         killTimer(m_timerId);
-        std::cout << "Stopping timer" << std::endl;
+        CPPDEBUG("MainWindow::nextTimestep::Stopping timer" << std::endl);
     }
 
     calculateUpdate();
@@ -166,22 +168,22 @@ void MainWindow::paintEvent(QPaintEvent * /*event*/) {
         if (restoredLog.finished())
             continue;
 
-        std::cout << "Plotting node: " << logIDs[log_iter] << std::endl;
+        CPPDEBUG("MainWindow::Plotting node: " << logIDs[log_iter] << std::endl);
 
         //Get client node state
         Node node = restoredLog.getClientNode();
 
-//        CPPDEBUG("timestamp: " << restoredLog.getTimestamp() << std::endl);
-//        std::cout << "latest timestamp: " << latest_timestamp << std::endl;
+//        CPPDEBUG("MainWindow::paintEvent::timestamp: " << restoredLog.getTimestamp() << std::endl);
+//        CPPDEBUG("MainWindow::paintEvent::latest timestamp: " << latest_timestamp << std::endl);
 
         //Only print neighbors if the node has already joined
         if (restoredLog.isJoinedAt(latest_timestamp))
         {
-            std::cout << "Neighbors: " << std::endl;
+            CPPDEBUG("MainWindow::Neighbors: " << std::endl);
             for (size_t i =0; i < restoredLog.getNeighbors().size(); i++)
             {
                 //Print neighbor for debugging purposes
-                std::cout << restoredLog.getNeighbors()[i].id << std::endl;
+                CPPDEBUG(restoredLog.getNeighbors()[i].id << std::endl);
 
                 //Check if I know the neighbors around me
                 for (size_t j = 0; j < logIDs.size(); j++)
@@ -213,7 +215,7 @@ void MainWindow::paintEvent(QPaintEvent * /*event*/) {
 
             }
 
-            std::cout << std::endl;
+            CPPDEBUG("" << std::endl);
         }
 
 
@@ -394,7 +396,7 @@ void MainWindow::timerEvent(QTimerEvent *event) {
         update();
         outputResults();
 
-        std::cout << counter++ << std::endl;
+        CPPDEBUG(counter++ << std::endl);
     }
 }
 
