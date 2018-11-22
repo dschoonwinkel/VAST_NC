@@ -70,6 +70,7 @@ private:
 
     //Variables needed for calc_consistency
     size_t total_AN_actual =0, total_AN_visible =0, total_drift =0, max_drift =0, drift_nodes =0;
+    size_t worldSendStat =0, worldRecvStat = 0;
 
 
     size_t total_active_nodes =0;

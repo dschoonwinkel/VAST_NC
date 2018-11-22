@@ -75,7 +75,7 @@ MainWindow::MainWindow(QWidget *parent) :
     CPPDEBUG("MainWindow::First timestamp: " << latest_timestamp << std::endl);
 
     ofs << "timestamp," << "active_nodes," << "AN_actual," << "AN_visible,"
-        << "Total drift," << "Max drift," << "drift nodes," << std::endl;
+        << "Total drift," << "Max drift," << "drift nodes," << "worldSendStat," << "worldRecvStat," << std::endl;
 
     update();
 
@@ -103,6 +103,7 @@ void MainWindow::calculateUpdate() {
 
     //Drift distance and topology consistency
     total_AN_actual =0, total_AN_visible =0, total_drift =0, max_drift =0, drift_nodes =0;
+    worldSendStat = 0, worldRecvStat = 0;
 
 
     //VASTStatLog approach - instead of working with vectors of entries
@@ -131,6 +132,8 @@ void MainWindow::calculateUpdate() {
         if (restoredLog.isJoinedAt(latest_timestamp))
         {
             calc_consistency(restoredLog, total_AN_actual, total_AN_visible, total_drift, max_drift, drift_nodes, latest_timestamp);
+            worldSendStat += restoredLog.getWorldSendStat().total;
+            worldRecvStat += restoredLog.getWorldRecvStat().total;
         }
 
         if (restoredLog.getClientNode().id == activeNode)
@@ -296,7 +299,7 @@ void MainWindow::outputResults() {
 
     ofs << latest_timestamp << "," << total_active_nodes << "," << total_AN_actual <<
            "," << total_AN_visible << "," << total_drift << "," << max_drift << ","
-        << drift_nodes << std::endl;
+        << drift_nodes << "," << worldSendStat << "," << worldRecvStat << std::endl;
 }
 
 void MainWindow::keyPressEvent(QKeyEvent *event)

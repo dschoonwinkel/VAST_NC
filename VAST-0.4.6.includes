@@ -5,6 +5,7 @@ Demo/demo_chatva_Qt
 Demo/my_demo
 Demo/random_walkertalker
 Demo/VASTsim_Qt
+Demo/VASTreal_console
 Demo/VASTStatReplay
 Demo/VASTStatReplayQt
 Dependencies/include
@@ -22,5 +23,5 @@ VASTATE/old
 VASTATEsim
 VASTnet
 VASTsim
+VASTreal
 VASTsimDev
-Wrappers/VASTWrapperC
