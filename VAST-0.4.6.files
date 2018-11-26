@@ -3,6 +3,8 @@ VAST/vaststatlog.cpp
 VAST/vaststatlog.h
 VAST/vaststatlog_entry.cpp
 VAST/vaststatlog_entry.h
+VASTreal/RealNode.cpp
+VASTreal/RealNode.h
 tests/vaststatlog_test.cpp
 Makefile
 VASTnet/dest_unr_listener.cpp
@@ -129,8 +131,6 @@ VASTsim/SimNode.h
 VASTsim/Statistics.h
 VASTsim/VASTsim.cpp
 VASTreal/VASTsim.h
-VASTreal/SimNode.cpp
-VASTreal/SimNode.h
 VASTreal/Statistics.h
 VASTreal/VASTreal.cpp
 VASTreal/VASTreal.h

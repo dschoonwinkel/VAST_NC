@@ -14,6 +14,7 @@
 using namespace boost::filesystem;
 
 #define TIMERINTERVAL 25
+#define UPDATE_PERIOD 10
 #define NEIGHBOR_LINES
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -121,11 +122,10 @@ void MainWindow::calculateUpdate() {
 //        CPPDEBUG("MainWindow::calcUpdate:: timestamp: " << restoredLog.getTimestamp() << std::endl);
 //        CPPDEBUG("MainWindow::calcUpdate:: latest timestamp: " << latest_timestamp << std::endl);
 
-        //Check if log entry indexes should be moved along
-        if (restoredLog.getTimestamp() <= latest_timestamp + 1 && !restoredLog.finished())
+        //Allow each log to catch up to the current timestamp
+        while (restoredLog.getTimestamp() < latest_timestamp && !restoredLog.finished())
         {
             restoredLog.nextStep();
-            latest_timestamp = restoredLog.getTimestamp();
             node = restoredLog.getClientNode();
         }
 
@@ -142,6 +142,8 @@ void MainWindow::calculateUpdate() {
         }
 
     }
+
+    latest_timestamp += UPDATE_PERIOD;
 
 
 
