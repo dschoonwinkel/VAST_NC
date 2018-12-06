@@ -5,6 +5,8 @@ VAST/vaststatlog_entry.cpp
 VAST/vaststatlog_entry.h
 VASTreal/RealNode.cpp
 VASTreal/RealNode.h
+VASTreal/test/test_vastreal_initpara.cpp
+VASTreal/test/Makefile
 tests/vaststatlog_test.cpp
 Makefile
 VASTnet/dest_unr_listener.cpp

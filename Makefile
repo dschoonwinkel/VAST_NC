@@ -16,19 +16,20 @@ random_walkertalker := Demo/random_walkertalker
 demo_chatva_Qt := Demo/demo_chatva_Qt
 vaststat_replay := Demo/VASTStatReplay
 vaststat_replay_Qt := Demo/VASTStatReplayQt
+VASTreal_console := Demo/VASTreal_console
 
 # tells make that the following labels are make targets, not filenames
 # .PHONY: all clean $(VASTnet) $(VAST) $(VASTsim) $(common) $(test_console) $(VASTsim_Qt) $(demo_console) $(my_demo) $(VASTsim_console) $(myVASTsim) $(random_walkertalker) $(demo_chatva_Qt) $(vaststat_replay)
-.PHONY: all clean $(VASTnet) $(VAST) $(VASTsim) $(common) $(random_walkertalker) $(demo_chatva_Qt) $(vaststat_replay) $(vaststat_replay_Qt) $(VASTsim_Qt) $(VASTreal)
+.PHONY: all clean $(VASTnet) $(VAST) $(VASTsim) $(common) $(random_walkertalker) $(demo_chatva_Qt) $(vaststat_replay) $(vaststat_replay_Qt) $(VASTsim_Qt) $(VASTreal) $(VASTreal_console)
 
 #all: $(common) $(VASTnet) $(VAST) $(VASTsim) $(test_console) $(VASTsim_Qt)
 #all: $(common) $(VASTnet) $(VAST) $(VASTsim) $(test_console) $(demo_console) $(my_demo) $(demo_chatva_Qt)
 # all: $(common) $(VASTnet) $(VAST) $(VASTsim) $(my_demo) $(VASTsim_console) $(VASTsim_Qt) $(myVASTsim) $(random_walkertalker) $(demo_chatva_Qt) $(vaststat_replay)
-all: $(common) $(VASTnet) $(VAST) $(VASTsim) $(VASTreal) $(random_walkertalker) $(demo_chatva_Qt) $(vaststat_replay) $(vaststat_replay_Qt) $(VASTsim_Qt)
+all: $(common) $(VASTnet) $(VAST) $(VASTsim) $(VASTreal) $(random_walkertalker) $(demo_chatva_Qt) $(vaststat_replay) $(vaststat_replay_Qt) $(VASTsim_Qt) $(VASTreal_console)
 
 
 # $(VAST) $(VASTsim) $(common) $(VASTnet) $(test_console) $(VASTsim_Qt) $(demo_console) $(my_demo) $(VASTsim_console) $(myVASTsim) $(random_walkertalker) $(demo_chatva_Qt) $(vaststat_replay):
-$(common) $(VAST) $(VASTnet) $(VASTsim) $(VASTreal) $(random_walkertalker) $(demo_chatva_Qt) $(vaststat_replay) $(vaststat_replay_Qt) $(VASTsim_Qt):
+$(common) $(VAST) $(VASTnet) $(VASTsim) $(VASTreal) $(random_walkertalker) $(demo_chatva_Qt) $(vaststat_replay) $(vaststat_replay_Qt) $(VASTsim_Qt) $(VASTreal_console):
 	$(MAKE) --directory=$@ $(TARGET)
 
 $(VASTnet) : $(common)
@@ -43,6 +44,7 @@ $(random_walkertalker) : $(VASTsim)
 $(demo_chatva_Qt) : $(VASTsim)
 $(vaststat_replay) : $(VASTsim)
 $(vaststat_replay_Qt) : $(VASTsim)
+$(VASTreal_console) : $(VASTreal)
 
 clean: 
 	make TARGET=clean

@@ -173,7 +173,7 @@ void MainWindow::paintEvent(QPaintEvent * /*event*/) {
         if (restoredLog.finished())
             continue;
 
-        CPPDEBUG("MainWindow::Plotting node: " << logIDs[log_iter] << std::endl);
+//        CPPDEBUG("MainWindow::Plotting node: " << logIDs[log_iter] << std::endl);
 
         //Get client node state
         Node node = restoredLog.getClientNode();
@@ -184,11 +184,11 @@ void MainWindow::paintEvent(QPaintEvent * /*event*/) {
         //Only print neighbors if the node has already joined
         if (restoredLog.isJoinedAt(latest_timestamp))
         {
-            CPPDEBUG("MainWindow::Neighbors: " << std::endl);
+//            CPPDEBUG("MainWindow::Neighbors: " << std::endl);
             for (size_t i =0; i < restoredLog.getNeighbors().size(); i++)
             {
                 //Print neighbor for debugging purposes
-                CPPDEBUG(restoredLog.getNeighbors()[i].id << std::endl);
+//                CPPDEBUG(restoredLog.getNeighbors()[i].id << std::endl);
 
                 //Check if I know the neighbors around me
                 for (size_t j = 0; j < logIDs.size(); j++)
@@ -220,7 +220,7 @@ void MainWindow::paintEvent(QPaintEvent * /*event*/) {
 
             }
 
-            CPPDEBUG("" << std::endl);
+//            CPPDEBUG("" << std::endl);
         }
 
 

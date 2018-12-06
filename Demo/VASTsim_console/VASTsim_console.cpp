@@ -61,7 +61,7 @@ int main (int argc, char *argv[])
                 create_countdown--;
         }    
                  
-		if (NextStep () < 0)
+	if (NextStep () < 0)
             break;
   
         // obtain positions of my current neighbors        

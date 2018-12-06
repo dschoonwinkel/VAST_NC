@@ -67,6 +67,9 @@ namespace Vast
             conn_limit      = 0;
             send_quota      = 0;
             recv_quota      = 0;
+            node_number     = 0;
+            random_seed     = 0;
+
         }
 
         VAST_NetModel   model;          // network model
@@ -82,7 +85,10 @@ namespace Vast
         int             overload_limit; // max number of subscriptions at each matcher
         int             conn_limit;     // connection limit
         size_t          send_quota;     // upload quota (bandwidth limit)
-        size_t          recv_quota;     // download quota (bandwidth limit)        
+        size_t          recv_quota;     // download quota (bandwidth limit)
+        size_t          node_number;    //node number in total VAST experiment
+        long            random_seed;    //storage for random seed in this experiment
+
     };
 
     struct VASTPara_Sim
