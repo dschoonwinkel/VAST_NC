@@ -61,6 +61,7 @@ private:
     std::ofstream ofs;
 
     bool paused = false;
+    bool finished = false;
 
     #define DIM_X 768
     #define DIM_Y 768

@@ -85,7 +85,7 @@ MainWindow::MainWindow(QWidget *parent) :
 void MainWindow::nextTimestep() {
 
     //Check all restoredLogs, not just the last one!
-    bool finished = true;
+    finished = true;
     for (size_t log_iter = 0; log_iter < logIDs.size(); log_iter++) {
 
         finished = finished && allRestoredLogs[logIDs[log_iter]].finished();
@@ -401,7 +401,10 @@ void MainWindow::timerEvent(QTimerEvent *event) {
         update();
         outputResults();
 
-        CPPDEBUG(counter++ << std::endl);
+        if (counter % 200 == 0)
+            CPPDEBUG(counter++ << std::endl);
+        else
+            counter++;
     }
 }
 
@@ -434,5 +437,6 @@ MainWindow::~MainWindow()
     delete ui;
     ofs.flush();
     ofs.close();
-    killTimer(m_timerId);
+    if (!finished)
+        killTimer(m_timerId);
 }
