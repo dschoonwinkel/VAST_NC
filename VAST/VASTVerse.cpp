@@ -605,7 +605,8 @@ namespace Vast
                 do_per_sec = true;
 
                 // next time to enter this is one second later
-                _next_periodic = (now / net->getTimestampPerSecond () + 1) * net->getTimestampPerSecond ();
+//                _next_periodic = (now / net->getTimestampPerSecond () + 1) * net->getTimestampPerSecond ();
+                _next_periodic = now;
 
                 // record network stat for this node
                 size_t size = net->getSendSize (0);            

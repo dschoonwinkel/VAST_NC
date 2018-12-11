@@ -1,21 +1,36 @@
 #include <iostream>
 #include <fstream>
-#include "vaststatlog_entry.h"
+#include "replay_functions.h"
 
 int main() {
 
-    std::string filename = "./logs/VASTStat_N9151315546691403777.txt";
+    bool finished = false;
+    int counter = 0;
 
-//    Vast::VASTStatLog stat1;
-//        stat1.restoreFirstFromLogFile(filename);
-//        std::cout << stat1;
-    std::vector<Vast::VASTStatLogEntry> restoredLogs = Vast::VASTStatLogEntry::restoreAllFromLogFile(filename);
+    initVariables();
 
-    for (Vast::VASTStatLogEntry log : restoredLogs)
+    while (!finished)
     {
-        std::cout << log;
+        finished = true;
+        for (size_t log_iter = 0; log_iter < logIDs.size(); log_iter++) {
+
+            finished = finished && allRestoredLogs[logIDs[log_iter]].finished();
+        }
+        calculateUpdate();
+        outputResults();
+
+        if (counter % 200 == 0)
+            std::cout << counter++ << std::endl;
+        else
+            counter++;
     }
 
-//	std::cout << "Hello world!" << std::endl;
+    std::cout << "Experiment replay finished" << std::endl;
+
+    closeOutputFile();
+
+    std::cout << "Output file closed" << std::endl;
+
+
 	return 0;
 }

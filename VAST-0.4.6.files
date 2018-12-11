@@ -1,4 +1,3 @@
-Demo/VASTreal_console/VASTreal_console.cpp
 VAST/vaststatlog.cpp
 VAST/vaststatlog.h
 VAST/vaststatlog_entry.cpp
@@ -28,6 +27,7 @@ Demo/VASTsim_consoleDev/VASTsim_console.cpp
 Demo/VASTsim_consoleDev/Makefile
 Demo/VASTsim_gui/VASTsim_gui.cpp
 Demo/VASTreal_console/Makefile
+Demo/VASTreal_console/VASTreal_console.cpp
 Demo/VASTsim_consoleDev/VASTsim_console.cpp
 Demo/VASTsim_consoleDev/Makefile
 Demo/VASTsim_gui/VASTsim_gui.cpp
@@ -64,6 +64,8 @@ Demo/VASTStatReplayQt/mainwindow.h
 Demo/VASTStatReplayQt/mainwindow.cpp
 Demo/VASTStatReplayQt/VASTStatReplayQt.pro
 Demo/VASTStatReplayQt/Makefile
+Demo/VASTStatReplayQt/replay_functions.cpp
+Demo/VASTStatReplayQt/replay_functions.h
 VAST/Makefile
 VAST/VASTClient.cpp
 VAST/VASTClient.h

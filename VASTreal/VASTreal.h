@@ -19,14 +19,14 @@
  */
 
 /*
- *  VASTsim.h -- header for simulation DLL     
+ *  VASTreal.h -- header for simulation DLL
  *
  *  ver 0.1 (2005/04/12)
  *   
  */
 
-#ifndef VASTSIM_H
-#define VASTSIM_H
+#ifndef VASTREAL_H
+#define VASTREAL_H
 
 #ifdef WIN32
 // disable warning about "identifier exceeds'255' characters"
@@ -82,5 +82,7 @@ EXPORT Area                 *GetNodeMatcherAOI();
 EXPORT bool                 GetBoundingBox (point2d& min, point2d& max);
 
 
-#endif // VASTSIM_H
+
+
+#endif // VASTREAL_H
 
