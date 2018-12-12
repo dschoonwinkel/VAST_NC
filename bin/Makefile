@@ -16,3 +16,10 @@ clean_binaries:
 	-rm vastplayground
 	-rm VASTsim_console
 	-rm VASTsim_Qt
+
+backup_results:
+	$(eval date_string := $(shell date +%d_%m_%Y-%H:%M))
+	mkdir logs/logs_backup/logs_$(date_string)
+	cp logs/*.txt logs/logs_backup/logs_$(date_string)/
+	mkdir logs/logs_backup/logs_$(date_string)/results
+	cp logs/results/* logs/logs_backup/logs_$(date_string)/results/

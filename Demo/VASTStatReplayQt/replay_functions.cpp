@@ -136,14 +136,33 @@ void calculateUpdate()
             total_active_nodes++;
         }
 
-        worldSendStat = tempWorldSendStat;
-        worldRecvStat = tempWorldRecvStat;
 
-
-//        prevWorldSendStat = tempWorldSendStat;
-//        prevWorldRecvStat = tempWorldRecvStat;
 
     }
+
+    if (tempWorldSendStat > prevWorldSendStat)
+    {
+        worldSendStat = tempWorldSendStat - prevWorldSendStat;
+        worldRecvStat = tempWorldRecvStat - prevWorldRecvStat;
+    }
+    else //Handle the cases where a node leaves / stats are reset / other calculation errors occur
+    {
+        //Throw away anomolous statistic
+        worldSendStat = 0;
+        worldRecvStat = 0;
+    }
+
+    if (worldSendStat > 10000)
+    {
+        std::cout << "World send stat is very large" << std::endl;
+        std::cout << "worldSendStat" << worldSendStat << std::endl;
+        std::cout << "tempWorldSendStat" << tempWorldSendStat << std::endl;
+        std::cout << "prevWorldSendStat" << prevWorldSendStat << std::endl;
+    }
+
+
+    prevWorldSendStat = tempWorldSendStat;
+    prevWorldRecvStat = tempWorldRecvStat;
 
     latest_timestamp += UPDATE_PERIOD;
 
