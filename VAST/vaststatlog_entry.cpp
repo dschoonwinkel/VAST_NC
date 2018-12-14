@@ -25,7 +25,14 @@ namespace Vast {
             _world->clearStat();
 
        _logfilename = _logfilename + "_N" + std::to_string(client->getSelf()->id) + ".txt";
-        ofs = new std::ofstream(_logfilename);
+
+            ofs = new std::ofstream(_logfilename);
+       if (!ofs->is_open())
+       {
+            std::cerr << "VASTStatLogEntry::constructor file open : " << (ofs->is_open() ? "true":"false") << std::endl << "EXITING" <<std::endl;
+            exit(EXIT_FAILURE);
+       }
+
         ar = new boost::archive::text_oarchive(*ofs);
 
     }

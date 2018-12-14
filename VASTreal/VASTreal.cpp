@@ -119,7 +119,7 @@ int InitPara (VAST_NetModel model, VASTPara_Net &netpara, SimPara &simpara, int 
             switch (i - 1)
             {
 
-            // 3rd parameter: node to simulate
+            // first parameter: node to simulate
             case 0:
                 node_no = atoi (p);
                 netpara.node_number = node_no;

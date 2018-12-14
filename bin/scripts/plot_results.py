@@ -66,7 +66,7 @@ plot.subplot(4,1,4)
 send_stat = numpy_results[:,7]
 recv_stat = numpy_results[:,8]
 plot.plot(timestamps, send_stat, 'g',label='Send stat')
-plot.plot(timestamps, recv_stat, 'b', label='Recv stat')
+# plot.plot(timestamps, recv_stat, 'b', label='Recv stat')
 plot.ylabel("Send/recv stats [B]")
 plot.xlabel("Timestamp")
 # plot.xticks(np.arange(min(timestamps), max(timestamps)+1, x_axis_interval))

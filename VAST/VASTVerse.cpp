@@ -104,6 +104,11 @@ namespace Vast
 
         _timeout = 0;
 
+        if (GWstr.length() >0)
+            strcpy(_netpara.GWstr, GWstr.c_str());
+
+        std::cout << "VASTVerse::constructor netpara->GWstr: " << _netpara.GWstr << std::endl;
+
         // record gateway info here, actual connection will be made in tick ()
         Addr *addr = VASTVerse::translateAddress (GWstr);
         
@@ -487,7 +492,9 @@ namespace Vast
                 // try to create VASTClient and let it start joining
                 case ABSENT:
                     {
+#ifdef VERBOSE_DEBUG
                         printf ("state = ABSENT\n");
+#endif
                         if ((createClient (_gateway, info.world_id)) != NULL)
                         {                            
                             printf ("VASTVerse::tick () VASTclient created\n");
@@ -499,7 +506,9 @@ namespace Vast
                 // try to perform subscription after the client has joined
                 case JOINING:
                     {
+#ifdef VERBOSE_DEBUG
                         printf ("state = JOINING\n");
+#endif
                         if (handlers->client->isJoined ())
                         {
                             printf ("VASTVerse::tick () subscribing ... \n");
@@ -524,7 +533,9 @@ namespace Vast
                 // wait until subscription is successful
                 case JOINING_2:
                     {
+#ifdef VERBOSE_DEBUG
                         printf ("state = JOINING_2\n");
+#endif
                         if (handlers->client->getSubscriptionID () != NET_ID_UNASSIGNED)
                         {
                             printf ("VASTVerse::getVASTNode () ID obtained\n");

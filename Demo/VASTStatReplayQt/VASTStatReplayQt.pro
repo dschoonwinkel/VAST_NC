@@ -8,7 +8,7 @@ TEMPLATE = app
 
 INCLUDEPATH += . \
                 ../../common \
-                ../../VASTsim
+                ../../VASTsim \
                 ../../VAST
 
 QT += gui
@@ -40,7 +40,7 @@ FORMS += \
 
 LIBS += -L$$PWD/../../lib/ -lvastsim -lvast -lvastnet -lvastcommon -lACE -lboost_system -lboost_thread -lboost_serialization -lboost_filesystem -ljsoncpp
 
-INCLUDEPATH += $$PWD/../../
+#INCLUDEPATH += $$PWD/../../
 DEPENDPATH += $$PWD/../../
 
 DESTDIR=../../bin

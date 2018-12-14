@@ -5,7 +5,7 @@
 #include <QWidget>
 #include <QtGui>
 #include "VASTVerse.h"
-#include "VAST/vaststatlog.h"
+#include "vaststatlog.h"
 #include "replay_functions.h"
 #include <fstream>
 
