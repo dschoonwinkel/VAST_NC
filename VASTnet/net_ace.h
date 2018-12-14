@@ -74,7 +74,7 @@ namespace Vast {
 
     public:
         
-        net_ace (uint16_t port);
+        net_ace (uint16_t port, const char* bindAddress = "");
         ~net_ace ();
 
         //

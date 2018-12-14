@@ -26,7 +26,7 @@
 namespace Vast {
 
     // constructor
-    net_ace::net_ace (uint16_t port)
+    net_ace::net_ace (uint16_t port, const char* GWstr)
         :_port_self (port), 
          _up_cond (NULL), 
          _down_cond (NULL), 
@@ -44,9 +44,11 @@ namespace Vast {
            
         _udphandler = NULL;
         
-        printf ("net_ace::net_ace(): Host IP: %s\n", getIPFromHost ());
+        printf ("net_ace::net_ace(): Host IP: %s\n", getIPFromHost (GWstr));
+        printf ("net_ace::net_ace(): Received GWstr: %s\n", GWstr);
 
-        ACE_INET_Addr addr (_port_self, getIPFromHost ());
+//        ACE_INET_Addr addr (_port_self, getIPFromHost ());
+        ACE_INET_Addr addr(_port_self, GWstr);
 
         
         // TODO: necessary here? actual port might be different and correct one
@@ -279,6 +281,8 @@ namespace Vast {
             strcpy (hostname, host);
  
         hostent *remoteHost = ACE_OS::gethostbyname (hostname);
+
+        printf("net_ace::getIPFromHost hostname %s\n", hostname);
 
         if (remoteHost == NULL)
             return NULL;
