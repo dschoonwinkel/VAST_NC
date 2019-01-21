@@ -105,6 +105,12 @@ int InitPara (VAST_NetModel model, VASTPara_Net &netpara, SimPara &simpara, int 
 
     // process command line parameters, if available
     char *p;
+
+    if (argc <= 2)
+    {
+        std::cout << "Usage: ./VASTreal_console <nodeid> <randomseed> <port> <GW_IPaddr> <world_id> <pause_interval> <x-coord> <y-coord> <radius> <is_relay> <is_matcher>" << std::endl;
+//        exit(0);
+    }
     
     if (argc >= 2)
     {

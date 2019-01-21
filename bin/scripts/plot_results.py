@@ -2,15 +2,25 @@ import matplotlib.pyplot as plot
 import numpy as np
 import csv
 
+TIMESTAMP = 0
+ACTIVE_NODES = 1
+AN_ACTUAL = 2
+AN_VISIBLE = 3
+TOTAL_DRIFT = 4
+MAX_DRIFT = 5
+DRIFT_NODES = 6
+WORLDSENDSTAT = 7
+WORLDRECVSTAT = 8
+
 x_axis_interval = 20000
 
 results_text = list()
 
 with open('../logs/results/results1.txt', 'r') as csvfile:
-	spamreader = csv.reader(csvfile, delimiter=",")
-	for row in spamreader:
-		results_text.append(row)
-		# print(",".join(row))
+    spamreader = csv.reader(csvfile, delimiter=",")
+    for row in spamreader:
+        results_text.append(row)
+        # print(",".join(row))
 
 header = results_text[0]
 results_text = results_text[1:]
@@ -18,10 +28,10 @@ results_text = results_text[1:]
 results = list()
 
 for row in results_text:
-	# print(row)
-	results.append([(int(row[0])-int(results_text[0][0])), int(row[1]), int(row[2]), int(row[3]), int(row[4]), int(row[5]), int(row[6]), int(row[7]), int(row[8])])
-	# print(results[-1])
-	# print(int(row[0])%10000)
+    # print(row)
+    results.append([(int(row[0])-int(results_text[0][0])), int(row[1]), int(row[2]), int(row[3]), int(row[4]), int(row[5]), int(row[6]), int(row[7]), int(row[8])])
+    # print(results[-1])
+    # print(int(row[0])%10000)
 
 numpy_results = np.array(results)
 
@@ -53,8 +63,8 @@ plot.xlim(0, max(timestamps)+1)
 plot.grid(True)
 
 plot.subplot(4,1,3)
-drift_nodes = numpy_results[:,5]
-drift_distance = numpy_results[:,4]
+drift_nodes = numpy_results[:,DRIFT_NODES]
+drift_distance = numpy_results[:,TOTAL_DRIFT]
 normalised_drift_distance = drift_distance / drift_nodes
 plot.plot(timestamps, normalised_drift_distance)
 plot.ylabel("Norm drift distance")

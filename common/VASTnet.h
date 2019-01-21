@@ -160,7 +160,7 @@ namespace Vast {
     {
     public:
 
-        VASTnet (VAST_NetModel model, unsigned short port, int steps_persec);
+        VASTnet (VAST_NetModel model, unsigned short port, char GWstr[], int steps_persec);
         ~VASTnet ();
 
         // 

@@ -61,6 +61,7 @@ namespace Vast
             is_matcher      = true;
             is_static       = false;
             port            = 0;
+            GWstr[0]        = 0;
             client_limit    = 0;
             relay_limit     = 0;
             overload_limit  = 20;
@@ -78,6 +79,7 @@ namespace Vast
         bool            is_matcher;     // whether this node should join as a candidate matcher (need to be a relay as well)       
         bool            is_static;      // whether static partitioning is used
         unsigned short  port;           // default port to use 
+        char            GWstr[100];     // Gateway string for binding on address
         Position        phys_coord;     // default physical coordinate (optional)
         Position        matcher_coord;  // default matcher join coordinate (optional)        
         int             client_limit;   // max number of clients connectable to this relay

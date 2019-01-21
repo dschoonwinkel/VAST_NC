@@ -18,6 +18,9 @@
 using namespace std;
 using namespace Vast;
 
+//Sleep duration secs, microseconds
+#define SLEEP_DURATION 0, 10000
+
 int main (int argc, char *argv[])
 {    
     SimPara simpara;                                    // simulation parameters
@@ -62,7 +65,7 @@ int main (int argc, char *argv[])
         if (steps % 100 == 0)
             printf ("step %d\n", steps);
 
-        ACE_Time_Value duration (0, 10000);
+        ACE_Time_Value duration (SLEEP_DURATION);
         ACE_OS::sleep(duration);
 
     }

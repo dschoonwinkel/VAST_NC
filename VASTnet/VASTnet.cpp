@@ -23,6 +23,7 @@
 #include "net_emu.h"
 #include "net_overhearing.h"
 #include <iostream>
+#include <string.h>
 
 namespace Vast
 {   
@@ -32,19 +33,26 @@ namespace Vast
 
     using namespace std;
 
-    VASTnet::VASTnet (VAST_NetModel model, unsigned short port, int steps_persec)
+    VASTnet::VASTnet (VAST_NetModel model, unsigned short port, char GWstr[], int steps_persec)
         : _model (model),
           _is_public (true), 
           _timeout_IDrequest (0),
           _timeout_cleanup (0)
-    {        
+    {
+        char *IP_string;
+        if (GWstr[0] != 0)
+        {
+            IP_string = strtok(GWstr, ":");
+            std::cout << "VASTnet::constructor extracted IP_string : " << IP_string << std::endl;
+        }
+
 
         // create network manager given the network model and start it
         if (_model == VAST_NET_EMULATED)
             _manager = new net_emu (steps_persec);
 
         else if (_model == VAST_NET_ACE)
-            _manager = new net_ace (port);
+            _manager = new net_ace (port, IP_string);
 
         else if (_model == VAST_NET_OVERHEARING)
             _manager = new net_overhearing (port);

@@ -73,7 +73,17 @@ namespace Vast
             step_persec = 10;
         }
 
-        VASTnet *net = new VASTnet (para.model, port, step_persec);
+        VASTnet *net = NULL;
+
+        //If I am the gateway, bind to the GW address. If not, bind to local address and connect to GW later
+        if (para.node_number == 0)
+        {
+            net = new VASTnet (para.model, port, para.GWstr, step_persec);
+        }
+        else
+        {
+            net = new VASTnet (para.model, port, new char[1], step_persec);
+        }
 
         // store initial entry points
         net->addEntries (entries);
