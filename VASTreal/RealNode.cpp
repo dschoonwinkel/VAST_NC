@@ -247,6 +247,11 @@
 
         statlog->recordStat();
 
+        if (_steps_recorded % 100)
+        {
+            std::cout << "Current timestamp: " << getVerse()->getTimestamp() << std::endl;
+        }
+
     }
 
     /*
