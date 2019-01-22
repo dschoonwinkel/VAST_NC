@@ -82,7 +82,9 @@ namespace Vast
         }
         else
         {
-            net = new VASTnet (para.model, port, new char[1], step_persec);
+            char* emptyGW = new char[10];
+            emptyGW[0] = 0;
+            net = new VASTnet (para.model, port, emptyGW, step_persec);
         }
 
         // store initial entry points

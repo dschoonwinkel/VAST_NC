@@ -45,6 +45,11 @@ namespace Vast
             IP_string = strtok(GWstr, ":");
             std::cout << "VASTnet::constructor extracted IP_string : " << IP_string << std::endl;
         }
+        else
+        {
+            //Store the empty string in IP_string
+            IP_string = GWstr;
+        }
 
 
         // create network manager given the network model and start it
