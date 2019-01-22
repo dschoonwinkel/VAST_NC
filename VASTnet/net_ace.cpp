@@ -47,8 +47,17 @@ namespace Vast {
         printf ("net_ace::net_ace(): Host IP: %s\n", getIPFromHost (bindAddress));
         printf ("net_ace::net_ace(): Received GWstr: %s\n", bindAddress);
 
-//        ACE_INET_Addr addr (_port_self, getIPFromHost ());
-        ACE_INET_Addr addr(_port_self, bindAddress);
+        ACE_INET_Addr addr;
+
+        if (bindAddress == NULL || bindAddress[0] == 0)
+        {
+            printf("net_ace::net_ace(): bindAddress is empty string, using own hostname:\n");
+            addr = ACE_INET_Addr (_port_self, getIPFromHost ());
+        }
+        else
+        {
+            addr = ACE_INET_Addr(_port_self, bindAddress);
+        }
 
         
         // TODO: necessary here? actual port might be different and correct one

@@ -14,6 +14,7 @@
 
 #include "VASTreal.h"
 #include "vaststatlog_entry.h"
+#include <chrono>
 
 using namespace std;
 using namespace Vast;
@@ -46,10 +47,15 @@ int main (int argc, char *argv[])
     int steps = 0;
     bool running = true;
 
+    std::chrono::microseconds process_duration;
+    std::chrono::microseconds total_duration;
+
     std::cout << "VASTreal_console::main:: Is gateway: " << netpara.is_entry << std::endl << std::endl;
     while (running)
     {     
         steps++; 
+
+        auto t1 = std::chrono::high_resolution_clock::now();
 
         // Create node is not yet joined
         if (nodes_created == 0)
@@ -63,10 +69,22 @@ int main (int argc, char *argv[])
             break;
 
         if (steps % 100 == 0)
+        {
             printf ("step %d\n", steps);
+            std::cout << "Average process duration: " << process_duration.count() / steps << " microsec" << std::endl;
+            std::cout << "Average total duration: " << total_duration.count() / steps << " microsec" << std::endl;
+        }
 
-        ACE_Time_Value duration (SLEEP_DURATION);
+        auto t2 = std::chrono::high_resolution_clock::now();
+        process_duration += std::chrono::duration_cast<std::chrono::microseconds>(t2-t1);
+
+
+
+        ACE_Time_Value duration (SLEEP_DURATION - std::chrono::duration_cast<std::chrono::microseconds>(t2-t1).count());
         ACE_OS::sleep(duration);
+
+        auto t3 = std::chrono::high_resolution_clock::now();
+        total_duration += std::chrono::duration_cast<std::chrono::microseconds>(t3-t1);
 
     }
 
