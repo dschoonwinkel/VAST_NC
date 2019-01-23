@@ -289,6 +289,7 @@ namespace Vast {
         else
             strcpy (hostname, host);
  
+        //Get's the localhost's name because hostname is empty
         hostent *remoteHost = ACE_OS::gethostbyname (hostname);
 
         printf("net_ace::getIPFromHost hostname %s\n", hostname);

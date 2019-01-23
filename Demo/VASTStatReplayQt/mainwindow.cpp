@@ -84,7 +84,7 @@ void MainWindow::paintEvent(QPaintEvent * /*event*/) {
         if (restoredLog.finished())
             continue;
 
-        CPPDEBUG("MainWindow::Plotting node: " << logIDs[log_iter] << std::endl);
+        CPPDEBUG("\nMainWindow::Plotting node: " << logIDs[log_iter] << std::endl);
 
         //Get client node state
         Node node = restoredLog.getClientNode();
@@ -99,7 +99,7 @@ void MainWindow::paintEvent(QPaintEvent * /*event*/) {
             for (size_t i =0; i < restoredLog.getNeighbors().size(); i++)
             {
                 //Print neighbor for debugging purposes
-                CPPDEBUG(restoredLog.getNeighbors()[i].id << std::endl);
+                CPPDEBUG("VASTStatReplayQt::paintEvent neighbour id: "<< restoredLog.getNeighbors()[i].id << std::endl << std::endl);
 
                 //Check if I know the neighbors around me
                 for (size_t j = 0; j < logIDs.size(); j++)
@@ -205,6 +205,8 @@ void MainWindow::paintEvent(QPaintEvent * /*event*/) {
                      .arg(total_AN_actual).arg(total_AN_visible).arg(total_drift).arg(max_drift)
                      .arg(drift_nodes).arg(total_active_nodes).arg(latest_timestamp));
 #endif
+
+    CPPDEBUG("****" << std::endl);
 }
 
 
