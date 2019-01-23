@@ -75,17 +75,9 @@ namespace Vast
 
         VASTnet *net = NULL;
 
-        //If I am the gateway, bind to the GW address. If not, bind to local address and connect to GW later
-        if (para.node_number == 0)
-        {
-            net = new VASTnet (para.model, port, para.GWstr, step_persec);
-        }
-        else
-        {
-            char* emptyGW = new char[10];
-            emptyGW[0] = 0;
-            net = new VASTnet (para.model, port, emptyGW, step_persec);
-        }
+        //Send the GW address to the VASTnet, it should figure out what interface to bind to
+        net = new VASTnet (para.model, port, para.GWstr, step_persec);
+
 
         // store initial entry points
         net->addEntries (entries);

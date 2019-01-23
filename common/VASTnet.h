@@ -36,6 +36,12 @@
 #include <map>
 #include <vector>
 
+//Needed for finding correct interface to bind on
+#include <arpa/inet.h>
+#include <sys/socket.h>
+#include <netdb.h>
+#include <ifaddrs.h>
+
 #define GATEWAY_DEFAULT_PORT    (1037)          // default port for gateway
 
 // grouping for locally-generated ID
@@ -416,6 +422,10 @@ namespace Vast {
 
         std::map<id_t, bool>            _local_targets;     // send/receive targets on the same host
     };
+
+    bool check_same_subnet(struct in_addr addr1, struct in_addr addr2, struct in_addr netmask);
+    char* getInterfaceAddrFromRemoteAddr(char* remote_IP);
+
 
 } // end namespace Vast
 

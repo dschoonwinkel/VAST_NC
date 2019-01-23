@@ -45,11 +45,8 @@ namespace Vast
             IP_string = strtok(GWstr, ":");
             std::cout << "VASTnet::constructor extracted IP_string : " << IP_string << std::endl;
         }
-        else
-        {
-            //Store the empty string in IP_string
-            IP_string = GWstr;
-        }
+
+        IP_string = getInterfaceAddrFromRemoteAddr(IP_string);
 
 
         // create network manager given the network model and start it
@@ -1220,6 +1217,125 @@ namespace Vast
         //id_t port = (host_id & 0x00000000FFFF0000);
         //id_t tail = (host_id & 0x000000000000FFFF);
         return ((host_id & 0x00000000FFFF0000) >> 16);
+    }
+
+    bool check_same_subnet(struct in_addr addr1,
+                            struct in_addr addr2,
+                            struct in_addr netmask)
+    {
+//        printf("Addr1 s_addr %x\n", addr1.s_addr);
+//        printf("Addr2 s_addr %x\n", addr2.s_addr);
+//        printf("Netmask s_addr %x\n", netmask.s_addr);
+
+//        printf("Addr1 & netmask: %x\n", addr1.s_addr & netmask.s_addr);
+//        printf("Addr2 & netmask: %x\n", addr2.s_addr & netmask.s_addr);
+
+        return ((addr1.s_addr & netmask.s_addr) ==
+                (addr2.s_addr & netmask.s_addr));
+    }
+
+
+    //Note: based on example from http://man7.org/linux/man-pages/man3/getifaddrs.3.html or man getifaddrs
+    char *getInterfaceAddrFromRemoteAddr(char *remote_IP)
+    {
+        struct ifaddrs *ifaddr, *ifa;
+        struct sockaddr_in *ip_addr, *netmask;
+        int family, s, n;
+
+        struct sockaddr_in remote_addr;
+
+        char *interface_IP_txt = new char[INET_ADDRSTRLEN];
+
+        //Process incoming remote addr
+        s = inet_pton(AF_INET, remote_IP, &remote_addr.sin_addr);
+       if (s <= 0) {
+           if (s == 0)
+               fprintf(stderr, "Not in presentation format");
+           else
+               perror("inet_pton");
+           exit(EXIT_FAILURE);
+       }
+
+        if (getifaddrs(&ifaddr) == -1)
+        {
+            perror("getifaddrs");
+            exit(EXIT_FAILURE);
+        }
+
+        for (ifa = ifaddr, n = 0; ifa != NULL; ifa = ifa->ifa_next, n++)
+        {
+            if (ifa->ifa_addr == NULL)
+            {
+                printf("Skipping empty ifa_addr\n");
+                continue;
+            }
+
+            family = ifa->ifa_addr->sa_family;
+
+
+
+            if (family == AF_INET)
+            {
+                printf("%-8s %s (%d)\n",
+                ifa->ifa_name,
+                (family == AF_PACKET) ? "AF_PACKET":
+                (family == AF_INET) ? "AF_INET" :
+                (family == AF_INET6) ? "AF_INET6" : "???",
+                family);
+
+                ip_addr = (sockaddr_in*)ifa->ifa_addr;
+                netmask = (sockaddr_in*)ifa->ifa_netmask;
+
+                // printf("Bytes from sockaddr\n");
+                // for (int i = 0; i < 14; i++)
+                // {
+                // 	printf("%u ", (uint8_t)ifa->ifa_addr->sa_data[i]);
+                // }
+                // printf("\n");
+                // printf("Bytes from subnetmask\n");
+                // for (int i = 0; i < 14; i++)
+                // {
+                // 	printf("%u ", (uint8_t)ifa->ifa_netmask->sa_data[i]);
+                // }
+                // printf("\n");
+
+                //Get IP addr in human readable form:
+                inet_ntop(AF_INET, &(ip_addr->sin_addr.s_addr), interface_IP_txt, INET_ADDRSTRLEN);
+                printf("Interface IP: %s\n", interface_IP_txt);
+
+                // printf("IP addr sin_addr.s_addr %x\n", ip_addr->sin_addr.s_addr);
+                // printf("Netmask sin_addr.s_addr %x\n", netmask->sin_addr.s_addr);
+                // printf("Remote addr sin_addr.s_addr %x\n", remote_addr.sin_addr.s_addr);
+
+                // printf("IP addr & Netmask : %x\n", ip_addr->sin_addr.s_addr & netmask->sin_addr.s_addr);
+                // printf("Remote addr & Netmask : %x\n", remote_addr.sin_addr.s_addr & netmask->sin_addr.s_addr);
+
+                printf("Same subnet : %d",
+                    check_same_subnet(remote_addr.sin_addr,
+                                        ip_addr->sin_addr,
+                                        netmask->sin_addr));
+
+                printf("\n");
+
+                if (check_same_subnet(remote_addr.sin_addr,
+                                        ip_addr->sin_addr,
+                                        netmask->sin_addr))
+                {
+                    //Get IP addr in human readable form:
+                    inet_ntop(AF_INET, &(ip_addr->sin_addr.s_addr), interface_IP_txt, INET_ADDRSTRLEN);
+                    printf("Found correct interface: %s\n", interface_IP_txt);
+                    break;
+                }
+                printf("\n");
+
+            }
+
+
+        }
+
+        return interface_IP_txt;
+
+
     }
 
 } // namespace Vast
