@@ -23,3 +23,8 @@ backup_results:
 	cp logs/*.txt logs/logs_backup/logs_$(date_string)/
 	mkdir logs/logs_backup/logs_$(date_string)/results
 	cp logs/results/* logs/logs_backup/logs_$(date_string)/results/
+
+restore_results:
+	$(backup_results)
+	cp logs/logs_backup/logs_$(foo)/*.txt ./logs/
+	echo $(foo)

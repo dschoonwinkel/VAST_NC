@@ -16,6 +16,7 @@ x_axis_interval = 20000
 
 results_text = list()
 
+
 with open('../logs/results/results1.txt', 'r') as csvfile:
     spamreader = csv.reader(csvfile, delimiter=",")
     for row in spamreader:

@@ -206,7 +206,7 @@ void MainWindow::paintEvent(QPaintEvent * /*event*/) {
                      .arg(drift_nodes).arg(total_active_nodes).arg(latest_timestamp));
 #endif
 
-    CPPDEBUG("****" << std::endl);
+//    CPPDEBUG("****" << std::endl);
 }
 
 
