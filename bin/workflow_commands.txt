@@ -1,0 +1,5 @@
+sudo ../mininet_topos/3computer_network_pox.py
+make backup_results foo=4perc
+./vaststat_replay
+./run_plotresults.bash 6,1,0,4
+sudo make

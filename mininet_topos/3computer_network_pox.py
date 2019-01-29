@@ -39,12 +39,12 @@ def myNetwork():
 
     info( '*** Add links\n')
     # net.addLink(h1, s1, bw=10, delay='50ms', loss=0)
-    net.addLink(h1, s1, bw=1, loss=2)
-    net.addLink(s1, h2, bw=1, loss=2)
-    net.addLink(s1, h3, bw=1, loss=2)
-    net.addLink(s1, h4, bw=1, loss=2)
-    net.addLink(s1, h5, bw=1, loss=2)
-    net.addLink(s1, h6, bw=1, loss=2)
+    net.addLink(h1, s1, bw=1, loss=4)
+    net.addLink(s1, h2, bw=1, loss=4)
+    net.addLink(s1, h3, bw=1, loss=4)
+    net.addLink(s1, h4, bw=1, loss=4)
+    net.addLink(s1, h5, bw=1, loss=4)
+    net.addLink(s1, h6, bw=1, loss=4)
 
     info( '*** Starting network\n')
     net.build()
@@ -67,12 +67,13 @@ def myNetwork():
     time.sleep(2)
     h5.cmd("xterm -fg black -bg cyan -geometry 80x12+1300+500 -e \"./VASTreal_console 4 0 1037 10.0.0.1 \" &")
     time.sleep(2)
-    h6.cmd("xterm -fg black -bg cyan -geometry 80x12+1300+700 -e \"./VASTreal_console 5 0 1037 10.0.0.1 \" &")
+    h6.cmd("xterm -fg black -bg cyan -geometry 80x12+1300+700 -e \"./VASTreal_console 5 0 1037 10.0.0.1 \"")
 
     # time.sleep(5)
     # os.system("killall -STOP VASTreal_console")
 
-    CLI(net)
+    time.sleep(1)
+    # CLI(net)
     net.stop()
 
     os.system("killall VASTreal_console")
