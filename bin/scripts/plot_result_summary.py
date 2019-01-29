@@ -153,7 +153,7 @@ for key in loss_percentages_keys:
     keys.append(key)
 
 plot.boxplot(send_bandwidth, positions=keys) 
-plot.xlabel('Loss [%]')
+# plot.xlabel('Loss [%]')
 plot.ylabel('Send BW [B]')  
 plot.grid()
 

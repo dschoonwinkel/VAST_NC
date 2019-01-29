@@ -10,9 +10,17 @@ from mininet.log import setLogLevel, info
 from mininet.link import TCLink, Intf
 from subprocess import call
 
+import sys
 import os, time
 
 def myNetwork():
+
+    loss_perc = 0
+
+    if (len(sys.argv) > 1):
+        print(sys.argv[1])
+        loss_perc = float(sys.argv[1])
+
 
     net = Mininet( topo=None,
                    build=False,
@@ -39,12 +47,12 @@ def myNetwork():
 
     info( '*** Add links\n')
     # net.addLink(h1, s1, bw=10, delay='50ms', loss=0)
-    net.addLink(h1, s1, bw=1, loss=2)
-    net.addLink(s1, h2, bw=1, loss=2)
-    net.addLink(s1, h3, bw=1, loss=2)
-    net.addLink(s1, h4, bw=1, loss=2)
-    net.addLink(s1, h5, bw=1, loss=2)
-    net.addLink(s1, h6, bw=1, loss=2)
+    net.addLink(h1, s1, bw=1, loss=loss_perc)
+    net.addLink(s1, h2, bw=1, loss=loss_perc)
+    net.addLink(s1, h3, bw=1, loss=loss_perc)
+    net.addLink(s1, h4, bw=1, loss=loss_perc)
+    net.addLink(s1, h5, bw=1, loss=loss_perc)
+    net.addLink(s1, h6, bw=1, loss=loss_perc)
 
     info( '*** Starting network\n')
     net.build()
