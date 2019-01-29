@@ -47,8 +47,8 @@ int main (int argc, char *argv[])
     int steps = 0;
     bool running = true;
 
-    std::chrono::microseconds process_duration;
-    std::chrono::microseconds total_duration;
+    std::chrono::microseconds process_duration = std::chrono::microseconds::zero();
+    std::chrono::microseconds total_duration = std::chrono::microseconds::zero();
 
     std::cout << "VASTreal_console::main:: Is gateway: " << netpara.is_entry << std::endl << std::endl;
     while (running)
