@@ -19,10 +19,10 @@ clean_binaries:
 
 backup_results:
 	$(eval date_string := $(shell date +%d_%m_%Y-%H:%M))
-	mkdir logs/logs_backup/logs_$(date_string)
-	cp logs/*.txt logs/logs_backup/logs_$(date_string)/
-	mkdir logs/logs_backup/logs_$(date_string)/results
-	cp logs/results/results1.txt logs/logs_backup/logs_$(date_string)/results/
+	mkdir logs/logs_backup/logs_$(foo)_$(date_string)
+	cp logs/*.txt logs/logs_backup/logs_$(foo)_$(date_string)/
+	mkdir logs/logs_backup/logs_$(foo)_$(date_string)/results
+	cp logs/results/results1.txt logs/logs_backup/logs_$(foo)_$(date_string)/results/
 
 restore_results:
 	$(backup_results)
