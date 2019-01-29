@@ -68,6 +68,7 @@ plot.grid(True)
 
 plot.subplot(4,1,3)
 drift_nodes = numpy_results[:,DRIFT_NODES]
+where_is_finite = np.nonzero(drift_nodes)
 drift_distance = numpy_results[:,TOTAL_DRIFT]
 normalised_drift_distance = drift_distance / drift_nodes
 
