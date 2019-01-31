@@ -1,5 +1,5 @@
-#ifndef NET_OVERHEARING_HANDLER_H
-#define NET_OVERHEARING_HANDLER_H
+#ifndef NET_UDP_HANDLER_H
+#define NET_UDP_HANDLER_H
 
 #include "VASTTypes.h"
 #include "VASTBuffer.h"
@@ -13,13 +13,13 @@ using namespace boost::asio;
 
 namespace Vast {
 
-    class net_overhearing_handler
+    class net_udp_handler
     {
-    friend class net_overhearing;
+    friend class net_udp;
     friend class dest_unreachable_listener;
 
     public:
-        net_overhearing_handler (ip::udp::endpoint local_endpoint);
+        net_udp_handler (ip::udp::endpoint local_endpoint);
 
         int open (io_service *io_service, void *msghandler);
 
@@ -58,7 +58,7 @@ namespace Vast {
 
     private:
 
-        ~net_overhearing_handler ();
+        ~net_udp_handler ();
 
         // info the remote nodes using this socket
         std::vector<id_t>           _remote_ids;
@@ -72,7 +72,7 @@ namespace Vast {
         ip::udp::endpoint           _local_endpoint;
         ip::udp::endpoint           _remote_endpoint_;
 
-        // the same io_service as net_overhearing
+        // the same io_service as net_udp
         io_service                  *_io_service;
         boost::thread               *_iosthread;
         void                        *_msghandler;
@@ -85,4 +85,4 @@ namespace Vast {
 
 } // end namespace Vast
 
-#endif // NET_OVERHEARING_HANDLER_H
+#endif // NET_UDP_HANDLER_H

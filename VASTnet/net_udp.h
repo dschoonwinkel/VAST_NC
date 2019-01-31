@@ -4,31 +4,31 @@
  */
 
 /*
- * net_overhearing.h -- network implementation using wireless overhearing
+ * net_udp.h -- network implementation using wireless overhearing
  *                  
  *
  *      init:   2010-09-30
  */
 
-#ifndef VAST_NET_OVERHEARING_H
-#define VAST_NET_OVERHEARING_H
+#ifndef VAST_NET_UDP_H
+#define VAST_NET_UDP_H
 
 #include "VASTnet.h"
     // Wireless overhearing class
-#include "net_overhearing_handler.h"
+#include "net_udp_handler.h"
 
 #include <boost/asio.hpp>
 #include <mutex>
 
 namespace Vast {
-    class net_overhearing : public Vast::net_manager
+    class net_udp : public Vast::net_manager
     {
-    friend class net_overhearing_handler;
+    friend class net_udp_handler;
 
     public:
 
-        net_overhearing (uint16_t port);
-        virtual ~net_overhearing();
+        net_udp (uint16_t port, const char* bindAddress = "");
+        virtual ~net_udp();
      
         //
         // basic services 
@@ -85,7 +85,7 @@ namespace Vast {
         char                        _IPaddr[17];
 
         //Handler for receiving UDP packets
-        net_overhearing_handler     *_udphandler;
+        net_udp_handler     *_udphandler;
 
         //Event loop for handling async IO.
         boost::asio::io_service     *_io_service;
@@ -98,4 +98,4 @@ namespace Vast {
     };
 } // end namespace Vast
 
-#endif // VAST_NET_OVERHEARING_H
+#endif // VAST_NET_UDP_H

@@ -12,9 +12,9 @@
 
 #include "dest_unr_listener.h"
 #include "VASTTypes.h"
-#include "net_overhearing_handler.h"
+#include "net_udp_handler.h"
 
-dest_unreachable_listener::dest_unreachable_listener(boost::asio::io_service& io_service, const char* destination, Vast::net_overhearing_handler* disconn_handler)
+dest_unreachable_listener::dest_unreachable_listener(boost::asio::io_service& io_service, const char* destination, Vast::net_udp_handler* disconn_handler)
     : resolver_(io_service), socket_(io_service, icmp::v4())
 {
     icmp::resolver::query query(icmp::v4(), destination, "");

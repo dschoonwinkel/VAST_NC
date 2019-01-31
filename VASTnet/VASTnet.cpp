@@ -21,7 +21,7 @@
 #include "VASTnet.h"
 #include "net_ace.h"
 #include "net_emu.h"
-#include "net_overhearing.h"
+#include "net_udp.h"
 #include <iostream>
 #include <string.h>
 
@@ -48,6 +48,8 @@ namespace Vast
 
         IP_string = getInterfaceAddrFromRemoteAddr(IP_string);
 
+        std::cout << "Net_Model: " << _model << std::endl;
+
 
         // create network manager given the network model and start it
         if (_model == VAST_NET_EMULATED)
@@ -56,8 +58,8 @@ namespace Vast
         else if (_model == VAST_NET_ACE)
             _manager = new net_ace (port, IP_string);
 
-        else if (_model == VAST_NET_OVERHEARING)
-            _manager = new net_overhearing (port);
+        else if (_model == VAST_NET_UDP)
+            _manager = new net_udp (port, IP_string);
 
         _recvmsg = NULL;
         _recvmsg_socket = NULL;
@@ -77,8 +79,8 @@ namespace Vast
 #ifndef ACE_DISABLED
         else if (_model == VAST_NET_ACE)
             delete ((net_ace *)_manager);
-        else if (_model == VAST_NET_OVERHEARING)
-            delete ((net_overhearing *)_manager);
+        else if (_model == VAST_NET_UDP)
+            delete ((net_udp *)_manager);
 #endif
 
         // de-allocate message buffers
@@ -985,13 +987,20 @@ namespace Vast
         bool is_public = (actualIP.host == detectedIP.host);
 
         // if the remote host does not have have public IP, assign one
-        if (!is_public)      
+        if (!is_public)
         {
             // use the actual IP/port pair to define the unique ID
             // NOTE: that the remote port used may not be the default bind port, as it's rather arbitrary
             // BUG: potential bug, the same 'port' if used by different hosts behind a NAT, will generate the same ID
             id = _manager->resolveHostID (&actualIP);
+            std::cout << "VASTnet::processIDRequest: resolvedHost ID: " << id << std::endl;
         }
+
+//        //NOTE: I added this to try and resolve an ID for already public IPs
+//        if (id == NET_ID_UNASSIGNED)
+//        {
+//            id = _manager->resolveHostID (&actualIP);
+//        }
 
         if (id == NET_ID_UNASSIGNED)
             printf ("VASTnet::processIDRequest () we cannot assign new ID to remote host any more\n");
@@ -1245,6 +1254,8 @@ namespace Vast
         struct sockaddr_in remote_addr;
 
         char *interface_IP_txt = new char[INET_ADDRSTRLEN];
+
+        std::cout << "VASTnet::getInterfaceAddrFromRemateAddr:remote_IP = " << remote_IP << std::endl;
 
         //Process incoming remote addr
         s = inet_pton(AF_INET, remote_IP, &remote_addr.sin_addr);

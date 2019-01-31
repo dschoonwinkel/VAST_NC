@@ -25,13 +25,16 @@ using namespace Vast;
 int main (int argc, char *argv[])
 {    
     SimPara simpara;                                    // simulation parameters
-    VASTPara_Net netpara (VAST_NET_ACE);           // network parameter
+    VASTPara_Net netpara (VAST_NET_UDP);           // network parameter
 
     ReadPara (simpara);
 
     // read parameters and initialize simulations
-    InitPara (VAST_NET_ACE, netpara, simpara, argc, argv);
+    InitPara (VAST_NET_UDP, netpara, simpara, argc, argv);
     
+
+    std::cout << "netpara.model: " << netpara.model << std::endl;
+
     InitSim (simpara, netpara);
 
     // # of nodes currently created

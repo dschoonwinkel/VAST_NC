@@ -10,7 +10,7 @@
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
-    ui(new Ui::MainWindow), g_netpara(VAST_NET_OVERHEARING)
+    ui(new Ui::MainWindow), g_netpara(VAST_NET_UDP)
 {
     ui->setupUi(this);
 
@@ -24,7 +24,7 @@ MainWindow::MainWindow(QWidget *parent) :
     char GWstr[80];
     strcpy (GWstr, "127.0.0.1:1037");
 
-    if ((g_node_no = InitPara (VAST_NET_OVERHEARING, g_netpara, g_simpara, NULL, &is_gateway, &g_world_id, &g_aoi, GWstr)) == (-1))
+    if ((g_node_no = InitPara (VAST_NET_UDP, g_netpara, g_simpara, NULL, &is_gateway, &g_world_id, &g_aoi, GWstr)) == (-1))
     {
         exit(0);
     }

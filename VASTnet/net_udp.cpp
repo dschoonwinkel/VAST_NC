@@ -18,7 +18,7 @@
  *
  */
 
-#include "net_overhearing.h"
+#include "net_udp.h"
 #include <map>
 #include <chrono>
 #include <iostream>
@@ -30,9 +30,9 @@ using namespace std::chrono_literals;
 
 namespace Vast
 {
-    net_overhearing::net_overhearing (uint16_t port): _port_self (port)
+    net_udp::net_udp (uint16_t port, const char *bindAddress): _port_self (port)
     {
-        std::cout << "net_overhearing::constructor called" << std::endl;
+        std::cout << "net_udp::constructor called" << std::endl;
 
 //        // initialize rand generator (for node fail simulation, NOTE: same seed is used to produce exactly same results)
 //        //srand ((unsigned int)time (NULL));
@@ -41,15 +41,28 @@ namespace Vast
         _hostname[0] = 0;
         _IPaddr[0] = 0;
 
+        if (bindAddress != NULL && bindAddress[0] != 0)
+        {
+            strcpy(_IPaddr, bindAddress);
+        }
+
         _io_service = new io_service();
 
-        printf ("net_overhearing::net_overhearing(): Host IP: %s\n", getIPFromHost ());
+        printf ("net_udp::net_udp(): Host IP: %s\n", getIPFromHost ());
 
         ip::udp::endpoint endpoint(ip::address::from_string(_IPaddr), port);
 
+        //NOTE: Potential bug -> what happens if it cannot open communication on this port?
         _self_addr.setPublic(endpoint.address().to_v4().to_ulong(), _port_self);
 
-        _udphandler = new net_overhearing_handler(endpoint);
+        //Assign the host_id based on the combination of host_ip and port information
+        _self_addr.host_id = this->resolveHostID(&_self_addr.publicIP);
+
+        char ip_string[20];
+        _self_addr.publicIP.getString(ip_string);
+        printf ("net_udp::constructor: _self_addr: %s : %d\n", ip_string, _self_addr.publicIP.port);
+
+        _udphandler = new net_udp_handler(endpoint);
 
         // set the conversion rate between seconds and timestamp unit
         // for net_ace it's 1000 timestamp units = 1 second (each step is 1 ms)
@@ -57,9 +70,9 @@ namespace Vast
 
     }
 
-    net_overhearing::~net_overhearing ()
+    net_udp::~net_udp ()
     {
-        //Maybe this should rather be done in net_overhearing lifecycle?
+        //Maybe this should rather be done in net_udp lifecycle?
 //        _io_service.stop();
 //        _io_service.reset();
         delete _io_service;
@@ -67,7 +80,7 @@ namespace Vast
     }
 
     void 
-    net_overhearing::start ()
+    net_udp::start ()
     {
         _active = true;
         net_manager::start ();
@@ -77,12 +90,21 @@ namespace Vast
         //Update the port number once it was determine by the _udphandler
         _port_self = _udphandler->getPort();
         _self_addr.setPublic(_self_addr.publicIP.host, _port_self);
+
+        //Assign the host_id based on the combination of host_ip and port information
+        _self_addr.host_id = this->resolveHostID(&_self_addr.publicIP);
+
+        //This cannot work, otherwise it does not request its ID from GW.
+//        //Set up my temporary ID to enable communication
+//        _id = _self_addr.host_id;
+
+        socket_connected(_self_addr.host_id, _udphandler, false);
     }
 
     void 
-    net_overhearing::stop ()
+    net_udp::stop ()
     {
-        //Consider putting net_overhearing_handler->close() here
+        //Consider putting net_udp_handler->close() here
         net_manager::stop ();
         if (_udphandler)
             _udphandler->close ();
@@ -93,7 +115,7 @@ namespace Vast
 
     // get current physical timestamp
     timestamp_t 
-    net_overhearing::getTimestamp ()
+    net_udp::getTimestamp ()
     {
         uint64_t time_now = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
         return time_now;
@@ -101,7 +123,7 @@ namespace Vast
 
     // get IP address from host name
     const char *
-    net_overhearing::getIPFromHost (const char *host)
+    net_udp::getIPFromHost (const char *host)
     {
         char hostname[255];
 
@@ -149,7 +171,7 @@ namespace Vast
     // returns a null address if not available
     //This function only returns a value if we have heard from this host before
     bool 
-    net_overhearing::getRemoteAddress (id_t host_id, IPaddr &addr)
+    net_udp::getRemoteAddress (id_t host_id, IPaddr &addr)
     {
 
         IPaddr *resolved_addr = _udphandler->getRemoteAddress (host_id);
@@ -173,7 +195,7 @@ namespace Vast
     //      any non-private id: 
     //          connects to the node, and register addr.id to the address
     bool
-    net_overhearing::
+    net_udp::
     connect (id_t target, unsigned int host, unsigned short port, bool is_secure)
     {
         if (_active == false)
@@ -182,7 +204,7 @@ namespace Vast
         // avoid self-connection & re-connection
         if (target == _id || isConnected (target))
         {
-            printf ("net_overhearing::connect () connection for [%lu] already exists\n", target);
+            printf ("net_udp::connect () connection for [%lu] already exists\n", target);
             return false;
         }        
 
@@ -201,10 +223,10 @@ namespace Vast
     }
 
     bool
-    net_overhearing::
+    net_udp::
     disconnect (Vast::id_t target)
     {
-        net_overhearing_handler *handler = NULL;
+        net_udp_handler *handler = NULL;
         std::map<id_t, ConnectInfo>::iterator it;
 
         //Use conn mutex to ensure that the handler is deleted correctly and
@@ -212,7 +234,7 @@ namespace Vast
         _conn_mutex.lock();
 
         if ((it = _id2conn.find(target)) != _id2conn.end ())
-            handler = (net_overhearing_handler *)(it->second.stream);
+            handler = (net_udp_handler *)(it->second.stream);
 
 #ifdef DEBUG_DETAIL
         printf ("[%lu] disconnection success\n", target);
@@ -223,7 +245,7 @@ namespace Vast
         //General UDP socket should not close, unlike TCP connection
 //        handler->close();
 
-        CPPDEBUG("net_overhearing::disconnect " << target << " disconnected");
+        CPPDEBUG("net_udp::disconnect " << target << " disconnected");
 
         this->socket_disconnected (target);
         return true;
@@ -232,7 +254,7 @@ namespace Vast
     // send an outgoing message to a remote host
     // return the number of bytes sent
     size_t 
-    net_overhearing::send (id_t target, char const *msg, size_t size, const Addr *addr)
+    net_udp::send (id_t target, char const *msg, size_t size, const Addr *addr)
     {        
         if (_active == false)
             return 0;
@@ -243,7 +265,7 @@ namespace Vast
             IPaddr *resolved_addr = _udphandler->getRemoteAddress(target);
             if (resolved_addr == NULL)
             {
-                std::cerr << "net_overhearing::send IPaddr could not be resolved for id_t " << target << std::endl;
+                std::cerr << "net_udp::send IPaddr could not be resolved for id_t " << target << std::endl;
                 return 0;
             }
             addr = new Addr(target, resolved_addr);
@@ -256,7 +278,7 @@ namespace Vast
     // receive an incoming message
     // return pointer to next NetSocketMsg structure or NULL for no more message
     NetSocketMsg *
-    net_overhearing::receive ()
+    net_udp::receive ()
     {
         // clear last received message
         if (_recvmsg != NULL)
@@ -282,20 +304,22 @@ namespace Vast
 
     // change the ID for a remote host
     bool 
-    net_overhearing::switchID (id_t prevID, id_t newID)
+    net_udp::switchID (id_t prevID, id_t newID)
     {
         bool result = false;
 
-        _conn_mutex.lock();
+//        _conn_mutex.lock();
 
-        //new ID already in use
-        if (_id2conn.find (newID) != _id2conn.end () || _id2conn.find (prevID) == _id2conn.end ())
+//        //Only checks for new ID already in use, not for previous ID, because UDP is not connection based and therefore no connection exists before the packet arrives
+        if (_id2conn.find (newID) != _id2conn.end ())
+////        if (_id2conn.find (newID) != _id2conn.end () || _id2conn.find (prevID) == _id2conn.end ())
         {
-            printf("[%lu] net_overhearing::switchID () old ID not found or new ID already exists\n", _id);
+            printf("[%lu] new ID already exists\n", _id);
+            exit(111);
         }
-        else
+        else if (_id2conn.find (prevID) != _id2conn.end())
         {
-            printf("[%lu] net_overhearing::switchID () replace [%lu] with [%lu]\n", _id, prevID, newID);
+            printf("[%lu] net_udp::switchID () replace [%lu] with [%lu]\n", _id, prevID, newID);
 
             //copy to new ID
             _id2conn[newID] = _id2conn[prevID];
@@ -303,18 +327,28 @@ namespace Vast
             //erase old ID mapping
             _id2conn.erase (prevID);
 
-            //change to remote ID knowledge at stream
-            result = ((net_overhearing_handler *)(_id2conn[newID].stream))->switchRemoteID (prevID, newID);
+//            change to remote ID knowledge at stream
+            result = ((net_udp_handler *)(_id2conn[newID].stream))->switchRemoteID (prevID, newID);
+            return result;
         }
-        _conn_mutex.unlock();
 
-        return result;
+//        else  //Simply save the connection ID
+//        {
+//            _id2conn.insert();
+//        }
+
+//        }
+
+//        _conn_mutex.unlock();
+
+//        return result;
+        return true;
     }
 
     // store a message into priority queue
     // returns success or not
     bool 
-    net_overhearing::msg_received (id_t fromhost, const char *message, size_t size, timestamp_t recvtime, bool in_front)
+    net_udp::msg_received (id_t fromhost, const char *message, size_t size, timestamp_t recvtime, bool in_front)
     {        
         NetSocketMsg *msg = new NetSocketMsg;
 
@@ -348,6 +382,12 @@ namespace Vast
             if (msg->recvtime > it->second.lasttime)
                 it->second.lasttime = msg->recvtime; 
         }
+
+        //If I have never heard from this connection before, add it as a new connection
+        if (it == _id2conn.end())
+        {
+            socket_connected(fromhost, _udphandler, false);
+        }
         _conn_mutex.unlock();
 
         return true;
@@ -356,11 +396,11 @@ namespace Vast
     // methods to keep track of active connections (associate ID with connection stream)
     // returns NET_ID_UNASSIGNED if failed
     bool
-    net_overhearing::socket_connected (id_t id, void *stream, bool is_secure)
+    net_udp::socket_connected (id_t id, void *stream, bool is_secure)
     {
         if (id == NET_ID_UNASSIGNED)
         {
-            printf("net_overhearing::socket_connected () empty id given\n");
+            printf("net_udp::socket_connected () empty id given\n");
             return false;
         }
 
@@ -376,7 +416,7 @@ namespace Vast
         }
         else {
 //            //Update last received
-//            CPPDEBUG("net_overhearing::socket_connected Updating lasttime from conn " << id << " to current timestamp " << getTimestamp() << std::endl);
+//            CPPDEBUG("net_udp::socket_connected Updating lasttime from conn " << id << " to current timestamp " << getTimestamp() << std::endl);
 //            _id2conn[id].lasttime = getTimestamp();
         }
         _conn_mutex.unlock();
@@ -384,14 +424,14 @@ namespace Vast
         //An error occurred - unknown reason
         if (_id2conn.find(id) == _id2conn.end() && stored == false)
         {
-            printf("net_overhearing::socket_connected () connection was not stored\n");
+            printf("net_udp::socket_connected () connection was not stored\n");
         }
 
         return stored;
     }
 
     bool
-    net_overhearing::socket_disconnected (id_t id)
+    net_udp::socket_disconnected (id_t id)
     {
         if (_active == false)
             return false;
@@ -417,9 +457,9 @@ namespace Vast
     }
 
     //Calculate the UDP timeouts here
-    void net_overhearing::tickLogicalClock ()
+    void net_udp::tickLogicalClock ()
     {
-//        CPPDEBUG("net_overhearing::tickLogicalClock ()");
+//        CPPDEBUG("net_udp::tickLogicalClock ()");
         timestamp_t time_now = getTimestamp();
         std::vector<ConnectInfo> dead_connections;
 
@@ -427,14 +467,14 @@ namespace Vast
 
         for (it = _id2conn.begin(); it != _id2conn.end(); it++ )
         {
-//            std::cout << "net_overhearing::tickLogicalClock: " << it->first  // string (key)
+//            std::cout << "net_udp::tickLogicalClock: " << it->first  // string (key)
 //                      << ':'
 //                      << it->second.lasttime   // string's value
 //                      << std::endl ;
             if  (time_now > it->second.lasttime + UDP_TIMEOUT)
             {
                      dead_connections.push_back(it->second);
-                    CPPDEBUG("Dead connection found: " << it->first << " dead for " << time_now - it->second.lasttime << std::endl);
+//                    CPPDEBUG("Dead connection found: " << it->first << " dead for " << time_now - it->second.lasttime << std::endl);
             }
         }
     }

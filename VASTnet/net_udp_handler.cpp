@@ -1,12 +1,12 @@
-#include "net_overhearing_handler.h"
-#include "net_overhearing.h"
+#include "net_udp_handler.h"
+#include "net_udp.h"
 #include <iostream>
 #include <cstring>
 #include <string>
 
 namespace Vast {
 
-    net_overhearing_handler::net_overhearing_handler(ip::udp::endpoint local_endpoint) :_remote_ids()
+    net_udp_handler::net_udp_handler(ip::udp::endpoint local_endpoint) :_remote_ids()
     {
         _udp = NULL;
         _io_service = NULL;
@@ -16,14 +16,14 @@ namespace Vast {
         _remote_ids.push_back(0);
     }
 
-    net_overhearing_handler::~net_overhearing_handler()
+    net_udp_handler::~net_udp_handler()
     {
         // remove UDP listener
         if (_udp != NULL)
             delete _udp;
     }
 
-    int net_overhearing_handler::open(boost::asio::io_service *io_service, void *msghandler) {
+    int net_udp_handler::open(boost::asio::io_service *io_service, void *msghandler) {
         _io_service = io_service;
         _msghandler = msghandler;
 
@@ -42,7 +42,7 @@ namespace Vast {
                 _local_endpoint.port(port);
                 _udp->bind(_local_endpoint, ec);
 
-                CPPDEBUG("net_overhearing_handler::open " + ec.message() << std::endl);
+                CPPDEBUG("net_udp_handler::open " + ec.message() << std::endl);
                 //Try the next port
                 port++;
 
@@ -51,10 +51,11 @@ namespace Vast {
             //Open dest_unr_listener as well to receive disconnects
 //            _disconn_listener = new dest_unreachable_listener(*io_service, _local_endpoint.address().to_string().c_str(), this);
 
+
             //Add async receive to io_service queue
             start_receive();
 
-            CPPDEBUG("net_overhearing_handler::open _udp->_local_endpoint" << _udp->local_endpoint() << " _local_endpoint" << _local_endpoint << std::endl);
+            CPPDEBUG("net_udp_handler::open _udp->_local_endpoint: " << _udp->local_endpoint() << " _local_endpoint" << _local_endpoint << std::endl);
 
             //Start the thread handling async receives
             _iosthread = new boost::thread(boost::bind(&boost::asio::io_service::run, io_service));
@@ -64,17 +65,17 @@ namespace Vast {
         return 0;
     }
 
-    void net_overhearing_handler::start_receive()
+    void net_udp_handler::start_receive()
     {
         _udp->async_receive_from(
             boost::asio::buffer(_buf, VAST_BUFSIZ), _remote_endpoint_,
-            boost::bind(&net_overhearing_handler::handle_input, this,
+            boost::bind(&net_udp_handler::handle_input, this,
               boost::asio::placeholders::error,
               boost::asio::placeholders::bytes_transferred));
     }
 
     // handling incoming message
-    int net_overhearing_handler::handle_input (const boost::system::error_code& error,
+    int net_udp_handler::handle_input (const boost::system::error_code& error,
           std::size_t bytes_transferred)
     {
         size_t n = bytes_transferred;
@@ -98,29 +99,38 @@ namespace Vast {
                 //Check if it is really a VAST message: Start and end bytes of header should be correct
                 if (!(header.start == 10 && header.end == 5))
                 {
-                    CPPDEBUG("net_overhearing_handler::handle_input Non-VAST message received on UDP socket" << std::endl);
+                    CPPDEBUG("net_udp_handler::handle_input Non-VAST message received on UDP socket" << std::endl);
                     return -1;
                 }
 
                 Message *msg = new Message(0);
                 if (0 == msg->deserialize (p, header.msg_size))
                 {
-                    printf("net_overhearing_handler::handle_input deserialize message fail: size = %u\n", header.msg_size);
+                    printf("net_udp_handler::handle_input deserialize message fail: size = %u\n", header.msg_size);
                 }
                 remote_id = msg->from;
 
                 //Store the host_id : IPaddr pair
                 IPaddr remote_addr(_remote_endpoint_.address().to_v4().to_ulong(), _remote_endpoint_.port());
+
+
+                id_t temp_id = remote_id;
+                //This host is looking for an ID, assign it a temporary ID to store the connection
+                if (remote_id == NET_ID_UNASSIGNED && msg->msgtype == ID_REQUEST)
+                {
+                    temp_id = ((net_udp*)_msghandler)->resolveHostID(&remote_addr);
+                }
+
 //                _remote_addrs[remote_id] = remote_addr;
-                storeRemoteAddress(remote_id, remote_addr);
+                storeRemoteAddress(temp_id, remote_addr);
 
                 //Break up messages into VASTMessage sizes
                 //msg start at p - 4, i.e. start of header
                 //msgsize = header.msg_size + 4 for header
-                ((net_overhearing*)_msghandler)->msg_received(remote_id, p - sizeof(VASTHeader), header.msg_size + sizeof(VASTHeader));
+                ((net_udp*)_msghandler)->msg_received(remote_id, p - sizeof(VASTHeader), header.msg_size + sizeof(VASTHeader));
 
                 //We assume if we can get a packet from the host, we are connected to that host
-                ((net_overhearing*)_msghandler)->socket_connected(remote_id, this, false);
+                ((net_udp*)_msghandler)->socket_connected(temp_id, this, false);
 
                 //Next message
                 p += header.msg_size;
@@ -137,21 +147,21 @@ namespace Vast {
         return -1;
     }
 
-    int net_overhearing_handler::close() {
+    int net_udp_handler::close() {
         return this->handle_close();
     }
 
-    int net_overhearing_handler::handle_close()
+    int net_udp_handler::handle_close()
     {
         //Unregister from message handler, do this first to avoid sending messages
         //on a closed socket
-        CPPDEBUG("net_overhearing_handler::handle_close() - _remote_ids.size(): " << _remote_ids.size());
+        CPPDEBUG("net_udp_handler::handle_close() - _remote_ids.size(): " << _remote_ids.size());
 //        for (id_t remote_id : _remote_ids)
 //        {
-//            CPPDEBUG("net_overhearing_handler::handle_close() - remote id" << remote_id << std::endl;);
+//            CPPDEBUG("net_udp_handler::handle_close() - remote id" << remote_id << std::endl;);
 //            if (_msghandler == NULL)
-//                CPPDEBUG("net_overhearing_handler::handle_close() _msghandler was null");
-//            ((net_overhearing*)_msghandler)->socket_disconnected(remote_id);
+//                CPPDEBUG("net_udp_handler::handle_close() _msghandler was null");
+//            ((net_udp*)_msghandler)->socket_disconnected(remote_id);
 //        }
 
 
@@ -167,40 +177,41 @@ namespace Vast {
         return 0;
     }
 
-    void net_overhearing_handler::handle_disconnect (IPaddr ip_addr)
+    void net_udp_handler::handle_disconnect (IPaddr ip_addr)
     {
 
         char ip_addr_str[22] = "";
         ip_addr.getString(ip_addr_str);
-        CPPDEBUG("net_overhearing_handler::handle_disconnect: Incoming addr to disconnect" << std::string(ip_addr_str) << std::endl);
+        CPPDEBUG("net_udp_handler::handle_disconnect: Incoming addr to disconnect" << std::string(ip_addr_str) << std::endl);
         id_t remote_disconnected_id = getRemoteIDByIP(ip_addr);
         if (remote_disconnected_id != NET_ID_UNASSIGNED)
         {
-            CPPDEBUG("net_overhearing_handler::handle_disconnect. Disconnecting ID " << remote_disconnected_id << std::endl);
-            ((net_overhearing*)_msghandler)->socket_disconnected(remote_disconnected_id);
+            CPPDEBUG("net_udp_handler::handle_disconnect. Disconnecting ID " << remote_disconnected_id << std::endl);
+            ((net_udp*)_msghandler)->socket_disconnected(remote_disconnected_id);
         }
     }
 
-    size_t net_overhearing_handler::send(const void *buf, size_t n, ip::udp::endpoint remote_endpoint) {
+    size_t net_udp_handler::send(const void *buf, size_t n, ip::udp::endpoint remote_endpoint) {
 
         if (_udp == NULL)
         {
-            std::cerr << "net_overhearing_handler::send trying to send before socket is ready" << std::endl;
+            std::cerr << "net_udp_handler::send trying to send before socket is ready" << std::endl;
             return -1;
 
         }
 
-//        CPPDEBUG("net_overhearing_handler::send size of sent packet: " << n << std::endl);
+//        CPPDEBUG("net_udp_handler::send size of sent packet: " << n << std::endl);
         return _udp->send_to(buffer(buf, n), remote_endpoint);
 
     }
 
-    bool net_overhearing_handler::switchRemoteID (id_t oldID, id_t newID) {
+    bool net_udp_handler::switchRemoteID (id_t oldID, id_t newID) {
         std::vector<id_t>::iterator it;
 
+        //I do not think this functionality is needed for UDP connections
         it = std::find(_remote_ids.begin(), _remote_ids.end(), oldID);
 
-        //Could not find old ID, nothing to replace
+//        //Could not find old ID, nothing to replace
         if (it == _remote_ids.end())
             return false;
         else
@@ -209,9 +220,10 @@ namespace Vast {
             *it = newID;
             return true;
         }
+        return true;
     }
 
-    IPaddr* net_overhearing_handler::getRemoteAddress (id_t host_id)
+    IPaddr* net_udp_handler::getRemoteAddress (id_t host_id)
     {
         //Return the address if we have heard from this host before
         if (_remote_addrs.find (host_id) != _remote_addrs.end ())
@@ -222,7 +234,7 @@ namespace Vast {
         else return NULL;
     }
 
-    id_t net_overhearing_handler::getRemoteIDByIP (IPaddr addr)
+    id_t net_udp_handler::getRemoteIDByIP (IPaddr addr)
     {
 //        char ip_addr_str[22] = "";
 //        addr.getString(ip_addr_str);
@@ -238,12 +250,12 @@ namespace Vast {
 //            {
 //                CPPDEBUG(it->first << "  " << it->second << std::endl);
 //            }
-            std::cerr << "net_overhearing_handler::getRemoteIDByIP id_t could not be found" << std::endl;
+            std::cerr << "net_udp_handler::getRemoteIDByIP id_t could not be found" << std::endl;
             return NET_ID_UNASSIGNED;
         }
     }
 
-    void net_overhearing_handler::storeRemoteAddress (id_t host_id, IPaddr addr)
+    void net_udp_handler::storeRemoteAddress (id_t host_id, IPaddr addr)
     {
         _remote_addrs[host_id] = addr;
 
@@ -251,13 +263,13 @@ namespace Vast {
 //        addr.getString(ip_addr_str);
 //        if (strlen(ip_addr_str) == 0)
 //        {
-//            std::cerr << "net_overhearing_handler::storeRemoteAddress IP addr was probably not copied to ip_addr_str" << std::endl;
+//            std::cerr << "net_udp_handler::storeRemoteAddress IP addr was probably not copied to ip_addr_str" << std::endl;
 //        }
 
         _remote_ids_IPs[addr] = host_id;
     }
 
-    uint16_t net_overhearing_handler::getPort ()
+    uint16_t net_udp_handler::getPort ()
     {
         return _local_endpoint.port();
     }

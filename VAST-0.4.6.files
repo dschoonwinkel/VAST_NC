@@ -2,6 +2,10 @@ VAST/vaststatlog.cpp
 VAST/vaststatlog.h
 VAST/vaststatlog_entry.cpp
 VAST/vaststatlog_entry.h
+VASTnet/net_udp.cpp
+VASTnet/net_udp.h
+VASTnet/net_udp_handler.cpp
+VASTnet/net_udp_handler.h
 VASTreal/RealNode.cpp
 VASTreal/RealNode.h
 VASTreal/test/test_vastreal_initpara.cpp
@@ -12,6 +16,7 @@ VASTnet/dest_unr_listener.cpp
 VASTnet/dest_unr_listener.h
 bin/Makefile
 bin/VASTsim.ini
+bin/VASTreal.ini
 Demo/SimNode_demo/SimNode_demo.cpp
 Demo/VASTATEsim_console/VASTATEsim_console.cpp
 Demo/VASTsim_Qt/main.cpp
@@ -125,11 +130,7 @@ VASTnet/net_emubridge.h
 VASTnet/net_emubridge_bl.cpp
 VASTnet/net_emubridge_bl.h
 VASTnet/net_manager.cpp
-VASTnet/net_overhearing.cpp
-VASTnet/net_overhearing.h
 VASTnet/Makefile
-VASTnet/net_overhearing_handler.cpp
-VASTnet/net_overhearing_handler.h
 VASTsim/SimNode.cpp
 VASTsim/SimNode.h
 VASTsim/Statistics.h
