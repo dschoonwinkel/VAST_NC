@@ -83,9 +83,10 @@ plot.grid(True)
 plot.subplot(4,1,4)
 send_stat = numpy_results[:,7]
 recv_stat = numpy_results[:,8]
-plot.plot(timestamps, send_stat, 'g',label='Send stat')
-# plot.plot(timestamps, recv_stat, 'b', label='Recv stat')
-plot.ylabel("Send/recv stats [B]")
+# Show results in kBps -> 100 * 10ms per second / 1000 B per kB
+plot.plot(timestamps, send_stat*100/1000, 'g',label='Send stat')
+# plot.plot(timestamps, recv_stat*100/1000, 'b+', label='Recv stat')
+plot.ylabel("Send/recv stats [kBps]")
 plot.xlabel("Timestamp [ms]")
 # plot.xticks(np.arange(min(timestamps), max(timestamps)+1, x_axis_interval))
 plot.xticks(np.arange(min(timestamps), max(timestamps)+1, x_axis_interval))
@@ -102,5 +103,5 @@ if (len(sys.argv) > 1):
 	with open('../logs/results/results_summary.txt', 'a') as outfile:
 		outfile.write(("%s, " + sys.argv[1] + ", %f, %f, %f, %f, %f\n") % (first_timestamp, np.max(active_nodes), mean_consistency, mean_drift_distance, np.mean(send_stat), np.mean(recv_stat)))
 
-plot.show()
+# plot.show()
 
