@@ -33,7 +33,7 @@ loss_percentages_keys = set()
 # print(results_text)
 
 for row in results_text:
-    # print(row)
+    print(row)
     current_loss_perc = int(row[LOSS_PERC])
     if current_loss_perc not in loss_percentages_keys:
         loss_percentages_keys.add(current_loss_perc)
@@ -174,67 +174,8 @@ plot.xlabel('Loss [%]')
 plot.ylabel('Recv BW [B]')  
 plot.grid()
 
-
+plot.savefig("../logs/results/results_summary.pdf", dpi=300)
+plot.savefig("../logs/results/results_summary.png", dpi=300)
 
 
 plot.show()
-
-# topo_consistency = numpy_results[:,AVG_TOPO_CONS]
-# plot.boxplot(topo_consistency, positions=[0])
-# plot.ylabel("Active nodes")
-# plot.xticks(np.arange(min(timestamps), max(timestamps)+1, x_axis_interval))
-# plot.yticks(np.arange(min(active_nodes), max(active_nodes)+1, 1))
-# plot.xlim(0, max(timestamps)+1)
-
-# plot.grid(True)
-
-# plot.subplot(4,1,2)
-# topo_consistency = 100* 1.0*numpy_results[:,3] / (1.0*numpy_results[:,2])
-# plot.plot(timestamps, topo_consistency)
-# where_is_finite = np.isfinite(topo_consistency)
-# mean_consistency = np.mean(topo_consistency[where_is_finite])
-# where_are_NaNs = np.isnan(topo_consistency)
-# topo_consistency[where_are_NaNs] = 100
-# plot.plot(timestamps[where_are_NaNs], topo_consistency[where_are_NaNs], 'r,')
-# plot.ylabel("Topo consistency [%]")
-# plot.xticks(np.arange(min(timestamps), max(timestamps)+1, x_axis_interval))
-# plot.xlim(0, max(timestamps)+1)
-# plot.grid(True)
-
-# plot.subplot(4,1,3)
-# drift_nodes = numpy_results[:,DRIFT_NODES]
-# drift_distance = numpy_results[:,TOTAL_DRIFT]
-# normalised_drift_distance = drift_distance / drift_nodes
-
-# mean_drift_distance = np.mean(normalised_drift_distance[where_is_finite])
-
-# plot.plot(timestamps, normalised_drift_distance)
-# plot.ylabel("Norm drift distance")
-# plot.xticks(np.arange(min(timestamps), max(timestamps)+1, x_axis_interval))
-# plot.xlim(0, max(timestamps)+1)
-# plot.grid(True)
-
-# plot.subplot(4,1,4)
-# send_stat = numpy_results[:,7]
-# recv_stat = numpy_results[:,8]
-# plot.plot(timestamps, send_stat, 'g',label='Send stat')
-# # plot.plot(timestamps, recv_stat, 'b', label='Recv stat')
-# plot.ylabel("Send/recv stats [B]")
-# plot.xlabel("Timestamp [ms]")
-# # plot.xticks(np.arange(min(timestamps), max(timestamps)+1, x_axis_interval))
-# plot.xticks(np.arange(min(timestamps), max(timestamps)+1, x_axis_interval))
-# plot.legend()
-# plot.grid(True)
-# plot.xlim(0, max(timestamps)+1)
-
-# plot.savefig("../logs/results/active_nodes_topo_cons_.pdf", dpi=300)
-# plot.savefig("../logs/results/active_nodes_topo_cons_.png", dpi=300)
-
-# if (len(sys.argv) > 1):
-# 	print("Saving test results in results_summary.txt with label " + sys.argv[1])
-
-# 	with open('../logs/results/results_summary.txt', 'a') as outfile:
-# 		outfile.write(("%s, " + sys.argv[1] + ", %f %f %f %f %f\n") % (first_timestamp, np.max(active_nodes), mean_consistency, mean_drift_distance, np.mean(send_stat), np.mean(recv_stat)))
-
-# plot.show()
-
