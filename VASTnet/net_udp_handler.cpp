@@ -124,13 +124,15 @@ namespace Vast {
 //                _remote_addrs[remote_id] = remote_addr;
                 storeRemoteAddress(temp_id, remote_addr);
 
+                //We assume if we can get a packet from the host, we are connected to that host
+                ((net_udp*)_msghandler)->socket_connected(temp_id, this, false);
+
                 //Break up messages into VASTMessage sizes
                 //msg start at p - 4, i.e. start of header
                 //msgsize = header.msg_size + 4 for header
                 ((net_udp*)_msghandler)->msg_received(remote_id, p - sizeof(VASTHeader), header.msg_size + sizeof(VASTHeader));
 
-                //We assume if we can get a packet from the host, we are connected to that host
-                ((net_udp*)_msghandler)->socket_connected(temp_id, this, false);
+
 
                 //Next message
                 p += header.msg_size;
