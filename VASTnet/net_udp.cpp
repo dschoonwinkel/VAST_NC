@@ -175,7 +175,7 @@ namespace Vast
     {
 
         IPaddr *resolved_addr = _udphandler->getRemoteAddress (host_id);
-
+        std::cout << "net_udp::getRemoteAddress: host_id " << host_id << std::endl;
         //IPaddr could not be found, probably because we have never communicated with it
         if (resolved_addr == NULL)
             return false;
@@ -314,10 +314,10 @@ namespace Vast
         if (_id2conn.find (newID) != _id2conn.end ())
 ////        if (_id2conn.find (newID) != _id2conn.end () || _id2conn.find (prevID) == _id2conn.end ())
         {
-            printf("[%lu] new ID already exists\n", _id);
-            exit(111);
+            printf("net_udp::switchID: [%lu] new ID already exists\n", _id);
         }
-        else if (_id2conn.find (prevID) != _id2conn.end())
+
+        if (_id2conn.find (prevID) != _id2conn.end() && prevID != newID)
         {
             printf("[%lu] net_udp::switchID () replace [%lu] with [%lu]\n", _id, prevID, newID);
 

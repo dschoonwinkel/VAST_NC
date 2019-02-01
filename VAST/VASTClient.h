@@ -38,7 +38,7 @@
 
 const int TIMEOUT_JOIN          = (5);        // # of seconds before re-attempting to subscribe 
 const int TIMEOUT_SUBSCRIBE     = (5);        // # of seconds before re-attempting to subscribe 
-const int TIMEOUT_REMOVE_GHOST  = (5);        // # of seconds before removing ghost objects at clients
+const int TIMEOUT_REMOVE_GHOST  = (500);        // # of seconds before removing ghost objects at clients
 //const int TIMEOUT_KEEP_ALIVE   = (2);        // # of seconds before re-sending our own position
 
 using namespace std;

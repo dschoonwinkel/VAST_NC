@@ -130,7 +130,7 @@ namespace Vast {
                 //Break up messages into VASTMessage sizes
                 //msg start at p - 4, i.e. start of header
                 //msgsize = header.msg_size + 4 for header
-                ((net_udp*)_msghandler)->msg_received(remote_id, p - sizeof(VASTHeader), header.msg_size + sizeof(VASTHeader));
+                ((net_udp*)_msghandler)->msg_received(temp_id, p - sizeof(VASTHeader), header.msg_size + sizeof(VASTHeader));
 
 
 
