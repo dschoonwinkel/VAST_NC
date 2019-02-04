@@ -18,6 +18,7 @@ hosts = list()
 def myNetwork():
 
     loss_perc = 0
+    BW = 100
 
     if (len(sys.argv) > 1):
         print(sys.argv[1])
@@ -42,7 +43,7 @@ def myNetwork():
     info( '*** Add hosts\n')
     for i in range(1,11):
         h = net.addHost('h%d' % i, cls=Host, ip='10.0.0.%d' %i, defaultRoute=None)
-        net.addLink(h, s1, bw=1, loss=loss_perc)
+        net.addLink(h, s1, bw=BW, loss=loss_perc)
         hosts.append(h)
 
     # h1 = net.addHost('h1', cls=Host, ip='10.0.0.1', defaultRoute=None)
