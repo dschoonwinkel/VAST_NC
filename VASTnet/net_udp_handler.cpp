@@ -18,9 +18,8 @@ namespace Vast {
 
     net_udp_handler::~net_udp_handler()
     {
-        // remove UDP listener
-        if (_udp != NULL)
-            delete _udp;
+        // remove UDP listener, net_udp will delete itself
+        _udp = NULL;
     }
 
     int net_udp_handler::open(boost::asio::io_service *io_service, void *msghandler) {
@@ -144,7 +143,7 @@ namespace Vast {
             start_receive();
         }
         else {
-            CPPDEBUG("Error on UDP socket receive: " << error.message());
+            CPPDEBUG("Error on UDP socket receive: " << error.message() << std::endl;);
         }
         return -1;
     }
@@ -157,7 +156,7 @@ namespace Vast {
     {
         //Unregister from message handler, do this first to avoid sending messages
         //on a closed socket
-        CPPDEBUG("net_udp_handler::handle_close() - _remote_ids.size(): " << _remote_ids.size());
+        CPPDEBUG("net_udp_handler::handle_close() - _remote_ids.size(): " << _remote_ids.size() << std::endl;);
 //        for (id_t remote_id : _remote_ids)
 //        {
 //            CPPDEBUG("net_udp_handler::handle_close() - remote id" << remote_id << std::endl;);
@@ -169,13 +168,15 @@ namespace Vast {
 
         if (_io_service != NULL) {
 //            _io_service->reset();
-            _udp->close();
+            if (_udp != NULL && _udp->is_open())
+            {
+                _udp->close();
+            }
 
             _io_service->stop();
             _iosthread->join();
         }
 
-        delete this;
         return 0;
     }
 

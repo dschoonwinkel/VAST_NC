@@ -25,8 +25,8 @@ std::ofstream ofs(results_file);
 
 //Variables needed for calc_consistency
 size_t total_AN_actual =0, total_AN_visible =0, total_drift =0, max_drift =0, drift_nodes =0, total_active_nodes =0;
-size_t worldSendStat =0, worldRecvStat = 0;
-size_t prevWorldSendStat = 0, prevWorldRecvStat = 0;
+long worldSendStat =0, worldRecvStat = 0;
+long prevWorldSendStat = 0, prevWorldRecvStat = 0;
 
 #define UPDATE_PERIOD 10
 
@@ -145,19 +145,28 @@ void calculateUpdate()
         worldSendStat = tempWorldSendStat - prevWorldSendStat;
         worldRecvStat = tempWorldRecvStat - prevWorldRecvStat;
     }
-    else //Handle the cases where a node leaves / stats are reset / other calculation errors occur
-    {
-        //Throw away anomolous statistic
-        worldSendStat = 0;
-        worldRecvStat = 0;
-    }
+//    else //Handle the cases where a node leaves / stats are reset / other calculation errors occur
+//    {
+//        //Throw away anomolous statistic
+//        worldSendStat = 0;
+//        worldRecvStat = 0;
+//    }
 
-    if (worldSendStat > 10000)
+    if (worldSendStat > 100000 )
     {
         std::cout << "World send stat is very large" << std::endl;
         std::cout << "worldSendStat" << worldSendStat << std::endl;
         std::cout << "tempWorldSendStat" << tempWorldSendStat << std::endl;
         std::cout << "prevWorldSendStat" << prevWorldSendStat << std::endl;
+    }
+
+    if (worldSendStat < 0)
+    {
+        std::cout << "World send stat is negative" << std::endl;
+        std::cout << "worldSendStat" << worldSendStat << std::endl;
+        std::cout << "tempWorldSendStat" << tempWorldSendStat << std::endl;
+        std::cout << "prevWorldSendStat" << prevWorldSendStat << std::endl;
+
     }
 
 

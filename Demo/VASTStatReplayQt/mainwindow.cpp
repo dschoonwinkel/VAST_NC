@@ -37,6 +37,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     CPPDEBUG("MainWindow::First timestamp: " << latest_timestamp << std::endl);
 
+    process_duration = std::chrono::microseconds::zero();
+
 
     update();
 
@@ -257,12 +259,19 @@ void MainWindow::timerEvent(QTimerEvent *event) {
 
     if (event->timerId() == m_timerId) {
 
+        auto t1 = std::chrono::high_resolution_clock::now();
         nextTimestep();
         update();
         outputResults();
 
+        auto t2 = std::chrono::high_resolution_clock::now();
+        process_duration += std::chrono::duration_cast<std::chrono::microseconds>(t2-t1);
+
         if (counter % 200 == 0)
+        {
             CPPDEBUG(counter++ << std::endl);
+            std::cout << "Average process duration: " << process_duration.count() / counter << " microsec" << std::endl;
+        }
         else
             counter++;
     }

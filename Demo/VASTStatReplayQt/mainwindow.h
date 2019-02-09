@@ -8,6 +8,7 @@
 #include "vaststatlog.h"
 #include "replay_functions.h"
 #include <fstream>
+#include <chrono>
 
 using namespace Vast;
 
@@ -57,6 +58,8 @@ private:
 
     QPoint lastMouseClickPoint;
     Vast::id_t activeNode = -1;
+
+    std::chrono::microseconds process_duration;
 
 };
 

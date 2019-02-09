@@ -73,7 +73,6 @@ namespace Vast
     net_udp::~net_udp ()
     {
         //Maybe this should rather be done in net_udp lifecycle?
-//        _io_service.stop();
 //        _io_service.reset();
         delete _io_service;
         _io_service = NULL;
@@ -108,6 +107,8 @@ namespace Vast
         net_manager::stop ();
         if (_udphandler)
             _udphandler->close ();
+
+        _io_service->stop();
 
         _active = false;
 
@@ -245,7 +246,9 @@ namespace Vast
         //General UDP socket should not close, unlike TCP connection
 //        handler->close();
 
-        CPPDEBUG("net_udp::disconnect " << target << " disconnected");
+        CPPDEBUG("net_udp::disconnect " << target << " disconnected" << std::endl;);
+
+        _conn_mutex.unlock();
 
         this->socket_disconnected (target);
         return true;
@@ -265,7 +268,7 @@ namespace Vast
             IPaddr *resolved_addr = _udphandler->getRemoteAddress(target);
             if (resolved_addr == NULL)
             {
-                std::cerr << "net_udp::send IPaddr could not be resolved for id_t " << target << std::endl;
+                std::cerr << "\n net_udp::send IPaddr could not be resolved for id_t " << target << std::endl;
                 return 0;
             }
             addr = new Addr(target, resolved_addr);
@@ -384,7 +387,7 @@ namespace Vast
         }
 
         //If I have never heard from this connection before, add it as a new connection
-        if (it == _id2conn.end())
+        if (it == _id2conn.end() && message != NULL)
         {
             socket_connected(fromhost, _udphandler, false);
         }
