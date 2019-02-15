@@ -521,6 +521,16 @@ public:
         return 0;
     }
 
+    //Boost serialization
+    friend class boost::serialization::access;
+    template<typename Archive>
+    void serialize(Archive& ar, const unsigned /*version*/)
+    {
+        ar & x;
+        ar & y;
+        ar & z;
+    }
+
     coord_t x;
     coord_t y;
     coord_t z;
@@ -619,6 +629,16 @@ public:
             return sizeOf ();
         }
         return 0;
+    }
+
+    //Boost serialization
+    friend class boost::serialization::access;
+    template<typename Archive>
+    void serialize(Archive& ar, const unsigned /*version*/)
+    {
+        ar & center;
+        ar & radius;
+        ar & height;
     }
 
     Position    center;

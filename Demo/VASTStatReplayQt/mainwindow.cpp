@@ -200,12 +200,32 @@ void MainWindow::paintEvent(QPaintEvent * /*event*/) {
             painter.drawText(node.aoi.center.x, node.aoi.center.y, QString("%1").arg(node.id % 1000));
 
         }
+
+        //Draw Matcher & Matcher AOI
+        if (restoredLog.getWorldIsMatcher() && restoredLog.getMatcherAOI() != NULL)
+        {
+            std::cout << "Plotting matcher: x: " << restoredLog.getMatcherAOI()->center.x <<
+                            " y: " <<  restoredLog.getMatcherAOI()->center.y <<
+                            " radius: " << restoredLog.getMatcherAOI()->radius << std::endl;
+            painter.setPen(nodeColors[log_iter%nodeColors.size()]);
+            painter.drawRect(restoredLog.getMatcherAOI()->center.x, restoredLog.getMatcherAOI()->center.y, 10, 10);
+
+            painter.setPen(QPen(nodeColors[log_iter%nodeColors.size()], Qt::DashLine));
+            painter.drawEllipse(restoredLog.getMatcherAOI()->center.x, restoredLog.getMatcherAOI()->center.y,
+                                restoredLog.getMatcherAOI()->radius, restoredLog.getMatcherAOI()->radius);
+
+        }
     }
+
+
+
 
     painter.setPen(QColor(255,255,255));
     painter.drawText(0, 30, QString("Topo consistency(ANs): %1 / %2   Total drift: %3, max drift: %4, drift nodes %5,   Active nodes %6    Timestamp: %7")
                      .arg(total_AN_actual).arg(total_AN_visible).arg(total_drift).arg(max_drift)
                      .arg(drift_nodes).arg(total_active_nodes).arg(latest_timestamp));
+
+
 #endif
 
 //    CPPDEBUG("****" << std::endl);

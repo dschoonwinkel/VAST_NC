@@ -10,7 +10,7 @@ LIBS_COMMON = -lvastsim -lvast -lvastnet -lvastcommon
 LIBS_ACE    = -lACE
 LIBS_THREAD = -lpthread
 LIBS_DL	    = -ldl
-LIBS_BOOST = -lboost_system -lboost_thread
+LIBS_BOOST = -lboost_system -lboost_thread -lboost_serialization
 LIBS = $(LIBS_COMMON) $(LIBS_ACE) $(LIBS_THREAD) $(LIBS_DL) $(LIBS_BOOST)
 
 ACE_PATH    = /usr

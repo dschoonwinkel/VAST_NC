@@ -1,6 +1,6 @@
 clean:
 	-rm *.log
-	-rm *.pos
+	#-rm *.pos
 	-rm *.stat
 	-rm logs/*.txt
 	-rm logs/results/results1.txt

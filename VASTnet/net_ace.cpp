@@ -137,7 +137,9 @@ namespace Vast {
             
             // allow the reactor to leave its event handling loop
             _active = false;
-            _reactor->end_reactor_event_loop ();
+
+            if (_reactor)
+                _reactor->end_reactor_event_loop ();
                             
             // wait until the svc() thread terminates
             mutex.acquire ();

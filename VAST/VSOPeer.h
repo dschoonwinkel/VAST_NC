@@ -290,7 +290,7 @@ namespace Vast
         VSOPolicy *         _policy;            // various load balancing policies        
         NodeState           _vso_state;         // state of the VSOpeer
         Node                _newpos;            // new AOI & position to be updated due to load balancing
-        bool                _is_static;         // whether load balancing is turned off
+        bool                _is_static = false; // whether load balancing is turned off
                 
         Node                _origin;            // the origin peer (1st contact node) for this VSO network
 

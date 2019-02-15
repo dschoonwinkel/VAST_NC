@@ -110,6 +110,11 @@ namespace Vast {
         return getEntry().getWorldIsMatcher();
     }
 
+    Area* VASTStatLog::getMatcherAOI()
+    {
+        return getEntry().getMatcherAOI();
+    }
+
     size_t VASTStatLog::getRecordedSteps()
     {
         return recorded_steps;

@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <iostream>
+#include <fstream>
 #include <chrono>
 #include <thread>
 
@@ -87,31 +88,24 @@ int main (int argc, char *argv[])
             g_statlog->recordStat();
             g_statlog->printStat();
 
-            char *buffer = new char[g_statlog->sizeOf()];
-
-            g_statlog->serialize(buffer);
-
-
-            FILE* fptr = fopen("vaststatlog_save1.bin", "wb");
-            fwrite(buffer, g_statlog->sizeOf(), 1, fptr);
-
-            fclose(fptr);
-            fptr = fopen("vaststatlog_save1.bin", "rb");
-            char *new_buffer = new char[g_statlog->sizeOf()];
-            fread(new_buffer, g_statlog->sizeOf(), 1, fptr);
-
-            VASTStatLogEntry newLog(NULL, NULL);
-            newLog.deserialize(new_buffer, g_statlog->sizeOf());
-
-            std::cout << "Deserialized == original: " << (newLog == *g_statlog) << std::endl;
-
-            std::cout << "Original: " << std::endl;
-            g_statlog->printStat();
-            std::cout << "Deserialized: " << std::endl;
-            newLog.printStat();
-
         }
     }
+
+    string _logfilename = "./logs/VASTStat";
+    _logfilename = _logfilename + "_N" + std::to_string(g_self->getSelf()->id) + ".txt";
+    std::cout << "Reading file: " << _logfilename << std::endl;
+
+
+    std::vector<Vast::VASTStatLogEntry> restoredLogs = Vast::VASTStatLogEntry::restoreAllFromLogFile(_logfilename);
+
+    if (restoredLogs.size() < 1)
+    {
+        std::cerr << "Could not restore any logs from filename specified: " << _logfilename << std::endl;
+        exit(123);
+    }
+
+    restoredLogs[0].printStat();
+
 
 //    Node node1 = *g_self->getSelf();
 //    Node node2 = node1;

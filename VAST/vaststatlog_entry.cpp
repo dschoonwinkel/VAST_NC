@@ -11,7 +11,7 @@
 namespace Vast {
 
     VASTStatLogEntry::VASTStatLogEntry(VASTVerse *world, VAST *client)
-        : clientNode()
+
     {
         _world = world;
         _client = client;
@@ -87,6 +87,10 @@ namespace Vast {
         worldIsGateway = _world->isGateway();
         worldIsMatcher = _world->isMatcher();
 
+        matcherAOI = _world->getMatcherAOI();
+        //matcherVoronoi = _world->getMatcherVoronoi();
+
+
         _steps_recorded++;
         saveToLogFile(_steps_recorded, _logfilename);
     }
@@ -126,6 +130,16 @@ namespace Vast {
 
         printf("GW: %s ", worldIsGateway ? "true" : "false");
         printf("Matcher: %s ", worldIsMatcher ? "true" : "false");
+
+
+        if (worldIsMatcher)
+        {
+
+            printf("Matcher AOI x corrd %2.2lf\n", matcherAOI->center.x);
+            printf("Matcher AOI y corrd %2.2lf\n", matcherAOI->center.y);
+            printf("Matcher AOI z corrd %2.2lf\n", matcherAOI->center.z);
+            printf("Matcher AOI %d\n", matcherAOI->radius);
+        }
 
 
         printf("steps_recorded: %d \n", _steps_recorded);
@@ -366,6 +380,11 @@ namespace Vast {
     bool VASTStatLogEntry::getWorldIsMatcher()
     {
         return worldIsMatcher;
+    }
+
+    Area* VASTStatLogEntry::getMatcherAOI()
+    {
+        return matcherAOI;
     }
 
 }

@@ -2,6 +2,7 @@
 #define VASTSTATLOG_ENTRY_H
 #include <map>
 #include <VASTTypes.h>
+#include "VoronoiSF.h"
 
 #include <fstream>
 #include <boost/archive/text_iarchive.hpp>
@@ -58,6 +59,12 @@ namespace Vast {
             ar & worldRecvStat;
 
             ar & worldIsMatcher;
+
+            if (worldIsMatcher)
+            {
+                ar &  matcherAOI;
+            }
+
             ar & worldIsGateway;
 
             ar & _steps_recorded;
@@ -92,6 +99,8 @@ namespace Vast {
         bool getWorldIsGateway();
         bool getWorldIsMatcher();
 
+        Area* getMatcherAOI();
+
 
 
     protected:
@@ -109,6 +118,8 @@ namespace Vast {
         StatType worldRecvStat;                     // #
         bool worldIsGateway;                        // #
         bool worldIsMatcher;                        // #
+        Area* matcherAOI = NULL;                    // #
+        //Voronoi* matcherVoronoi;                    // #
 
 
     private:
@@ -117,7 +128,7 @@ namespace Vast {
         int _steps_recorded;
 
         //Used for sourcing data points. Not reconstructed in deserialise
-        VAST* _client;                              //
+        VAST* _client = NULL;                       //
         VASTVerse* _world;                          //
 
         std::string _logfilename = "./logs/VASTStat";
