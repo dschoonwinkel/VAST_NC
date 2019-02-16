@@ -56,9 +56,11 @@ namespace Vast {
 
         uint16_t getPort ();
 
+        ~net_udp_handler ();
+
     private:
 
-        ~net_udp_handler ();
+
 
         // info the remote nodes using this socket
         std::vector<id_t>           _remote_ids;
