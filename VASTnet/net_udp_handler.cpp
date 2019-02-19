@@ -194,7 +194,7 @@ namespace Vast {
         }
     }
 
-    size_t net_udp_handler::send(const void *buf, size_t n, ip::udp::endpoint remote_endpoint) {
+    size_t net_udp_handler::send(const char *msg, size_t n, ip::udp::endpoint remote_endpoint) {
 
         if (_udp == NULL)
         {
@@ -204,7 +204,7 @@ namespace Vast {
         }
 
 //        CPPDEBUG("net_udp_handler::send size of sent packet: " << n << std::endl);
-        return _udp->send_to(buffer(buf, n), remote_endpoint);
+        return _udp->send_to(buffer(msg, n), remote_endpoint);
 
     }
 

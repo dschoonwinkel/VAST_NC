@@ -65,7 +65,8 @@ namespace Vast {
         VAST_NET_EMULATED = 1,      // simulaion layer
         //VAST_NET_EMULATED_BL,     // simulaton layer with bandwidth limitation
         VAST_NET_ACE = 2,                // real network layer using ACE
-        VAST_NET_UDP = 3,        //real network layer using Boost, used for wireless overhearing
+        VAST_NET_UDP = 3,        //real network layer using Boost, used for wireless communication
+        VAST_NET_UDPNC = 4,        //real network layer using Boost, used for wireless Network Coding
     } VAST_NetModel;
 
     // common message types

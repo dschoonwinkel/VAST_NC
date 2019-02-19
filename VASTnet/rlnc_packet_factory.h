@@ -27,144 +27,24 @@ typedef struct
 class RLNCHeader_factory
 {
 public:
-    RLNCHeader_factory()
-    {
+    RLNCHeader_factory();
 
-    }
+    RLNCHeader_factory(char gensize, char generation, char ordering=0);
 
-    RLNCHeader build()
-    {
-        RLNCHeader header;
+    RLNCHeader build();
 
-        header.start = START_BITS;
-        header.end = END_BITS;
+    static bool isRLNCHeader(RLNCHeader header);
 
-        return header;
-    }
-
-};
-
-bool isRLNCHeader(RLNCHeader header)
-{
-    if (header.start == START_BITS && header.end == END_BITS)
-        return true;
-    else
-        return false;
-}
-
-class RLNCMessage
-{
-public:
-    RLNCMessage()
-    {
-
-    }
-
-    RLNCMessage (RLNCHeader header)
-    {
-        this->header = header;
-        header.enc_packet_count = 0;
-    }
-
-    std::vector<packetid_t> getPacketIds()
-    {
-        return pkt_ids;
-    }
-
-    void putPacketId(packetid_t pkt_id)
-    {
-        pkt_ids.push_back(pkt_id);
-        header.enc_packet_count = pkt_ids.size();
-    }
-
-    void putMessage(uint8_t* buffer, size_t len)
-    {
-        msg = new uint8_t[len];
-        memcpy(msg, buffer, len);
-        header.packetsize = len;
-    }
-
-    uint8_t* getMessage(size_t len = 0)
-    {
-        //If I just want to read it, return the pointer
-        if (len == 0)
-        {
-            return msg;
-        }
-        //If I want to write to it, assure that there is enough space
-        msg = new uint8_t[len];
-        header.packetsize = len;
-        return msg;
-    }
-
-    // size of this class, must be implemented
-    size_t sizeOf ()
-    {
-        size_t size = sizeof(RLNCHeader);
-        size += header.enc_packet_count * sizeof(packetid_t);
-        size += header.packetsize;
-
-        return size;
-    }
-
-    // store into a buffer (assuming the buffer has enough space)
-    // buffer can be NULL (simply to query the total size)
-    // returns the total size of the packed class
-    size_t serialize (char *buffer)
-    {
-        size_t n = 0;
-        if (buffer == NULL)
-            return sizeOf();
-
-        memcpy(buffer+n, &header, sizeof(RLNCHeader));
-        n += sizeof(RLNCHeader);
-
-        for (int i = 0; i < header.enc_packet_count; i++)
-        {
-            memcpy(buffer+n, &pkt_ids[i], sizeof(packetid_t));
-            n += sizeof(packetid_t);
-        }
-        memcpy(buffer+n, msg, header.packetsize);
-
-        return n;
-
-    }
-
-    // restores a buffer into the object
-    // returns number of bytes restored (should be > 0 if correct)
-    size_t deserialize (const char *buffer, size_t size)
-    {
-        size_t n = 0;
-        if (size > sizeof(RLNCHeader) && buffer != NULL)
-        {
-            memcpy(&header, buffer+n, sizeof(RLNCHeader));
-            n += sizeof(RLNCHeader);
-
-            packetid_t pkt_id = -1;
-            for (int i = 0; i < header.enc_packet_count; i++)
-            {
-                memcpy(&pkt_id, buffer+n, sizeof(packetid_t));
-                putPacketId(pkt_id);
-                n += sizeof(packetid_t);
-            }
-            msg = new uint8_t[header.packetsize];
-            memcpy(msg, buffer+n, header.packetsize);
-
-            return n;
-        }
-        else
-        {
-            return 0;
-        }
-
-        return 0;
-    }
+    void resetRLNCHeader(RLNCHeader &header);
 
 private:
     RLNCHeader header;
-    std::vector<packetid_t> pkt_ids;
-    uint8_t* msg;
+    int ordering = 0;
+    int gensize = 0;
+    int generation = 0;
 
 };
+
+
 
 #endif // RLNC_PACKET_FACTORY_H

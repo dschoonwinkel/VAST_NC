@@ -71,6 +71,7 @@ int main(/*int argc, char* argv[]*/)
     header1.ordering = 0;
     header1.packetsize = encoder->symbol_size();
 //    header1.packet_id = 4;
+    header1.enc_packet_count = 0;
 
     // Create a boost::asio socket
     boost::asio::io_service io_service;

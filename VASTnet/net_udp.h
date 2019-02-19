@@ -15,6 +15,7 @@
 
 #include "VASTnet.h"
     // Wireless overhearing class
+
 #include "net_udp_handler.h"
 
 #include <boost/asio.hpp>
@@ -27,7 +28,7 @@ namespace Vast {
 
     public:
 
-        net_udp (uint16_t port, const char* bindAddress = "");
+        net_udp (uint16_t port, const char* bindAddress = "", VAST_NetModel net_model = VAST_NET_UDP);
         virtual ~net_udp();
      
         //

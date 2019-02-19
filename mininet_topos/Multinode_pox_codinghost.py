@@ -64,10 +64,10 @@ def myNetwork():
 
     info( '*** Post configure switches and hosts\n')
 
-    coding_host.cmd("xterm -hold -fg black -bg green -geometry 80x10+200+600 -e \"./coding_host \" &")
+    # coding_host.cmd("xterm -hold -fg black -bg green -geometry 80x10+200+600 -e \"./coding_host \" &")
 
     for i in range(1,Node_count+1):
-        hosts[i-1].cmd("xterm -hold -fg black -bg green -geometry 80x60+%d+0 -e   \"./VASTreal_console %d 0 1037 10.0.0.1 \" &" % (200+i*40, i-1))    
+        # hosts[i-1].cmd("xterm -hold -fg black -bg green -geometry 80x60+%d+0 -e   \"./VASTreal_console %d 0 1037 10.0.0.1 \" &" % (200+i*40, i-1))    
     #     hosts[i-1].cmd("./VASTreal_console %d 0 1037 10.0.0.1 &" % (i-1))
         time.sleep(1)
 

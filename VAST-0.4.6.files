@@ -8,7 +8,10 @@ VASTnet/net_udpNC_handler.cpp
 VASTnet/net_udpNC_handler.h
 VASTnet/net_udp_handler.cpp
 VASTnet/net_udp_handler.h
+VASTnet/rlnc_packet_factory.cpp
 VASTnet/rlnc_packet_factory.h
+VASTnet/rlncmessage.cpp
+VASTnet/rlncmessage.h
 VASTreal/RealNode.cpp
 VASTreal/RealNode.h
 VASTreal/test/test_vastreal_initpara.cpp

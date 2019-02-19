@@ -58,8 +58,8 @@ namespace Vast
         else if (_model == VAST_NET_ACE)
             _manager = new net_ace (port, IP_string);
 
-        else if (_model == VAST_NET_UDP)
-            _manager = new net_udp (port, IP_string);
+        else if (_model == VAST_NET_UDP || _model == VAST_NET_UDPNC)
+            _manager = new net_udp (port, IP_string, _model);
 
         _recvmsg = NULL;
         _recvmsg_socket = NULL;

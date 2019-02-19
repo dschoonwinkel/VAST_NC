@@ -19,6 +19,8 @@
  */
 
 #include "net_udp.h"
+#include "net_udp_handler.h"
+#include "net_udpNC_handler.h"
 #include <map>
 #include <chrono>
 #include <iostream>
@@ -30,7 +32,7 @@ using namespace std::chrono_literals;
 
 namespace Vast
 {
-    net_udp::net_udp (uint16_t port, const char *bindAddress): _port_self (port)
+    net_udp::net_udp (uint16_t port, const char *bindAddress, VAST_NetModel net_model): _port_self (port)
     {
         std::cout << "net_udp::constructor called" << std::endl;
 
@@ -62,7 +64,10 @@ namespace Vast
         _self_addr.publicIP.getString(ip_string);
         printf ("net_udp::constructor: _self_addr: %s : %d\n", ip_string, _self_addr.publicIP.port);
 
-        _udphandler = new net_udp_handler(endpoint);
+        if (net_model == VAST_NET_UDP)
+            _udphandler = new net_udp_handler(endpoint);
+        else if (net_model == VAST_NET_UDPNC)
+            _udphandler = new net_udpNC_handler(endpoint);
 
         // set the conversion rate between seconds and timestamp unit
         // for net_ace it's 1000 timestamp units = 1 second (each step is 1 ms)

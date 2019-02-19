@@ -43,20 +43,24 @@ namespace Vast {
     protected:
 
         //Start the receiving loop
-        void start_receive ();
+        virtual void start_receive ();
 
         // handling incoming message
-        int handle_input (const boost::system::error_code& error,
+        virtual int handle_input (const boost::system::error_code& error,
                           std::size_t bytes_transferred);
 
         // if handle_input() returns -1, reactor would call handle_close()
         int handle_close ();
 
-        size_t send (const void *buf, size_t n, ip::udp::endpoint remote_endpoint);
+        virtual size_t send (const char *msg, size_t n, ip::udp::endpoint remote_endpoint);
 
         uint16_t getPort ();
 
         ~net_udp_handler ();
+
+        ip::udp::socket             *_udp;
+        ip::udp::endpoint           _remote_endpoint_;
+        char _buf[VAST_BUFSIZ];
 
     private:
 
@@ -70,9 +74,8 @@ namespace Vast {
         // secure connection stream
         bool                        _secure;
 
-        ip::udp::socket             *_udp;
         ip::udp::endpoint           _local_endpoint;
-        ip::udp::endpoint           _remote_endpoint_;
+
 
         // the same io_service as net_udp
         io_service                  *_io_service;
@@ -82,7 +85,7 @@ namespace Vast {
 
         // generic buffer
 //        VASTBuffer       _buf;
-        char _buf[VAST_BUFSIZ];
+
     };
 
 } // end namespace Vast

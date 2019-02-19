@@ -98,7 +98,7 @@ int packet_listener::handle_input (const boost::system::error_code& error,
         memcpy(&header, p, sizeof(RLNCHeader));
 
             //Check if it is really a VAST message: Start and end bytes of header should be correct
-            if (!isRLNCHeader(header))
+            if (!RLNCHeader_factory::isRLNCHeader(header))
             {
                 std::cout << "net_udp_handler::handle_input Non-RLNC message received on UDP socket" << std::endl;
 //                return -1;
