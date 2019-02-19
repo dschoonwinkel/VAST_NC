@@ -4,8 +4,6 @@ VAST/vaststatlog_entry.cpp
 VAST/vaststatlog_entry.h
 VASTnet/net_udp.cpp
 VASTnet/net_udp.h
-VASTnet/net_udpNC.cpp
-VASTnet/net_udpNC.h
 VASTnet/net_udpNC_handler.cpp
 VASTnet/net_udpNC_handler.h
 VASTnet/net_udp_handler.cpp
@@ -15,6 +13,9 @@ VASTreal/RealNode.cpp
 VASTreal/RealNode.h
 VASTreal/test/test_vastreal_initpara.cpp
 VASTreal/test/Makefile
+coding_host/main.cpp
+coding_host/packet_listener.cpp
+coding_host/packet_listener.h
 tests/rlnc_packet_test.cpp
 tests/vaststatlog_test.cpp
 tests/Makefile
@@ -204,3 +205,5 @@ common/net_manager.h
 common/net_msg.h
 common/standard/stdint.h
 common/Makefile
+coding_host/main.cpp
+coding_host/Makefile

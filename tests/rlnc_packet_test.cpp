@@ -13,17 +13,17 @@
 #include <kodo_rlnc/coders.hpp>
 #include "rlnc_packet_factory.h"
 
-int main(int argc, char* argv[])
+int main(/*int argc, char* argv[]*/)
 {
     // Set the number of symbols and the size of a symbol in bytes
     uint32_t symbols = 1;
-    uint32_t symbol_size = 1;
+    uint32_t symbol_size = 2;
 
     // UDP endpoint (where the receiver will be listening)
     std::string remote_ip = "127.0.0.1";
     uint16_t remote_port = 1037;
 
-    uint32_t random_bytes = 1;
+    uint32_t random_bytes = symbols * symbol_size;
 
     // We will generate random data to transmit
     srand((uint32_t)time(0));
@@ -39,9 +39,21 @@ int main(int argc, char* argv[])
 
     // Fill the data buffer with random bytes
     std::vector<uint8_t> data(random_bytes);
-    std::generate(data.begin(), data.end(), rand);
+//    std::generate(data.begin(), data.end(), rand);
+    data[0] = 0xDE;
+    data[1] = 0xAD;
+    data[2] = 0xBE;
+    data[3] = 0xEF;
+
+    encoder_factory.set_coding_vector_format(kodo_rlnc::coding_vector_format::full_vector);
 
     auto encoder = encoder_factory.build();
+//    encoder->set_systematic_off();
+    std::cout << "Input data\n0x";
+    for (size_t i = 0 ; i < data.size(); i++)
+        printf("%X", data[i]);
+    std::cout << std::endl;
+
     encoder->set_const_symbols(storage::storage(data));
 
     std::cout << "Encoder parameters: " << std::endl;
@@ -58,7 +70,7 @@ int main(int argc, char* argv[])
     header1.gensize = 2;
     header1.ordering = 0;
     header1.packetsize = encoder->symbol_size();
-    header1.packet_id = 4;
+//    header1.packet_id = 4;
 
     // Create a boost::asio socket
     boost::asio::io_service io_service;
@@ -88,16 +100,40 @@ int main(int argc, char* argv[])
     // Alternatively, the receivers might acquire the metadata by pulling this
     // information from the sender using a separate unicast connection.
     // In this example, we simply start the transmission with the metadata.
-    payload.resize(sizeof(RLNCHeader)+encoder->payload_size());
-    memcpy(payload.data(), (char*)(&header1), sizeof(header1));
-    encoder->write_payload(payload.data()+sizeof(RLNCHeader));
 
-    std::cout << "sizeof RLNCHeader " << sizeof(RLNCHeader) << std::endl;;
-    std::cout << "sizeof encoder->payload_size() " << encoder->payload_size() << std::endl;
-    std::cout << "sizeof payload.data() " << payload.size() << std::endl;
+    for (int i = 0; i < 4; i++)
+    {
+        payload.resize(sizeof(RLNCHeader)+encoder->payload_size());
+        memcpy(payload.data(), (char*)(&header1), sizeof(header1));
+        encoder->write_payload(payload.data()+sizeof(RLNCHeader));
 
-    socket.send_to(boost::asio::buffer(payload, payload.size()), receiver);
-    std::cout << "VASTHeader sent." << std::endl;
+        std::cout << "sizeof RLNCHeader " << sizeof(RLNCHeader) << std::endl;;
+        std::cout << "sizeof encoder->payload_size() " << encoder->payload_size() << std::endl;
+        std::cout << "sizeof payload.data() " << payload.size() << std::endl;
+
+        socket.send_to(boost::asio::buffer(payload, payload.size()), receiver);
+        std::cout << "RLNCHeader and payload sent" << std::endl;
+    }
+
+    std::cout << "Creating RLNCMessage" << std::endl;
+
+    RLNCMessage message(header1);
+    message.putMessage(payload.data(), payload.size());
+    message.putPacketId(123);
+    message.putPacketId(456);
+    encoder->write_payload(message.getMessage(encoder->payload_size()));
+
+    std::cout << "Serializing RLNCMessage" << std::endl;
+
+    char buffer[1000];
+
+    message.serialize(buffer);
+    std::cout << "Sending RLNCMessage" << std::endl;
+    socket.send_to(boost::asio::buffer(buffer, message.sizeOf()), receiver);
+
+    std::cout << "Reconstructing RLNCMessage" << std::endl;
+    RLNCMessage reconstructed_message;
+    reconstructed_message.deserialize(buffer, message.sizeOf());
 
 //    payload.resize(encoder->payload_size(b));
 
