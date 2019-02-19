@@ -16,14 +16,6 @@ namespace Vast
 
         size_t send(const char *msg, size_t n, ip::udp::endpoint remote_endpoint);
 
-    protected:
-        //Start the receiving loop
-        virtual void start_receive ();
-
-        // handling incoming message
-        int handle_input (const boost::system::error_code& error,
-                          std::size_t bytes_transferred);
-
     private:
         int generation = 0;
         int ordering = 0;
