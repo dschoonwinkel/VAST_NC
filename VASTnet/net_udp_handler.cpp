@@ -91,14 +91,14 @@ namespace Vast {
         return -1;
     }
 
-    void net_udp_handler::process_input(std::size_t bytes_transferred)
+    void net_udp_handler::process_input(std::size_t bytes_transferred, size_t offset)
     {
         //Process UDP messages
-        size_t n = bytes_transferred;
+        size_t n = bytes_transferred - offset;
         VASTHeader header;
         id_t remote_id;
 
-        char *p = _buf;
+        char *p = _buf + offset;
 
         //NOTE: there may be several valid UDP messages received at once -- is this really necessary?
         while (n > sizeof (VASTHeader))

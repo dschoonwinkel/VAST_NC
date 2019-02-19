@@ -5,6 +5,7 @@ namespace Vast
     net_udpNC_handler::net_udpNC_handler(ip::udp::endpoint local_endpoint):
         net_udp_handler(local_endpoint)
     {
+        CPPDEBUG("Starting net_udpNC_handler" << std::endl);
 
     }
 
@@ -43,15 +44,12 @@ namespace Vast
     int net_udpNC_handler::handle_input (const boost::system::error_code& error,
           std::size_t bytes_transferred)
     {
-        size_t n = bytes_transferred;
-    //    Vast::VASTHeader header;
         RLNCHeader header;
 
         if (!error)
         {
             //Store UDP messages
-
-            std::cout << "Received a message!" << std::endl;
+//            CPPDEBUG("net_udpNC_handler::handle_input Received a message!" << std::endl);
 
             char *p = _buf;
 
@@ -67,12 +65,18 @@ namespace Vast
                 //Check if it is really a VAST message: Start and end bytes of header should be correct
                 if (!RLNCHeader_factory::isRLNCHeader(header))
                 {
-                    std::cout << "net_udp_handler::handle_input Non-RLNC message received on UDP socket" << std::endl;
+//                    CPPDEBUG("net_udp_handler::handle_input Non-RLNC message received on UDP socket" << std::endl);
     //                return -1;
                 }
                 else {
-                    std::cout << "RLNC message received on the coding host" << std::endl;
-                    net_udp_handler::process_input(bytes_transferred);
+//                    CPPDEBUG("net_udpNC_handler::handle_input RLNC message received on the coding host" << std::endl);
+
+                    size_t offset = 0;
+                    offset += sizeof(RLNCHeader);
+                    offset += header.enc_packet_count * sizeof(packetid_t);
+
+//                    CPPDEBUG("net_udpNC_handler::handle_input Offset: " << offset << std::endl);
+                    net_udp_handler::process_input(bytes_transferred, offset);
                 }
 
 
