@@ -132,6 +132,7 @@ typedef struct {
     int     PEER_LIMIT;         // max # of peers hosted at each relay
     int     RELAY_LIMIT;        // max # of relays each node keeps
     int     OVERLOAD_LIMIT;     // limit to consider as overloaded
+    int     TIMESTEP_DURATION;   // Duration of each step in [ms]
 } SimPara;
 
 // status on known nodes in the neighbor list, can be either just inserted / deleted / updated

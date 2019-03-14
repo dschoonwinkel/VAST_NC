@@ -309,6 +309,8 @@ int InitSim (SimPara &para, VASTPara_Net &netpara)
         g_pos_record->open (filename, SFMode_Write);
     }
 
+    srand(netpara.random_seed);
+
     // create behavior model
     g_move_model.initModel (g_para.MOVE_MODEL, g_pos_record, replay, 
                             Position (0,0), Position ((coord_t)g_para.WORLD_WIDTH, (coord_t)g_para.WORLD_HEIGHT),
@@ -319,7 +321,7 @@ int InitSim (SimPara &para, VASTPara_Net &netpara)
 
     // initialize random number generator
     //srand ((unsigned int)time (NULL));
-    srand (37);
+//    srand (37);
     g_last_seed = rand ();
 
     // randomly choose which nodes will be the relays

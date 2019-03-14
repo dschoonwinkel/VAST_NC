@@ -17,7 +17,7 @@ hosts = list()
 
 def myNetwork():
 
-    loss_perc = 0
+    loss_perc = 2
     BW = 1000
     Node_count = 10
 

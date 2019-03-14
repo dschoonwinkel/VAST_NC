@@ -6,7 +6,7 @@
 
 namespace Vast {
 
-    net_udp_handler::net_udp_handler(ip::udp::endpoint local_endpoint) :_remote_ids()
+    net_udp_handler::net_udp_handler(ip::udp::endpoint local_endpoint)
     {
         _udp = NULL;
         _io_service = NULL;

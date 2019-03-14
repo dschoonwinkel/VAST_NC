@@ -4,6 +4,7 @@ clean:
 	-rm *.stat
 	-rm logs/*.txt
 	-rm logs/results/results1.txt
+	-rm output_dump/*.txt
 
 clean_binaries:
 	-rm demo_chatva_Qt

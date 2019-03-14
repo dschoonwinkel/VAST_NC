@@ -6,7 +6,6 @@
 
 #include <stdint.h>
 #include <vector>
-#include "VASTTypes.h"
 
 typedef size_t packetid_t;
 
@@ -34,6 +33,8 @@ public:
     RLNCHeader build();
 
     static bool isRLNCHeader(RLNCHeader header);
+    static size_t getRLNCHeaderOffset(RLNCHeader header);
+    static bool isRLNCHeadersEqual(const RLNCHeader header1, const RLNCHeader header2);
 
     void resetRLNCHeader(RLNCHeader &header);
 

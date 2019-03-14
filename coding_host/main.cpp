@@ -6,6 +6,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <signal.h>
 
 #include <boost/asio.hpp>
 #include <boost/chrono.hpp>
@@ -15,8 +16,20 @@
 
 using namespace boost::asio;
 
+packet_listener* g_listener = NULL;
+
+void SIGINT_handler (int signum)
+{
+    std::cout << "Interrupt received" << std::endl;
+    if (g_listener != NULL)
+        std::cout << "Recv packet count: " << g_listener->getRecvMsgsCount () << std::endl;
+
+    exit(signum);
+}
+
 int main(/*int argc, char* argv[]*/)
 {
+    signal(SIGINT, SIGINT_handler);
 //    // Set the number of symbols and the size of a symbol in bytes
 //    uint32_t symbols = 2;
 //    uint32_t symbol_size = 200;
@@ -125,7 +138,11 @@ int main(/*int argc, char* argv[]*/)
 
     boost::asio::io_service io_service;
     auto local_endpoint = boost::asio::ip::udp::endpoint(ip::udp::v4(), 1037);
+
+    std::cout << "Starting packet listener for coding host" << std::endl;
     packet_listener listener(local_endpoint);
+
+    g_listener = &listener;
     listener.open(&io_service, NULL);
 
     while(true);

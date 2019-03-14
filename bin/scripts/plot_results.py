@@ -65,7 +65,7 @@ plot.plot([0,timestamps[-1]], [mean_consistency,mean_consistency], 'r')
 plot.ylabel("Topo consistency [%]")
 plot.xticks(np.arange(min(timestamps), max(timestamps)+1, x_axis_interval))
 plot.xlim(0, max(timestamps)+1)
-plot.ylim(0, 100)
+plot.ylim(0, 110)
 plot.grid(True)
 
 plot.subplot(4,1,3)

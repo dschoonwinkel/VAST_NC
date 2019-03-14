@@ -589,7 +589,7 @@ bool Vivaldi::read_bandwidth ()
 
 void Vivaldi::create_bandwidth ()
 {
-	srand (0);
+//	srand (0);
 	// set different bandwidth limitation for each node
 	for (int i = 0; i < _node_size; ++i)
 	{

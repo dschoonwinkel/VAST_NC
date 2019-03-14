@@ -28,6 +28,7 @@
 #include "RealNode.h"
 #include <stdlib.h>         // strtok
 #include "vaststatlog_entry.h"
+#include "timeouts.h"
 
 #define RECORD_LATENCY      // to record transmission latency for MOVEMENT messages
 //#include "Statistics.h"

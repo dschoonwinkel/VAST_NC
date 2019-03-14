@@ -41,6 +41,7 @@
 #include <sys/socket.h>
 #include <netdb.h>
 #include <ifaddrs.h>
+#include "timeouts.h"
 
 #define GATEWAY_DEFAULT_PORT    (1037)          // default port for gateway
 

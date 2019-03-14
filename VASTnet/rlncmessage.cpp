@@ -1,4 +1,6 @@
 #include "rlncmessage.h"
+#include <algorithm>
+#include <boost/format.hpp>
 
 RLNCMessage::RLNCMessage()
 {
@@ -104,4 +106,11 @@ size_t RLNCMessage::deserialize (const char *buffer, size_t size)
     }
 
     return 0;
+}
+std::ostream& operator<<(std::ostream& output, RLNCMessage const& message )
+{
+        output << "RLNCMessage::stream >> output: ******************************\n";
+
+        output << "******************************************************" << std::endl;
+        return output;
 }

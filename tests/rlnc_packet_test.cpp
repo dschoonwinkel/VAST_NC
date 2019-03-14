@@ -12,16 +12,27 @@
 
 #include <kodo_rlnc/coders.hpp>
 #include "rlnc_packet_factory.h"
+#include "rlncmessage.h"
+#include <functional>
+#include "rlnc_fieldsize_defs.h"
 
-int main(/*int argc, char* argv[]*/)
+int main(int argc, char* argv[])
 {
+    // UDP endpoint (where the receiver will be listening)
+    std::string remote_ip = "127.0.0.1";
+    uint16_t remote_port = 1037;
+
+    if (argc > 1)
+    {
+        remote_ip = std::string(argv[1]);
+    }
+
     // Set the number of symbols and the size of a symbol in bytes
     uint32_t symbols = 1;
     uint32_t symbol_size = 2;
 
-    // UDP endpoint (where the receiver will be listening)
-    std::string remote_ip = "127.0.0.1";
-    uint16_t remote_port = 1037;
+    Vast::id_t id = 30;
+    int ordering = 0;
 
     uint32_t random_bytes = symbols * symbol_size;
 
@@ -29,7 +40,7 @@ int main(/*int argc, char* argv[]*/)
     srand((uint32_t)time(0));
 
     // Typdefs for the encoder/decoder type we wish to use
-    fifi::api::field field = fifi::api::field::binary;
+    fifi::api::field field = fifi::api::field::FINITE_FIELD_SIZE;
 
     using rlnc_encoder = kodo_rlnc::encoder;
 
@@ -70,7 +81,6 @@ int main(/*int argc, char* argv[]*/)
     header1.gensize = 2;
     header1.ordering = 0;
     header1.packetsize = encoder->symbol_size();
-//    header1.packet_id = 4;
     header1.enc_packet_count = 0;
 
     // Create a boost::asio socket
@@ -102,39 +112,46 @@ int main(/*int argc, char* argv[]*/)
     // information from the sender using a separate unicast connection.
     // In this example, we simply start the transmission with the metadata.
 
-    for (int i = 0; i < 4; i++)
+//    for (int i = 0; i < 2; i++)
+//    {
+//        payload.resize(sizeof(RLNCHeader)+encoder->payload_size());
+//        header1.packetsize = encoder->payload_size();
+//        memcpy(payload.data(), (char*)(&header1), sizeof(header1));
+//        encoder->write_payload(payload.data()+sizeof(RLNCHeader));
+
+//        std::cout << "sizeof RLNCHeader " << sizeof(RLNCHeader) << std::endl;;
+//        std::cout << "sizeof encoder->payload_size() " << encoder->payload_size() << std::endl;
+//        std::cout << "sizeof payload.data() " << payload.size() << std::endl;
+
+//        socket.send_to(boost::asio::buffer(payload, payload.size()), receiver);
+//        std::cout << "RLNCHeader and payload sent" << std::endl;
+//    }
+
+    for (int i = 0; i < 3; i++)
     {
-        payload.resize(sizeof(RLNCHeader)+encoder->payload_size());
-        memcpy(payload.data(), (char*)(&header1), sizeof(header1));
-        encoder->write_payload(payload.data()+sizeof(RLNCHeader));
+        std::cout << "Creating RLNCMessage" << std::endl;
 
-        std::cout << "sizeof RLNCHeader " << sizeof(RLNCHeader) << std::endl;;
-        std::cout << "sizeof encoder->payload_size() " << encoder->payload_size() << std::endl;
-        std::cout << "sizeof payload.data() " << payload.size() << std::endl;
+        ordering = i;
+        header1.ordering = i;
+        RLNCMessage message(header1);
+        std::cout << "Size of id_t: " << sizeof(id_t) << std::endl;
+        message.putPacketId(RLNCMessage::generatePacketId(id, ordering));
+        message.putFromId (id);
+    //    message.putPacketId(456);
+        encoder->write_payload(reinterpret_cast<uint8_t*>(message.getMessage(encoder->payload_size())));
 
-        socket.send_to(boost::asio::buffer(payload, payload.size()), receiver);
-        std::cout << "RLNCHeader and payload sent" << std::endl;
+        std::cout << "Serializing RLNCMessage" << std::endl;
+
+        char buffer[1000];
+
+        message.serialize(buffer);
+        std::cout << "Sending RLNCMessage" << std::endl;
+        socket.send_to(boost::asio::buffer(buffer, message.sizeOf()), receiver);
+
+        std::cout << "Reconstructing RLNCMessage" << std::endl;
+        RLNCMessage reconstructed_message;
+        reconstructed_message.deserialize(buffer, message.sizeOf());
     }
-
-    std::cout << "Creating RLNCMessage" << std::endl;
-
-    RLNCMessage message(header1);
-    message.putMessage(payload.data(), payload.size());
-    message.putPacketId(123);
-    message.putPacketId(456);
-    encoder->write_payload(message.getMessage(encoder->payload_size()));
-
-    std::cout << "Serializing RLNCMessage" << std::endl;
-
-    char buffer[1000];
-
-    message.serialize(buffer);
-    std::cout << "Sending RLNCMessage" << std::endl;
-    socket.send_to(boost::asio::buffer(buffer, message.sizeOf()), receiver);
-
-    std::cout << "Reconstructing RLNCMessage" << std::endl;
-    RLNCMessage reconstructed_message;
-    reconstructed_message.deserialize(buffer, message.sizeOf());
 
 //    payload.resize(encoder->payload_size(b));
 

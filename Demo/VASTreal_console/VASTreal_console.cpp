@@ -15,6 +15,7 @@
 #include "VASTreal.h"
 #include "vaststatlog_entry.h"
 #include <chrono>
+#include "timeouts.h"
 
 using namespace std;
 using namespace Vast;

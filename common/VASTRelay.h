@@ -39,6 +39,7 @@
 #include "MessageHandler.h"
 #include "VAST.h"               // for VASTMessage
 //#include "Vivaldi.h"
+#include "timeouts.h"
 
 // number of seconds before a new round of queries is sent for neighbors' coordinates
 const int TIMEOUT_COORD_QUERY = 30;

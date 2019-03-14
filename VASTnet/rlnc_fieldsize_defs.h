@@ -1,0 +1,6 @@
+#ifndef RLNC_FIELDSIZE_DEFS_H
+#define RLNC_FIELDSIZE_DEFS_H
+
+#define FINITE_FIELD_SIZE binary8
+
+#endif // RLNC_FIELDSIZE_DEFS_H

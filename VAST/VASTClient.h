@@ -33,6 +33,7 @@
 #include "MessageHandler.h"
 #include "VASTRelay.h"
 #include <vector>
+#include "timeouts.h"
 
 // NOTE: remove ghost should be at least twice as much as keepalive
 

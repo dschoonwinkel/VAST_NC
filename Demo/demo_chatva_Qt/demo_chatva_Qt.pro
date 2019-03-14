@@ -12,8 +12,10 @@ TEMPLATE = app
 INCLUDEPATH += . \
                 ../../common \
                 ../../VASTsim \
-                ~/Qt/5.10.1/Src/qtbase/include/QtWidgets/
-
+		~/Qt/5.10.1/Src/qtbase/include/QtWidgets/ \
+		../../../kodo-rlnc/resolve_symlinks/kodo-core/src \
+		../../../kodo-rlnc/resolve_symlinks/endian/src \
+		../../../kodo-rlnc/kodo_build/include
 
 # The following define makes your compiler emit warnings if you use
 # any feature of Qt which has been marked as deprecated (the exact warnings
@@ -37,7 +39,7 @@ HEADERS += \
 FORMS += \
         mainwindow.ui
 
-LIBS += -L$$PWD/../../lib/ -lvastsim -lvast -lvastnet -lvastcommon -lACE -lboost_system -lboost_thread
+LIBS += -L$$PWD/../../lib/ -lvastsim -lvast -lvastnet -lvastcommon -lACE -lboost_system -lboost_thread -Wl,-Bstatic -L/home/daniel/Development/kodo-rlnc/kodo_build -lkodo_rlnc -lfifi -lcpuid -Wl,-Bdynamic
 
 INCLUDEPATH += $$PWD/../../
 DEPENDPATH += $$PWD/../../

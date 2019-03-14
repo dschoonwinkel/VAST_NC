@@ -9,7 +9,10 @@ TEMPLATE = app
 INCLUDEPATH += . \
                 ../../common \
                 ../../VASTsim \
-                ../../VAST
+		../../VAST \
+		../../../kodo-rlnc/resolve_symlinks/kodo-core/src \
+		../../../kodo-rlnc/resolve_symlinks/endian/src \
+		../../../kodo-rlnc/kodo_build/include
 
 QT += gui
 QT += widgets
@@ -38,7 +41,7 @@ FORMS += \
         mainwindow.ui
 
 
-LIBS += -L$$PWD/../../lib/ -lvastsim -lvast -lvastnet -lvastcommon -lACE -lboost_system -lboost_thread -lboost_serialization -lboost_filesystem -ljsoncpp
+LIBS += -L$$PWD/../../lib/ -lvastsim -lvast -lvastnet -lvastcommon -lACE -lboost_system -lboost_thread -lboost_serialization -lboost_filesystem -ljsoncpp -Wl,-Bstatic -L/home/daniel/Development/kodo-rlnc/kodo_build -lkodo_rlnc -lfifi -lcpuid -Wl,-Bdynamic
 
 #INCLUDEPATH += $$PWD/../../
 DEPENDPATH += $$PWD/../../

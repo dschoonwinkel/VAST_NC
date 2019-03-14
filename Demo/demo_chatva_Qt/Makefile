@@ -15,7 +15,7 @@ CXX           = g++
 DEFINES       = -DQT_DEPRECATED_WARNINGS -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB
 CFLAGS        = -pipe -O2 -Wall -W -D_REENTRANT -fPIC $(DEFINES)
 CXXFLAGS      = -pipe -O2 -std=gnu++11 -Wall -W -D_REENTRANT -fPIC $(DEFINES)
-INCPATH       = -I. -I. -I../../common -I../../VASTsim -I~/Qt/5.10.1/Src/qtbase/include/QtWidgets/ -I../../../VAST-0.4.6 -I../../../../Qt/5.10.1/gcc_64/include -I../../../../Qt/5.10.1/gcc_64/include/QtWidgets -I../../../../Qt/5.10.1/gcc_64/include/QtGui -I../../../../Qt/5.10.1/gcc_64/include/QtCore -I. -isystem /usr/include/libdrm -I. -I../../../../Qt/5.10.1/gcc_64/mkspecs/linux-g++
+INCPATH       = -I. -I. -I../../common -I../../VASTsim -I~/Qt/5.10.1/Src/qtbase/include/QtWidgets/ -I../../../kodo-rlnc/resolve_symlinks/kodo-core/src -I../../../kodo-rlnc/resolve_symlinks/endian/src -I../../../kodo-rlnc/kodo_build/include -I../../../VAST-0.4.6 -I../../../../Qt/5.10.1/gcc_64/include -I../../../../Qt/5.10.1/gcc_64/include/QtWidgets -I../../../../Qt/5.10.1/gcc_64/include/QtGui -I../../../../Qt/5.10.1/gcc_64/include/QtCore -I. -isystem /usr/include/libdrm -I. -I../../../../Qt/5.10.1/gcc_64/mkspecs/linux-g++
 QMAKE         = /home/daniel/Qt/5.10.1/gcc_64/bin/qmake
 DEL_FILE      = rm -f
 CHK_DIR_EXISTS= test -d
@@ -38,7 +38,7 @@ DISTNAME      = demo_chatva_Qt1.0.0
 DISTDIR = /home/daniel/Development/VAST-0.4.6/Demo/demo_chatva_Qt/.tmp/demo_chatva_Qt1.0.0
 LINK          = g++
 LFLAGS        = -Wl,-O1 -Wl,-rpath,/home/daniel/Qt/5.10.1/gcc_64/lib
-LIBS          = $(SUBLIBS) -L/home/daniel/Development/VAST-0.4.6/Demo/demo_chatva_Qt/../../lib/ -lvastsim -lvast -lvastnet -lvastcommon -lACE -lboost_system -lboost_thread -L/home/daniel/Qt/5.10.1/gcc_64/lib -lQt5Widgets -lQt5Gui -lQt5Core -lGL -lpthread 
+LIBS          = $(SUBLIBS) -L/home/daniel/Development/VAST-0.4.6/Demo/demo_chatva_Qt/../../lib/ -lvastsim -lvast -lvastnet -lvastcommon -lACE -lboost_system -lboost_thread -Wl,-Bstatic -L/home/daniel/Development/kodo-rlnc/kodo_build -lkodo_rlnc -lfifi -lcpuid -Wl,-Bdynamic -L/home/daniel/Qt/5.10.1/gcc_64/lib -lQt5Widgets -lQt5Gui -lQt5Core -lGL -lpthread 
 AR            = ar cqs
 RANLIB        = 
 SED           = sed
@@ -778,6 +778,7 @@ moc_mainwindow.cpp: ../../../../Qt/5.10.1/gcc_64/include/QtWidgets/QMainWindow \
 		../../common/VASTnet.h \
 		../../common/net_manager.h \
 		../../common/VASTBuffer.h \
+		../../common/timeouts.h \
 		../../common/VASTRelay.h \
 		../../common/VASTCallback.h \
 		ui_mainwindow.h \
@@ -820,7 +821,7 @@ moc_mainwindow.cpp: ../../../../Qt/5.10.1/gcc_64/include/QtWidgets/QMainWindow \
 		mainwindow.h \
 		moc_predefs.h \
 		../../../../Qt/5.10.1/gcc_64/bin/moc
-	/home/daniel/Qt/5.10.1/gcc_64/bin/moc $(DEFINES) --include ./moc_predefs.h -I/home/daniel/Qt/5.10.1/gcc_64/mkspecs/linux-g++ -I/home/daniel/Development/VAST-0.4.6/Demo/demo_chatva_Qt -I/home/daniel/Development/VAST-0.4.6/Demo/demo_chatva_Qt -I/home/daniel/Development/VAST-0.4.6/common -I/home/daniel/Development/VAST-0.4.6/VASTsim -I'/home/daniel/Development/VAST-0.4.6/Demo/demo_chatva_Qt/~/Qt/5.10.1/Src/qtbase/include/QtWidgets' -I/home/daniel/Development/VAST-0.4.6 -I/home/daniel/Qt/5.10.1/gcc_64/include -I/home/daniel/Qt/5.10.1/gcc_64/include/QtWidgets -I/home/daniel/Qt/5.10.1/gcc_64/include/QtGui -I/home/daniel/Qt/5.10.1/gcc_64/include/QtCore -I/usr/include/c++/5 -I/usr/include/x86_64-linux-gnu/c++/5 -I/usr/include/c++/5/backward -I/usr/lib/gcc/x86_64-linux-gnu/5/include -I/usr/local/include -I/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed -I/usr/include/x86_64-linux-gnu -I/usr/include mainwindow.h -o moc_mainwindow.cpp
+	/home/daniel/Qt/5.10.1/gcc_64/bin/moc $(DEFINES) --include ./moc_predefs.h -I/home/daniel/Qt/5.10.1/gcc_64/mkspecs/linux-g++ -I/home/daniel/Development/VAST-0.4.6/Demo/demo_chatva_Qt -I/home/daniel/Development/VAST-0.4.6/Demo/demo_chatva_Qt -I/home/daniel/Development/VAST-0.4.6/common -I/home/daniel/Development/VAST-0.4.6/VASTsim -I'/home/daniel/Development/VAST-0.4.6/Demo/demo_chatva_Qt/~/Qt/5.10.1/Src/qtbase/include/QtWidgets' -I/home/daniel/Development/kodo-rlnc/resolve_symlinks/kodo-core/src -I/home/daniel/Development/kodo-rlnc/resolve_symlinks/endian/src -I/home/daniel/Development/kodo-rlnc/kodo_build/include -I/home/daniel/Development/VAST-0.4.6 -I/home/daniel/Qt/5.10.1/gcc_64/include -I/home/daniel/Qt/5.10.1/gcc_64/include/QtWidgets -I/home/daniel/Qt/5.10.1/gcc_64/include/QtGui -I/home/daniel/Qt/5.10.1/gcc_64/include/QtCore -I/usr/include/c++/5 -I/usr/include/x86_64-linux-gnu/c++/5 -I/usr/include/c++/5/backward -I/usr/lib/gcc/x86_64-linux-gnu/5/include -I/usr/local/include -I/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed -I/usr/include/x86_64-linux-gnu -I/usr/include mainwindow.h -o moc_mainwindow.cpp
 
 compiler_moc_objc_header_make_all:
 compiler_moc_objc_header_clean:
@@ -973,6 +974,7 @@ main.o: main.cpp mainwindow.h \
 		../../common/VASTnet.h \
 		../../common/net_manager.h \
 		../../common/VASTBuffer.h \
+		../../common/timeouts.h \
 		../../common/VASTRelay.h \
 		../../common/VASTCallback.h \
 		ui_mainwindow.h \
@@ -1144,6 +1146,7 @@ mainwindow.o: mainwindow.cpp mainwindow.h \
 		../../common/VASTnet.h \
 		../../common/net_manager.h \
 		../../common/VASTBuffer.h \
+		../../common/timeouts.h \
 		../../common/VASTRelay.h \
 		../../common/VASTCallback.h \
 		ui_mainwindow.h \

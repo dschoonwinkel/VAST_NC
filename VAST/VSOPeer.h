@@ -41,6 +41,7 @@
 #include "VASTTypes.h"
 #include "VONPeer.h"
 #include "VSOPolicy.h"
+#include "timeouts.h"
 
 // load balancing settings
 #define VSO_MOVEMENT_FRACTION           (0.1f)  // fraction of remaining distance to move for nodes

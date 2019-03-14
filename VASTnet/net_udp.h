@@ -17,6 +17,7 @@
     // Wireless overhearing class
 
 #include "net_udp_handler.h"
+#include "timeouts.h"
 
 #include <boost/asio.hpp>
 #include <mutex>

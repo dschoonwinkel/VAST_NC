@@ -4,8 +4,7 @@
 #include "net_udp_handler.h"
 #include "rlnc_packet_factory.h"
 #include "rlncmessage.h"
-
-#define GENSIZE 2
+#include "abstract_rlnc_msg_receiver.h"
 
 namespace Vast
 {

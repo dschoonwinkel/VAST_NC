@@ -30,3 +30,4 @@ VASTreal/test
 ../kodo-rlnc/resolve_symlinks/kodo-core/src
 tests
 coding_host
+coding_host/tests

@@ -43,6 +43,7 @@
 #include "VASTRelay.h"      // provides physical coordinate, IP address, and public IP
 #include "VASTCallback.h"   // callback for handling incoming message at a VAST node
 #include "VASTnet.h"
+#include "timeouts.h"
 
 #define VASTVERSE_RETRY_PERIOD  (10)     // # of seconds if we're stuck in a state, revert to the previous
 

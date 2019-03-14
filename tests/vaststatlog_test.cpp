@@ -32,7 +32,7 @@ Vast::id_t      g_sub_id = 0;       // subscription # for my client (peer)
 VASTStatLogEntry*    g_statlog = NULL;    //Logger for statistics
 
 
-int main (int argc, char *argv[])
+int main ()
 {
     g_world_id     = VAST_DEFAULT_WORLD_ID;
 

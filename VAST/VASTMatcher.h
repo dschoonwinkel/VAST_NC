@@ -39,6 +39,7 @@
 #include "VAST.h"
 #include "Voronoi.h"
 #include "VSOPeer.h"
+#include "timeouts.h"
 
 #define TIMEOUT_SUBSCRIPTION_KEEPALIVE          (1.0)   // # of seconds to send updates for my subscriptions
 

@@ -6,7 +6,10 @@ TEMPLATE = app
 TARGET = VASTsim_Qt
 INCLUDEPATH += . \
                 ../../common \
-                ../../VASTsim
+		../../VASTsim \
+		../../../kodo-rlnc/resolve_symlinks/kodo-core/src \
+		../../../kodo-rlnc/resolve_symlinks/endian/src \
+		../../../kodo-rlnc/kodo_build/include
 
 QT += gui
 QT += widgets
@@ -27,7 +30,7 @@ HEADERS += mainwindow.h
 FORMS += mainwindow.ui
 SOURCES += main.cpp mainwindow.cpp
 
-LIBS += -L$$PWD/../../lib/ -lvastsim -lvast -lvastnet -lvastcommon -lACE -lboost_system -lboost_thread
+LIBS += -L$$PWD/../../lib/ -lvastsim -lvast -lvastnet -lvastcommon -lACE -lboost_system -lboost_thread -Wl,-Bstatic -L/home/daniel/Development/kodo-rlnc/kodo_build -lkodo_rlnc -lfifi -lcpuid -Wl,-Bdynamic
 
 INCLUDEPATH += $$PWD/../../
 DEPENDPATH += $$PWD/../../

@@ -38,7 +38,6 @@ namespace Vast
 
 //        // initialize rand generator (for node fail simulation, NOTE: same seed is used to produce exactly same results)
 //        //srand ((unsigned int)time (NULL));
-        srand (0);
 
         _hostname[0] = 0;
         _IPaddr[0] = 0;

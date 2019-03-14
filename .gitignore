@@ -44,3 +44,9 @@ CMakeLists.txt.user*
 
 #VAST movement records
 *.pos
+
+
+# Non-necessary directories in repository
+./VASTATE
+./Dependencies
+
