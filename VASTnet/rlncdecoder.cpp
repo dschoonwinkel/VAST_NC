@@ -154,6 +154,7 @@ RLNCMessage *rlncdecoder::produceDecodedRLNCMessage()
                         }
                         //Else, use the newly decoded packet - should be most cases true
                         decoded_msg = new RLNCMessage(msg);
+                        packets_recovered++;
                         NC_packets.erase (NC_packets.begin () + i);
 //                        return decoded_msg;
                     }
@@ -193,5 +194,6 @@ RLNCMessage *rlncdecoder::produceDecodedRLNCMessage()
 
 rlncdecoder::~rlncdecoder ()
 {
+    CPPDEBUG("~rlncdecoder:: packet_recovered: " << packets_recovered << std::endl);
 }
 

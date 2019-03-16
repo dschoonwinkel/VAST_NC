@@ -44,6 +44,9 @@ private:
     rlnc_decoder::factory decoder_factory;
     rlnc_encoder::factory encoder_factory;
     RLNCHeader_factory header_factory;
+
+    //For stats collection purposes
+    size_t packets_recovered = 0;
 };
 
 #endif // RLNCDECODER_H

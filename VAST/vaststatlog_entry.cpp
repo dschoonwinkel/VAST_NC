@@ -151,38 +151,38 @@ namespace Vast {
         size_t total_size = 0;
 
         total_size+= sizeof(timestamp);
-        std::cout << "sizeof timestamp                      " << sizeof(timestamp) << std::endl;
+        // CPPDEBUG("sizeof timestamp                      " << sizeof(timestamp) << std::endl);
 
         total_size+= clientNode.sizeOf();
-        std::cout << "clientNode->sizeof                    " << clientNode.sizeOf() << std::endl;
+        // CPPDEBUG("clientNode->sizeof                    " << clientNode.sizeOf() << std::endl);
 
         total_size+= _neighbors.size()*sizeof(Node);
-        std::cout << "sizeof neighbor Node list             " << _neighbors.size()*sizeof(Node) << std::endl;
+        // CPPDEBUG("sizeof neighbor Node list             " << _neighbors.size()*sizeof(Node) << std::endl);
 
         total_size+= sizeof(clientIsRelay);
-        std::cout << "sizeof clientIsRelay                  " << sizeof(clientIsRelay) << std::endl;
+        // CPPDEBUG("sizeof clientIsRelay                  " << sizeof(clientIsRelay) << std::endl);
 
         total_size+= sizeof(worldConnSize);
-        std::cout << "sizeof worldConnSize                  " << sizeof(worldConnSize) << std::endl;
+        // CPPDEBUG("sizeof worldConnSize                  " << sizeof(worldConnSize) << std::endl);
 
         total_size+= worldSendStat.sizeOf();
-        std::cout << "sizeof worldSendStat                  " << worldSendStat.sizeOf() << std::endl;
+        // CPPDEBUG("sizeof worldSendStat                  " << worldSendStat.sizeOf() << std::endl);
 
         total_size+= worldRecvStat.sizeOf();
-        std::cout << "sizeof worldRecvStat                  " << worldRecvStat.sizeOf() << std::endl;
+        // CPPDEBUG("sizeof worldRecvStat                  " << worldRecvStat.sizeOf() << std::endl);
 
         total_size+= sizeof(worldIsGateway);
-        std::cout << "sizeof worldIsGateway                 " << sizeof(worldIsGateway) << std::endl;
+        // CPPDEBUG("sizeof worldIsGateway                 " << sizeof(worldIsGateway) << std::endl);
 
         total_size+= sizeof(worldIsMatcher);
-        std::cout << "sizeof worldIsMatcher                 " << sizeof(worldIsMatcher) << std::endl;
+        // CPPDEBUG("sizeof worldIsMatcher                 " << sizeof(worldIsMatcher) << std::endl);
 
-        std::cout << "Total size: " << total_size << "\n" << std::endl;
+        // CPPDEBUG("Total size: " << total_size << "\n" << std::endl);
 
         /*
          * if (_world.isMatcher()) {
          *  total_size+=_world.getMatcherAOI();
-         *  std::cout << "sizeof _world.getMatcherAOI()" << sizeof(_world.getMatcherAOI()) << std::endl;
+         *  // CPPDEBUG("sizeof _world.getMatcherAOI()" << sizeof(_world.getMatcherAOI()) << std::endl);
          * }
         */
 

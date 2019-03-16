@@ -45,7 +45,7 @@
 #include "VASTnet.h"
 #include "timeouts.h"
 
-#define VASTVERSE_RETRY_PERIOD  (10)     // # of seconds if we're stuck in a state, revert to the previous
+#define VASTVERSE_RETRY_PERIOD  (_VASTVERSE_RETRY_PERIOD_)     // # of seconds if we're stuck in a state, revert to the previous
 
 namespace Vast
 {

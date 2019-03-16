@@ -95,7 +95,6 @@ namespace Vast {
         std::mutex                  _msg_mutex;
         std::mutex                  _conn_mutex;
 
-        const double                UDP_TIMEOUT = 5000;
 
     };
 } // end namespace Vast

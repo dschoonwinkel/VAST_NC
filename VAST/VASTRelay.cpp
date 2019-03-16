@@ -588,7 +588,7 @@ namespace Vast
 
                     // store a copy of the message into queue, also record the time
                     _queue.insert (multimap<id_t, Message *>::value_type (unknown_clients[i], new Message (in_msg)));
-                    _queue_time[unknown_clients[i]] = now + (KEEPALIVE_RELAY * _net->getTimestampPerSecond ());
+                    _queue_time[unknown_clients[i]] = now + (_KEEPALIVE_RELAY_ * _net->getTimestampPerSecond ());
                 }
                                 
                 // use the converted client hostID
@@ -622,7 +622,7 @@ namespace Vast
         if (now >= _timeout_ping)
         {
             // reset re-try countdown
-            _timeout_ping = now + (KEEPALIVE_RELAY * _net->getTimestampPerSecond ());
+            _timeout_ping = now + (_KEEPALIVE_RELAY_ * _net->getTimestampPerSecond ());
 
             // obtain some relays from network layer if no known relays
             if (_relays.size () == 0)
@@ -710,7 +710,7 @@ namespace Vast
             else if (now >= _timeout_query)
             {                          
                 // set a timeout of re-querying
-                _timeout_query = now + (TIMEOUT_RELAY_QUERY * _net->getTimestampPerSecond ());
+                _timeout_query = now + (_TIMEOUT_RELAY_QUERY_ * _net->getTimestampPerSecond ());
         
                 printf ("VASTRelay::postHandling () sending query to find closest relay\n");
 
@@ -789,7 +789,7 @@ namespace Vast
         
         // reset countdown, if the send failed, try again next tick
         if (sendRelay (msg) > 0)        
-            _timeout_join = _net->getTimestamp () + (TIMEOUT_RELAY_JOIN * _net->getTimestampPerSecond ());
+            _timeout_join = _net->getTimestamp () + (_TIMEOUT_RELAY_JOIN_ * _net->getTimestampPerSecond ());
         else
             _timeout_join = 0;
 

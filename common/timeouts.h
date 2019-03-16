@@ -49,5 +49,6 @@ extern int g_MS_PER_TIMESTEP;       //Be sure to declare this in your executable
 #define _UDP_TIMEOUT_MS_ 500*MS_PER_STEP
 
 
+#define VASTREAL_STEP_DISPLAY_DIVISOR 5000
 
 #endif // TIMEOUTS_H

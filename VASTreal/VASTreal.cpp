@@ -292,6 +292,7 @@ bool ReadPara (SimPara &para, const char * filename /* = "VASTreal.ini*/)
         &para.PEER_LIMIT,
         &para.RELAY_LIMIT,
         &para.OVERLOAD_LIMIT,
+        &para.TIMESTEP_DURATION,
         0
     };
 
@@ -321,6 +322,9 @@ int InitSim (SimPara &para, VASTPara_Net &netpara)
 {
     g_para = para;
     g_vastnetpara = netpara;
+
+    //Set TIMESTEP_DURATION first
+    g_MS_PER_TIMESTEP = para.TIMESTEP_DURATION;
 
     // note there's no need to assign the gateway ID as it'll be found automatically
     g_vastnetpara.model        = (VAST_NetModel)para.NET_MODEL;

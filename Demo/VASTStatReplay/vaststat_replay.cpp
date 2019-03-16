@@ -7,6 +7,7 @@ int main() {
     bool finished = false;
     int counter = 0;
 
+    readIniFile ();
     initVariables();
 
     while (!finished)

@@ -45,7 +45,7 @@
 
 // load balancing settings
 #define VSO_MOVEMENT_FRACTION           (0.1f)  // fraction of remaining distance to move for nodes
-#define VSO_TIMEOUT_OVERLOAD_REQUEST    (3)     // seconds to re-send a overload help request
+#define VSO_TIMEOUT_OVERLOAD_REQUEST    (_VSO_TIMEOUT_OVERLOAD_REQUEST_)     // seconds to re-send a overload help request
 #define VSO_INSERTION_TRIGGER           (5)     // # of matcher movement requests before an insertion should be requested
 
 #define VSO_AOI_BUFFER_OVERLAP          (10)    // buffer size determining whether an AOI overlaps with a region
@@ -54,8 +54,8 @@
 
 
 // ownership transfer setting
-#define VSO_TIMEOUT_TRANSFER            (0.3)   // # of seconds before transfering ownership to a neighbor
-#define VSO_TIMEOUT_AUTO_REMOVE         (2.0)   // # of seconds to delete an un-owned object if it's not being updated
+#define VSO_TIMEOUT_TRANSFER            (_VSO_TIMEOUT_TRANSFER_)   // # of seconds before transfering ownership to a neighbor
+#define VSO_TIMEOUT_AUTO_REMOVE         (_VSO_TIMEOUT_AUTO_REMOVE_)   // # of seconds to delete an un-owned object if it's not being updated
 
 using namespace std;
 

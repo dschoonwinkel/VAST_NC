@@ -27,10 +27,10 @@ std::ofstream ofs(results_file);
 size_t total_AN_actual =0, total_AN_visible =0, total_drift =0, max_drift =0, drift_nodes =0, total_active_nodes =0;
 long worldSendStat =0, worldRecvStat = 0;
 long prevWorldSendStat = 0, prevWorldRecvStat = 0;
-
-#define UPDATE_PERIOD 10
+int g_MS_PER_TIMESTEP;
 
 void initVariables();
+void readIniFile();
 void calculateUpdate();
 void calc_consistency (const VASTStatLog &restoredLog, size_t &total_AN_actual,
                        size_t &total_AN_visible, size_t &total_drift, size_t &max_drift,
@@ -39,6 +39,62 @@ void outputResults();
 void closeOutputFile();
 
 
+bool readIniFile(const char* filename /*VASTreal.ini*/)
+{
+    printf("readIniFile called\n");
+    FILE *fp;
+    if ((fp = fopen (filename, "rt")) == NULL)
+        return false;
+
+    int *p[] = {
+        &simpara.VAST_MODEL,
+        &simpara.NET_MODEL,
+        &simpara.MOVE_MODEL,
+        &simpara.WORLD_WIDTH,
+        &simpara.WORLD_HEIGHT,
+        &simpara.NODE_SIZE,
+        &simpara.RELAY_SIZE,
+        &simpara.MATCHER_SIZE,
+        &simpara.TIME_STEPS,
+        &simpara.STEPS_PERSEC,
+        &simpara.AOI_RADIUS,
+        &simpara.AOI_BUFFER,
+        &simpara.CONNECT_LIMIT,
+        &simpara.VELOCITY,
+        &simpara.STABLE_SIZE,
+        &simpara.JOIN_RATE,
+        &simpara.LOSS_RATE,
+        &simpara.FAIL_RATE,
+        &simpara.UPLOAD_LIMIT,
+        &simpara.DOWNLOAD_LIMIT,
+        &simpara.PEER_LIMIT,
+        &simpara.RELAY_LIMIT,
+        &simpara.OVERLOAD_LIMIT,
+        &simpara.TIMESTEP_DURATION,
+        0
+    };
+
+    char buff[255];
+    int n = 0;
+    while (fgets (buff, 255, fp) != NULL)
+    {
+        // skip any comments or empty lines
+        if (buff[0] == '#' || buff[0] == ' ' || buff[0] == '\n')
+            continue;
+
+        // read the next valid parameter
+        if (sscanf (buff, "%d ", p[n]) != 1)
+            return false;
+        n++;
+
+        //Null Pointer, i.e. ending of the struct?
+        if (p[n] == 0)
+            return true;
+    }
+
+    return false;
+
+}
 
 
 
@@ -173,7 +229,7 @@ void calculateUpdate()
     prevWorldSendStat = tempWorldSendStat;
     prevWorldRecvStat = tempWorldRecvStat;
 
-    latest_timestamp += UPDATE_PERIOD;
+    latest_timestamp += simpara.TIMESTEP_DURATION;
 
 }
 

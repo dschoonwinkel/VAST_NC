@@ -29,3 +29,8 @@ restore_results:
 	$(backup_results)
 	cp logs/logs_backup/logs_$(foo)/*.txt ./logs/
 	echo $(foo)
+
+save_plots:
+	echo "Saving plots as: $(foo).png"
+	cp logs/results/active_nodes_topo_cons_.png logs/results/$(foo).png
+

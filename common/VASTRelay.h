@@ -42,17 +42,17 @@
 #include "timeouts.h"
 
 // number of seconds before a new round of queries is sent for neighbors' coordinates
-const int TIMEOUT_COORD_QUERY = 30;
+//const int TIMEOUT_COORD_QUERY = _TIMEOUT_COORD_QUERY_;
 
 // number of seconds before a keepalive message is sent to my current relay (by a client)
 // IMPORTANT NOTE: this has to be shorter than network inactivity connection removal
-const int KEEPALIVE_RELAY = 5;
+//const int KEEPALIVE_RELAY = _KEEPALIVE_RELAY_;
 
 // timeout for re-sending relay query
-const int TIMEOUT_RELAY_QUERY = 5;
+//const int TIMEOUT_RELAY_QUERY = _TIMEOUT_RELAY_QUERY_;
 
 // timeout for re-sending join request to a relay
-const int TIMEOUT_RELAY_JOIN  = 5;
+//const int TIMEOUT_RELAY_JOIN  = _TIMEOUT_RELAY_JOIN_;
 
 // number of pings sent concurrently to neighbor relays
 //#define MAX_CONCURRENT_PING          (5)

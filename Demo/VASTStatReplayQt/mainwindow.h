@@ -7,6 +7,7 @@
 #include "VASTVerse.h"
 #include "vaststatlog.h"
 #include "replay_functions.h"
+#include "VASTTypes.h"
 #include <fstream>
 #include <chrono>
 

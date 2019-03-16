@@ -40,14 +40,15 @@
 #include "VASTTypes.h"
 #include "Voronoi.h"
 #include "VONNetwork.h"
+#include "timeouts.h"
 
 using namespace std;
 
 namespace Vast
 {
 
-#define MAX_DROP_SECONDS      (2)         // # of seconds to disconnect a non-overlapped neighbor
-#define MAX_TIMELY_PERIOD   (10)        // # of seconds to be considered as still active
+#define MAX_DROP_SECONDS      (_MAX_DROP_SECONDS_)         // # of seconds to disconnect a non-overlapped neighbor
+#define MAX_TIMELY_PERIOD   (_MAX_TIMELY_PERIOD_)        // # of seconds to be considered as still active
     
 // NOTE: a way to estimate the proper buffer:
 //       average speed * 3 hops (from neighbor detection to discovery) * 2 (nodes heading towards directly)

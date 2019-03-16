@@ -122,8 +122,8 @@ namespace Vast {
 
     bool VASTStatLog::finished() const
     {
-//        std::cout << getClientNode().id << "current_step: " << current_step
-//                  << " /" << recorded_steps << std::endl;
+//        CPPDEBUG(getClientNode().id << "current_step: " << current_step
+//                  << " /" << recorded_steps << std::endl);
 
         //Check if this is the final step (index off by one)
         return (current_step+1) == recorded_steps;

@@ -41,9 +41,9 @@
 #include "VSOPeer.h"
 #include "timeouts.h"
 
-#define TIMEOUT_SUBSCRIPTION_KEEPALIVE          (1.0)   // # of seconds to send updates for my subscriptions
+#define TIMEOUT_SUBSCRIPTION_KEEPALIVE          (_TIMEOUT_SUBSCRIPTION_KEEPALIVE_)   // # of seconds to send updates for my subscriptions
 
-#define TIMEOUT_MATCHER_KEEPALIVE               (10)    // # of seconds to inform gateway of alive status
+#define TIMEOUT_MATCHER_KEEPALIVE               (_TIMEOUT_MATCHER_KEEPALIVE_)    // # of seconds to inform gateway of alive status
     
 #define LIMIT_LIVE_MATCHERS_PER_WORLD           (5)     // # of live matcher info the gateway needs to keep (for fault tolerance)
 

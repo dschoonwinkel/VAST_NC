@@ -34,7 +34,7 @@ namespace Vast
 {
     net_udp::net_udp (uint16_t port, const char *bindAddress, VAST_NetModel net_model): _port_self (port)
     {
-        std::cout << "net_udp::constructor called" << std::endl;
+        CPPDEBUG("net_udp::constructor called" << std::endl);
 
 //        // initialize rand generator (for node fail simulation, NOTE: same seed is used to produce exactly same results)
 //        //srand ((unsigned int)time (NULL));
@@ -156,8 +156,8 @@ namespace Vast
         tcp::resolver::iterator end; // End marker.
         if(iter != end) {
             tcp::endpoint ep = *iter++;
-//            std::cout << ep << std::endl;
-//            std::cout << ep.address().to_string() << std::endl;
+//            CPPDEBUG(ep << std::endl);
+//            CPPDEBUG(ep.address().to_string() << std::endl);
 
             //If we do not know our own host IP and it has now been resolved
             if (_IPaddr[0] == 0 && host == NULL)
@@ -180,7 +180,7 @@ namespace Vast
     {
 
         IPaddr *resolved_addr = _udphandler->getRemoteAddress (host_id);
-        std::cout << "net_udp::getRemoteAddress: host_id " << host_id << std::endl;
+        CPPDEBUG("net_udp::getRemoteAddress: host_id " << host_id << std::endl);
         //IPaddr could not be found, probably because we have never communicated with it
         if (resolved_addr == NULL)
             return false;
@@ -250,7 +250,7 @@ namespace Vast
         //General UDP socket should not close, unlike TCP connection
 //        handler->close();
 
-        CPPDEBUG("net_udp::disconnect " << target << " disconnected" << std::endl;);
+        CPPDEBUG("net_udp::disconnect " << target << " disconnected" << std::endl);
 
         _conn_mutex.unlock();
 
@@ -474,11 +474,11 @@ namespace Vast
 
         for (it = _id2conn.begin(); it != _id2conn.end(); it++ )
         {
-//            std::cout << "net_udp::tickLogicalClock: " << it->first  // string (key)
+//            CPPDEBUG("net_udp::tickLogicalClock: " << it->first  // string (key)
 //                      << ':'
 //                      << it->second.lasttime   // string's value
 //                      << std::endl ;
-            if  (time_now > it->second.lasttime + UDP_TIMEOUT)
+            if  (time_now > it->second.lasttime + _UDP_TIMEOUT_MS_)
             {
                      dead_connections.push_back(it->second);
 //                    CPPDEBUG("Dead connection found: " << it->first << " dead for " << time_now - it->second.lasttime << std::endl);

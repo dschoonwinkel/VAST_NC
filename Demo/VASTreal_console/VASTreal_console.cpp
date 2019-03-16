@@ -21,7 +21,7 @@ using namespace std;
 using namespace Vast;
 
 //Sleep duration secs, microseconds
-#define SLEEP_DURATION 0, 10000
+#define SLEEP_DURATION 0, MS_PER_STEP*1000
 
 int main (int argc, char *argv[])
 {    
@@ -55,6 +55,8 @@ int main (int argc, char *argv[])
     std::chrono::microseconds total_duration = std::chrono::microseconds::zero();
 
     std::cout << "VASTreal_console::main:: Is gateway: " << netpara.is_entry << std::endl << std::endl;
+
+    CPPDEBUG("Steps per printout update: " << VASTREAL_STEP_DISPLAY_DIVISOR/g_MS_PER_TIMESTEP << std::endl);
     while (running)
     {     
         steps++; 
@@ -72,7 +74,7 @@ int main (int argc, char *argv[])
         if (NextStep () < 0)
             break;
 
-        if (steps % 100 == 0)
+        if (steps % (VASTREAL_STEP_DISPLAY_DIVISOR/g_MS_PER_TIMESTEP) == 0)
         {
             printf ("step %d\n", steps);
             std::cout << "Average process duration: " << process_duration.count() / steps << " microsec" << std::endl;

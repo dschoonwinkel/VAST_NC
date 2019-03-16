@@ -56,7 +56,7 @@ namespace Vast
         _world_id = worldID; 
 
         // set timeout to re-try, necessary because it might take time for sending request
-        _timeout_join = _net->getTimestamp () + (TIMEOUT_JOIN * _net->getTimestampPerSecond ());        
+        _timeout_join = _net->getTimestamp () + (_TIMEOUT_JOIN_ * _net->getTimestampPerSecond ());
           
         // if relay is yet known, wait first
         if (_relay->isJoined () == false)
@@ -105,7 +105,7 @@ namespace Vast
     VASTClient::subscribe (Area &area, layer_t layer)
     {
         // set timeout to re-try, necessary because it might take time for sending the subscription
-        _timeout_subscribe = _net->getTimestamp () + (TIMEOUT_SUBSCRIBE * _net->getTimestampPerSecond ());
+        _timeout_subscribe = _net->getTimestamp () + (_TIMEOUT_SUBSCRIBE_ * _net->getTimestampPerSecond ());
 
         // record my subscription, not yet successfully subscribed  
         // NOTE: current we assume we subscribe only one at a time  
@@ -967,7 +967,7 @@ namespace Vast
             return;
 
         // check if there are ghost objects to be removed
-        timestamp_t timeout = TIMEOUT_REMOVE_GHOST * _net->getTimestampPerSecond ();
+        timestamp_t timeout = _TIMEOUT_REMOVE_GHOST_ * _net->getTimestampPerSecond ();
         timestamp_t now = _net->getTimestamp ();
 
         vector<id_t> remove_list;
@@ -988,7 +988,7 @@ namespace Vast
             // need to re-connect to matcher
             if (remove_list[i] == _sub.id)
             {
-                printf ("VASTClient::removeGhosts () no updates received for myself for over %d seconds\n", TIMEOUT_REMOVE_GHOST);
+                printf ("VASTClient::removeGhosts () no updates received for myself for over %d seconds\n", _TIMEOUT_REMOVE_GHOST_);
                 handleMatcherDisconnect ();
             }
             else

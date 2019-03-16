@@ -21,6 +21,8 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    readIniFile ();
+
 #ifdef PLOT_RESULTS
     m_timerId = startTimer(TIMERINTERVAL);
 #else

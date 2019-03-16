@@ -15,7 +15,7 @@ import os, time
 
 hosts = list()
 
-TOTAL_SIMULATION_TIME = 110
+TOTAL_SIMULATION_TIME = 130
 
 
 def myNetwork():
@@ -68,13 +68,28 @@ def myNetwork():
     info( '*** Post configure switches and hosts\n')
 
     coding_host.cmd("xterm -hold -fg black -bg green -geometry 80x10+200+600 -e \"./coding_host \" &")
+    coding_host.cmd("route add 239.255.0.1 codinghost-eth0")
 
     for i in range(1,Node_count+1):
+        hosts[i-1].cmd("route add 239.255.0.1 h%d-eth0" % i)
         # hosts[i-1].cmd("xterm -hold -fg black -bg green -geometry 80x60+%d+0 -e   \"./VASTreal_console %d 0 1037 10.0.0.1 \" &" % (200+i*40, i-1))    
-        # hosts[i-1].cmd("./VASTreal_console %d 0 1037 10.0.0.1 &> output_dump/node%d.txt &" % (i-1, i-1))
+        hosts[i-1].cmd("./VASTreal_console %d 0 1037 10.0.0.1 &> output_dump/node%d.txt &" % (i-1, i-1))
         time.sleep(1)
     
 
+    #print(net.links)
+    
+    #h1 = net.get('h1')
+    #links = h1.connectionsTo(s1)
+
+    #srcLink = links[0][0]
+    #dstLink = links[0][1]
+
+    #dstLink.config(**{ 'bw' : 1, 'loss' : loss_perc})
+    # srcLink.config(**{ 'bw' : 1, 'loss' : 10})
+
+    #print(srcLink)
+    #print(dstLink)
     # hosts[0].cmd("iperf -s &")
     # hosts[1].cmd("iperf -s &")
     # hosts[2].cmd("iperf -s &")
@@ -82,7 +97,7 @@ def myNetwork():
     # hosts[38].cmd("xterm -hold -fg black -bg green -geometry 80x60+20+0 -e \"iperf -c 10.0.0.1 \" &")
     # hosts[39].cmd("xterm -hold -fg black -bg green -geometry 80x60+40+0 -e \"iperf -c 10.0.0.2 \" &")
 
-    for i in range(1, 10):
+    for i in range(1, TOTAL_SIMULATION_TIME / 10):
         print("Sleeping 10 seconds, %d to go" % (TOTAL_SIMULATION_TIME - i*10))
         time.sleep(10)
     
