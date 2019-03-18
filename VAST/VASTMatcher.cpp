@@ -170,7 +170,7 @@ namespace Vast
     // obtain next message in queue
     // return pointer to Message, or NULL for no more message
     Message* 
-    VASTMatcher::receiveVONMessage (timestamp_t &senttime)
+    VASTMatcher::receiveVONMessage (timestamp_t&)
     {
         return NULL;
     }
@@ -1712,7 +1712,7 @@ namespace Vast
 
     // get a candidate origin matcher to use
     bool 
-    VASTMatcher::findCandidate (Addr &new_origin, float level)
+    VASTMatcher::findCandidate (Addr &new_origin, float)
     {
         // simply return the first available
         // TODO: better method? (newest, oldest, etc.?)

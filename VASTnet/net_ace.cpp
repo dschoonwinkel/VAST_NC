@@ -91,7 +91,7 @@ namespace Vast {
     // service initialization method
     int 
     net_ace::
-    open (void *p) 
+    open (void*)
     {        
         // we need to use a 'ACE_Condition' to wait for the thread to properly comes up
         // otherwise there might be conflict in data access by two threads
@@ -126,7 +126,7 @@ namespace Vast {
     // service termination method;
     int 
     net_ace::
-    close (u_long i)
+    close (u_long)
     {       
         if (_active == true)
         {

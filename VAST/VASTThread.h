@@ -76,7 +76,7 @@ namespace Vast
         int open (void *p);
         
         // service termination method;
-        int close (u_long i);
+        int close (u_long);
         
         // service method
         int svc (void);

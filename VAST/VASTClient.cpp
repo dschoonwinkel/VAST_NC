@@ -244,7 +244,7 @@ namespace Vast
 
     // send a custom message to a particular node
     int     
-    VASTClient::send (Message &message, vector<id_t> *failed, bool direct)
+    VASTClient::send (Message &message, vector<id_t> *failed, bool)
     {
         if (_state != JOINED)
             return 0;
@@ -283,7 +283,7 @@ namespace Vast
 
     // obtain a list of subscribers within an area
     vector<Node *>& 
-    VASTClient::list (Area *area)
+    VASTClient::list (Area *)
     {
         return _neighbors;        
     }
@@ -411,7 +411,7 @@ namespace Vast
 
     // get current statistics about this node (a NULL-terminated string)
     char *
-    VASTClient::getStat (bool clear)
+    VASTClient::getStat (bool)
     {        
         static char str[] = "not implemented\0";
         return str;

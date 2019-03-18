@@ -20,7 +20,7 @@ TOTAL_SIMULATION_TIME = 130
 
 def myNetwork():
 
-    loss_perc = 20
+    loss_perc = 10
     BW = 1000
     Node_count = 10
 

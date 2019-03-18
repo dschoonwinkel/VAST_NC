@@ -400,6 +400,55 @@ namespace Vast
         return true;
     }
 
+    //This will probably be replaced by
+//    // store a MC message into priority queue
+//    // returns success or not
+//    //NOTE: MC messages have lost their remote_addr info, so cannot be used for socket_connected
+//    bool
+//    net_udp::MCmsg_received (id_t fromhost, const char *message, size_t size, timestamp_t recvtime, bool in_front)
+//    {
+//        //TODO:: Do ordering check here...
+
+
+//        NetSocketMsg *msg = new NetSocketMsg;
+
+//        msg->fromhost = fromhost;
+//        msg->recvtime = recvtime;
+//        msg->size     = size;
+
+//        if (size > 0)
+//        {
+//            msg->msg = new char[size];
+//            memcpy (msg->msg, message, size);
+//        }
+//        msg->size = size;
+
+//        if (recvtime == 0)
+//            msg->recvtime = this->getTimestamp ();
+
+//        // we store message according to message priority
+//        _msg_mutex.lock();
+//        if (in_front)
+//            _recv_queue.insert (_recv_queue.begin(), msg);
+//        else
+//            _recv_queue.push_back (msg);
+//        _msg_mutex.unlock();
+
+//        // update last access time of the connection
+//        _conn_mutex.lock();
+//        std::map<id_t, ConnectInfo>::iterator it = _id2conn.find (fromhost);
+//        //Only update if I have heard from this host before
+//        if (it != _id2conn.end ())
+//        {
+//            if (msg->recvtime > it->second.lasttime)
+//                it->second.lasttime = msg->recvtime;
+//        }
+
+//        _conn_mutex.unlock();
+
+//        return true;
+//    }
+
     // methods to keep track of active connections (associate ID with connection stream)
     // returns NET_ID_UNASSIGNED if failed
     bool

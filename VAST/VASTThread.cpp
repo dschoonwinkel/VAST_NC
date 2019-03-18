@@ -46,7 +46,7 @@ namespace Vast
     
     // service termination method;
     int 
-    VASTThread::close (u_long i)
+    VASTThread::close (u_long)
     {
         if (_active == true)
         {
