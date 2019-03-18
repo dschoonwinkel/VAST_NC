@@ -22,8 +22,15 @@ namespace Vast
         RLNCMessage message(header_factory.build());
 
         message.putMessage(msg, n);
-        message.putPacketId(1);
+        ordering += 1;
+        //TODO: put ordering into packet header
 
+
+        id_t myID = ((net_manager*)_msghandler)->getID ();
+
+        message.putPacketId(RLNCMessage::generatePacketId (myID, ordering));
+        message.putOrdering (ordering);
+        message.putFromId (myID);
         char *buf = new char[message.sizeOf()];
 
         int sending_len = message.serialize(buf);
@@ -53,30 +60,25 @@ namespace Vast
 
             char *p = _buf;
 
-            //NOTE: there may be several valid UDP messages received at once -- is this really necessary?
-            //while (n > sizeof (RLNCHeader))
-    //        {
-    //            //extract message header
-    //            mempcpy (&header, p, sizeof (Vast::VASTHeader));
-    //            n -= sizeof(Vast::VASTHeader);
-    //            p += sizeof(Vast::VASTHeader);
             memcpy(&header, p, sizeof(RLNCHeader));
 
                 //Check if it is really a VAST message: Start and end bytes of header should be correct
                 if (!RLNCHeader_factory::isRLNCHeader(header))
                 {
 //                    CPPDEBUG("net_udp_handler::handle_input Non-RLNC message received on UDP socket" << std::endl);
-    //                return -1;
+                }
+                else if (RLNCHeader_factory::isRLNCHeader (header) && header.enc_packet_count > 1)
+                {
+                    CPPDEBUG("net_udpNC_handler::handle_input: Encoded packet received -- THIS IS NOT SUPPOSED TO HAPPEN" << std::endl);
+
                 }
                 else {
 //                    CPPDEBUG("net_udpNC_handler::handle_input RLNC message received on the coding host" << std::endl);
 
-                    size_t offset = 0;
-                    offset += sizeof(RLNCHeader);
-                    offset += header.enc_packet_count * sizeof(packetid_t);
+                    RLNCMessage input_message;
+                    input_message.deserialize (_buf, bytes_transferred);
+                    process_input (input_message);
 
-//                    CPPDEBUG("net_udpNC_handler::handle_input Offset: " << offset << std::endl);
-                    net_udp_handler::process_input(bytes_transferred, offset);
                 }
 
 
@@ -87,6 +89,31 @@ namespace Vast
             CPPDEBUG("Error on UDP socket receive: " << error.message() << std::endl;);
         }
         return -1;
+    }
+
+    void net_udpNC_handler::process_input (RLNCMessage input_message)
+    {
+//        CPPDEBUG("net_udpNC_handler::handle_input: received packet ordering: " << (int)input_message.getOrdering ()
+//                 << "\nprevious ordered packet: "
+//                 << (int)recvd_ordering[input_message.getFirstFromId ()] << std::endl);
+
+//}
+        net_udp_handler::process_input(input_message.getMessage (0), input_message.getMessageSize ());
+
+    }
+
+    void net_udpNC_handler::RLNC_msg_received(RLNCMessage msg)
+    {
+//        CPPDEBUG("net_udpNC_handler::RLNC_msg_received Decoded from mc_handler: " << decoded_from_mchandler << std::endl);
+//        CPPDEBUG("net_udpNC_handler::RLNC_msg_received first from_id: " << msg.getFirstFromId ()<< std::endl);
+
+        process_input (msg);
+    }
+
+    net_udpNC_handler::~net_udpNC_handler()
+    {
+        CPPDEBUG("~net_udpNC_handler: decoded_from_mchandler: " << std::endl);
+        CPPDEBUG("~net_udpNC_handler: used_from_mchandler: " << std::endl);
     }
 
 }

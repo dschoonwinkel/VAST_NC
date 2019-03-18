@@ -31,3 +31,4 @@ VASTreal/test
 tests
 coding_host
 coding_host/tests
+VASTnet/unit_tests

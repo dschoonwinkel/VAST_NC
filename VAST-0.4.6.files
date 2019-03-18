@@ -21,6 +21,9 @@ VASTnet/rlncmessage.cpp
 VASTnet/rlncmessage.h
 VASTnet/rlncdecoder.cpp
 VASTnet/rlncdecoder.h
+VASTnet/unit_tests/Makefile
+VASTnet/unit_tests/unittest_net_udpnc_handler.cpp
+VASTnet/unit_tests/unittest_rlncmessage.cpp
 VASTreal/RealNode.cpp
 VASTreal/RealNode.h
 VASTreal/test/test_vastreal_initpara.cpp

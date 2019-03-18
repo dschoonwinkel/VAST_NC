@@ -8,10 +8,11 @@
 
 namespace Vast
 {
-    class net_udpNC_handler : public net_udp_handler
+    class net_udpNC_handler : public net_udp_handler, public AbstractRLNCMsgReceiver
     {
     public:
         net_udpNC_handler(ip::udp::endpoint local_endpoint);
+        ~net_udpNC_handler();
 
         size_t send(const char *msg, size_t n, ip::udp::endpoint remote_endpoint);
 
@@ -22,7 +23,11 @@ namespace Vast
         int handle_input (const boost::system::error_code& error,
                           std::size_t bytes_transferred);
 
+        void process_input (RLNCMessage input_message);
 
+
+
+        void RLNC_msg_received(RLNCMessage msg);
 
     private:
         int generation = 0;

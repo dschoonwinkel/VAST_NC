@@ -26,7 +26,8 @@ coding_host := coding_host
 #all: $(common) $(VASTnet) $(VAST) $(VASTsim) $(test_console) $(VASTsim_Qt)
 #all: $(common) $(VASTnet) $(VAST) $(VASTsim) $(test_console) $(demo_console) $(my_demo) $(demo_chatva_Qt)
 # all: $(common) $(VASTnet) $(VAST) $(VASTsim) $(my_demo) $(VASTsim_console) $(VASTsim_Qt) $(myVASTsim) $(random_walkertalker) $(demo_chatva_Qt) $(vaststat_replay)
-all: $(common) $(VASTnet) $(VAST) $(VASTsim) $(VASTreal) $(random_walkertalker) $(demo_chatva_Qt) $(vaststat_replay) $(vaststat_replay_Qt) $(VASTsim_Qt) $(VASTreal_console)
+#all: $(common) $(VASTnet) $(VAST) $(VASTsim) $(VASTreal) $(random_walkertalker) $(demo_chatva_Qt) $(vaststat_replay) $(vaststat_replay_Qt) $(VASTsim_Qt) $(VASTreal_console)
+all: $(common) $(VASTnet) $(VAST) $(VASTsim) $(VASTreal) $(random_walkertalker) $(vaststat_replay) $(vaststat_replay_Qt) $(VASTreal_console)
 
 noqt: $(common) $(VASTnet) $(VAST) $(VASTsim) $(VASTreal) $(random_walkertalker) $(VASTreal_console) $(coding_host)
 

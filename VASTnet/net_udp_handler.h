@@ -49,7 +49,7 @@ namespace Vast {
         virtual int handle_input (const boost::system::error_code& error,
                           std::size_t bytes_transferred);
 
-        void process_input(std::size_t bytes_transferred, size_t offset = 0);
+        void process_input(char* buffer, std::size_t bytes_transferred, size_t offset = 0);
 
         // if handle_input() returns -1, reactor would call handle_close()
         int handle_close ();

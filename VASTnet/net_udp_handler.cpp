@@ -80,25 +80,25 @@ namespace Vast {
 
         if (!error)
         {
-            process_input(bytes_transferred);
+            process_input(_buf, bytes_transferred);
 
             //Restart waiting for new packets
             start_receive();
         }
         else {
-            CPPDEBUG("Error on UDP socket receive: " << error.message() << std::endl;);
+            CPPDEBUG("net_udp_handler::handle_input: Error on UDP socket receive: " << error.message() << std::endl;);
         }
         return -1;
     }
 
-    void net_udp_handler::process_input(std::size_t bytes_transferred, size_t offset)
+    void net_udp_handler::process_input(char *buffer, std::size_t bytes_transferred, size_t offset)
     {
         //Process UDP messages
         size_t n = bytes_transferred - offset;
         VASTHeader header;
         id_t remote_id;
 
-        char *p = _buf + offset;
+        char *p = buffer + offset;
 
         //NOTE: there may be several valid UDP messages received at once -- is this really necessary?
         while (n > sizeof (VASTHeader))
@@ -111,7 +111,7 @@ namespace Vast {
             //Check if it is really a VAST message: Start and end bytes of header should be correct
             if (!(header.start == 10 && header.end == 5))
             {
-                CPPDEBUG("net_udp_handler::handle_input Non-VAST message received on UDP socket" << std::endl);
+                CPPDEBUG("net_udp_handler::process_input Non-VAST message received on UDP socket" << std::endl);
                 return;
             }
 
