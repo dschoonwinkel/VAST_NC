@@ -7,6 +7,7 @@
 #include <vector>
 #include <array>
 #include <memory>
+#include <mutex>
 
 #include <boost/asio.hpp>
 #include <boost/thread.hpp>
@@ -30,6 +31,7 @@ public:
 
     //Called to clear packet pool and NC_packets at the end of each "generation"
     void clearPacketPool();
+    size_t getPacketPoolSize();
 
 private:
 
@@ -45,6 +47,7 @@ private:
     rlnc_encoder::factory encoder_factory;
     RLNCHeader_factory header_factory;
 
+    std::mutex packet_pool_mutex;
     //For stats collection purposes
     size_t packets_recovered = 0;
 };

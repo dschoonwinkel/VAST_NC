@@ -1,5 +1,6 @@
 unittest_net_udpnc_handler = ./unittest_net_udpnc_handler
 unittest_rlncmessage = ./unittest_rlncmessage
+unittest_net_udpnc_mchandler = ./unittest_net_udpnc_mchandler
 
 CC = g++
 
@@ -26,9 +27,9 @@ ACE_PATH    = /usr
 INC_PATHS   = -I../../common -I../../VASTsim -I$(ACE_PATH)/include -I../../VAST -I../../VASTnet -I../../coding_host
 LIB_PATHS   = -L../../lib -L../../Dependencies/lib/Release -L$(ACE_PATH)/lib
 
-.PHONY: unittest_net_udpnc_handler unittest_rlncmessage
+.PHONY: unittest_net_udpnc_handler unittest_rlncmessage unittest_net_udpnc_mchandler
 
-all: unittest_net_udpnc_handler unittest_rlncmessage
+all: unittest_net_udpnc_handler unittest_rlncmessage unittest_net_udpnc_mchandler
 
 unittest_net_udpnc_handler: unittest_net_udpnc_handler.cpp
 	$(CC) $(CFLAGS) $(INC_PATHS) $(LIBS_INCKODO) $(LIB_PATHS) $< $(LIBS) $(LIBS_KODO) \
@@ -42,7 +43,14 @@ unittest_rlncmessage: unittest_rlncmessage.cpp
 	echo "Running: unittest_rlncmessage"
 	$(unittest_rlncmessage)
 
+unittest_net_udpnc_mchandler: unittest_net_udpnc_mchandler.cpp abstract_rlnc_msg_receiver_testimpl.cpp
+	$(CC) $(CFLAGS) $(INC_PATHS) $(LIBS_INCKODO) $(LIB_PATHS) $^ $(LIBS) $(LIBS_KODO) \
+	-o $(unittest_net_udpnc_mchandler)
+	echo "Running: unittest_net_udpnc_mchandler"
+	$(unittest_net_udpnc_mchandler)
+
+
 clean:
-	-rm $(unittest_net_udpnc_handler) $(unittest_rlncmessage)
+	-rm $(unittest_net_udpnc_handler) $(unittest_rlncmessage) $(unittest_net_udpnc_mchandler)
 
 noace:

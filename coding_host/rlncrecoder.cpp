@@ -51,7 +51,7 @@ RLNCMessage *RLNCrecoder::produceRLNCMessage()
     encoder->set_const_symbol (0, storage::storage (data1));
     encoder->set_const_symbol (1, storage::storage (data2));
     encoder->set_systematic_off();
-    std::cout << "Payload size: " << encoder->payload_size () << std::endl;
+//    std::cout << "Payload size: " << encoder->payload_size () << std::endl;
     encoder->write_payload(reinterpret_cast<uint8_t*>(message->getMessage(encoder->payload_size())));
 
     packet_pool.erase(packet_pool.find(message1.getPacketIds()[0]));

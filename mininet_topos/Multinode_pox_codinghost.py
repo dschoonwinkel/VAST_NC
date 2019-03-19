@@ -44,15 +44,16 @@ def myNetwork():
     info( '*** Add switches\n')
     s1 = net.addSwitch('s1', cls=OVSKernelSwitch)
 
+    # Set up coding_host seperately
+    coding_host = net.addHost('codinghost', cls=Host, ip='10.0.0.254', defaultRoute=None)
+    net.addLink(coding_host, s1)
+
     info( '*** Add hosts\n')
     for i in range(1,Node_count+1):
         h = net.addHost('h%d' % i, cls=Host, ip='10.0.0.%d' %i, defaultRoute=None)
         net.addLink(h, s1, bw=BW, loss=loss_perc)
         hosts.append(h)
 
-    # Set up coding_host seperately
-    coding_host = net.addHost('codinghost', cls=Host, ip='10.0.0.254', defaultRoute=None)
-    net.addLink(coding_host, s1)
     hosts.append(coding_host)
 
 
@@ -67,8 +68,8 @@ def myNetwork():
 
     info( '*** Post configure switches and hosts\n')
 
-    coding_host.cmd("xterm -hold -fg black -bg green -geometry 80x10+200+600 -e \"./coding_host \" &")
     coding_host.cmd("route add 239.255.0.1 codinghost-eth0")
+    coding_host.cmd("xterm -hold -fg black -bg green -geometry 80x10+200+600 -e \"./coding_host \" &")
 
     for i in range(1,Node_count+1):
         hosts[i-1].cmd("route add 239.255.0.1 h%d-eth0" % i)

@@ -12,6 +12,7 @@ rlncdecoder::rlncdecoder ():
 void rlncdecoder::addRLNCMessage(RLNCMessage msg)
 {
     auto pktids = msg.getPacketIds();
+    std::lock_guard<std::mutex> guard(packet_pool_mutex);
 
     //If an uncoded packet and it is within the codable size
     if (pktids.size() == 1 && msg.getMessageSize())
@@ -34,8 +35,14 @@ void rlncdecoder::addRLNCMessage(RLNCMessage msg)
 
 void rlncdecoder::clearPacketPool ()
 {
+    std::lock_guard<std::mutex> packet_guard(packet_pool_mutex);
     packet_pool.clear ();
     NC_packets.clear ();
+}
+
+size_t rlncdecoder::getPacketPoolSize ()
+{
+    return packet_pool.size ();
 }
 
 RLNCMessage *rlncdecoder::produceDecodedRLNCMessage()
@@ -47,6 +54,8 @@ RLNCMessage *rlncdecoder::produceDecodedRLNCMessage()
     //Enough space for two symbols to be decoded
     std::array<uint8_t, MAX_PACKET_SIZE*2> data_out;
     data_out.fill(0);
+
+    std::lock_guard<std::mutex> guard(packet_pool_mutex);
 
     for (size_t i = 0; i < NC_packets.size(); i++)
     {

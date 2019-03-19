@@ -186,9 +186,12 @@ void packet_listener::handle_send_to(const boost::system::error_code&, std::size
     coded_msgs_sent++;
     total_coded_msgs_sent++;
 
-    if (total_coded_msgs_sent % 10 == 0)
-        coded_msgs_sent = 0;
-    CPPDEBUG(total_coded_msgs_sent << " packets sent async, " << coded_msgs_sent << " this timeslot" << std::endl);
+    if (total_coded_msgs_sent % 100 == 0)
+    {
+      CPPDEBUG(total_coded_msgs_sent << " packets sent async " << std::endl);
+    }
+//        coded_msgs_sent = 0;
+    //CPPDEBUG(total_coded_msgs_sent << " packets sent async, " << coded_msgs_sent << " this timeslot" << std::endl);
 }
 
 packet_listener::~packet_listener ()
