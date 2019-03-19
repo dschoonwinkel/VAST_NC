@@ -51,7 +51,7 @@ def myNetwork():
     info( '*** Add hosts\n')
     for i in range(1,Node_count+1):
         h = net.addHost('h%d' % i, cls=Host, ip='10.0.0.%d' %i, defaultRoute=None)
-        net.addLink(h, s1, bw=BW, loss=loss_perc)
+        net.addLink(h, s1, bw=BW)
         hosts.append(h)
 
     hosts.append(coding_host)
@@ -77,9 +77,19 @@ def myNetwork():
         hosts[i-1].cmd("./VASTreal_console %d 0 1037 10.0.0.1 &> output_dump/node%d.txt &" % (i-1, i-1))
         time.sleep(1)
     
+    time.sleep(2)
 
     #print(net.links)
     
+    print("Applying loss to links")
+
+    for i in range(1, Node_count+1):
+        links = hosts[i-1].connectionsTo(s1)
+        srcLink = links[0][0]
+        dstLink = links[0][1]
+        dstLink.config(**{ 'bw' : BW, 'loss' : loss_perc})
+
+
     #h1 = net.get('h1')
     #links = h1.connectionsTo(s1)
 
