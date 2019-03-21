@@ -3,58 +3,67 @@
 #include "rlnc_packet_factory.h"
 #include "VASTnet.h"
 
-packet_listener::packet_listener (ip::udp::endpoint local_endpoint)
+packet_listener::packet_listener (ip::udp::endpoint local_endpoint):
+    _MC_address(ip::address::from_string("239.255.0.1"), 1037)
 {
-    _udp = NULL;
-    _io_service = NULL;
+    _recv_udp = NULL;
+    _recv_io_service = NULL;
     _iosthread_recv = NULL;
     _local_endpoint = local_endpoint;
+
 }
 
 
 
-int packet_listener::open (io_service *io_service, void *msghandler)
+int packet_listener::open (io_service *io_service)
 {
-    _io_service = io_service;
-    _msghandler = msghandler;
+    _recv_io_service = io_service;
+    _send_io_service = new boost::asio::io_service();
+    //Required to keep the send_io_service running
+    _send_io_service_work = new boost::asio::io_service::work(*_send_io_service);
 
     //Open the UDP socket for listening
-    if (_udp == NULL) {
-        _udp = new ip::udp::socket(*_io_service, _local_endpoint);
-//        _udp = new ip::udp::socket(*_io_service);
-//        _udp->open(ip::udp::v4());
+    if (_recv_udp == NULL) {
+        _recv_udp = new ip::udp::socket(*_recv_io_service);
+        _recv_udp->open(ip::udp::v4());
+        _recv_udp->set_option(ip::udp::socket::reuse_address(true));
 
-//        boost::system::error_code ec;
-//        uint16_t port = _local_endpoint.port();
+        boost::system::error_code ec;
+        _recv_udp->bind(_local_endpoint, ec);
 
-//        do
-//        {
-//            //Search for an open port to use
-//            //Save port number
-//            _local_endpoint.port(port);
-//            _udp->bind(_local_endpoint, ec);
+        std::cout << "packet_listener::open " + ec.message() << std::endl;
 
-//            CPPDEBUG("packet_listener::open " + ec.message() << std::endl);
-//            //Try the next port
-//            port++;
-
-//        } while (ec);
-
-        //Open dest_unr_listener as well to receive disconnects
-//            _disconn_listener = new dest_unreachable_listener(*io_service, _local_endpoint.address().to_string().c_str(), this);
-
-
+        if (ec)
+        {
+            std::cout << "packet_listener:: open unicast address failed" << ec.message() << std::endl;
+        }
         //Add async receive to io_service queue
         start_receive();
 
-//        CPPDEBUG("packet_listener::open _udp->_local_endpoint: " << _udp->local_endpoint() << " _local_endpoint" << _local_endpoint << std::endl);
+        //Start the thread handling async receives
+        _iosthread_recv = new boost::thread(boost::bind(&boost::asio::io_service::run, _recv_io_service));
+    }
+
+    //Open the UDP socket for sending
+    if (_send_udp == NULL) {
+        _send_udp = new ip::udp::socket(*_send_io_service);
+        _send_udp->open(ip::udp::v4());
+        _send_udp->set_option(ip::udp::socket::reuse_address(true));
+        _send_udp->set_option(ip::multicast::join_group(_MC_address.address ()));
+
+        boost::system::error_code ec;
+        _send_udp->bind(_MC_address, ec);
+
+        std::cout << "packet_listener::open MC address" + ec.message() << std::endl;
+
+        if (ec)
+        {
+            std::cout << "packet_listener:: open MC address failed" << ec.message() << std::endl;
+        }
 
         //Start the thread handling async receives
-        _iosthread_recv = new boost::thread(boost::bind(&boost::asio::io_service::run, io_service));
-
-        //Start the thread handling async sends
-        _iosthread_send = new boost::thread(boost::bind(&packet_listener::start_send, this));
-
+        _iosthread_send_ioservice = new boost::thread(boost::bind(&boost::asio::io_service::run, _send_io_service));
+        _iosthread_send_ioservice = new boost::thread(boost::bind(&packet_listener::start_send, this));
     }
 
     return 0;
@@ -69,7 +78,7 @@ int packet_listener::close (void)
 //Start the receiving loop
 void packet_listener::start_receive ()
 {
-    _udp->async_receive_from(
+    _recv_udp->async_receive_from(
         boost::asio::buffer(_buf, BUFSIZ), _remote_endpoint_,
         boost::bind(&packet_listener::handle_input, this,
           boost::asio::placeholders::error,
@@ -131,47 +140,83 @@ int packet_listener::handle_input (const boost::system::error_code& error,
 
 int packet_listener::handle_close ()
 {
-    if (_io_service != NULL) {
-        if (_udp != NULL && _udp->is_open())
+    if (_recv_io_service != NULL) {
+        if (_recv_udp != NULL && _recv_udp->is_open())
         {
-            _udp->close();
+            _recv_udp->close();
         }
 
-        _io_service->stop();
+        _recv_io_service->stop();
+        std::cout << "Waiting for _iosthread_recv" << std::endl;
         _iosthread_recv->join();
     }
+
+    running = false;
+
+    if (_send_io_service != NULL)
+    {
+        if (_send_udp != NULL && _send_udp->is_open ())
+        {
+            _send_udp->close ();
+        }
+        _send_io_service->stop();
+        std::cout << "Waiting for _iosthread_send_ioservice" << std::endl;
+        _iosthread_send_ioservice->join();
+    }
+
+    std::cout << "Waiting for _iosthread_send_startsend" << std::endl;
+    _iosthread_send_startsend->join ();
+
 
     return 0;
 }
 
 void packet_listener::start_send()
 {
-    while (msgs.size() < 1);
+
+    std::cout << "packet_listener::start_sending Starting" << std::endl;
+
+    while(running)
+    {
+        if (msgs.size() < 1)
+            continue;
+
+//        std::cout << "packet_listener::start_send Msgs size: " << msgs.size () << std::endl;
+        msgs_mutex.lock();
 
 
-    msgs_mutex.lock();
-    RLNCMessage message(msgs.front());
-    msgs.pop_front();
-    msgs_mutex.unlock();
+        //There is too much of a backlog, discard packets
+        if (msgs.size () > PACKET_DEQUE_TOO_LONG)
+        {
+            msgs.clear ();
+            _send_udp->cancel ();
+            msgs_mutex.unlock();
+            continue;
+        }
 
-    size_t sendlen = message.serialize(_sendbuf);
-    send(_sendbuf, sendlen, ip::udp::endpoint(ip::address::from_string("239.255.0.1"), 1037));
+        RLNCMessage message(msgs.front());
+        msgs.pop_front();
+        msgs_mutex.unlock();
 
-    //Call itself to continue sending until the msgs queue has been depleted
-    start_send();
+        size_t sendlen = message.serialize(_sendbuf);
+        send(_sendbuf, sendlen, ip::udp::endpoint(ip::address::from_string("239.255.0.1"), 1037));
+
+    }
 
 }
 
 size_t packet_listener::send (const char *buf, size_t n, ip::udp::endpoint remote_endpoint)
 {
-    if (_udp == NULL)
+    if (_recv_udp == NULL)
     {
         std::cerr << "packet_listener::send trying to send before socket is ready" << std::endl;
         return -1;
     }
 
+
+
 //    CPPDEBUG("packet_listener::send size of sent packet: " << n << std::endl);
-    _udp->async_send_to(buffer(buf, n), remote_endpoint,
+    _recv_udp->async_send_to(buffer(buf, n), remote_endpoint,
                                boost::bind(&packet_listener::handle_send_to, this,
                                boost::asio::placeholders::error,
                                boost::asio::placeholders::bytes_transferred));
@@ -180,24 +225,42 @@ size_t packet_listener::send (const char *buf, size_t n, ip::udp::endpoint remot
 
 }
 
-void packet_listener::handle_send_to(const boost::system::error_code&, std::size_t)
+void packet_listener::handle_send_to(const boost::system::error_code& errcode, std::size_t)
 {
 
-    coded_msgs_sent++;
-    total_coded_msgs_sent++;
-
-    if (total_coded_msgs_sent % 100 == 0)
+    if (!errcode)
     {
-      CPPDEBUG(total_coded_msgs_sent << " packets sent async " << std::endl);
+        coded_msgs_sent++;
+        total_coded_msgs_sent++;
+
+        if (total_coded_msgs_sent % 100 == 0)
+        {
+          CPPDEBUG(total_coded_msgs_sent << " packets sent async " << std::endl);
+        }
     }
+    else if (errcode == boost::asio::error::operation_aborted)
+    {
+        total_resets++;
+        std::cout << "Total resets: " << total_resets << std::endl;
+    }
+
 //        coded_msgs_sent = 0;
     //CPPDEBUG(total_coded_msgs_sent << " packets sent async, " << coded_msgs_sent << " this timeslot" << std::endl);
 }
 
 packet_listener::~packet_listener ()
 {
-    // remove UDP listener, net_udp will delete itself
-    _udp = NULL;
+    delete _recv_udp;
+    _recv_udp = NULL;
+    delete _send_udp;
+    _send_udp = NULL;
+
+    delete _send_io_service;
+    _send_io_service = NULL;
+
+    std::cout << "Recv packet count: " << getRecvMsgsCount () << std::endl;
+    std::cout << "Total resets: " << total_resets << std::endl;
+
 }
 
 size_t packet_listener::getRecvMsgsCount ()

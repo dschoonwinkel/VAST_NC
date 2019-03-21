@@ -275,11 +275,13 @@ namespace Vast
                 std::cerr << "\n net_udp::send IPaddr could not be resolved for id_t " << target << std::endl;
                 return 0;
             }
-            addr = new Addr(target, resolved_addr);
+            Addr temp_addr(target, resolved_addr);
+            addr = &temp_addr;
         }
 
         ip::udp::endpoint target_addr(ip::address_v4(addr->publicIP.host), addr->publicIP.port);
-        return _udphandler->send(msg, size, target_addr);
+        size_t result = _udphandler->send(msg, size, target_addr);
+        return result;
     }
 
     // receive an incoming message

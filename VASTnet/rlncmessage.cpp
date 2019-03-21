@@ -16,8 +16,7 @@ RLNCMessage::RLNCMessage (RLNCHeader header)
 RLNCMessage::RLNCMessage (const RLNCMessage &message)
 {
     this->header = message.header;
-    this->msg = new char[message.header.packetsize];
-    memcpy(this->msg, message.msg, message.header.packetsize);
+    this->msg = message.msg;
     this->pkt_ids = message.pkt_ids;
     this->from_ids = message.from_ids;
 }
@@ -51,27 +50,18 @@ void RLNCMessage::putFromId (Vast::id_t from_id)
 
 void RLNCMessage::putMessage(const char* buffer, size_t len)
 {
-    msg = new char[len];
-    memcpy(msg, buffer, len);
+    msg.assign (buffer, len);
     header.packetsize = len;
 }
 
-char* RLNCMessage::getMessage(size_t len)
+const char *RLNCMessage::getMessage()
 {
-    //If I just want to read it, return the pointer
-    if (len == 0)
-    {
-        return msg;
-    }
-    //If I want to write to it, assure that there is enough space
-    msg = new char[len];
-    header.packetsize = len;
-    return msg;
+        return msg.c_str ();
 }
 
-uint8_t* RLNCMessage::getMessageU (size_t len)
+const uint8_t *RLNCMessage::getMessageU()
 {
-    return reinterpret_cast<uint8_t*>(getMessage(len));
+    return reinterpret_cast<const uint8_t*>(getMessage());
 }
 
 size_t RLNCMessage::getMessageSize()
@@ -119,7 +109,8 @@ size_t RLNCMessage::serialize (char *buffer)
         memcpy(buffer+n, &from_ids[i], sizeof(Vast::id_t));
         n += sizeof(Vast::id_t);
     }
-    memcpy(buffer+n, msg, header.packetsize);
+    //Copy the std::string to buffer
+    msg.copy(buffer+n, header.packetsize);
     n += header.packetsize;
 
     return n;
@@ -166,15 +157,15 @@ int RLNCMessage::deserialize (const char *buffer, size_t size)
             std::cerr << "RLNCMessage::deserialize Header packet size larger than available bytes" << std::endl;
             std::cerr << "header.start " << header.start << std::endl;
             std::cerr << "header.end: " << header.end << std::endl;
-            msg = new char[size - n];
-            memcpy(msg, buffer+n, size-n);
+            msg.resize(size - n);
+            msg.assign(buffer+n, size-n);
             std::cerr << "RLNCMessage::deserialize" << *(this) << std::endl;
             return -1;
         }
 
 
-        msg = new char[header.packetsize];
-        memcpy(msg, buffer+n, header.packetsize);
+        msg.resize(header.packetsize);
+        msg.assign(buffer+n, header.packetsize);
 
         return n;
     }
@@ -197,10 +188,7 @@ bool RLNCMessage::operator==(const RLNCMessage other)
     if (other.header.packetsize != this->header.packetsize)
         return false;
 
-    for (size_t i = 0; i < this->header.packetsize; i++)
-    {
-        equals = equals && (other.msg[i] == this->msg[i]);
-    }
+    equals = equals && other.msg == this->msg;
 
     return equals;
 }
@@ -222,10 +210,7 @@ std::ostream& operator<<(std::ostream& output, RLNCMessage const& message )
         }
         output << "msg: " << std::endl;
         boost::format format("%1$#x");
-        for (int i = 0; i < std::min<unsigned short>(message.header.packetsize, 10); i++)
-        {
-            output << format % message.msg[i];
-        }
+        output << message.msg;
         output << std::endl;
 
         output << "******************************************************" << std::endl;

@@ -31,9 +31,9 @@ namespace Vast
         message.putPacketId(RLNCMessage::generatePacketId (myID, ordering));
         message.putOrdering (ordering);
         message.putFromId (myID);
-        char *buf = new char[message.sizeOf()];
+        std::vector<char> buf(message.sizeOf());
 
-        int sending_len = message.serialize(buf);
+        int sending_len = message.serialize(buf.data ());
 
         return _udp->send_to(buffer(buf, sending_len), remote_endpoint);
     }
@@ -98,7 +98,7 @@ namespace Vast
 //                 << (int)recvd_ordering[input_message.getFirstFromId ()] << std::endl);
 
 //}
-        net_udp_handler::process_input(input_message.getMessage (0), input_message.getMessageSize ());
+        net_udp_handler::process_input(input_message.getMessage (), input_message.getMessageSize ());
 
     }
 

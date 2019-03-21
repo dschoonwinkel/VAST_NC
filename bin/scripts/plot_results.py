@@ -14,7 +14,7 @@ WORLDSENDSTAT = 7
 WORLDRECVSTAT = 8
 
 x_axis_interval = 20000
-MAX_TIMESTAMP = 110000
+MAX_TIMESTAMP = 130000
 
 results_text = list()
 

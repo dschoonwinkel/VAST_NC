@@ -27,8 +27,8 @@ public:
 
     void putMessage(const char* buffer, size_t len);
 
-    char* getMessage(size_t len = 0);
-    uint8_t* getMessageU(size_t len = 0);
+    const char* getMessage();
+    const uint8_t* getMessageU();
     size_t getMessageSize();
 
     void putOrdering(uint8_t ordering);
@@ -49,7 +49,7 @@ private:
     RLNCHeader header;
     std::vector<packetid_t> pkt_ids;
     std::vector<Vast::id_t> from_ids;
-    char* msg;
+    std::string msg;
 
 };
 

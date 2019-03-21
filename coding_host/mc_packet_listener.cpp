@@ -8,23 +8,22 @@ MC_packet_listener::MC_packet_listener():
 
 }
 
-int MC_packet_listener::open(io_service *ios, void *msghandler)
+int MC_packet_listener::open(io_service *ios)
 {
-    _io_service = ios;
-    _msghandler = msghandler;
+    _recv_io_service = ios;
 
     //Open the UDP socket for listening
-    if (_udp == NULL) {
-        _udp = new ip::udp::socket(*_io_service);
-        _udp->open(ip::udp::v4());
-        _udp->set_option(ip::udp::socket::reuse_address(true));
-        _udp->set_option(ip::multicast::join_group(MC_address.address ()));
+    if (_recv_udp == NULL) {
+        _recv_udp = new ip::udp::socket(*_recv_io_service);
+        _recv_udp->open(ip::udp::v4());
+        _recv_udp->set_option(ip::udp::socket::reuse_address(true));
+        _recv_udp->set_option(ip::multicast::join_group(MC_address.address ()));
 
         boost::system::error_code ec;
         uint16_t port = _local_endpoint.port();
 
         _local_endpoint.port(port);
-        _udp->bind(_local_endpoint, ec);
+        _recv_udp->bind(_local_endpoint, ec);
 
         std::cout << "MC_packet_listener::open " + ec.message() << std::endl;
 
@@ -49,7 +48,7 @@ int MC_packet_listener::open(io_service *ios, void *msghandler)
 //Start the receiving loop
 void MC_packet_listener::start_receive ()
 {
-    _udp->async_receive_from(
+    _recv_udp->async_receive_from(
         boost::asio::buffer(_buf, BUFSIZ), _remote_endpoint_,
         boost::bind(&MC_packet_listener::handle_input, this,
           boost::asio::placeholders::error,

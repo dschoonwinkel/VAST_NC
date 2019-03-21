@@ -138,7 +138,10 @@ int main(int argc, char* argv[])
         message.putPacketId(RLNCMessage::generatePacketId(id, ordering));
         message.putFromId (id);
     //    message.putPacketId(456);
-        encoder->write_payload(reinterpret_cast<uint8_t*>(message.getMessage(encoder->payload_size())));
+//        encoder->write_payload(reinterpret_cast<uint8_t*>(message.getMessage(encoder->payload_size())));
+        std::vector<uint8_t> payload_buffer(encoder->payload_size ());
+        encoder->write_payload (payload_buffer.data ());
+        message.putMessage (reinterpret_cast<char*>(payload_buffer.data()), encoder->payload_size ());
 
         std::cout << "Serializing RLNCMessage" << std::endl;
 

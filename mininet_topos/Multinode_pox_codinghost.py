@@ -15,7 +15,7 @@ import os, time
 
 hosts = list()
 
-TOTAL_SIMULATION_TIME = 130
+TOTAL_SIMULATION_TIME = 150
 
 
 def myNetwork():
@@ -70,18 +70,17 @@ def myNetwork():
 
     coding_host.cmd("route add 239.255.0.1 codinghost-eth0")
     coding_host.cmd("xterm -hold -fg black -bg green -geometry 80x10+200+600 -e \"./coding_host \" &")
+    # CLI(net)
 
     for i in range(1,Node_count+1):
         hosts[i-1].cmd("route add 239.255.0.1 h%d-eth0" % i)
         # hosts[i-1].cmd("xterm -hold -fg black -bg green -geometry 80x60+%d+0 -e   \"./VASTreal_console %d 0 1037 10.0.0.1 \" &" % (200+i*40, i-1))    
         hosts[i-1].cmd("./VASTreal_console %d 0 1037 10.0.0.1 &> output_dump/node%d.txt &" % (i-1, i-1))
         time.sleep(1)
-    
-    time.sleep(2)
 
     #print(net.links)
     
-    print("Applying loss to links")
+    print("\n*** Applying loss to links")
 
     for i in range(1, Node_count+1):
         links = hosts[i-1].connectionsTo(s1)
@@ -118,8 +117,9 @@ def myNetwork():
     CLI(net)
     net.stop()
 
-    os.system("killall VASTreal_console")
+    os.system("killall -s SIGKILL VASTreal_console")
     os.system("killall xterm")
+    os.system("killall -s SIGKILL coding_host")
 
 if __name__ == '__main__':
     setLogLevel( 'info' )

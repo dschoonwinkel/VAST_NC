@@ -91,14 +91,15 @@ namespace Vast {
         return -1;
     }
 
-    void net_udp_handler::process_input(char *buffer, std::size_t bytes_transferred, size_t offset)
+    void net_udp_handler::process_input(const char *buffer, std::size_t bytes_transferred, size_t offset)
     {
         //Process UDP messages
         size_t n = bytes_transferred - offset;
         VASTHeader header;
         id_t remote_id;
 
-        char *p = buffer + offset;
+        //Contents is char, not pointer
+        const char *p = buffer + offset;
 
         //NOTE: there may be several valid UDP messages received at once -- is this really necessary?
         while (n > sizeof (VASTHeader))
@@ -115,12 +116,12 @@ namespace Vast {
                 return;
             }
 
-            Message *msg = new Message(0);
-            if (0 == msg->deserialize (p, header.msg_size))
+            Message msg(0);
+            if (0 == msg.deserialize (p, header.msg_size))
             {
                 printf("net_udp_handler::handle_input deserialize message fail: size = %u\n", header.msg_size);
             }
-            remote_id = msg->from;
+            remote_id = msg.from;
 
             //Store the host_id : IPaddr pair
             IPaddr remote_addr(_remote_endpoint_.address().to_v4().to_ulong(), _remote_endpoint_.port());
@@ -128,7 +129,7 @@ namespace Vast {
 
             id_t temp_id = remote_id;
             //This host is looking for an ID, assign it a temporary ID to store the connection
-            if (remote_id == NET_ID_UNASSIGNED && msg->msgtype == ID_REQUEST)
+            if (remote_id == NET_ID_UNASSIGNED && msg.msgtype == ID_REQUEST)
             {
                 temp_id = ((net_udp*)_msghandler)->resolveHostID(&remote_addr);
             }
