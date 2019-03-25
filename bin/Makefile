@@ -15,8 +15,10 @@ clean_binaries:
 	-rm SimNode_demo
 	-rm test_console
 	-rm vastplayground
+	-rm VASTStatReplayQt
 	-rm VASTsim_console
 	-rm VASTsim_Qt
+
 
 backup_results:
 	$(eval date_string := $(shell date +%d_%m_%Y-%H:%M))

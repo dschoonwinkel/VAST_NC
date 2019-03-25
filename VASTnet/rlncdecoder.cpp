@@ -130,7 +130,7 @@ RLNCMessage *rlncdecoder::produceDecodedRLNCMessage()
 
             if (decoder->is_complete())
             {
-                CPPDEBUG("Size of packet_pool: " << packet_pool.size () << std::endl);
+                CPPDEBUG("rlncdecoder::produceDecodedRLNCMessage: Size of packet_pool: " << packet_pool.size () << std::endl);
                 if (packet_pool.size() > 1)
                 {
                     //This can be a problem - preferrably we only want the necessary

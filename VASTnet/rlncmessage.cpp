@@ -21,6 +21,7 @@ RLNCMessage::RLNCMessage (const RLNCMessage &message)
     this->msg = message.msg;
     this->pkt_ids = message.pkt_ids;
     this->from_ids = message.from_ids;
+    this->to_addrs = message.to_addrs;
 }
 
 const std::vector<packetid_t> RLNCMessage::getPacketIds()

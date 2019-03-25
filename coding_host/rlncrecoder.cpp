@@ -45,8 +45,11 @@ RLNCMessage *RLNCrecoder::produceRLNCMessage()
     message = new RLNCMessage(header);
     message->putPacketId(message1.getPacketIds()[0]);
     message->putFromId (message1.getFromIds ()[0]);
+    message->putToAddr (message1.getToAddrs ()[0]);
+
     message->putPacketId(message2.getPacketIds()[0]);
     message->putFromId (message2.getFromIds ()[0]);
+    message->putToAddr (message2.getToAddrs ()[0]);
 
     encoder->set_const_symbol (0, storage::storage (data1));
     encoder->set_const_symbol (1, storage::storage (data2));

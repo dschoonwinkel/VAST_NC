@@ -13,6 +13,8 @@ void runUnitTest1()
 
 void test_process_encoded()
 {
+    std::cout << "test_process_encoded() " << std::endl;
+
     Vast::net_udpNC_MChandler mchandler;
     Vast::AbstractRNLCMsgReceiverTestImpl tester;
 
@@ -39,6 +41,8 @@ void test_process_encoded()
 
     msg1.putPacketId (123);
     msg1.putFromId (654);
+    Vast::IPaddr addr1("127.0.0.1", 1037);
+    msg1.putToAddr (addr1);
 
     msg1.serialize (buffer);
 
@@ -57,6 +61,8 @@ void test_process_encoded()
 
     msg2.putPacketId (321);
     msg2.putFromId (456);
+    Vast::IPaddr addr2("127.0.0.2", 1037);
+    msg2.putToAddr (addr2);
 
 //    msg2.serialize (buffer);
 

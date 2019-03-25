@@ -100,13 +100,16 @@ namespace Vast
 //                 << (int)recvd_ordering[input_message.getFirstFromId ()] << std::endl);
 
 //}
+//        CPPDEBUG(input_message.getToAddrs ()[0] << std::endl);
         if (_msghandler->getPublicIPaddr () == input_message.getToAddrs ()[0])
         {
-            CPPDEBUG("net_udpNC_handler::process_input Message ToAddr was meant for me..." << std::endl);
+            //All is well, continue
+            //CPPDEBUG("net_udpNC_handler::process_input Message ToAddr was meant for me..." << std::endl);
         }
         else
         {
             CPPDEBUG("net_udpNC_handler::process_input Message ToAddr was not meant for me..." << std::endl);
+            //Reject in some way
         }
 
 

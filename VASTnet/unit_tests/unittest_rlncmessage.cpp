@@ -99,15 +99,18 @@ void testSizeOfSerialize()
     RLNCMessage msg1(header1);
     packetid_t id1 = 1234567890;
     Vast::id_t from_id = 13132323123;
+    Vast::IPaddr addr1("127.0.0.1", 1037);
 
     msg1.putPacketId (id1);
     msg1.putFromId (from_id);
+    msg1.putToAddr (addr1);
 
     msg1.putMessage (test1.c_str (), test1.length ());
 
     assert(msg1.sizeOf () == (sizeof(RLNCHeader)
                               + sizeof(packetid_t) * 1 + sizeof(Vast::id_t) * 1
                               + sizeof(char) * test1.length ()
+                              + sizeof(uint32_t) + 2 * sizeof(uint16_t)
                               )
            );
 
@@ -139,9 +142,11 @@ void testEquals()
     RLNCMessage msg1(header1);
     packetid_t id1 = 1234567890;
     Vast::id_t from_id = 13132323123;
+    Vast::IPaddr addr1("127.0.0.1", 1037);
 
     msg1.putPacketId (id1);
     msg1.putFromId (from_id);
+    msg1.putToAddr (addr1);
 
     msg1.putMessage (test1.c_str (), test1.length ());
 
@@ -149,13 +154,16 @@ void testEquals()
 
     msg2.putPacketId (id1);
     msg2.putFromId (from_id);
+    msg2.putToAddr (addr1);
 
     msg2.putMessage (test1.c_str (), test1.length ());
 
     assert(msg1 == msg2);
 
     Vast::id_t from_id2 = 1345982345;
+    msg2.putPacketId (id1);
     msg2.putFromId (from_id2);
+    msg2.putToAddr (addr1);
 
     assert(!(msg1 == msg2));
 

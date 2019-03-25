@@ -72,6 +72,8 @@ namespace Vast
         // for net_ace it's 1000 timestamp units = 1 second (each step is 1 ms)
         _sec2timestamp = 1000;
 
+        CPPDEBUG("net_udp::constructor getPublicIPaddr() : " << getPublicIPaddr ());
+
     }
 
     net_udp::~net_udp ()

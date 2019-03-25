@@ -28,7 +28,7 @@ LIB_PATHS   = -L../../lib -L../../Dependencies/lib/Release -L$(ACE_PATH)/lib
 LIBS = $(LIBS_COMMON) $(LIBS_ACE) $(LIBS_THREAD) $(LIBS_DL) $(LIBS_BOOST) $(LIBS_INCKODO) $(LIBS_KODO)
 
 all: vaststat_replay.cpp ../VASTStatReplayQt/replay_functions.cpp
-	g++ $(CFLAGS) $(INC_PATHS) $(LIB_PATHS) $? $(LIBS) \
+	g++ $(CFLAGS) $(INC_PATHS) $(LIB_PATHS) $^ $(LIBS) \
 	-o $(vaststat_replay)
 
 clean:
