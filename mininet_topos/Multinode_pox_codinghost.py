@@ -69,7 +69,7 @@ def myNetwork():
     info( '*** Post configure switches and hosts\n')
 
     coding_host.cmd("route add 239.255.0.1 codinghost-eth0")
-    coding_host.cmd("xterm -hold -fg black -bg green -geometry 80x10+200+600 -e \"./coding_host \" &")
+    # coding_host.cmd("xterm -hold -fg black -bg green -geometry 80x10+200+600 -e \"./coding_host \" &")
     # CLI(net)
 
     for i in range(1,Node_count+1):

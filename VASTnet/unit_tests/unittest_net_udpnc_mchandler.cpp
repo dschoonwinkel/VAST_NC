@@ -3,6 +3,7 @@
 #include <string.h>
 #include "net_udpnc_mchandler.h"
 #include "abstract_rlnc_msg_receiver_testimpl.h"
+#include "rlncrecoder.h"
 
 void runUnitTest1()
 {
@@ -45,6 +46,41 @@ void test_process_encoded()
 
     assert(mchandler.getPacketPoolSize () == 1);
 
+    //Create an encoded packet, put it in the processor
+
+
+    RLNCHeader header2 = factory1.build ();
+    RLNCMessage msg2(header2);
+
+    std::string bye = "Goodbye world!";
+    msg2.putMessage (hello.c_str (), hello.length());
+
+    msg2.putPacketId (321);
+    msg2.putFromId (456);
+
+//    msg2.serialize (buffer);
+
+    RLNCrecoder recoder;
+
+    recoder.addRLNCMessage(msg1);
+    recoder.addRLNCMessage(msg2);
+
+    RLNCMessage *temp_msg = recoder.produceRLNCMessage();
+
+    if (!temp_msg)
+    {
+        std::cerr << "Could not produce RLNC encoded message" << std::endl;
+        std::abort();
+    }
+
+    std::array<uint8_t, 1400> payload;
+    payload.fill (0);
+    temp_msg->serialize(reinterpret_cast<char*>(payload.data()));
+    //Equivalent to receive
+    mchandler.handle_buffer(reinterpret_cast<char*>(payload.data()), payload.size ());
+
+    assert(tester.RLNC_msg_received_call_count == 1);
+    assert(tester.recv_msg == msg2);
 }
 
 int main()

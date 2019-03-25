@@ -43,7 +43,7 @@ unittest_rlncmessage: unittest_rlncmessage.cpp
 	echo "Running: unittest_rlncmessage"
 	$(unittest_rlncmessage)
 
-unittest_net_udpnc_mchandler: unittest_net_udpnc_mchandler.cpp abstract_rlnc_msg_receiver_testimpl.cpp
+unittest_net_udpnc_mchandler: unittest_net_udpnc_mchandler.cpp abstract_rlnc_msg_receiver_testimpl.cpp ../../coding_host/rlncrecoder.cpp
 	$(CC) $(CFLAGS) $(INC_PATHS) $(LIBS_INCKODO) $(LIB_PATHS) $^ $(LIBS) $(LIBS_KODO) \
 	-o $(unittest_net_udpnc_mchandler)
 	echo "Running: unittest_net_udpnc_mchandler"

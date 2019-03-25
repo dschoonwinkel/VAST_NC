@@ -131,7 +131,7 @@ namespace Vast {
             //This host is looking for an ID, assign it a temporary ID to store the connection
             if (remote_id == NET_ID_UNASSIGNED && msg.msgtype == ID_REQUEST)
             {
-                temp_id = ((net_udp*)_msghandler)->resolveHostID(&remote_addr);
+                temp_id = net_manager::resolveHostID(&remote_addr);
             }
 
 //                _remote_addrs[remote_id] = remote_addr;

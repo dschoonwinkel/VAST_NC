@@ -14,7 +14,7 @@
 #define VAST_NET_UDP_H
 
 #include "VASTnet.h"
-    // Wireless overhearing class
+#include "abstract_net_udp.h"
 
 #include "net_udp_handler.h"
 #include "timeouts.h"
@@ -23,7 +23,7 @@
 #include <mutex>
 
 namespace Vast {
-    class net_udp : public Vast::net_manager
+    class net_udp : public Vast::net_manager, Vast::abstract_net_udp
     {
     friend class net_udp_handler;
 

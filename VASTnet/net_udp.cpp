@@ -57,7 +57,7 @@ namespace Vast
         _self_addr.setPublic(endpoint.address().to_v4().to_ulong(), _port_self);
 
         //Assign the host_id based on the combination of host_ip and port information
-        _self_addr.host_id = this->resolveHostID(&_self_addr.publicIP);
+        _self_addr.host_id = net_manager::resolveHostID(&_self_addr.publicIP);
 
         char ip_string[20];
         _self_addr.publicIP.getString(ip_string);
@@ -95,7 +95,7 @@ namespace Vast
         _self_addr.setPublic(_self_addr.publicIP.host, _port_self);
 
         //Assign the host_id based on the combination of host_ip and port information
-        _self_addr.host_id = this->resolveHostID(&_self_addr.publicIP);
+        _self_addr.host_id = net_manager::resolveHostID(&_self_addr.publicIP);
 
         //This cannot work, otherwise it does not request its ID from GW.
 //        //Set up my temporary ID to enable communication

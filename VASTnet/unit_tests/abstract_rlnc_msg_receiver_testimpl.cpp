@@ -10,5 +10,6 @@ namespace Vast
     void AbstractRNLCMsgReceiverTestImpl::RLNC_msg_received (RLNCMessage msg)
     {
         recv_msg = msg;
+        RLNC_msg_received_call_count++;
     }
 }

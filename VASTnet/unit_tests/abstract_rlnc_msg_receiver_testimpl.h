@@ -15,6 +15,7 @@ namespace Vast
 
 
         RLNCMessage recv_msg;
+        size_t RLNC_msg_received_call_count = 0;
     };
 }
 

@@ -111,7 +111,6 @@ namespace Vast
         memcpy(_buf, buf, bytes_transferred);
 
         boost::system::error_code errcode;
-        std::cout << "Error code " << errcode << std::endl;
         return handle_input(errcode, bytes_transferred);
     }
 

@@ -4,6 +4,7 @@
 #include "VASTTypes.h"
 #include "VASTBuffer.h"
 #include "net_manager.h"
+#include "abstract_net_udp.h"
 #include "dest_unr_listener.h"
 
 #include <boost/asio.hpp>
