@@ -22,7 +22,7 @@ namespace Vast {
         _udp = NULL;
     }
 
-    int net_udp_handler::open(boost::asio::io_service *io_service, void *msghandler) {
+    int net_udp_handler::open(boost::asio::io_service *io_service, abstract_net_udp *msghandler) {
         _io_service = io_service;
         _msghandler = msghandler;
 
@@ -138,12 +138,12 @@ namespace Vast {
             storeRemoteAddress(temp_id, remote_addr);
 
             //We assume if we can get a packet from the host, we are connected to that host
-            ((net_udp*)_msghandler)->socket_connected(temp_id, this, false);
+            _msghandler->socket_connected(temp_id, this, false);
 
             //Break up messages into VASTMessage sizes
             //msg start at p - 4, i.e. start of header
             //msgsize = header.msg_size + 4 for header
-            ((net_udp*)_msghandler)->msg_received(temp_id, p - sizeof(VASTHeader), header.msg_size + sizeof(VASTHeader));
+            _msghandler->msg_received(temp_id, p - sizeof(VASTHeader), header.msg_size + sizeof(VASTHeader));
 
             //Next message
             p += header.msg_size;
@@ -165,7 +165,7 @@ namespace Vast {
 //            CPPDEBUG("net_udp_handler::handle_close() - remote id" << remote_id << std::endl;);
 //            if (_msghandler == NULL)
 //                CPPDEBUG("net_udp_handler::handle_close() _msghandler was null");
-//            ((net_udp*)_msghandler)->socket_disconnected(remote_id);
+//            _msghandler->socket_disconnected(remote_id);
 //        }
 
 
@@ -193,7 +193,7 @@ namespace Vast {
         if (remote_disconnected_id != NET_ID_UNASSIGNED)
         {
             CPPDEBUG("net_udp_handler::handle_disconnect. Disconnecting ID " << remote_disconnected_id << std::endl);
-            ((net_udp*)_msghandler)->socket_disconnected(remote_disconnected_id);
+            _msghandler->socket_disconnected(remote_disconnected_id);
         }
     }
 

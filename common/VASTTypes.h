@@ -705,7 +705,7 @@ public:
         return *this;
     }
 
-    void getString (char *p)
+    void getString (char *p) const
     {
         sprintf (p, "%d.%d.%d.%d:%u", (int)((host>>24) & 0xff), (int)((host>>16) & 0xff), (int)((host>>8) & 0xff), (int)(host & 0xff), port);
     }
@@ -782,8 +782,19 @@ public:
     uint32_t      host;
     uint16_t      port;   
     uint16_t      pad;        
+
+    friend std::ostream& operator<<(std::ostream&, IPaddr const& addr);
     
 };
+
+inline std::ostream& operator<<(std::ostream& output, IPaddr const& addr )
+{
+    char temp_string[30];
+    addr.getString (temp_string);
+    output << temp_string << std::endl;
+
+    return output;
+}
 
 /*
  *  Addr class

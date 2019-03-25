@@ -1,6 +1,8 @@
 #include "rlncmessage.h"
 #include <algorithm>
 #include <boost/format.hpp>
+#include <exception>
+#include <stdio.h>
 
 RLNCMessage::RLNCMessage()
 {
@@ -36,6 +38,11 @@ Vast::id_t RLNCMessage::getFirstFromId()
     return from_ids.front ();
 }
 
+const std::vector<Vast::IPaddr> RLNCMessage::getToAddrs()
+{
+    return to_addrs;
+}
+
 void RLNCMessage::putPacketId(packetid_t pkt_id, bool autonumber)
 {
     pkt_ids.push_back(pkt_id);
@@ -46,6 +53,11 @@ void RLNCMessage::putPacketId(packetid_t pkt_id, bool autonumber)
 void RLNCMessage::putFromId (Vast::id_t from_id)
 {
     from_ids.push_back(from_id);
+}
+
+void RLNCMessage::putToAddr(Vast::IPaddr addr)
+{
+    to_addrs.push_back (addr);
 }
 
 void RLNCMessage::putMessage(const char* buffer, size_t len)
@@ -85,6 +97,8 @@ size_t RLNCMessage::sizeOf ()
     size_t size = sizeof(RLNCHeader);
     size += header.enc_packet_count * sizeof(packetid_t);
     size += header.enc_packet_count * sizeof(Vast::id_t);
+    //Size of internals of the IPaddr class = 4 bytes IP + 2 * 2 bytes for port and padding
+    size += header.enc_packet_count * sizeof (uint32_t) + sizeof (uint16_t) * 2;
     size += header.packetsize;
 
     return size;
@@ -102,12 +116,32 @@ size_t RLNCMessage::serialize (char *buffer)
     memcpy(buffer+n, &header, sizeof(RLNCHeader));
     n += sizeof(RLNCHeader);
 
+    //Check if pkt_ids, from_ids and to_addrs have same length
+    if (pkt_ids.size () == from_ids.size () && from_ids.size() == to_addrs.size ())
+    {
+        //All is well
+    }
+    else
+    {
+        char errmsg[100];
+        sprintf(errmsg, "pkt_ids [%lu], from_ids [%lu] and to_addrs [%lu] is not the same size",
+                pkt_ids.size(),
+                from_ids.size (),
+                to_addrs.size ());
+        throw std::logic_error(errmsg);
+    }
+
+
     for (int i = 0; i < header.enc_packet_count; i++)
     {
         memcpy(buffer+n, &pkt_ids[i], sizeof(packetid_t));
         n += sizeof(packetid_t);
         memcpy(buffer+n, &from_ids[i], sizeof(Vast::id_t));
         n += sizeof(Vast::id_t);
+
+        to_addrs[i].serialize (buffer+n);
+        n += to_addrs[i].sizeOf ();
+
     }
     //Copy the std::string to buffer
     msg.copy(buffer+n, header.packetsize);
@@ -151,6 +185,13 @@ int RLNCMessage::deserialize (const char *buffer, size_t size)
             memcpy(&from_id, buffer+n, sizeof(Vast::id_t));
             putFromId (from_id);
             n += sizeof(Vast::id_t);
+
+            Vast::IPaddr addr;
+            size_t remaining_bytes = size - sizeof(RLNCHeader) - i*(sizeof(packetid_t) + sizeof(Vast::id_t) + addr.sizeOf ());
+            addr.deserialize (buffer+n, remaining_bytes);
+            putToAddr (addr);
+            n += addr.sizeOf ();
+
         }
         if (header.packetsize > size)
         {
@@ -184,6 +225,7 @@ bool RLNCMessage::operator==(const RLNCMessage other)
     equals = equals && (RLNCHeader_factory::isRLNCHeadersEqual (other.header, this->header));
     equals = equals && (other.pkt_ids == this->pkt_ids);
     equals = equals && (other.from_ids == this->from_ids);
+    equals = equals && (other.to_addrs == this->to_addrs);
 
     if (other.header.packetsize != this->header.packetsize)
         return false;
@@ -207,6 +249,7 @@ std::ostream& operator<<(std::ostream& output, RLNCMessage const& message )
         {
             output << "Pkt_ids[" << i << "]" << message.pkt_ids[i] << std::endl;
             output << "From id[" << i << "]" << message.from_ids[i] << std::endl;
+            output << "To addr[" << i << "]" << message.to_addrs[i] << std::endl;
         }
         output << "msg: " << std::endl;
         boost::format format("%1$#x");

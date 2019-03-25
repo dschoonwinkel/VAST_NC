@@ -22,7 +22,7 @@ namespace Vast {
     public:
         net_udp_handler (ip::udp::endpoint local_endpoint);
 
-        virtual int open (io_service *io_service, void *msghandler);
+        virtual int open (io_service *io_service, abstract_net_udp *msghandler);
 
         // close connection & unregister from io_service
         int close (void);
@@ -64,7 +64,7 @@ namespace Vast {
         ip::udp::socket             *_udp;
         ip::udp::endpoint           _remote_endpoint_;
         char                        _buf[VAST_BUFSIZ];
-        void                        *_msghandler;
+        abstract_net_udp            *_msghandler;
 
     private:
 

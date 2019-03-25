@@ -39,6 +39,24 @@ void testFromId()
     assert(msg1.getFirstFromId () != from_id2);
 }
 
+void testToAddrs()
+{
+    std::cout << "testToAddrs" << std::endl;
+    RLNCMessage msg1;
+    packetid_t id1 = 1234567890;
+    Vast::id_t from_id = 13132323123;
+    Vast::IPaddr addr1("127.0.0.1", 1037);
+
+    msg1.putPacketId (id1);
+    msg1.putFromId (from_id);
+    msg1.putToAddr (addr1);
+
+    assert(msg1.getFromIds ()[0] == from_id);
+    assert(msg1.getFirstFromId () == from_id);
+    assert(msg1.getToAddrs ()[0] == addr1);
+
+}
+
 void testPutMessage()
 {
     std::cout << "testPutMessage" << std::endl;
@@ -148,6 +166,7 @@ int main()
 //    runUnitTest1();
     testPacketIds ();
     testFromId ();
+    testToAddrs();
     testPutMessage();
     testSizeOfSerialize();
     testEquals();

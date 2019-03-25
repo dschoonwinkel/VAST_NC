@@ -191,6 +191,12 @@ namespace Vast
         return true;
     }
 
+    const IPaddr
+    net_udp::getPublicIPaddr ()
+    {
+        return net_manager::getAddress ().publicIP;
+    }
+
     // Note:
     //      when connecting to an address with connect(Addr& addr), 
     //      id is NET_ID_UNASSIGNED:

@@ -31,6 +31,8 @@ namespace Vast
         message.putPacketId(RLNCMessage::generatePacketId (myID, ordering));
         message.putOrdering (ordering);
         message.putFromId (myID);
+        IPaddr to_addr(remote_endpoint.address().to_v4().to_ulong(), remote_endpoint.port ());
+        message.putToAddr (to_addr);
         std::vector<char> buf(message.sizeOf());
 
         int sending_len = message.serialize(buf.data ());
@@ -98,6 +100,17 @@ namespace Vast
 //                 << (int)recvd_ordering[input_message.getFirstFromId ()] << std::endl);
 
 //}
+        if (_msghandler->getPublicIPaddr () == input_message.getToAddrs ()[0])
+        {
+            CPPDEBUG("net_udpNC_handler::process_input Message ToAddr was meant for me..." << std::endl);
+        }
+        else
+        {
+            CPPDEBUG("net_udpNC_handler::process_input Message ToAddr was not meant for me..." << std::endl);
+        }
+
+
+
         net_udp_handler::process_input(input_message.getMessage (), input_message.getMessageSize ());
 
     }
