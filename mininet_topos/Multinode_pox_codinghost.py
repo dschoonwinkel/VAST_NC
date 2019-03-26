@@ -23,7 +23,7 @@ def myNetwork():
     loss_perc = 10
     BW = 1000
     Node_count = 10
-    run_codinghost = False
+    run_codinghost = True
 
     if (len(sys.argv) > 1):
         print(sys.argv[1])
