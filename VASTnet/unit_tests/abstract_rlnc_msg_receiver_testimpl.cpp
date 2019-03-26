@@ -9,6 +9,7 @@ namespace Vast
 
     void AbstractRNLCMsgReceiverTestImpl::RLNC_msg_received (RLNCMessage msg)
     {
+//        CPPDEBUG("AbstractRNLCMsgReceiverTestImpl::RLNC_msg_received" << std::endl);
         recv_msg = msg;
         RLNC_msg_received_call_count++;
     }

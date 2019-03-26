@@ -22,6 +22,8 @@ RLNCMessage::RLNCMessage (const RLNCMessage &message)
     this->pkt_ids = message.pkt_ids;
     this->from_ids = message.from_ids;
     this->to_addrs = message.to_addrs;
+
+//    CPPDEBUG("RLNCMessage copy constructor called" <<std::endl);
 }
 
 const std::vector<packetid_t> RLNCMessage::getPacketIds()

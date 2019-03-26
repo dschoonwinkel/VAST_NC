@@ -75,14 +75,14 @@ RLNCMessage *rlncdecoder::produceDecodedRLNCMessage()
 //        //If we have all the pktids, this message has already been decoded
         if (available_ids == pktids.size())
         {
-            CPPDEBUG("We have all the packetids, this message has already been decoded,\n"
-                     << "Or an old packet is clouding our judgement " << std::endl);
+//            CPPDEBUG("We have all the packetids, this message has already been decoded,\n"
+//                     << "Or an old packet is clouding our judgement " << std::endl);
         }
 
         //If we have all the pktids except 1, this NC message contains a useful message
         if (available_ids >= pktids.size()-1)
         {
-            CPPDEBUG("\nrlncdecoder::produceDecodedRLNCMessage Attempting to decode, all msgs available except 1" << std::endl);
+            //CPPDEBUG("\nrlncdecoder::produceDecodedRLNCMessage Attempting to decode, all msgs available except 1" << std::endl);
             auto decoder = decoder_factory.build();
             decoder->set_mutable_symbols(storage::storage(data_out));
             size_t k = 0;
@@ -130,7 +130,7 @@ RLNCMessage *rlncdecoder::produceDecodedRLNCMessage()
 
             if (decoder->is_complete())
             {
-                CPPDEBUG("rlncdecoder::produceDecodedRLNCMessage: Size of packet_pool: " << packet_pool.size () << std::endl);
+            //    CPPDEBUG("rlncdecoder::produceDecodedRLNCMessage: Size of packet_pool: " << packet_pool.size () << std::endl);
                 if (packet_pool.size() > 1)
                 {
                     //This can be a problem - preferrably we only want the necessary
@@ -188,12 +188,12 @@ RLNCMessage *rlncdecoder::produceDecodedRLNCMessage()
                     }
                 }
                 NC_packets.erase (NC_packets.begin() + i);
-                CPPDEBUG("Sizeof NC_packets: " << NC_packets.size() << std::endl);
+                //CPPDEBUG("Sizeof NC_packets: " << NC_packets.size() << std::endl);
             }
 
         }
         else {
-            CPPDEBUG("Too many packets missing, deleting from NC_packets" << std::endl);
+            //CPPDEBUG("Too many packets missing, deleting from NC_packets" << std::endl);
             NC_packets.erase (NC_packets.begin() + i);
         }
     }

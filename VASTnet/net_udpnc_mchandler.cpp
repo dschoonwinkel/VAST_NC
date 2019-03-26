@@ -86,11 +86,11 @@ namespace Vast
                 }
                 else if (RLNCHeader_factory::isRLNCHeader (header) && header.enc_packet_count > 1)
                 {
-                    CPPDEBUG("net_udpnc_mchandler::handle_input: Encoded packet received" << std::endl);
+//                    CPPDEBUG("net_udpnc_mchandler::handle_input: Encoded packet received" << std::endl);
                     process_encoded (bytes_transferred);
                 }
                 else {
-                        CPPDEBUG("net_udpnc_mchandler::handle_input RLNC message received" << std::endl);
+//                    CPPDEBUG("net_udpnc_mchandler::handle_input RLNC message received" << std::endl);
                     RLNCMessage other;
                     other.deserialize (p, bytes_transferred);
                     putOtherRLNCMessage (other);
@@ -129,7 +129,9 @@ namespace Vast
 //                CPPDEBUG(*decoded_msg << std::endl);
                 if (_msghandler != NULL)
                 {
+//                    CPPDEBUG("net_udpNC_MChandler::process_encoded processing decoded message" << std::endl);
                     _msghandler->RLNC_msg_received(*decoded_msg);
+                    delete decoded_msg;
                 }
                 else {
                     std::cerr << "net_udpNC_MChandler::process_encoded: _msghandler was NULL" << std::endl;

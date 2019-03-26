@@ -21,7 +21,7 @@ TOTAL_SIMULATION_TIME = 150
 def myNetwork():
 
     loss_perc = 10
-    BW = 1000
+#    BW = 1000
     Node_count = 10
     run_codinghost = True
 
@@ -52,7 +52,7 @@ def myNetwork():
     info( '*** Add hosts\n')
     for i in range(1,Node_count+1):
         h = net.addHost('h%d' % i, cls=Host, ip='10.0.0.%d' %i, defaultRoute=None)
-        net.addLink(h, s1, bw=BW)
+        net.addLink(h, s1)
         hosts.append(h)
 
     hosts.append(coding_host)
@@ -72,9 +72,9 @@ def myNetwork():
     coding_host.cmd("route add 239.255.0.1 codinghost-eth0")
     if (run_codinghost):
         coding_host.cmd("xterm -hold -fg black -bg green -geometry 80x10+200+600 -e \"./coding_host \" &")
-    # CLI(net)
+    CLI(net)
 
-    for i in range(1,Node_count+1):
+    for i in range(2,Node_count+1):
         hosts[i-1].cmd("route add 239.255.0.1 h%d-eth0" % i)
         # hosts[i-1].cmd("xterm -hold -fg black -bg green -geometry 80x60+%d+0 -e   \"./VASTreal_console %d 0 1037 10.0.0.1 \" &" % (200+i*40, i-1))    
         hosts[i-1].cmd("./VASTreal_console %d 0 1037 10.0.0.1 &> output_dump/node%d.txt &" % (i-1, i-1))
@@ -88,7 +88,7 @@ def myNetwork():
         links = hosts[i-1].connectionsTo(s1)
         srcLink = links[0][0]
         dstLink = links[0][1]
-        dstLink.config(**{ 'bw' : BW, 'loss' : loss_perc})
+        dstLink.config(**{'loss' : loss_perc})
 
 
     #h1 = net.get('h1')

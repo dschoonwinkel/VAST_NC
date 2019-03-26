@@ -2,7 +2,6 @@ vaststatlog_test = ./vaststatlog_test
 rlnc_packet_test = ./rlnc_packet_test
 rlnc_encoded_packet_test = ./rlnc_encoded_packet_test
 test_net_udpnc_mchandler = ./test_net_udpnc_mchandler
-test_rlncdecoder_repeated = ./test_rlncdecoder_repeated
 
 CC = g++
 
@@ -29,7 +28,7 @@ ACE_PATH    = /usr
 INC_PATHS   = -I../common -I../VASTsim -I$(ACE_PATH)/include -I../VAST -I../VASTnet -I../coding_host
 LIB_PATHS   = -L../lib -L../Dependencies/lib/Release -L$(ACE_PATH)/lib
 
-.PHONY: vaststatlog_test test_net_udpnc_mchandler rlnc_packet_test rlnc_encoded_packet_test test_rlncdecoder_repeated
+.PHONY: vaststatlog_test test_net_udpnc_mchandler rlnc_packet_test rlnc_encoded_packet_test
 
 all: vaststatlog_test test_net_udpnc_mchandler rlnc_packet_test rlnc_encoded_packet_test
 
