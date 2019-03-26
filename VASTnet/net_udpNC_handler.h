@@ -2,6 +2,7 @@
 #define NET_UDPNC_HANDLER_H
 
 #include "net_udp_handler.h"
+#include "net_udpnc_mchandler.h"
 #include "rlnc_packet_factory.h"
 #include "rlncmessage.h"
 #include "abstract_rlnc_msg_receiver.h"
@@ -13,6 +14,8 @@ namespace Vast
     public:
         net_udpNC_handler(ip::udp::endpoint local_endpoint);
         ~net_udpNC_handler();
+
+        int open (io_service *io_service, abstract_net_udp *msghandler);
 
         size_t send(const char *msg, size_t n, ip::udp::endpoint remote_endpoint);
 
@@ -33,6 +36,11 @@ namespace Vast
         int generation = 0;
         int ordering = 0;
 
+        net_udpNC_MChandler mchandler;
+        size_t decoded_from_mchandler = 0;
+        size_t total_packets_processed = 0;
+
+        std::map<id_t, uint8_t> recvd_ordering;
     };
 
 

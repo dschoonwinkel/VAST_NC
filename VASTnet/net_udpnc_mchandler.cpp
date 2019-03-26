@@ -31,8 +31,8 @@ namespace Vast
             boost::system::error_code ec;
             uint16_t port = _local_endpoint.port();
 
-            _local_endpoint.port(port);
-            _udp->bind(_local_endpoint, ec);
+            MC_address.port(port);
+            _udp->bind(MC_address, ec);
 
             std::cout << "net_udpnc_mchandler::open " + ec.message() << std::endl;
 

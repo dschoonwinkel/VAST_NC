@@ -30,6 +30,7 @@ namespace Vast {
         if (_udp == NULL) {
             _udp = new ip::udp::socket(*_io_service);
             _udp->open(ip::udp::v4());
+            _udp->set_option(ip::udp::socket::reuse_address(true));
 
             boost::system::error_code ec;
             uint16_t port = _local_endpoint.port();

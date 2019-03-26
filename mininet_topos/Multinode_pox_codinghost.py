@@ -23,6 +23,7 @@ def myNetwork():
     loss_perc = 10
     BW = 1000
     Node_count = 10
+    run_codinghost = False
 
     if (len(sys.argv) > 1):
         print(sys.argv[1])
@@ -69,7 +70,8 @@ def myNetwork():
     info( '*** Post configure switches and hosts\n')
 
     coding_host.cmd("route add 239.255.0.1 codinghost-eth0")
-    # coding_host.cmd("xterm -hold -fg black -bg green -geometry 80x10+200+600 -e \"./coding_host \" &")
+    if (run_codinghost):
+        coding_host.cmd("xterm -hold -fg black -bg green -geometry 80x10+200+600 -e \"./coding_host \" &")
     # CLI(net)
 
     for i in range(1,Node_count+1):
