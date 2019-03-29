@@ -326,7 +326,7 @@ namespace Vast
             // NOTE we will try to determine physical coordinate only after unique ID is gotten
             if (id != NET_ID_UNASSIGNED)
             {
-                printf ("unique ID obtained [%lu]\n", id);
+                printf ("VASTVerse::isInitialized: unique ID obtained [%lu]\n", id);
                 printf ("if this hangs, check if physical coordinate is obtained correctly\n");
 
                 bool hasPhysCoord = !(_netpara.phys_coord.x == 0 && _netpara.phys_coord.y == 0);

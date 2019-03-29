@@ -28,7 +28,7 @@ ACE_PATH    = /usr
 INC_PATHS   = -I../../common -I../../VASTsim -I$(ACE_PATH)/include -I../../VAST -I../../VASTnet -I../../coding_host
 LIB_PATHS   = -L../../lib -L../../Dependencies/lib/Release -L$(ACE_PATH)/lib
 
-.PHONY: unittest_net_udpnc_handler unittest_rlncmessage unittest_net_udpnc_mchandler make_vastnet
+.PHONY: unittest_net_udpnc_handler unittest_rlncmessage unittest_net_udpnc_mchandler make_vastnet unittest_rlncdecoder
 
 all: unittest_net_udpnc_handler unittest_rlncmessage unittest_net_udpnc_mchandler unittest_rlncdecoder
 
@@ -57,8 +57,8 @@ unittest_rlncdecoder: unittest_rlncdecoder.cpp ../../coding_host/rlncrecoder.cpp
 	$(MAKE) make_vastnet
 	$(CC) $(CFLAGS) $(INC_PATHS) $(LIBS_INCKODO) $(LIB_PATHS) $^ $(LIBS) $(LIBS_KODO) \
 	-o $(unittest_rlncdecoder)
-#	echo "Running: unittest_rlncdecoder"
-#	$(unittest_rlncdecoder)
+	echo "Running: unittest_rlncdecoder"
+	$(unittest_rlncdecoder)
 
 make_vastnet:
 	$(MAKE) --directory=../

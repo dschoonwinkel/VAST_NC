@@ -19,7 +19,9 @@ namespace Vast {
     net_udp_handler::~net_udp_handler()
     {
         // remove UDP listener, net_udp will delete itself
+        CPPDEBUG("~net_udp_handler" << std::endl);
         _udp = NULL;
+        _io_service->stop ();
     }
 
     int net_udp_handler::open(boost::asio::io_service *io_service, abstract_net_udp *msghandler) {

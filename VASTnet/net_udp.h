@@ -49,9 +49,6 @@ namespace Vast {
         // obtain the IP / port of a remotely connected host
         bool getRemoteAddress (id_t host_id, IPaddr &addr);
 
-        //Get this node's IPaddr for comparing to incoming packets to_addrs
-        const IPaddr getPublicIPaddr();
-
         // connect or disconnect a remote node (should check for redundency)
         bool connect (id_t target, unsigned int host, unsigned short port, bool is_secure = false);
         bool disconnect (id_t target);
@@ -80,6 +77,11 @@ namespace Vast {
 
         bool socket_connected (id_t id, void *stream, bool is_secure);
         bool socket_disconnected (id_t id);
+
+        //Get this node's IPaddr for comparing to incoming packets to_addrs
+        const IPaddr getPublicIPaddr();
+
+        net_udp* getReal_net_udp ();
 
     private:
         // bind port for this node

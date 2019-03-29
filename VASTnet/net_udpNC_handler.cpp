@@ -1,4 +1,5 @@
 #include "net_udpNC_handler.h"
+#include "net_udp.h"
 
 namespace Vast
 {
@@ -33,8 +34,15 @@ namespace Vast
         ordering += 1;
         //TODO: put ordering into packet header
 
-
-        id_t myID = ((net_manager*)_msghandler)->getID ();
+        id_t myID = -1;
+        if (_msghandler->getReal_net_udp ())
+        {
+            myID = _msghandler->getReal_net_udp ()->getID ();
+        }
+        else
+        {
+            CPPDEBUG("net_udpNC_handler::send _msghandler->getReal_net_udp was NULL" << std::endl);
+        }
 
         message.putPacketId(RLNCMessage::generatePacketId (myID, ordering));
         message.putOrdering (ordering);
@@ -43,7 +51,7 @@ namespace Vast
         message.putToAddr (to_addr);
 
         //Add to the decoder, if later used for decoding
-        mchandler.putOtherRLNCMessage (message);
+//        mchandler.putOtherRLNCMessage (message);
 
 
         std::vector<char> buf(message.sizeOf());
@@ -90,7 +98,7 @@ namespace Vast
                     RLNCMessage input_message;
                     input_message.deserialize (_buf, bytes_transferred);
                     //Add uncoded messages to the packet pool to aid in decoding later
-//                    mchandler.putOtherRLNCMessage (input_message);
+                    mchandler.putOtherRLNCMessage (input_message);
                     process_input (input_message);
 
                 }
@@ -124,37 +132,38 @@ namespace Vast
             //Reject in some way - probably return
         }
 
-        //Four cases - 1. We are recovering a lost packet: new pktid > current pktid
-//        if (input_message.getOrdering () > recvd_ordering[input_message.getFirstFromId ()])
-//        {
-//            //Do nothing, this is correct, record the usage
-//        }
-//        // 2. We are receiving the last packet of the generation
-//        else if (recvd_ordering[input_message.getFirstFromId ()] == MAX_GEN_NUM)
-//        {
-//            //Reset packet pool of decoder
-//            CPPDEBUG("net_udpNC_handler::handle_input At MAX_GEN_NUM: Clearing packet pool" <<std::endl);
-//            mchandler.clearPacketPool ();
-//            recvd_ordering[input_message.getFirstFromId ()] = 0;
-//        }
-//        // 3. We have lost a couple of packets, and then overflow happened, meaning we should still reset
-//        // the packet pool, we just missed the MAX_GEN_NUM packet
-//        // NOTE: ASSUMING that the maximum number of consequtive packets lost == 10
-//        else if ((recvd_ordering[input_message.getFirstFromId ()] - input_message.getOrdering ()) < -245)
-//        {
-//            CPPDEBUG("net_udpNC_handler::handle_input: Roll over happened after couple of lost packets" << std::endl);
-//            mchandler.clearPacketPool ();
-//            recvd_ordering[input_message.getFirstFromId ()] = 0;
+/*      //Four cases - 1. We are recovering a lost packet: new pktid > current pktid
+        if (input_message.getOrdering () > recvd_ordering[input_message.getFirstFromId ()])
+        {
+            //Do nothing, this is correct, record the usage
+        }
+        // 2. We are receiving the last packet of the generation
+        else if (recvd_ordering[input_message.getFirstFromId ()] == MAX_GEN_NUM)
+        {
+            //Reset packet pool of decoder
+            CPPDEBUG("net_udpNC_handler::handle_input At MAX_GEN_NUM: Clearing packet pool" <<std::endl);
+            mchandler.clearPacketPool ();
+            recvd_ordering[input_message.getFirstFromId ()] = 0;
+        }
+        // 3. We have lost a couple of packets, and then overflow happened, meaning we should still reset
+        // the packet pool, we just missed the MAX_GEN_NUM packet
+        // NOTE: ASSUMING that the maximum number of consequtive packets lost == 10
+        else if ((recvd_ordering[input_message.getFirstFromId ()] - input_message.getOrdering ()) < -245)
+        {
+            CPPDEBUG("net_udpNC_handler::handle_input: Roll over happened after couple of lost packets" << std::endl);
+            mchandler.clearPacketPool ();
+            recvd_ordering[input_message.getFirstFromId ()] = 0;
 
-//            std::abort ();
-//        }
+            std::abort ();
+        }
 
-//        // 4. We have decoded a packet too late, and the ordering has moved on, discard
-//        else if (recvd_ordering[input_message.getFirstFromId ()] > input_message.getOrdering ())
-//        {
-////            CPPDEBUG("net_udpNC_handler::handle_input: Decoded a packet too late, discarding" << std::endl);
-//            return;
-//        }
+        // 4. We have decoded a packet too late, and the ordering has moved on, discard
+        else if (recvd_ordering[input_message.getFirstFromId ()] > input_message.getOrdering ())
+        {
+//            CPPDEBUG("net_udpNC_handler::handle_input: Decoded a packet too late, discarding" << std::endl);
+            return;
+        }
+        */
 
         //Save latest packet number
         recvd_ordering[input_message.getFirstFromId ()] = input_message.getOrdering ();
@@ -175,6 +184,7 @@ namespace Vast
 
     net_udpNC_handler::~net_udpNC_handler()
     {
+        mchandler.close();
         CPPDEBUG("~net_udpNC_handler: decoded_from_mchandler: " << std::endl);
         CPPDEBUG("~net_udpNC_handler: used_from_mchandler: " << std::endl);
     }

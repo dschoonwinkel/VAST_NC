@@ -16,15 +16,29 @@
 #include "vaststatlog_entry.h"
 #include <chrono>
 #include "timeouts.h"
+#include <unistd.h>
+#include <signal.h>
 
 using namespace std;
 using namespace Vast;
 
+bool running = true;
+
 //Sleep duration secs, microseconds
 #define SLEEP_DURATION 0, MS_PER_STEP*1000
 
+void SIGINT_handler (int)
+{
+    std::cout << "Interrupt received" << std::endl;
+    running = false;
+
+}
+
 int main (int argc, char *argv[])
-{    
+{
+    signal(SIGINT, SIGINT_handler);
+
+    std::cout << "VASTreal_console: PID: " << getpid() << std::endl;
     SimPara simpara;                                    // simulation parameters
     VASTPara_Net netpara (VAST_NET_UDP);           // network parameter
 
@@ -49,7 +63,6 @@ int main (int argc, char *argv[])
 
     // Set up variables required for operation
     int steps = 0;
-    bool running = true;
 
     std::chrono::microseconds process_duration = std::chrono::microseconds::zero();
     std::chrono::microseconds total_duration = std::chrono::microseconds::zero();
@@ -66,7 +79,7 @@ int main (int argc, char *argv[])
         // Create node is not yet joined
         if (nodes_created == 0)
         {
-            CreateNode ();
+            CreateNode (false);
             nodes_created++;
         }
 

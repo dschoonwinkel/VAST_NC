@@ -80,8 +80,21 @@ namespace Vast
     {
         //Maybe this should rather be done in net_udp lifecycle?
 //        _io_service.reset();
+        _io_service->stop ();
         delete _io_service;
         _io_service = NULL;
+
+        CPPDEBUG("~net_udp() " << std::endl);
+        if (_udphandler)
+        {
+            CPPDEBUG("~net_udp:: closing _udphandler" << std::endl);
+            _udphandler->close ();
+            delete _udphandler;
+        }
+        else
+        {
+            CPPDEBUG("_udphandler was NULL" << std::endl);
+        }
     }
 
     void 
@@ -520,6 +533,11 @@ namespace Vast
         }
 
         return success;
+    }
+
+    net_udp* net_udp::getReal_net_udp ()
+    {
+        return this;
     }
 
     //Calculate the UDP timeouts here

@@ -14,6 +14,7 @@
 
 #include <kodo_rlnc/coders.hpp>
 #include "rlnc_fieldsize_defs.h"
+#include <chrono>
 
 using namespace boost::asio;
 
@@ -38,6 +39,10 @@ private:
     std::map<packetid_t, RLNCMessage> packet_pool;
     std::vector<RLNCMessage> NC_packets;
 
+    //Timing functions used for determining holdups
+    void startAddLockTimer();
+    void stopAddLockTimer();
+
     // Typdefs for the encoder/decoder type we wish to use
     fifi::api::field field = fifi::api::field::FINITE_FIELD_SIZE;
 
@@ -50,6 +55,9 @@ private:
     std::mutex packet_pool_mutex;
     //For stats collection purposes
     size_t packets_recovered = 0;
+
+    std::chrono::microseconds addLockTimer = std::chrono::microseconds::zero();
+    std::chrono::high_resolution_clock::time_point t1;
 };
 
 #endif // RLNCDECODER_H

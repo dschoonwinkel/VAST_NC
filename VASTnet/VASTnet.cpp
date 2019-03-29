@@ -79,7 +79,7 @@ namespace Vast
 #ifndef ACE_DISABLED
         else if (_model == VAST_NET_ACE)
             delete ((net_ace *)_manager);
-        else if (_model == VAST_NET_UDP)
+        else if (_model == VAST_NET_UDP || _model == VAST_NET_UDPNC)
             delete ((net_udp *)_manager);
 #endif
 
@@ -570,8 +570,10 @@ namespace Vast
             // check if we're considered as an entry point, if so we can determine HostID by self
             if (_entries.size () == 0)
             {
+
                 Addr addr = _manager->getAddress ();
                 id_t id = _manager->resolveHostID (&addr.publicIP);
+                CPPDEBUG("Resolving ID as the entry point: " << id << std::endl);
 
                 // note we need to use registerHostID to modify id instead of directly
                 registerHostID (id, true);
@@ -1032,6 +1034,7 @@ namespace Vast
 
         // store my obtained ID
         registerHostID (id, is_public);
+        CPPDEBUG("VASTnet::processIDAssignment Saving ID as assigned: " << id << std::endl);
 
         return true;
     }

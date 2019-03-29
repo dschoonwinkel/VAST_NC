@@ -59,7 +59,7 @@ namespace Vast {
 
         uint16_t getPort ();
 
-        ~net_udp_handler ();
+        virtual ~net_udp_handler ();
 
         ip::udp::socket             *_udp;
         ip::udp::endpoint           _remote_endpoint_;

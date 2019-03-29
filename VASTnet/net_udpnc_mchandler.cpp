@@ -90,7 +90,7 @@ namespace Vast
                     process_encoded (bytes_transferred);
                 }
                 else {
-//                    CPPDEBUG("net_udpnc_mchandler::handle_input RLNC message received" << std::endl);
+                    CPPDEBUG("net_udpnc_mchandler::handle_input RLNC message received" << std::endl);
                     RLNCMessage other;
                     other.deserialize (p, bytes_transferred);
                     putOtherRLNCMessage (other);

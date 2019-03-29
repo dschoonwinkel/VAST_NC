@@ -13,7 +13,7 @@ namespace Vast
     {
     public:
         net_udpNC_handler(ip::udp::endpoint local_endpoint);
-        ~net_udpNC_handler();
+        virtual ~net_udpNC_handler();
 
         int open (io_service *io_service, abstract_net_udp *msghandler);
 
