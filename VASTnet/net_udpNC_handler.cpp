@@ -72,6 +72,7 @@ namespace Vast
     int net_udpNC_handler::handle_input (const boost::system::error_code& error,
           std::size_t bytes_transferred)
     {
+        total_packets_processed++;
         RLNCHeader header;
 
         if (!error)
@@ -184,9 +185,9 @@ namespace Vast
 
     net_udpNC_handler::~net_udpNC_handler()
     {
+        CPPDEBUG("~net_udpNC_handler: decoded_from_mchandler: " << decoded_from_mchandler << std::endl);
+        CPPDEBUG("~net_udpNC_handler: used_from_mchandler: " << total_packets_processed - decoded_from_mchandler <<  std::endl);
         mchandler.close();
-        CPPDEBUG("~net_udpNC_handler: decoded_from_mchandler: " << std::endl);
-        CPPDEBUG("~net_udpNC_handler: used_from_mchandler: " << std::endl);
     }
 
 }

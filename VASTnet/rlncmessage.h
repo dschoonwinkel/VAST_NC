@@ -6,7 +6,7 @@
 #define GENSIZE 1
 #define MAX_GEN_NUM 255
 
-#define _COMPUTE_RLNC
+#define COMPUTE_RLNC
 
 #include "rlnc_packet_factory.h"
 #include <VASTTypes.h>

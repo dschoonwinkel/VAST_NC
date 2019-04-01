@@ -26,6 +26,8 @@ void rlncdecoder::addRLNCMessage(RLNCMessage msg)
     return;
 #endif
 
+    packets_added_packetpool++;
+
     startAddLockTimer ();
 //    CPPDEBUG("rlncdecoder::addRLNCMessage " << std::endl);
     auto pktids = msg.getPacketIds();
@@ -248,6 +250,7 @@ RLNCMessage *rlncdecoder::produceDecodedRLNCMessage()
 
 rlncdecoder::~rlncdecoder ()
 {
+    CPPDEBUG("~rlncdecoder:: packets added to packet pool: " << packets_added_packetpool << std::endl);
     CPPDEBUG("~rlncdecoder:: packet_recovered: " << packets_recovered << std::endl);
     CPPDEBUG("~rlncdecoder:: time spent in addLock: " << addLockTimer.count() / 1000 << " milliseconds " << std::endl);
 }

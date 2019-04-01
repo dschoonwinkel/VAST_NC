@@ -16,6 +16,7 @@ import os, time
 hosts = list()
 
 TOTAL_SIMULATION_TIME = 150
+AUTO = False
 
 
 def myNetwork():
@@ -76,12 +77,16 @@ def myNetwork():
 
     for i in range(1,Node_count+1):
         hosts[i-1].cmd("route add 239.255.0.1 h%d-eth0" % i)
-        # hosts[i-1].cmd("xterm -hold -fg black -bg green -geometry 80x60+%d+0 -e   \"./VASTreal_console %d 0 1037 10.0.0.1 \" &" % (200+i*40, i-1))    
-        hosts[i-1].cmd("./VASTreal_console %d 0 1037 10.0.0.1 &> output_dump/node%d.txt &" % (i-1, i-1))
-        # hosts[i-1].cmd("perf record --call-graph dwarf -o ./perf/perf%d.data ./VASTreal_console %d 0 1037 10.0.0.1 &> output_dump/node%d.txt &" % (i-1, i-1, i-1))
+        if AUTO:
+            # hosts[i-1].cmd("xterm -hold -fg black -bg green -geometry 80x60+%d+0 -e   \"./VASTreal_console %d 0 1037 10.0.0.1 \" &" % (200+i*40, i-1))    
+            hosts[i-1].cmd("./VASTreal_console %d 0 1037 10.0.0.1 &> output_dump/node%d.txt &" % (i-1, i-1))
+            # hosts[i-1].cmd("perf record --call-graph dwarf -o ./perf/perf%d.data ./VASTreal_console %d 0 1037 10.0.0.1 &> output_dump/node%d.txt &" % (i-1, i-1, i-1))
         time.sleep(1)
 
-    # CLI(net)
+    if not AUTO:
+        CLI(net)
+
+    time.sleep(5)
 
     #print(net.links)
     
@@ -112,10 +117,11 @@ def myNetwork():
     # hosts[38].cmd("xterm -hold -fg black -bg green -geometry 80x60+20+0 -e \"iperf -c 10.0.0.1 \" &")
     # hosts[39].cmd("xterm -hold -fg black -bg green -geometry 80x60+40+0 -e \"iperf -c 10.0.0.2 \" &")
 
-    for i in range(1, TOTAL_SIMULATION_TIME / 10):
-        print("Sleeping 10 seconds, %d to go" % (TOTAL_SIMULATION_TIME - i*10))
-        time.sleep(10)
-    
+    if AUTO:
+        for i in range(1, TOTAL_SIMULATION_TIME / 10):
+            print("Sleeping 10 seconds, %d to go" % (TOTAL_SIMULATION_TIME - i*10))
+            time.sleep(10)
+        
     os.system("killall -s SIGINT VASTreal_console")
 
     # time.sleep(1)
