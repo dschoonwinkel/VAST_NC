@@ -16,7 +16,7 @@ import os, time
 hosts = list()
 
 TOTAL_SIMULATION_TIME = 150
-AUTO = False
+AUTO = True
 
 
 def myNetwork():

@@ -51,7 +51,7 @@ namespace Vast
         message.putToAddr (to_addr);
 
         //Add to the decoder, if later used for decoding
-//        mchandler.putOtherRLNCMessage (message);
+        mchandler.putOtherRLNCMessage (message);
 
 
         std::vector<char> buf(message.sizeOf());
