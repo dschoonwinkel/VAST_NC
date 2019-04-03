@@ -16,7 +16,7 @@ namespace Vast
     class net_udpNC_MChandler
     {
     public:
-        net_udpNC_MChandler();
+        net_udpNC_MChandler(ip::udp::endpoint local_endpoint);
         ~net_udpNC_MChandler();
 
         //MChandler will run its own io_service
@@ -51,7 +51,7 @@ namespace Vast
         int handle_close ();
 
     private:
-        ip::udp::socket             *_udp;
+        ip::udp::socket             *_udp = NULL;
         ip::udp::endpoint           _remote_endpoint_;
         ip::udp::endpoint           _local_endpoint;
         ip::udp::endpoint           MC_address;
@@ -60,8 +60,8 @@ namespace Vast
 
 
         // the same io_service as net_udp
-        io_service                  *_io_service;
-        boost::thread               *_iosthread;
+        io_service                  *_io_service = NULL;
+        boost::thread               *_iosthread = NULL;
         rlncdecoder                 decoder;
 
         size_t packets_received = 0;

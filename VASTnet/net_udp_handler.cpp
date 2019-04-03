@@ -21,7 +21,6 @@ namespace Vast {
         // remove UDP listener, net_udp will delete itself
         CPPDEBUG("~net_udp_handler" << std::endl);
         _udp = NULL;
-        _io_service->stop ();
     }
 
     int net_udp_handler::open(boost::asio::io_service *io_service, abstract_net_udp *msghandler) {
@@ -122,7 +121,7 @@ namespace Vast {
             Message msg(0);
             if (0 == msg.deserialize (p, header.msg_size))
             {
-                printf("net_udp_handler::handle_input deserialize message fail: size = %u\n", header.msg_size);
+                printf("net_udp_handler::process_input deserialize message fail: size = %u\n", header.msg_size);
             }
             remote_id = msg.from;
 

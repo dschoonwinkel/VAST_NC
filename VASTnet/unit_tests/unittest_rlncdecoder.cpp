@@ -9,11 +9,20 @@
 #include <stdlib.h>
 #include "net_udpnc_mchandler.h"
 #include "abstract_rlnc_msg_receiver_testimpl.h"
+#include <boost/thread/thread.hpp>
+#include <boost/chrono.hpp>
+
+size_t sleep_time = 200;
 
 void testFirstIndex()
 {
     std::cout << "\n\ntestFirstIndex" << std::endl;
-    Vast::net_udpNC_MChandler mchandler;
+    std::string remote_ip = "127.0.0.1";
+    uint16_t remote_port = 1037;
+    ip::udp::endpoint local_endpoint = ip::udp::endpoint(
+                ip::address::from_string(remote_ip), remote_port);
+
+    Vast::net_udpNC_MChandler mchandler(local_endpoint);
     Vast::AbstractRNLCMsgReceiverTestImpl tester;
     mchandler.open(&tester);
 
@@ -102,12 +111,19 @@ void testFirstIndex()
     assert(tester.RLNC_msg_received_call_count == 1);
     assert(tester.recv_msg == message2);
 
+    boost::this_thread::sleep_for (boost::chrono::milliseconds(sleep_time));
+
 }
 
 void testSecondIndex()
 {
     std::cout << "\n\ntestSecondIndex" << std::endl;
-    Vast::net_udpNC_MChandler mchandler;
+    std::string remote_ip = "127.0.0.1";
+    uint16_t remote_port = 1037;
+    ip::udp::endpoint local_endpoint = ip::udp::endpoint(
+                ip::address::from_string(remote_ip), remote_port);
+
+    Vast::net_udpNC_MChandler mchandler(local_endpoint);
     Vast::AbstractRNLCMsgReceiverTestImpl tester;
     mchandler.open(&tester);
 
@@ -196,12 +212,19 @@ void testSecondIndex()
 
     assert(tester.RLNC_msg_received_call_count == 1);
     assert(tester.recv_msg == message1);
+
+    boost::this_thread::sleep_for (boost::chrono::milliseconds(sleep_time));
 }
 
 void testUndecodable()
 {
     std::cout << "\n\ntestUndecodable" << std::endl;
-    Vast::net_udpNC_MChandler mchandler;
+    std::string remote_ip = "127.0.0.1";
+    uint16_t remote_port = 1037;
+    ip::udp::endpoint local_endpoint = ip::udp::endpoint(
+                ip::address::from_string(remote_ip), remote_port);
+
+    Vast::net_udpNC_MChandler mchandler(local_endpoint);
     Vast::AbstractRNLCMsgReceiverTestImpl tester;
     mchandler.open(&tester);
 
@@ -282,12 +305,19 @@ void testUndecodable()
 
     assert(tester.RLNC_msg_received_call_count == 0);
     assert(mchandler.getPacketPoolSize () == 0);
+
+    boost::this_thread::sleep_for (boost::chrono::milliseconds(sleep_time));
 }
 
 void testUnnecessary()
 {
     std::cout << "\n\ntestUnnecessary" << std::endl;
-    Vast::net_udpNC_MChandler mchandler;
+    std::string remote_ip = "127.0.0.1";
+    uint16_t remote_port = 1037;
+    ip::udp::endpoint local_endpoint = ip::udp::endpoint(
+                ip::address::from_string(remote_ip), remote_port);
+
+    Vast::net_udpNC_MChandler mchandler(local_endpoint);
     Vast::AbstractRNLCMsgReceiverTestImpl tester;
     mchandler.open(&tester);
 
@@ -377,12 +407,19 @@ void testUnnecessary()
     mchandler.handle_buffer (reinterpret_cast<char*>(payload.data()), payload.size ());
 
     assert(tester.RLNC_msg_received_call_count == 0);
+
+    boost::this_thread::sleep_for (boost::chrono::milliseconds(sleep_time));
 }
 
 void testExtraPacket()
 {
     std::cout << "\n\ntestExtraPacket" << std::endl;
-    Vast::net_udpNC_MChandler mchandler;
+    std::string remote_ip = "127.0.0.1";
+    uint16_t remote_port = 1037;
+    ip::udp::endpoint local_endpoint = ip::udp::endpoint(
+                ip::address::from_string(remote_ip), remote_port);
+
+    Vast::net_udpNC_MChandler mchandler(local_endpoint);
     Vast::AbstractRNLCMsgReceiverTestImpl tester;
     mchandler.open(&tester);
 
@@ -519,6 +556,7 @@ void testExtraPacket()
     assert(tester.RLNC_msg_received_call_count == 2);
     assert(tester.recv_msg == message1);
 
+    boost::this_thread::sleep_for (boost::chrono::milliseconds(sleep_time));
 
 }
 
@@ -527,7 +565,12 @@ void testRepeated()
     std::cout << "testRepeated" << std::endl;
     srand(time(NULL));
 
-    Vast::net_udpNC_MChandler mchandler;
+    std::string remote_ip = "127.0.0.1";
+    uint16_t remote_port = 1037;
+    ip::udp::endpoint local_endpoint = ip::udp::endpoint(
+                ip::address::from_string(remote_ip), remote_port);
+
+    Vast::net_udpNC_MChandler mchandler(local_endpoint);
     Vast::AbstractRNLCMsgReceiverTestImpl tester;
     mchandler.open(&tester);
 

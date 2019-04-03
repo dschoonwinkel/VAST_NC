@@ -82,6 +82,16 @@ void testOrdering()
     assert(msg1.getOrdering () == 123);
 }
 
+void testFactoryOrdering()
+{
+    RLNCHeader_factory factory;
+    RLNCHeader header1 = factory.build ();
+    RLNCHeader header2 = factory.build();
+
+    assert(header1.ordering == 1);
+    assert(header2.ordering == 2);
+}
+
 void testSizeOfSerialize()
 {
     std::cout << "testSizeOfSerialize" << std::endl;
@@ -176,6 +186,8 @@ int main()
     testFromId ();
     testToAddrs();
     testPutMessage();
+    testOrdering ();
+    testFactoryOrdering ();
     testSizeOfSerialize();
     testEquals();
 

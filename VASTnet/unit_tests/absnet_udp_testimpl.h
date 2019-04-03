@@ -11,11 +11,14 @@ namespace Vast
         bool msg_received(id_t fromhost, const char *message, size_t size, timestamp_t recvtime, bool in_front)
         {
             this->fromhost = fromhost;
-            this->message = message;
+            this->message = std::string(message, size);
             this->size = size;
             this->recvtime = recvtime;
             this->in_front = in_front;
+
+            return true;
         }
+
         bool socket_connected(id_t, void *, bool )
         {
             sock_conn_called++;
@@ -30,10 +33,21 @@ namespace Vast
         size_t sock_conn_called = 0;
         size_t sock_disc_called = 0;
         id_t fromhost;
-        char * message;
+        std::string message;
         size_t size;
         timestamp_t recvtime;
         bool in_front;
+
+        // abstract_net_udp interface
+    public:
+        const IPaddr getPublicIPaddr()
+        {
+            return IPaddr("127.0.0.1", 1037);
+        }
+        net_udp *getReal_net_udp()
+        {
+            return NULL;
+        }
     };
 }
 

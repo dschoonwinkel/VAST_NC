@@ -86,7 +86,7 @@ def myNetwork():
     if not AUTO:
         CLI(net)
 
-    time.sleep(5)
+    time.sleep(10)
 
     #print(net.links)
     

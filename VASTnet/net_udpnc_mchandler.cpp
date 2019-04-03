@@ -6,17 +6,21 @@
 
 namespace Vast
 {
-    net_udpNC_MChandler::net_udpNC_MChandler() :
-        _local_endpoint(ip::address::from_string("0.0.0.0"), 1037),
+    net_udpNC_MChandler::net_udpNC_MChandler(ip::udp::endpoint local_endpoint) :
         MC_address(ip::address::from_string("239.255.0.1"), 1037)
     {
         _io_service = new io_service();
+        _local_endpoint = local_endpoint;
     }
 
     net_udpNC_MChandler::~net_udpNC_MChandler()
     {
-        // remove UDP listener, net_udp will delete itself
+        delete _udp;
         _udp = NULL;
+        delete _io_service;
+        _io_service = NULL;
+
+        CPPDEBUG("~net_udpNC_MChandler" << std::endl);
     }
 
     int net_udpNC_MChandler::open(AbstractRLNCMsgReceiver *msghandler) {
@@ -202,6 +206,7 @@ namespace Vast
     }
 
     int net_udpNC_MChandler::close() {
+        CPPDEBUG("net_udpNC_MChandler: close()" << std::endl);
         return this->handle_close();
     }
 

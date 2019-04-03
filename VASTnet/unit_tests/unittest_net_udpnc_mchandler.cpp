@@ -4,6 +4,10 @@
 #include "net_udpnc_mchandler.h"
 #include "abstract_rlnc_msg_receiver_testimpl.h"
 #include "rlncrecoder.h"
+#include <boost/thread/thread.hpp>
+#include <boost/chrono.hpp>
+
+size_t sleep_time = 200;
 
 void runUnitTest1()
 {
@@ -11,18 +15,22 @@ void runUnitTest1()
     std::abort();
 }
 
+void onCloseWait()
+{
+    boost::this_thread::sleep_for (boost::chrono::milliseconds(sleep_time));
+}
+
 void test_process_encoded()
 {
     std::cout << "test_process_encoded() " << std::endl;
 
-    //std::string remote_ip = "127.0.0.1";
-    //uint16_t remote_port = 1037;
-    //ip::udp::endpoint local_endpoint = ip::udp::endpoint(
-    //            ip::address::from_string(remote_ip), remote_port);
+    std::string remote_ip = "127.0.0.1";
+    uint16_t remote_port = 1037;
+    ip::udp::endpoint local_endpoint = ip::udp::endpoint(
+                ip::address::from_string(remote_ip), remote_port);
 
-    //Vast::net_udpNC_MChandler mchandler(local_endpoint);
+    Vast::net_udpNC_MChandler mchandler(local_endpoint);
     
-    Vast::net_udpNC_MChandler mchandler;
     Vast::AbstractRNLCMsgReceiverTestImpl tester;
 
     RLNCHeader_factory factory1;
@@ -94,6 +102,8 @@ void test_process_encoded()
 
     assert(tester.RLNC_msg_received_call_count == 1);
     assert(tester.recv_msg == msg2);
+
+    onCloseWait();
 }
 
 int main()

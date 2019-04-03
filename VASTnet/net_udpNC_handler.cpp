@@ -4,7 +4,7 @@
 namespace Vast
 {
     net_udpNC_handler::net_udpNC_handler(ip::udp::endpoint local_endpoint):
-        net_udp_handler(local_endpoint)
+        net_udp_handler(local_endpoint), mchandler(local_endpoint)
     {
         CPPDEBUG("Starting net_udpNC_handler" << std::endl);
 
@@ -116,62 +116,76 @@ namespace Vast
 
     void net_udpNC_handler::process_input (RLNCMessage input_message)
     {
-//        CPPDEBUG("net_udpNC_handler::handle_input: received packet ordering: " << (int)input_message.getOrdering ()
-//                 << "\nprevious ordered packet: "
-//                 << (int)recvd_ordering[input_message.getFirstFromId ()] << std::endl);
 
-//}
-//        CPPDEBUG(input_message.getToAddrs ()[0] << std::endl);
-        if (_msghandler->getPublicIPaddr () == input_message.getToAddrs ()[0])
+        if (input_message.getPacketIds ().size() > 1)
+            throw std::logic_error("net_udpNC_handler::process_input: Should not have encoded packets here\n");
+
+        filter_input (input_message);
+    }
+
+    void net_udpNC_handler::filter_input (RLNCMessage input_message)
+    {
+        if (input_message.getToAddrs ().size () > 0)
         {
-            //All is well, continue
-            //CPPDEBUG("net_udpNC_handler::process_input Message ToAddr was meant for me..." << std::endl);
+            if (_msghandler->getPublicIPaddr () == input_message.getToAddrs ()[0])
+            {
+                //All is well, continue
+                //CPPDEBUG("net_udpNC_handler::process_input Message ToAddr was meant for me..." << std::endl);
+                order_input(input_message);
+            }
+            else
+            {
+                CPPDEBUG("net_udpNC_handler::process_input Message ToAddr was not meant for me..." << std::endl);
+                //Reject in some way - probably return
+                return;
+            }
         }
         else
         {
-            CPPDEBUG("net_udpNC_handler::process_input Message ToAddr was not meant for me..." << std::endl);
-            //Reject in some way - probably return
-        }
-
-/*      //Four cases - 1. We are recovering a lost packet: new pktid > current pktid
-        if (input_message.getOrdering () > recvd_ordering[input_message.getFirstFromId ()])
-        {
-            //Do nothing, this is correct, record the usage
-        }
-        // 2. We are receiving the last packet of the generation
-        else if (recvd_ordering[input_message.getFirstFromId ()] == MAX_GEN_NUM)
-        {
-            //Reset packet pool of decoder
-            CPPDEBUG("net_udpNC_handler::handle_input At MAX_GEN_NUM: Clearing packet pool" <<std::endl);
-            mchandler.clearPacketPool ();
-            recvd_ordering[input_message.getFirstFromId ()] = 0;
-        }
-        // 3. We have lost a couple of packets, and then overflow happened, meaning we should still reset
-        // the packet pool, we just missed the MAX_GEN_NUM packet
-        // NOTE: ASSUMING that the maximum number of consequtive packets lost == 10
-        else if ((recvd_ordering[input_message.getFirstFromId ()] - input_message.getOrdering ()) < -245)
-        {
-            CPPDEBUG("net_udpNC_handler::handle_input: Roll over happened after couple of lost packets" << std::endl);
-            mchandler.clearPacketPool ();
-            recvd_ordering[input_message.getFirstFromId ()] = 0;
-
-            std::abort ();
-        }
-
-        // 4. We have decoded a packet too late, and the ordering has moved on, discard
-        else if (recvd_ordering[input_message.getFirstFromId ()] > input_message.getOrdering ())
-        {
-//            CPPDEBUG("net_udpNC_handler::handle_input: Decoded a packet too late, discarding" << std::endl);
+            CPPDEBUG("net_udpNC_handler::process_input input_message has no toAddrs" << std::endl);
             return;
         }
-        */
+    }
+
+    void net_udpNC_handler::order_input(RLNCMessage input_message)
+    {
+        id_t firstFromID = input_message.getFirstFromId ();
+
+        if (firstFromID == NET_ID_UNASSIGNED)
+        {
+//            CPPDEBUG("net_udpNC_handler::process_input NET_ID_UNASSIGNED in fromID, processing" << std::endl);
+        }
+        //If we have never heard from this ID before, simply store the recvd_ordering
+        else if (recvd_ordering.find(firstFromID) == recvd_ordering.end())
+        {
+            recvd_ordering[firstFromID] = input_message.getOrdering ();
+            CPPDEBUG("net_udpNC_handler::process_input Adding new from_id to recvd_ordering" << std::endl);
+        }
+        //First message of new chain, reset ordering to accept
+        else if (recvd_ordering[firstFromID] >= LOWEST_RESET_PACKET_ORDERING_NUMBER
+                 && input_message.getOrdering() < HIGHEST_RESET_ACCEPTING_ORDERING_NUMBER)
+        {
+            CPPDEBUG("net_udpNC_handler::process_input Resetting chain, ordering = 0" << std::endl);
+            recvd_ordering[firstFromID] = 0;
+        }
+        //This is an old or the same message, ignore
+        else if (recvd_ordering[firstFromID] >= input_message.getOrdering ())
+        {
+            CPPDEBUG("net_udpNC_handler::process_input Old or same message, ignoring" << std::endl);
+            CPPDEBUG("net_udpNC_handler::process_input " << firstFromID << " " << (size_t)recvd_ordering[firstFromID] << " " << (size_t)input_message.getOrdering() << std::endl);
+            return;
+        }
 
         //Save latest packet number
         recvd_ordering[input_message.getFirstFromId ()] = input_message.getOrdering ();
 
+        handoff_input (input_message);
+    }
 
+
+    void net_udpNC_handler::handoff_input (RLNCMessage input_message)
+    {
         net_udp_handler::process_input(input_message.getMessage (), input_message.getMessageSize ());
-
     }
 
     void net_udpNC_handler::RLNC_msg_received(RLNCMessage msg)
