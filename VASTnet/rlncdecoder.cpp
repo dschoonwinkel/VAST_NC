@@ -42,6 +42,13 @@ void rlncdecoder::addRLNCMessage(RLNCMessage msg)
 //            CPPDEBUG("Original: " << packet_pool.find(pktids.front())->second << std::endl);
 //            CPPDEBUG("New: " << msg << std::endl);
         }
+        else
+        {
+            if (!(packet_pool[pktids.front()] == msg))
+                throw std::logic_error("rlncdecoder::addRLNCMessage: packet ids are supposed unique: \
+                                       \nFound different packet with same ID ");
+        }
+
         packet_pool[pktids.front()] = msg;
     }
 
@@ -227,7 +234,7 @@ RLNCMessage *rlncdecoder::produceDecodedRLNCMessage()
         }
         else
         {
-            CPPDEBUG("Could not deserialize the decoded packet" << std::endl);
+            CPPDEBUG("rlncdecoder::produceDecodedRLNCMessage: Could not deserialize the decoded packet" << std::endl);
         }
 
     }

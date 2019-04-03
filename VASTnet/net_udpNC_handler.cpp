@@ -31,8 +31,16 @@ namespace Vast
         RLNCMessage message(header_factory.build());
 
         message.putMessage(msg, n);
-        ordering += 1;
-        //TODO: put ordering into packet header
+
+        IPaddr to_addr(remote_endpoint.address().to_v4().to_ulong(), remote_endpoint.port ());
+
+        //Put / get and increase ordering number of this id_t
+        if (send_ordering.find(net_manager::resolveHostID (&to_addr)) == send_ordering.end ())
+        {
+            send_ordering[net_manager::resolveHostID (&to_addr)] = 0;
+        }
+        uint8_t ordering = send_ordering[net_manager::resolveHostID (&to_addr)];
+        send_ordering[net_manager::resolveHostID (&to_addr)]++;
 
         id_t myID = -1;
         if (_msghandler->getReal_net_udp ())
@@ -44,10 +52,9 @@ namespace Vast
             CPPDEBUG("net_udpNC_handler::send _msghandler->getReal_net_udp was NULL" << std::endl);
         }
 
-        message.putPacketId(RLNCMessage::generatePacketId (myID, ordering));
+        message.putPacketId(RLNCMessage::generatePacketId (myID, pkt_gen_count++));
         message.putOrdering (ordering);
         message.putFromId (myID);
-        IPaddr to_addr(remote_endpoint.address().to_v4().to_ulong(), remote_endpoint.port ());
         message.putToAddr (to_addr);
 
         //Add to the decoder, if later used for decoding
@@ -132,6 +139,7 @@ namespace Vast
                 //All is well, continue
                 //CPPDEBUG("net_udpNC_handler::process_input Message ToAddr was meant for me..." << std::endl);
                 order_input(input_message);
+                return;
             }
             else
             {
@@ -167,6 +175,7 @@ namespace Vast
         {
             CPPDEBUG("net_udpNC_handler::process_input Resetting chain, ordering = 0" << std::endl);
             recvd_ordering[firstFromID] = 0;
+            mchandler.clearPacketPool ();
         }
         //This is an old or the same message, ignore
         else if (recvd_ordering[firstFromID] >= input_message.getOrdering ())

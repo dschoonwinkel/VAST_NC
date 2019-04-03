@@ -7,8 +7,8 @@
 #include "rlncmessage.h"
 #include "abstract_rlnc_msg_receiver.h"
 
-#define LOWEST_RESET_PACKET_ORDERING_NUMBER 225
-#define HIGHEST_RESET_ACCEPTING_ORDERING_NUMBER 30
+#define LOWEST_RESET_PACKET_ORDERING_NUMBER 240
+#define HIGHEST_RESET_ACCEPTING_ORDERING_NUMBER 10
 
 namespace Vast
 {
@@ -43,8 +43,8 @@ namespace Vast
         void RLNC_msg_received(RLNCMessage msg);
 
     private:
-        int generation = 0;
-        int ordering = 0;
+        uint8_t generation = 0;
+        size_t pkt_gen_count = 0;
 
         net_udpNC_MChandler mchandler;
         size_t decoded_from_mchandler = 0;

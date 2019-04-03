@@ -554,7 +554,7 @@ void testOrderingVeryLossyEndOfChain()
     RLNCMessage message2(header2);
 
     //Simulate loss of packets -> last highest packet and first low packet
-    message1.putOrdering (LOWEST_RESET_PACKET_ORDERING_NUMBER - 1);
+    message1.putOrdering (LOWEST_RESET_PACKET_ORDERING_NUMBER-1);
     message2.putOrdering (9);
 
     std::cout << message1 << std::endl;

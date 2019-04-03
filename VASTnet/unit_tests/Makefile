@@ -30,7 +30,7 @@ LIB_PATHS   = -L../../lib -L../../Dependencies/lib/Release -L$(ACE_PATH)/lib
 
 .PHONY: unittest_net_udpnc_handler unittest_rlncmessage unittest_net_udpnc_mchandler make_vastnet unittest_rlncdecoder
 
-all: unittest_net_udpnc_handler unittest_rlncmessage unittest_net_udpnc_mchandler unittest_rlncdecoder
+all: unittest_rlncmessage unittest_net_udpnc_mchandler unittest_rlncdecoder unittest_net_udpnc_handler
 
 unittest_net_udpnc_handler: unittest_net_udpnc_handler.cpp
 	$(MAKE) make_vastnet
