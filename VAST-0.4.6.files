@@ -25,6 +25,7 @@ VASTnet/unit_tests/Makefile
 VASTnet/unit_tests/absnet_udp_testimpl.h
 VASTnet/unit_tests/abstract_rlnc_msg_receiver_testimpl.cpp
 VASTnet/unit_tests/abstract_rlnc_msg_receiver_testimpl.h
+VASTnet/unit_tests/unittest_net_udp_handler.cpp
 VASTnet/unit_tests/unittest_net_udpnc_handler.cpp
 VASTnet/unit_tests/unittest_net_udpnc_mchandler.cpp
 VASTnet/unit_tests/unittest_rlncdecoder.cpp

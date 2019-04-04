@@ -82,7 +82,7 @@ namespace Vast {
 
         if (!error)
         {
-            process_input(_buf, bytes_transferred);
+            process_input(_buf, bytes_transferred, &_remote_endpoint_);
 
             //Restart waiting for new packets
             start_receive();
@@ -93,7 +93,7 @@ namespace Vast {
         return -1;
     }
 
-    void net_udp_handler::process_input(const char *buffer, std::size_t bytes_transferred, size_t offset)
+    void net_udp_handler::process_input(const char *buffer, std::size_t bytes_transferred, ip::udp::endpoint *remote_endptr, size_t offset)
     {
         //Process UDP messages
         size_t n = bytes_transferred - offset;
@@ -125,22 +125,26 @@ namespace Vast {
             }
             remote_id = msg.from;
 
-            //Store the host_id : IPaddr pair
-            IPaddr remote_addr(_remote_endpoint_.address().to_v4().to_ulong(), _remote_endpoint_.port());
-
-
             id_t temp_id = remote_id;
-            //This host is looking for an ID, assign it a temporary ID to store the connection
-            if (remote_id == NET_ID_UNASSIGNED && msg.msgtype == ID_REQUEST)
+
+            if (remote_endptr)
             {
-                temp_id = net_manager::resolveHostID(&remote_addr);
+                //Store the host_id : IPaddr pair
+                IPaddr remote_addr(remote_endptr->address().to_v4().to_ulong(), remote_endptr->port());
+
+
+
+                //This host is looking for an ID, assign it a temporary ID to store the connection
+                if (remote_id == NET_ID_UNASSIGNED && msg.msgtype == ID_REQUEST)
+                {
+                    temp_id = net_manager::resolveHostID(&remote_addr);
+                }
+
+                storeRemoteAddress(temp_id, remote_addr);
+
+                //We assume if we can get a packet from the host, we are connected to that host
+                _msghandler->socket_connected(temp_id, this, false);
             }
-
-//                _remote_addrs[remote_id] = remote_addr;
-            storeRemoteAddress(temp_id, remote_addr);
-
-            //We assume if we can get a packet from the host, we are connected to that host
-            _msghandler->socket_connected(temp_id, this, false);
 
             //Break up messages into VASTMessage sizes
             //msg start at p - 4, i.e. start of header

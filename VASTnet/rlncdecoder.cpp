@@ -1,4 +1,5 @@
 #include "rlncdecoder.h"
+#include "net_manager.h"
 
 rlncdecoder::rlncdecoder ():
     decoder_factory(field, MAX_SYMBOLS, MAX_PACKET_SIZE),
@@ -33,20 +34,23 @@ void rlncdecoder::addRLNCMessage(RLNCMessage msg)
     auto pktids = msg.getPacketIds();
     std::lock_guard<std::mutex> guard(packet_pool_mutex);
 
-    //If an uncoded packet and it is within the codable size
-    if (pktids.size() == 1 && msg.getMessageSize())
+    //If an uncoded packet, it is within the codable size and not from NET_ID_UNASSIGNED
+    if (pktids.size() == 1
+            && msg.getMessageSize() < MAX_PACKET_SIZE
+            && msg.getFirstFromId () != NET_ID_UNASSIGNED)
     {
         if (packet_pool.find (pktids.front()) != packet_pool.end ())
         {
-            //CPPDEBUG("Replacing a packet " << pktids.front() << std::endl);
+            CPPDEBUG("Replacing a packet " << pktids.front() << std::endl);
 //            CPPDEBUG("Original: " << packet_pool.find(pktids.front())->second << std::endl);
 //            CPPDEBUG("New: " << msg << std::endl);
-        }
-        else
-        {
             if (!(packet_pool[pktids.front()] == msg))
+            {
+                CPPDEBUG("Stored packet: \n" << packet_pool[pktids.front()] << std::endl);
+                CPPDEBUG("Recvd packet: \n" << msg << std::endl);
                 throw std::logic_error("rlncdecoder::addRLNCMessage: packet ids are supposed unique: \
-                                       \nFound different packet with same ID ");
+                                       Found different packet with same ID ");
+            }
         }
 
         packet_pool[pktids.front()] = msg;

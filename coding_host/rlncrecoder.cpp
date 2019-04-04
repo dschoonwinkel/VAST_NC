@@ -1,5 +1,6 @@
 #include "rlncrecoder.h"
 #include <iostream>
+#include "net_manager.h"
 
 RLNCrecoder::RLNCrecoder() :
     encoder_factory(field, MAX_SYMBOLS, MAX_PACKET_SIZE),
@@ -11,8 +12,11 @@ RLNCrecoder::RLNCrecoder() :
 void RLNCrecoder::addRLNCMessage(RLNCMessage msg)
 {
     auto pktids = msg.getPacketIds();
+    //Ignore all NET_ID_UNASSIGNED
+    if (msg.getFirstFromId () == NET_ID_UNASSIGNED)
+        return;
     //If an uncoded packet and it is within the codable size
-    if (pktids.size() == 1 && msg.sizeOf() < MAX_PACKET_SIZE)
+    else if (pktids.size() == 1 && msg.sizeOf() < MAX_PACKET_SIZE)
         packet_pool[pktids.front()] = msg;
     else if (msg.getMessageSize() > MAX_PACKET_SIZE)
         std::cerr << "rlncrecoder::addRLNCMessage: Could not add packet, size too large" << std::endl;
@@ -67,4 +71,9 @@ RLNCMessage *RLNCrecoder::produceRLNCMessage()
 //    std::cout << "Recoder packet_pool size: " << packet_pool.size() << std::endl;
 
     return message;
+}
+
+size_t RLNCrecoder::getPacketPoolSize ()
+{
+    return packet_pool.size();
 }

@@ -560,6 +560,162 @@ void testExtraPacket()
 
 }
 
+void testNETIDUNASSIGNED()
+{
+    std::cout << "\ntestNETIDUNASSIGNED" << std::endl;
+
+    char data1[] = {'d', 'e', 'a', 'd'};
+
+    std::array<char, 100> vast_data1;
+
+    Vast::VASTHeader vast_header1;
+    vast_header1.start = 10;
+    vast_header1.type = 0;
+    vast_header1.end = 5;
+    vast_header1.msg_size = 4;
+    std::fill(vast_data1.begin (), vast_data1.end (), 0);
+    memcpy(vast_data1.data (), &vast_header1, sizeof(Vast::VASTHeader));
+    memcpy(vast_data1.data()+sizeof(Vast::VASTHeader), data1, 4);
+
+    RLNCrecoder recoder;
+
+    RLNCHeader_factory factory;
+    RLNCHeader header1 = factory.build();
+
+    RLNCMessage message1(header1);
+
+    int id1 = NET_ID_UNASSIGNED;
+
+    Vast::IPaddr addr1("127.0.0.1", 1037);
+
+    message1.putPacketId(id1);
+    message1.putFromId (id1);
+    message1.putToAddr (addr1);
+
+    message1.putMessage(vast_data1.data (), 100);
+
+    recoder.addRLNCMessage(message1);
+
+    assert(recoder.getPacketPoolSize () == 0);
+
+    rlncdecoder decoder;
+    decoder.addRLNCMessage (message1);
+    assert(decoder.getPacketPoolSize () == 0);
+
+    RLNCHeader header2 = factory.build();
+
+    RLNCMessage message2(header2);
+
+    int id2 = 123;
+
+    Vast::IPaddr addr2("127.0.0.1", 1037);
+
+    message2.putPacketId(id2);
+    message2.putFromId (id2);
+    message2.putToAddr (addr2);
+
+    message2.putMessage(vast_data1.data (), 100);
+
+    recoder.addRLNCMessage(message2);
+
+    assert(recoder.getPacketPoolSize () == 1);
+
+    decoder.addRLNCMessage (message2);
+    assert(decoder.getPacketPoolSize () == 1);
+}
+
+void testThrowPktNotUnique()
+{
+    std::cout << "\ntestThrowPktNotUnique" << std::endl;
+
+    char data1[] = {'d', 'e', 'a', 'd'};
+    char data2[] = {'b', 'e', 'e', 'f'};
+
+    std::array<char, 100> vast_data1;
+
+    Vast::VASTHeader vast_header1;
+    vast_header1.start = 10;
+    vast_header1.type = 0;
+    vast_header1.end = 5;
+    vast_header1.msg_size = 4;
+    std::fill(vast_data1.begin (), vast_data1.end (), 0);
+    memcpy(vast_data1.data (), &vast_header1, sizeof(Vast::VASTHeader));
+    memcpy(vast_data1.data()+sizeof(Vast::VASTHeader), data1, 4);
+
+    std::array<char, 100> vast_data2;
+
+    Vast::VASTHeader vast_header2;
+    vast_header2.start = 10;
+    vast_header2.type = 0;
+    vast_header2.end = 5;
+    vast_header2.msg_size = 4;
+    std::fill(vast_data2.begin (), vast_data2.end (), 0);
+    memcpy(vast_data2.data (), &vast_header2, sizeof(Vast::VASTHeader));
+    memcpy(vast_data2.data ()+sizeof(Vast::VASTHeader), data2, 4);
+
+    RLNCHeader_factory factory;
+    RLNCHeader header1 = factory.build();
+
+    RLNCMessage message1(header1);
+
+    int id1 = NET_ID_UNASSIGNED;
+
+    Vast::IPaddr addr1("127.0.0.1", 1037);
+
+    message1.putPacketId(id1);
+    message1.putFromId (id1);
+    message1.putToAddr (addr1);
+
+    message1.putMessage(vast_data1.data (), 100);
+
+    rlncdecoder decoder;
+    decoder.addRLNCMessage (message1);
+    decoder.addRLNCMessage (message1);
+    assert(decoder.getPacketPoolSize () == 0);
+
+    //If something went wrong, we will have an exception wrongly thrown by now
+
+    //Normal packet adding
+    RLNCHeader header2 = factory.build();
+    RLNCMessage message2(header2);
+
+    int id2 = 123;
+
+    Vast::IPaddr addr2("127.0.0.1", 1037);
+
+    message2.putPacketId(id2);
+    message2.putFromId (id2);
+    message2.putToAddr (addr2);
+
+    message2.putMessage(vast_data1.data (), 100);
+
+    decoder.addRLNCMessage (message2);
+    //Add the same packet twice
+    decoder.addRLNCMessage (message2);
+    assert(decoder.getPacketPoolSize () == 1);
+
+    //Create a different packet with same id, but different contents
+    RLNCHeader header3 = factory.build();
+
+    RLNCMessage message3(header3);
+
+    message3.putPacketId(id2);
+    message3.putFromId (id2);
+    message3.putToAddr (addr2);
+
+    message3.putMessage(vast_data2.data (), 100);
+
+    try {
+        decoder.addRLNCMessage (message3);
+        std::abort();
+    }
+    catch (std::logic_error)
+    {
+        //It should throw a logic error if we have the same pktid, but not the same packet
+        std::cout << "Logic error exception thrown correctly" << std::endl;
+    }
+}
+
 void testRepeated()
 {
     std::cout << "testRepeated" << std::endl;
@@ -674,6 +830,8 @@ int main() {
     testUndecodable ();
     testUnnecessary ();
     testExtraPacket ();
+    testNETIDUNASSIGNED();
+    testThrowPktNotUnique();
 //    testRepeated ();
 
     std::cout << "****************" << std::endl;

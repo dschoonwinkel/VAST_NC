@@ -107,7 +107,10 @@ namespace Vast
                     input_message.deserialize (_buf, bytes_transferred);
                     //Add uncoded messages to the packet pool to aid in decoding later
                     mchandler.putOtherRLNCMessage (input_message);
-                    process_input (input_message);
+                    ip::udp::endpoint* remote_endptr = &_remote_endpoint_;
+                    process_input (input_message, remote_endptr);
+
+
 
                 }
 
@@ -121,16 +124,16 @@ namespace Vast
         return -1;
     }
 
-    void net_udpNC_handler::process_input (RLNCMessage input_message)
+    void net_udpNC_handler::process_input (RLNCMessage input_message, ip::udp::endpoint* remote_endptr)
     {
 
         if (input_message.getPacketIds ().size() > 1)
             throw std::logic_error("net_udpNC_handler::process_input: Should not have encoded packets here\n");
 
-        filter_input (input_message);
+        filter_input (input_message, remote_endptr);
     }
 
-    void net_udpNC_handler::filter_input (RLNCMessage input_message)
+    void net_udpNC_handler::filter_input (RLNCMessage input_message, ip::udp::endpoint* remote_endptr)
     {
         if (input_message.getToAddrs ().size () > 0)
         {
@@ -138,7 +141,7 @@ namespace Vast
             {
                 //All is well, continue
                 //CPPDEBUG("net_udpNC_handler::process_input Message ToAddr was meant for me..." << std::endl);
-                order_input(input_message);
+                order_input(input_message, remote_endptr);
                 return;
             }
             else
@@ -155,7 +158,7 @@ namespace Vast
         }
     }
 
-    void net_udpNC_handler::order_input(RLNCMessage input_message)
+    void net_udpNC_handler::order_input(RLNCMessage input_message, ip::udp::endpoint* remote_endptr)
     {
         id_t firstFromID = input_message.getFirstFromId ();
 
@@ -188,13 +191,13 @@ namespace Vast
         //Save latest packet number
         recvd_ordering[input_message.getFirstFromId ()] = input_message.getOrdering ();
 
-        handoff_input (input_message);
+        handoff_input (input_message, remote_endptr);
     }
 
 
-    void net_udpNC_handler::handoff_input (RLNCMessage input_message)
+    void net_udpNC_handler::handoff_input (RLNCMessage input_message, ip::udp::endpoint *remote_endptr)
     {
-        net_udp_handler::process_input(input_message.getMessage (), input_message.getMessageSize ());
+        net_udp_handler::process_input(input_message.getMessage (), input_message.getMessageSize (), remote_endptr);
     }
 
     void net_udpNC_handler::RLNC_msg_received(RLNCMessage msg)
@@ -203,7 +206,8 @@ namespace Vast
 //        CPPDEBUG("net_udpNC_handler::RLNC_msg_received Decoded from mc_handler: " << decoded_from_mchandler << std::endl);
 //        CPPDEBUG("net_udpNC_handler::RLNC_msg_received first from_id: " << msg.getFirstFromId ()<< std::endl);
 
-//        process_input (msg);
+        //MC message are not associated with a specific endpoint
+//        process_input (msg, NULL);
     }
 
     net_udpNC_handler::~net_udpNC_handler()

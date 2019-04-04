@@ -90,43 +90,10 @@ int packet_listener::handle_input (const boost::system::error_code& error,
                   std::size_t bytes_transferred)
 {
     recv_msgs_count++;
-    RLNCHeader header;
 
     if (!error)
     {
-        //Store UDP messages
-//        CPPDEBUG("Received a message!" << std::endl);
-
-        char *p = _buf;
-
-        memcpy(&header, p, sizeof(RLNCHeader));
-
-            //Check if it is really a VAST message: Start and end bytes of header should be correct
-            if (!RLNCHeader_factory::isRLNCHeader(header))
-            {
-                CPPDEBUG("packet_listener::handle_input Non-RLNC message received on UDP socket" << std::endl);
-            }
-            else {
-//                CPPDEBUG("RLNC message received on the coding host" << std::endl);
-                RLNCMessage message;
-
-                message.deserialize(_buf, bytes_transferred);
-                recoder.addRLNCMessage(message);
-
-                msgs_mutex.lock();
-                RLNCMessage *temp_msg = recoder.produceRLNCMessage();
-
-
-                if (temp_msg != NULL)
-                {
-                    msgs.push_back(RLNCMessage(*temp_msg));
-//                    CPPDEBUG("packet_listener::handle_input: Adding RLNCmessage to queue" << std::endl);
-                    delete temp_msg;
-                }
-
-                msgs_mutex.unlock();
-            }
-
+        process_input(bytes_transferred);
 
         //Restart waiting for new packets
         start_receive();
@@ -135,9 +102,53 @@ int packet_listener::handle_input (const boost::system::error_code& error,
         std::cerr << "Error on UDP socket receive: " << error.message() << std::endl;
     }
     return -1;
-
 }
 
+int packet_listener::process_input (std::size_t bytes_transferred)
+{
+    RLNCHeader header;
+    char *p = _buf;
+
+    memcpy(&header, p, sizeof(RLNCHeader));
+
+        //Check if it is really a VAST message: Start and end bytes of header should be correct
+        if (!RLNCHeader_factory::isRLNCHeader(header))
+        {
+            CPPDEBUG("packet_listener::handle_input Non-RLNC message received on UDP socket" << std::endl);
+            return 0;
+        }
+        else if (header.enc_packet_count > 1)
+        {
+            CPPDEBUG("packet_listener::handle_input Already encoded packet received on UDP socket, ignoring" << std::endl);
+            return 0;
+        }
+        else {
+//          CPPDEBUG("RLNC message received on the coding host" << std::endl);
+            RLNCMessage message;
+
+            message.deserialize(_buf, bytes_transferred);
+
+            //Do not add NET_ID_UNASSIGNED packets to coding packets
+            if (message.getFirstFromId () == NET_ID_UNASSIGNED)
+                return 0;
+
+            recoder.addRLNCMessage(message);
+
+            msgs_mutex.lock();
+            RLNCMessage *temp_msg = recoder.produceRLNCMessage();
+
+
+            if (temp_msg != NULL)
+            {
+                msgs.push_back(RLNCMessage(*temp_msg));
+//                    CPPDEBUG("packet_listener::handle_input: Adding RLNCmessage to queue" << std::endl);
+                delete temp_msg;
+            }
+
+            msgs_mutex.unlock();
+        }
+        return 1;
+}
 int packet_listener::handle_close ()
 {
     if (_recv_io_service != NULL) {

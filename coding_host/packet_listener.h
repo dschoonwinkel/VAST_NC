@@ -34,6 +34,7 @@ protected:
     // handling incoming message
     virtual int handle_input (const boost::system::error_code& error,
                       std::size_t bytes_transferred);
+    virtual int process_input(std::size_t bytes_transferred);
 
     // if handle_input() returns -1, reactor would call handle_close()
     virtual int handle_close ();

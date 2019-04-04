@@ -21,6 +21,7 @@ public:
 
     void addRLNCMessage(RLNCMessage msg);
     RLNCMessage* produceRLNCMessage();
+    size_t getPacketPoolSize();
 
 
 private:

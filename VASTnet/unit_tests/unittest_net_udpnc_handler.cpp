@@ -91,8 +91,8 @@ void testFromNETUNASSIGNED()
     Vast::absnet_udp_testimpl tester;
     io_service ios;
     handler.open (&ios, &tester);
-    handler.process_input (message1);
-    handler.process_input (message2);
+    handler.process_input (message1, NULL);
+    handler.process_input (message2, NULL);
 
 
     std::cout << tester.message << std::endl;
@@ -168,8 +168,8 @@ void testOrderingNormalChain()
     Vast::absnet_udp_testimpl tester;
     io_service ios;
     handler.open (&ios, &tester);
-    handler.process_input (message1);
-    handler.process_input (message2);
+    handler.process_input (message1, NULL);
+    handler.process_input (message2, NULL);
 
 
     std::cout << tester.message << std::endl;
@@ -244,8 +244,8 @@ void testOrderingWrongChain()
     io_service ios;
     handler.open (&ios, &tester);
 
-    handler.process_input (message2);
-    handler.process_input (message1);
+    handler.process_input (message2, NULL);
+    handler.process_input (message1, NULL);
 
     std::cout << tester.message << std::endl;
     std::cout << std::string(buf2.data, buf2.size) << std::endl;
@@ -255,7 +255,7 @@ void testOrderingWrongChain()
     //Try to process the same packet again - changing the message so that we can distinguish it
     message2.putMessage (buf1.data, buf1.size);
 
-    handler.process_input(message2);
+    handler.process_input(message2, NULL);
 
     //The latest received packet should still be the same as previously, i.e. changed message 2 should not
     // be processed
@@ -335,13 +335,13 @@ void testOrderingIndividualChains()
     io_service ios;
     handler.open (&ios, &tester);
 
-    handler.process_input (message1);
+    handler.process_input (message1, NULL);
 
     //Check if we have received the first message from the first ID
     //Returned message is the entire RLNC payload, i.e. VAST message - contained in buf2
     assert(tester.message == std::string(buf1.data, buf1.size));
 
-    handler.process_input (message2);
+    handler.process_input (message2, NULL);
 //    std::cout << tester.message << std::endl;
 //    std::cout << std::string(buf2.data, buf2.size) << std::endl;
 
@@ -420,8 +420,8 @@ void testOrderingEndOfChain()
     Vast::absnet_udp_testimpl tester;
     io_service ios;
     handler.open (&ios, &tester);
-    handler.process_input (message1);
-    handler.process_input (message2);
+    handler.process_input (message1, NULL);
+    handler.process_input (message2, NULL);
 
 
     std::cout << tester.message << std::endl;
@@ -502,8 +502,8 @@ void testOrderingLossyEndOfChain()
     Vast::absnet_udp_testimpl tester;
     io_service ios;
     handler.open (&ios, &tester);
-    handler.process_input (message1);
-    handler.process_input (message2);
+    handler.process_input (message1, NULL);
+    handler.process_input (message2, NULL);
 
 
     std::cout << tester.message << std::endl;
@@ -584,8 +584,8 @@ void testOrderingVeryLossyEndOfChain()
     Vast::absnet_udp_testimpl tester;
     io_service ios;
     handler.open (&ios, &tester);
-    handler.process_input (message1);
-    handler.process_input (message2);
+    handler.process_input (message1, NULL);
+    handler.process_input (message2, NULL);
 
 
     std::cout << tester.message << std::endl;
@@ -597,8 +597,8 @@ void testOrderingVeryLossyEndOfChain()
     message1.putOrdering (254);
     message2.putOrdering (HIGHEST_RESET_ACCEPTING_ORDERING_NUMBER + 1);
 
-    handler.process_input (message1);
-    handler.process_input (message2);
+    handler.process_input (message1, NULL);
+    handler.process_input (message2, NULL);
     std::cout << tester.message << std::endl;
     std::cout << std::string(buf2.data, buf2.size) << std::endl;
     //Returned message is the entire RLNC payload, i.e. VAST message - contained in buf2
@@ -631,8 +631,8 @@ void testHandleNoToAddress ()
     Vast::absnet_udp_testimpl tester;
     io_service ios;
     handler.open (&ios, &tester);
-    handler.process_input (message1);
-    handler.process_input (message2);
+    handler.process_input (message1, NULL);
+    handler.process_input (message2, NULL);
 
     boost::this_thread::sleep_for (boost::chrono::milliseconds(sleep_time));
 }
@@ -693,7 +693,7 @@ void testThrowEncodedPacketException()
     handler.open (&ios, &tester);
 
     try {
-        handler.process_input (message1);
+        handler.process_input (message1, NULL);
         std::cout << "Test should have thrown an exception already before this" << std::endl;
         std::abort();
     }

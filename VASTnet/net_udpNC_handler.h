@@ -30,13 +30,13 @@ namespace Vast
                           std::size_t bytes_transferred);
 
         //General processing, calls filter_input
-        void process_input (RLNCMessage input_message);
+        void process_input (RLNCMessage input_message, ip::udp::endpoint* remote_endptr);
         //Filters input based on toAddrs, passes to order_input
-        void filter_input (RLNCMessage input_message);
+        void filter_input (RLNCMessage input_message, ip::udp::endpoint* remote_endptr);
         //Ensures order of incoming packets remains correct, passes to handoff_input
-        void order_input(RLNCMessage input_message);
+        void order_input(RLNCMessage input_message, ip::udp::endpoint* remote_endptr);
         //Hands input packet off to net_udp_handler
-        void handoff_input (RLNCMessage input_message);
+        void handoff_input (RLNCMessage input_message, ip::udp::endpoint* remote_endptr);
 
 
 
