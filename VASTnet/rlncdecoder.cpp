@@ -244,7 +244,7 @@ RLNCMessage *rlncdecoder::produceDecodedRLNCMessage()
     }
     else
     {
-        CPPDEBUG("Could not decode, probably linearly dependent, deleting it and its packets" << std::endl);
+        CPPDEBUG("rlncdecoder::produceDecodedRLNCMessage: Could not decode, probably linearly dependent, deleting it and its packets" << std::endl);
 //            std::vector<packetid_t> pkt_ids_to_delete = NC_packets[i].getPacketIds ();
 //            for (auto it = pkt_ids_to_delete.begin (); it != pkt_ids_to_delete.end (); ++it)
 //            {

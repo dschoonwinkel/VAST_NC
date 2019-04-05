@@ -79,8 +79,9 @@ namespace Vast
     int net_udpNC_handler::handle_input (const boost::system::error_code& error,
           std::size_t bytes_transferred)
     {
-        total_packets_processed++;
         RLNCHeader header;
+
+        total_packets_recvd++;
 
         if (!error)
         {
@@ -127,6 +128,8 @@ namespace Vast
     void net_udpNC_handler::process_input (RLNCMessage input_message, ip::udp::endpoint* remote_endptr)
     {
 
+        total_packets_processed++;
+
         if (input_message.getPacketIds ().size() > 1)
             throw std::logic_error("net_udpNC_handler::process_input: Should not have encoded packets here\n");
 
@@ -146,8 +149,9 @@ namespace Vast
             }
             else
             {
-                CPPDEBUG("net_udpNC_handler::process_input Message ToAddr was not meant for me..." << std::endl);
+//                CPPDEBUG("net_udpNC_handler::process_input Message ToAddr was not meant for me..." << std::endl);
                 //Reject in some way - probably return
+                total_not_meantforme++;
                 return;
             }
         }
@@ -176,7 +180,7 @@ namespace Vast
         else if (recvd_ordering[firstFromID] >= LOWEST_RESET_PACKET_ORDERING_NUMBER
                  && input_message.getOrdering() < HIGHEST_RESET_ACCEPTING_ORDERING_NUMBER)
         {
-            CPPDEBUG("net_udpNC_handler::process_input Resetting chain, ordering = 0" << std::endl);
+            CPPDEBUG("net_udpNC_handler::process_input Resetting chain for " << firstFromID << std::endl);
             recvd_ordering[firstFromID] = 0;
             mchandler.clearPacketPool ();
         }
@@ -184,9 +188,15 @@ namespace Vast
         else if (recvd_ordering[firstFromID] >= input_message.getOrdering ())
         {
             CPPDEBUG("net_udpNC_handler::process_input Old or same message, ignoring" << std::endl);
-            CPPDEBUG("net_udpNC_handler::process_input " << firstFromID << " " << (size_t)recvd_ordering[firstFromID] << " " << (size_t)input_message.getOrdering() << std::endl);
+            CPPDEBUG("net_udpNC_handler::process_input " << firstFromID << " "
+                     << (size_t)recvd_ordering[firstFromID]
+                     << " " << (size_t)input_message.getOrdering()
+                     << std::endl);
+            total_toolate_packets++;
             return;
         }
+
+        total_usedpackets++;
 
         //Save latest packet number
         recvd_ordering[input_message.getFirstFromId ()] = input_message.getOrdering ();
@@ -207,13 +217,18 @@ namespace Vast
 //        CPPDEBUG("net_udpNC_handler::RLNC_msg_received first from_id: " << msg.getFirstFromId ()<< std::endl);
 
         //MC message are not associated with a specific endpoint
-//        process_input (msg, NULL);
+        process_input (msg, NULL);
     }
 
     net_udpNC_handler::~net_udpNC_handler()
     {
+        CPPDEBUG("~net_udpNC_handler: total_packets_processed: " << total_packets_processed << std::endl);
+        CPPDEBUG("~net_udpNC_handler: total_packets_recvd: " << total_packets_recvd << std::endl);
         CPPDEBUG("~net_udpNC_handler: decoded_from_mchandler: " << decoded_from_mchandler << std::endl);
-        CPPDEBUG("~net_udpNC_handler: used_from_mchandler: " << total_packets_processed - decoded_from_mchandler <<  std::endl);
+        CPPDEBUG("~net_udpNC_handler: obtained_from_mchandler: " << (total_packets_recvd - total_packets_processed) <<  std::endl);
+        CPPDEBUG("~net_udpNC_handler: total_not_meantforme: " << total_not_meantforme <<  std::endl);
+        CPPDEBUG("~net_udpNC_handler: total_toolate_packets: " << total_toolate_packets <<  std::endl);
+        CPPDEBUG("~net_udpNC_handler: total used packets: " << (total_usedpackets) <<  std::endl);
         mchandler.close();
     }
 

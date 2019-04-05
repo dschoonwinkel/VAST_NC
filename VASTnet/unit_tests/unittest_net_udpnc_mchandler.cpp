@@ -22,7 +22,7 @@ void onCloseWait()
 
 void test_process_encoded()
 {
-    std::cout << "test_process_encoded() " << std::endl;
+    std::cout << "\n\ntest_process_encoded() " << std::endl;
 
     std::string remote_ip = "127.0.0.1";
     uint16_t remote_port = 1037;
@@ -106,10 +106,76 @@ void test_process_encoded()
     onCloseWait();
 }
 
+void test_toAddrForMe()
+{
+    std::cout << "\n\ntest_toAddrForMe() " << std::endl;
+
+    std::string remote_ip = "127.0.0.1";
+    uint16_t remote_port = 1037;
+    ip::udp::endpoint local_endpoint = ip::udp::endpoint(
+                ip::address::from_string(remote_ip), remote_port);
+
+    Vast::net_udpNC_MChandler mchandler(local_endpoint);
+
+    RLNCHeader_factory factory1;
+
+    RLNCHeader header1 = factory1.build ();
+    RLNCMessage msg1(header1);
+
+    std::string hello = "Hello World!";
+    msg1.putMessage (hello.c_str (), hello.length());
+
+    Vast::IPaddr addr1("127.0.0.1", 1037);
+    Vast::IPaddr addr2("127.0.0.2", 1037);
+    Vast::IPaddr addr3("127.0.0.3", 1037);
+
+    msg1.putPacketId (123);
+    msg1.putFromId (654);
+    msg1.putToAddr (addr1);
+
+    std::cout << "Single addr in packet: " << std::endl;
+    assert(mchandler.toAddrForMe (msg1) == true);
+
+    RLNCHeader header2 = factory1.build ();
+    RLNCMessage msg2(header2);
+
+    std::string bye = "Goodbye world!";
+    msg2.putMessage (bye.c_str (), bye.length());
+
+    msg2.putPacketId (123);
+    msg2.putFromId (654);
+    msg2.putToAddr (addr1);
+    msg2.putPacketId (321);
+    msg2.putFromId (456);
+    msg2.putToAddr (addr2);
+
+    std::cout << "Two addrs in packet: " << std::endl;
+    assert(mchandler.toAddrForMe (msg2) == true);
+
+    RLNCHeader header3 = factory1.build ();
+    RLNCMessage msg3(header3);
+
+    std::string OK = "OK world!";
+    msg3.putMessage (OK.c_str (), OK.length());
+
+    msg3.putPacketId (123);
+    msg3.putFromId (654);
+    msg3.putToAddr (addr2);
+    msg3.putPacketId (321);
+    msg3.putFromId (456);
+    msg3.putToAddr (addr3);
+
+    std::cout << "Two irrelevant addrs in packet: " << std::endl;
+    assert(mchandler.toAddrForMe (msg3) == false);
+
+    onCloseWait();
+}
+
 int main()
 {
 //    runUnitTest1();
     test_process_encoded ();
+    test_toAddrForMe();
 
     std::cout << "****************" << std::endl;
     std::cout << "All tests passed" << std::endl;

@@ -20,7 +20,8 @@ namespace Vast
         delete _io_service;
         _io_service = NULL;
 
-        CPPDEBUG("~net_udpNC_MChandler" << std::endl);
+        CPPDEBUG("~net_udpNC_MChandler packets_recvd: " << packets_received << std::endl);
+        CPPDEBUG("~net_udpNC_MChandler toaddrs_pkts_ignored: " << toaddrs_pkts_ignored << std::endl);
     }
 
     int net_udpNC_MChandler::open(AbstractRLNCMsgReceiver *msghandler) {
@@ -123,23 +124,30 @@ namespace Vast
 //            CPPDEBUG("net_udpNC_MChandler::process_encoded: processing message" << std::endl);
             RLNCMessage message1;
             message1.deserialize (_buf, bytes_transferred);
-            decoder.addRLNCMessage(message1);
-            RLNCMessage *decoded_msg = decoder.produceDecodedRLNCMessage();
-
-
-            if (decoded_msg != NULL)
+            if (toAddrForMe (message1))
             {
-//                CPPDEBUG("processing decoded message" << std::endl);
-//                CPPDEBUG(*decoded_msg << std::endl);
-                if (_msghandler != NULL)
+                putOtherRLNCMessage (message1);
+                RLNCMessage *decoded_msg = decoder.produceDecodedRLNCMessage();
+
+
+                if (decoded_msg != NULL)
                 {
-//                    CPPDEBUG("net_udpNC_MChandler::process_encoded processing decoded message" << std::endl);
-                    _msghandler->RLNC_msg_received(*decoded_msg);
-                    delete decoded_msg;
+                    if (_msghandler != NULL)
+                    {
+    //                    CPPDEBUG("net_udpNC_MChandler::process_encoded processing decoded message" << std::endl);
+                        _msghandler->RLNC_msg_received(*decoded_msg);
+                        delete decoded_msg;
+                    }
+                    else {
+                        std::cerr << "net_udpNC_MChandler::process_encoded: _msghandler was NULL" << std::endl;
+                    }
                 }
-                else {
-                    std::cerr << "net_udpNC_MChandler::process_encoded: _msghandler was NULL" << std::endl;
-                }
+            }
+            else
+            {
+//                CPPDEBUG("None of the toAddrs was for me" << std::endl);
+                toaddrs_pkts_ignored++;
+
             }
 
     }
@@ -221,5 +229,21 @@ namespace Vast
         _iosthread->join();
 
         return 0;
+    }
+
+    bool net_udpNC_MChandler::toAddrForMe(RLNCMessage msg)
+    {
+        IPaddr local_addr(_local_endpoint.address().to_v4().to_ulong(), _local_endpoint.port ());
+        for (auto &addr : msg.getToAddrs ())
+        {
+
+            //One of the addresses was meant for me
+            if (addr == local_addr)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

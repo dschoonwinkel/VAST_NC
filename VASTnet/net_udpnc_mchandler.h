@@ -34,6 +34,8 @@ namespace Vast
         void clearPacketPool();
         size_t getPacketPoolSize();
 
+        bool toAddrForMe(RLNCMessage msg);
+
     protected:
 
         //Start the receiving loop
@@ -65,6 +67,7 @@ namespace Vast
         rlncdecoder                 decoder;
 
         size_t packets_received = 0;
+        size_t toaddrs_pkts_ignored = 0;
     };
 
 }

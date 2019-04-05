@@ -5,7 +5,7 @@ clean:
 	-rm logs/*.txt
 	-rm logs/results/results1.txt
 	-rm output_dump/*.txt
-#	-rm perf/*.data
+	-rm perf/*.data
 
 clean_binaries:
 	-rm demo_chatva_Qt
@@ -27,6 +27,8 @@ backup_results:
 	cp logs/*.txt logs/logs_backup/logs_$(foo)_$(date_string)/
 	mkdir logs/logs_backup/logs_$(foo)_$(date_string)/results
 	cp logs/results/results1.txt logs/logs_backup/logs_$(foo)_$(date_string)/results/
+	mkdir logs/logs_backup/logs_$(foo)_$(date_string)/output_dump
+	cp output_dump/*.txt logs/logs_backup/logs_$(foo)_$(date_string)/output_dump/
 
 restore_results:
 	$(backup_results)

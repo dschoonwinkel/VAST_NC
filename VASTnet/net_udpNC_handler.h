@@ -48,7 +48,11 @@ namespace Vast
 
         net_udpNC_MChandler mchandler;
         size_t decoded_from_mchandler = 0;
+        size_t total_packets_recvd = 0;
         size_t total_packets_processed = 0;
+        size_t total_not_meantforme = 0;
+        size_t total_toolate_packets = 0;
+        size_t total_usedpackets = 0;
 
         std::map<id_t, uint8_t> recvd_ordering;
         std::map<id_t, uint8_t> send_ordering;
