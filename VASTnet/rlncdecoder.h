@@ -56,6 +56,7 @@ private:
     //For stats collection purposes
     size_t packets_recovered = 0;
     size_t packets_added_packetpool = 0;
+    size_t packets_missing_undecodable = 0;
 
     std::chrono::microseconds addLockTimer = std::chrono::microseconds::zero();
     std::chrono::high_resolution_clock::time_point t1;

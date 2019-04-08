@@ -25,7 +25,7 @@ namespace Vast {
         virtual int open (io_service *io_service, abstract_net_udp *msghandler);
 
         // close connection & unregister from io_service
-        int close (void);
+        virtual int close (void);
 
         // obtain address of remote host
         IPaddr *getRemoteAddress (id_t host_id);

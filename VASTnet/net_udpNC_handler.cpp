@@ -99,7 +99,7 @@ namespace Vast
                 }
                 else if (RLNCHeader_factory::isRLNCHeader (header) && header.enc_packet_count > 1)
                 {
-                    CPPDEBUG("net_udpNC_handler::handle_input: Encoded packet received -- THIS IS NOT SUPPOSED TO HAPPEN" << std::endl);
+                    throw std::logic_error("net_udpNC_handler::handle_input: Encoded packet received in unicast handler\n");
                 }
                 else {
 //                    CPPDEBUG("net_udpNC_handler::handle_input RLNC message received on the coding host" << std::endl);
@@ -220,16 +220,21 @@ namespace Vast
         process_input (msg, NULL);
     }
 
+    int net_udpNC_handler::close ()
+    {
+        net_udp_handler::close();
+        mchandler.close();
+    }
+
     net_udpNC_handler::~net_udpNC_handler()
     {
         CPPDEBUG("~net_udpNC_handler: total_packets_processed: " << total_packets_processed << std::endl);
         CPPDEBUG("~net_udpNC_handler: total_packets_recvd: " << total_packets_recvd << std::endl);
         CPPDEBUG("~net_udpNC_handler: decoded_from_mchandler: " << decoded_from_mchandler << std::endl);
-        CPPDEBUG("~net_udpNC_handler: obtained_from_mchandler: " << (total_packets_recvd - total_packets_processed) <<  std::endl);
+        CPPDEBUG("~net_udpNC_handler: obtained_from_mchandler: " << (total_packets_processed - total_packets_recvd) <<  std::endl);
         CPPDEBUG("~net_udpNC_handler: total_not_meantforme: " << total_not_meantforme <<  std::endl);
         CPPDEBUG("~net_udpNC_handler: total_toolate_packets: " << total_toolate_packets <<  std::endl);
         CPPDEBUG("~net_udpNC_handler: total used packets: " << (total_usedpackets) <<  std::endl);
-        mchandler.close();
     }
 
 }

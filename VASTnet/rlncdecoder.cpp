@@ -159,6 +159,7 @@ RLNCMessage *rlncdecoder::produceDecodedRLNCMessage()
         else {
 //                    CPPDEBUG("Too many packets missing, trying next packet" << std::endl);
 //                    NC_packets.erase (NC_packets.begin() + i);
+            packets_missing_undecodable++;
             continue;
         }
     }
@@ -263,6 +264,7 @@ rlncdecoder::~rlncdecoder ()
 {
     CPPDEBUG("~rlncdecoder:: packets added to packet pool: " << packets_added_packetpool << std::endl);
     CPPDEBUG("~rlncdecoder:: packet_recovered: " << packets_recovered << std::endl);
+    CPPDEBUG("~rlncdecoder:: packets_missing_undecodable: " << packets_missing_undecodable << std::endl);
     CPPDEBUG("~rlncdecoder:: time spent in addLock: " << addLockTimer.count() / 1000 << " milliseconds " << std::endl);
 }
 

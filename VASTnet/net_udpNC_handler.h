@@ -19,6 +19,8 @@ namespace Vast
         virtual ~net_udpNC_handler();
 
         int open (io_service *io_service, abstract_net_udp *msghandler);
+        // call net_udp_handler close and mchandler close
+        int close (void);
 
         size_t send(const char *msg, size_t n, ip::udp::endpoint remote_endpoint);
 

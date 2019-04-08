@@ -96,6 +96,7 @@ namespace Vast
                 }
                 else {
                     CPPDEBUG("net_udpnc_mchandler::handle_input RLNC message received" << std::endl);
+                    throw std::logic_error("net_udpnc_mchandler::handle_input Received unencoded packet in MC handler\n");
                     RLNCMessage other;
                     other.deserialize (p, bytes_transferred);
                     putOtherRLNCMessage (other);

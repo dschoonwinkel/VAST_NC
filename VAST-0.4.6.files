@@ -205,6 +205,7 @@ common/Arbitrator.h
 common/ArbitratorLogic.h
 common/ClusterMovement.h
 common/Compressor.cpp
+common/ConcurrentQueue.h
 common/Config.h
 common/Errout.cpp
 common/GroupMovement.h
