@@ -15,8 +15,17 @@ import os, time
 
 hosts = list()
 
-TIMESTEP_DURATION = 0.01 #seconds
-SIMULATION_STEPS = 15000
+TIMESTEP_DURATION = 0.1 #seconds
+
+with open("../bin/VASTreal.ini", 'r') as config:
+    data = config.readlines()
+    TIMESTEP_DURATION = float(data[-1])/1000
+    print(TIMESTEP_DURATION)
+    SIMULATION_STEPS = (int)(data[data.index('#TIME_STEPS;    // number of steps\r\n')+1])
+    print (SIMULATION_STEPS)
+
+
+# SIMULATION_STEPS = 15000
 TOTAL_SIMULATION_TIME = TIMESTEP_DURATION * SIMULATION_STEPS
 # TOTAL_SIMULATION_TIME = 0
 AUTO = True
@@ -79,17 +88,25 @@ def myNetwork():
     CLI(net)
 
     for i in range(1,Node_count+1):
+        print("Setting up node %d" % i)
         hosts[i-1].cmd("route add 239.255.0.1 h%d-eth0" % i)
         if AUTO:
             # hosts[i-1].cmd("xterm -hold -fg black -bg green -geometry 80x60+%d+0 -e   \"./VASTreal_console %d 0 1037 10.0.0.1 \" &" % (200+i*40, i-1))    
             hosts[i-1].cmd("./VASTreal_console %d 0 1037 10.0.0.1 &> output_dump/node%d.txt &" % (i-1, i-1))
             # hosts[i-1].cmd("perf record --call-graph dwarf -o ./perf/perf%d.data ./VASTreal_console %d 0 1037 10.0.0.1 &> output_dump/node%d.txt &" % (i-1, i-1, i-1))
-        time.sleep(int(TIMESTEP_DURATION * 100))
+        time.sleep(1 + TIMESTEP_DURATION * 10)
 
     if not AUTO:
         CLI(net)
 
-    time.sleep(int(TIMESTEP_DURATION * 100))
+    for i in range(1, int(TIMESTEP_DURATION * 100) / 10):
+            print("Connection wait sleep 10 seconds, %d to go" % (int(TIMESTEP_DURATION * 100) - i*10))
+            try:
+                time.sleep(10)
+            except KeyboardInterrupt:
+                print("Sleep interrupted, exiting")
+                break;
+        
 
     #print(net.links)
     

@@ -224,6 +224,8 @@ namespace Vast
     {
         net_udp_handler::close();
         mchandler.close();
+
+        return 0;
     }
 
     net_udpNC_handler::~net_udpNC_handler()
