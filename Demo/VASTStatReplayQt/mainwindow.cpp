@@ -23,6 +23,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     readIniFile ();
 
+    CPPDEBUG("MainWindow:: g_MS_PER_TIMESTEP: " << g_MS_PER_TIMESTEP << std::endl);
+
 #ifdef PLOT_RESULTS
     m_timerId = startTimer(TIMERINTERVAL);
 #else
@@ -206,9 +208,9 @@ void MainWindow::paintEvent(QPaintEvent * /*event*/) {
         //Draw Matcher & Matcher AOI
         if (restoredLog.getWorldIsMatcher() && restoredLog.getMatcherAOI() != NULL)
         {
-            std::cout << "Plotting matcher: x: " << restoredLog.getMatcherAOI()->center.x <<
-                            " y: " <<  restoredLog.getMatcherAOI()->center.y <<
-                            " radius: " << restoredLog.getMatcherAOI()->radius << std::endl;
+//            std::cout << "Plotting matcher: x: " << restoredLog.getMatcherAOI()->center.x <<
+//                            " y: " <<  restoredLog.getMatcherAOI()->center.y <<
+//                            " radius: " << restoredLog.getMatcherAOI()->radius << std::endl;
             painter.setPen(nodeColors[log_iter%nodeColors.size()]);
             painter.drawRect(restoredLog.getMatcherAOI()->center.x, restoredLog.getMatcherAOI()->center.y, 10, 10);
 
@@ -289,7 +291,7 @@ void MainWindow::timerEvent(QTimerEvent *event) {
         auto t2 = std::chrono::high_resolution_clock::now();
         process_duration += std::chrono::duration_cast<std::chrono::microseconds>(t2-t1);
 
-        if (counter % 200 == 0)
+        if (counter % (int)(VASTREAL_STEP_DISPLAY_DIVISOR/g_MS_PER_TIMESTEP) == 0)
         {
             CPPDEBUG(counter++ << std::endl);
             std::cout << "Average process duration: " << process_duration.count() / counter << " microsec" << std::endl;

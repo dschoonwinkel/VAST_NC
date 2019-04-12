@@ -308,7 +308,10 @@ namespace Vast
 
         // wait for the network layer to join properly
         else if (handlers->net->isJoined () == false)
+        {
+            CPPDEBUG("VASTVerse::net->isJoined failed" << std::endl);
             return false;
+        }
 
         // after we get unique ID, obtain physical coordinate
         else if (handlers->relay == NULL)
@@ -338,14 +341,18 @@ namespace Vast
         }
         // NOTE: if physical coordinate is not supplied, the login process may pause here indefinitely
         else if (handlers->relay->isJoined () == false)
+        {
+            CPPDEBUG("VASTVerse::relay->isJoined failed" << std::endl);
             return false;
+        }
+
 
         // create matcher instance (though it may not be used)
         else if (handlers->matcher == NULL)
         {             
             // relay has just been properly created, get physical coordinates
             physcoord = handlers->relay->getPhysicalCoordinate ();
-            printf ("[%lu] physical coord: (%.3f, %.3f)\n", handlers->net->getHostID (), physcoord->x, physcoord->y);
+            printf ("VASTVerse: [%lu] physical coord: (%.3f, %.3f)\n", handlers->net->getHostID (), physcoord->x, physcoord->y);
 
             // create (idle) 'matcher' instance
             handlers->matcher = new VASTMatcher (_netpara.is_matcher, _netpara.overload_limit, _netpara.is_static, (_netpara.matcher_coord.isEmpty () ? NULL : &_netpara.matcher_coord));
@@ -719,7 +726,10 @@ namespace Vast
         // TODO:
         VASTPointer *handlers = (VASTPointer *)_pointers;
         if (handlers->net != NULL)
+        {
+            CPPDEBUG("VASTVerse::resumeNetwork handlers->net->start ()"<< std::endl);
             handlers->net->start ();        
+        }
     }
 
     // open a new TCP socket

@@ -12,8 +12,10 @@ namespace Vast
 
     int net_udpNC_handler::open (io_service *io_service, abstract_net_udp *msghandler)
     {
+        CPPDEBUG("net_udpNC_handler::open" << std::endl);
         net_udp_handler::open(io_service, msghandler);
-        mchandler.open (this);
+        mchandler.open (&consumer);
+        consumer.open (this, msghandler, &mchandler);
 
         return 0;
     }
@@ -59,7 +61,6 @@ namespace Vast
 
         //Add to the decoder, if later used for decoding
         mchandler.putOtherRLNCMessage (message);
-
 
         std::vector<char> buf(message.sizeOf());
         int sending_len = message.serialize(buf.data ());
@@ -109,7 +110,7 @@ namespace Vast
                     //Add uncoded messages to the packet pool to aid in decoding later
                     mchandler.putOtherRLNCMessage (input_message);
                     ip::udp::endpoint* remote_endptr = &_remote_endpoint_;
-                    process_input (input_message, remote_endptr);
+                    consumer.RLNC_msg_received (input_message, remote_endptr);
 
 
 
@@ -120,88 +121,9 @@ namespace Vast
             start_receive();
         }
         else {
-            CPPDEBUG("Error on UDP socket receive: " << error.message() << std::endl;);
+            CPPDEBUG("Error on UDP socket receive: " << error.message() << std::endl);
         }
         return -1;
-    }
-
-    void net_udpNC_handler::process_input (RLNCMessage input_message, ip::udp::endpoint* remote_endptr)
-    {
-
-        total_packets_processed++;
-
-        if (input_message.getPacketIds ().size() > 1)
-            throw std::logic_error("net_udpNC_handler::process_input: Should not have encoded packets here\n");
-
-        filter_input (input_message, remote_endptr);
-    }
-
-    void net_udpNC_handler::filter_input (RLNCMessage input_message, ip::udp::endpoint* remote_endptr)
-    {
-        if (input_message.getToAddrs ().size () > 0)
-        {
-            if (_msghandler->getPublicIPaddr () == input_message.getToAddrs ()[0])
-            {
-                //All is well, continue
-                //CPPDEBUG("net_udpNC_handler::process_input Message ToAddr was meant for me..." << std::endl);
-                order_input(input_message, remote_endptr);
-                return;
-            }
-            else
-            {
-//                CPPDEBUG("net_udpNC_handler::process_input Message ToAddr was not meant for me..." << std::endl);
-                //Reject in some way - probably return
-                total_not_meantforme++;
-                return;
-            }
-        }
-        else
-        {
-            CPPDEBUG("net_udpNC_handler::process_input input_message has no toAddrs" << std::endl);
-            return;
-        }
-    }
-
-    void net_udpNC_handler::order_input(RLNCMessage input_message, ip::udp::endpoint* remote_endptr)
-    {
-        id_t firstFromID = input_message.getFirstFromId ();
-
-        if (firstFromID == NET_ID_UNASSIGNED)
-        {
-//            CPPDEBUG("net_udpNC_handler::process_input NET_ID_UNASSIGNED in fromID, processing" << std::endl);
-        }
-        //If we have never heard from this ID before, simply store the recvd_ordering
-        else if (recvd_ordering.find(firstFromID) == recvd_ordering.end())
-        {
-            recvd_ordering[firstFromID] = input_message.getOrdering ();
-            CPPDEBUG("net_udpNC_handler::process_input Adding new from_id to recvd_ordering" << std::endl);
-        }
-        //First message of new chain, reset ordering to accept
-        else if (recvd_ordering[firstFromID] >= LOWEST_RESET_PACKET_ORDERING_NUMBER
-                 && input_message.getOrdering() < HIGHEST_RESET_ACCEPTING_ORDERING_NUMBER)
-        {
-            CPPDEBUG("net_udpNC_handler::process_input Resetting chain for " << firstFromID << std::endl);
-            recvd_ordering[firstFromID] = 0;
-            mchandler.clearPacketPool ();
-        }
-        //This is an old or the same message, ignore
-        else if (recvd_ordering[firstFromID] >= input_message.getOrdering ())
-        {
-            CPPDEBUG("net_udpNC_handler::process_input Old or same message, ignoring" << std::endl);
-            CPPDEBUG("net_udpNC_handler::process_input " << firstFromID << " "
-                     << (size_t)recvd_ordering[firstFromID]
-                     << " " << (size_t)input_message.getOrdering()
-                     << std::endl);
-            total_toolate_packets++;
-            return;
-        }
-
-        total_usedpackets++;
-
-        //Save latest packet number
-        recvd_ordering[input_message.getFirstFromId ()] = input_message.getOrdering ();
-
-        handoff_input (input_message, remote_endptr);
     }
 
 
@@ -210,31 +132,28 @@ namespace Vast
         net_udp_handler::process_input(input_message.getMessage (), input_message.getMessageSize (), remote_endptr);
     }
 
-    void net_udpNC_handler::RLNC_msg_received(RLNCMessage msg)
+    void net_udpNC_handler::RLNC_msg_received(RLNCMessage input_message, ip::udp::endpoint* remote_endptr)
     {
-        decoded_from_mchandler++;
 //        CPPDEBUG("net_udpNC_handler::RLNC_msg_received Decoded from mc_handler: " << decoded_from_mchandler << std::endl);
 //        CPPDEBUG("net_udpNC_handler::RLNC_msg_received first from_id: " << msg.getFirstFromId ()<< std::endl);
 
         //MC message are not associated with a specific endpoint
-        process_input (msg, NULL);
+        handoff_input (input_message, remote_endptr);
     }
 
     int net_udpNC_handler::close ()
     {
+        CPPDEBUG("net_udpNC_handler::close()" << std::endl);
         net_udp_handler::close();
+        consumer.close();
         mchandler.close();
+
+        return 0;
     }
 
     net_udpNC_handler::~net_udpNC_handler()
     {
-        CPPDEBUG("~net_udpNC_handler: total_packets_processed: " << total_packets_processed << std::endl);
         CPPDEBUG("~net_udpNC_handler: total_packets_recvd: " << total_packets_recvd << std::endl);
-        CPPDEBUG("~net_udpNC_handler: decoded_from_mchandler: " << decoded_from_mchandler << std::endl);
-        CPPDEBUG("~net_udpNC_handler: obtained_from_mchandler: " << (total_packets_processed - total_packets_recvd) <<  std::endl);
-        CPPDEBUG("~net_udpNC_handler: total_not_meantforme: " << total_not_meantforme <<  std::endl);
-        CPPDEBUG("~net_udpNC_handler: total_toolate_packets: " << total_toolate_packets <<  std::endl);
-        CPPDEBUG("~net_udpNC_handler: total used packets: " << (total_usedpackets) <<  std::endl);
     }
 
 }

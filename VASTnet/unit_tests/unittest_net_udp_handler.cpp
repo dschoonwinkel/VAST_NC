@@ -10,10 +10,11 @@
 #include <boost/thread/thread.hpp>
 #include <boost/chrono.hpp>
 
+size_t sleep_time = 200;
 
 void testProcessInput()
 {
-    std::cout << "\n\nrunning testFromNETUNASSIGNED" << std::endl;
+    std::cout << "\n\nrunning testProcessInput" << std::endl;
     char data1[] = "message1";
     char data2[] = "message2";
     data2[0] = rand() % 25 + 'a';
@@ -41,8 +42,6 @@ void testProcessInput()
     buf2.add ((char *)&vast_header2, sizeof (Vast::VASTHeader));
     buf2.add (&msg2);
 
-    int id1 = NET_ID_UNASSIGNED;
-
     Vast::IPaddr addr1("127.0.0.1", 1037);
 
     std::string remote_ip = "127.0.0.1";
@@ -54,8 +53,7 @@ void testProcessInput()
     Vast::absnet_udp_testimpl tester;
     io_service ios;
     handler.open (&ios, &tester);
-    handler.process_input (message1, NULL);
-    handler.process_input (message2, NULL);
+    handler.process_input (buf1.data, buf1.size, NULL);
 
 
     std::cout << tester.message << std::endl;

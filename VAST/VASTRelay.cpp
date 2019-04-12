@@ -285,7 +285,7 @@ namespace Vast
                     // print a small message to show it
                     if (_request_times > 0)
                     {
-                        printf ("[%lu] physcoord (%.3f, %.3f) rtt to [%lu]: %.3f error: %.3f requests: %d\n",
+                        printf ("VASTRelay: [%lu] physcoord (%.3f, %.3f) rtt to [%lu]: %.3f error: %.3f requests: %d\n",
                                 _self.id, _temp_coord.x, _temp_coord.y, in_msg.from, rtt, _error, _request_times);
 
                         // reset
@@ -542,6 +542,7 @@ namespace Vast
         //case MESSAGE:
         //case NEIGHBOR:
             {
+            CPPDEBUG("VASTRelay::handleMessage forwarding messasges" << std::endl);
                 // forward message to clients 
 
                 // NOTE must send to remote first before local, as sendtime will be extracted by local host
@@ -1103,6 +1104,7 @@ namespace Vast
     bool 
     VASTRelay::setJoined (id_t relay_id)
     {
+        CPPDEBUG("VASTRelay: setJoined relay_id " << relay_id << std::endl);
         // if no ID is specified, I myself is relay
         if (relay_id == NET_ID_UNASSIGNED)
             _curr_relay = &_self;

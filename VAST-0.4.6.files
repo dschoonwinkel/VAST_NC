@@ -12,6 +12,8 @@ VASTnet/net_udpNC_handler.cpp
 VASTnet/net_udpNC_handler.h
 VASTnet/net_udp_handler.cpp
 VASTnet/net_udp_handler.h
+VASTnet/net_udpnc_consumer.cpp
+VASTnet/net_udpnc_consumer.h
 VASTnet/net_udpnc_mchandler.cpp
 VASTnet/net_udpnc_mchandler.h
 VASTnet/rlnc_fieldsize_defs.h
@@ -25,7 +27,9 @@ VASTnet/unit_tests/Makefile
 VASTnet/unit_tests/absnet_udp_testimpl.h
 VASTnet/unit_tests/abstract_rlnc_msg_receiver_testimpl.cpp
 VASTnet/unit_tests/abstract_rlnc_msg_receiver_testimpl.h
+VASTnet/unit_tests/net_udpnc_mchandlermock.h
 VASTnet/unit_tests/unittest_net_udp_handler.cpp
+VASTnet/unit_tests/unittest_net_udpnc_consumer.cpp
 VASTnet/unit_tests/unittest_net_udpnc_handler.cpp
 VASTnet/unit_tests/unittest_net_udpnc_mchandler.cpp
 VASTnet/unit_tests/unittest_rlncdecoder.cpp

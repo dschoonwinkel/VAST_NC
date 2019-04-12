@@ -3,6 +3,7 @@ unittest_net_udpnc_handler = ./unittest_net_udpnc_handler
 unittest_rlncmessage = ./unittest_rlncmessage
 unittest_net_udpnc_mchandler = ./unittest_net_udpnc_mchandler
 unittest_rlncdecoder = ./unittest_rlncdecoder
+unittest_net_udpnc_consumer = ./unittest_net_udpnc_consumer
 
 CC = g++
 
@@ -29,9 +30,9 @@ ACE_PATH    = /usr
 INC_PATHS   = -I../../common -I../../VASTsim -I$(ACE_PATH)/include -I../../VAST -I../../VASTnet -I../../coding_host
 LIB_PATHS   = -L../../lib -L../../Dependencies/lib/Release -L$(ACE_PATH)/lib
 
-.PHONY: unittest_net_udp_handler unittest_net_udpnc_handler unittest_rlncmessage unittest_net_udpnc_mchandler make_vastnet unittest_rlncdecoder
+.PHONY: unittest_net_udp_handler unittest_net_udpnc_handler unittest_rlncmessage unittest_net_udpnc_mchandler make_vastnet unittest_rlncdecoder unittest_net_udpnc_consumer
 
-all: unittest_rlncmessage unittest_net_udp_handler unittest_net_udpnc_mchandler unittest_rlncdecoder unittest_net_udpnc_handler
+all: unittest_rlncmessage unittest_net_udp_handler unittest_net_udpnc_mchandler unittest_rlncdecoder unittest_net_udpnc_handler unittest_net_udpnc_consumer
 
 unittest_net_udp_handler: unittest_net_udp_handler.cpp
 	$(MAKE) make_vastnet
@@ -69,10 +70,17 @@ unittest_rlncdecoder: unittest_rlncdecoder.cpp ../../coding_host/rlncrecoder.cpp
 	echo "Running: unittest_rlncdecoder"
 	$(unittest_rlncdecoder)
 
+unittest_net_udpnc_consumer: unittest_net_udpnc_consumer.cpp abstract_rlnc_msg_receiver_testimpl.cpp
+	$(MAKE) make_vastnet
+	$(CC) $(CFLAGS) $(INC_PATHS) $(LIBS_INCKODO) $(LIB_PATHS) $^ $(LIBS) $(LIBS_KODO) \
+	-o $(unittest_net_udpnc_consumer)
+	echo "Running: unittest_net_udpnc_consumer"
+#	$(unittest_net_udpnc_consumer)
+
 make_vastnet:
 	$(MAKE) --directory=../
 
 clean:
-	-rm $(unittest_net_udpnc_handler) $(unittest_rlncmessage) $(unittest_net_udpnc_mchandler) $(unittest_rlncdecoder)
+	-rm $(unittest_net_udpnc_handler) $(unittest_rlncmessage) $(unittest_net_udpnc_mchandler) $(unittest_rlncdecoder) $(unittest_net_udpnc_consumer)
 
 noace:

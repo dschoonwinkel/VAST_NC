@@ -80,26 +80,20 @@ namespace Vast
     {
         //Maybe this should rather be done in net_udp lifecycle?
 //        _io_service.reset();
-        _io_service->stop ();
         delete _io_service;
         _io_service = NULL;
 
         CPPDEBUG("~net_udp() " << std::endl);
         if (_udphandler)
         {
-            CPPDEBUG("~net_udp:: closing _udphandler" << std::endl);
-            _udphandler->close ();
             delete _udphandler;
-        }
-        else
-        {
-            CPPDEBUG("_udphandler was NULL" << std::endl);
         }
     }
 
     void 
     net_udp::start ()
     {
+        CPPDEBUG("net_udp::start" << std::endl);
         _active = true;
         net_manager::start ();
 
@@ -122,7 +116,7 @@ namespace Vast
     void 
     net_udp::stop ()
     {
-        //Consider putting net_udp_handler->close() here
+        CPPDEBUG("net_udp::stop" << std::endl);
         net_manager::stop ();
         if (_udphandler)
             _udphandler->close ();
@@ -234,8 +228,10 @@ namespace Vast
             return false;
         }        
 
-        //If the UDP socket is not open yet, open it now
-        _udphandler->open(_io_service, this);
+//        //If the UDP socket is not open yet, open it now
+//        _udphandler->open(_io_service, this);
+        if (!_udphandler->isOpen ())
+            throw std::logic_error("net_udp::connect Trying to connect, but _udphandler is not open yet");
 
         //Store the address for later use
         _udphandler->storeRemoteAddress(target, IPaddr(host, port));

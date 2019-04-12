@@ -22,6 +22,7 @@ namespace Vast
              _is_static (is_static),
              _overload_limit (overload_limit)
     {
+        CPPDEBUG("VASTMatcher constructor" << std::endl);
         _next_periodic = 0;
         _matcher_keepalive = 0;
 
@@ -1004,7 +1005,10 @@ namespace Vast
             }
             break;
 
-        /*case SYNC_CLOCK:
+        case SYNC_CLOCK:
+            CPPDEBUG("VASTMatcher::handleMessage SYNC_CLOCK" << std::endl);
+            break;
+         /*
             {
                 if (isGateway () == false)
                 {

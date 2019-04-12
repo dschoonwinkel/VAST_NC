@@ -19,7 +19,9 @@ LIBS_KODO = -Wl,-Bstatic -L/home/daniel/Development/kodo-rlnc/kodo_build -lkodo_
 
 sources_o = MessageHandler.cpp MessageQueue.cpp net_emu.cpp net_emubridge.cpp \
             net_manager.cpp VASTnet.cpp net_udp.cpp net_udp_handler.cpp dest_unr_listener.cpp \
-	    net_udpNC_handler.cpp rlnc_packet_factory.cpp rlncmessage.cpp net_udpnc_mchandler.cpp rlncdecoder.cpp
+	    net_udpNC_handler.cpp rlnc_packet_factory.cpp rlncmessage.cpp net_udpnc_mchandler.cpp \
+	    rlncdecoder.cpp net_udpnc_consumer.cpp
+
 sources_ace = net_ace.cpp net_ace_handler.cpp
 
 ifeq ($(TARGET),noace)

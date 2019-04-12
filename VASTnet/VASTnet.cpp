@@ -582,7 +582,7 @@ namespace Vast
             // otherwise, start to contact entry points to obtain ID
             else if (now >= _timeout_IDrequest)
             {
-                _timeout_IDrequest = now + (TIMEOUT_ID_REQUEST * this->getTimestampPerSecond ());
+                _timeout_IDrequest = now + (_TIMEOUT_ID_REQUEST_ * this->getTimestampPerSecond ());
 
                 // randomly pick an entry point
                 int i = (rand () % _entries.size ());

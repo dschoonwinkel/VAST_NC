@@ -24,6 +24,8 @@ namespace Vast {
     }
 
     int net_udp_handler::open(boost::asio::io_service *io_service, abstract_net_udp *msghandler) {
+        CPPDEBUG("net_udp_handler::open " << std::endl);
+        is_open = true;
         _io_service = io_service;
         _msghandler = msghandler;
 
@@ -158,6 +160,7 @@ namespace Vast {
     }
 
     int net_udp_handler::close() {
+        CPPDEBUG("net_udp_handler::close()" << std::endl);
         return this->handle_close();
     }
 
@@ -185,6 +188,8 @@ namespace Vast {
             _io_service->stop();
             _iosthread->join();
         }
+	
+	is_open = false;
 
         return 0;
     }
@@ -284,6 +289,11 @@ namespace Vast {
     uint16_t net_udp_handler::getPort ()
     {
         return _local_endpoint.port();
+    }
+
+    bool net_udp_handler::isOpen()
+    {
+        return is_open;
     }
 
 }
