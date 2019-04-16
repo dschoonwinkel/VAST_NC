@@ -163,9 +163,16 @@ namespace Vast
     bool 
     VASTRelay::isJoined ()
     {
+        if (getPhysicalCoordinate () == NULL)
+            CPPDEBUG("VASTRelay::isJoined getPhysicalCoordinate was NULL" << std::endl);
+
+        if (_curr_relay == NULL)
+            CPPDEBUG("VASTRelay::isJoined _curr_relay was NULL" << std::endl);
+
+
         if (getPhysicalCoordinate () == NULL || _curr_relay == NULL)
             return false;
-
+        CPPDEBUG("VASTRelay::isJoined _state" << _state << std::endl);
         return (_state == JOINED);
     }
 
@@ -258,7 +265,8 @@ namespace Vast
                 // calculate RTT
                 timestamp_t current  = _net->getTimestamp ();
                 float rtt = (float)(current - querytime);
-                if (rtt == 0)
+//                if (rtt == 0)     //Previous implementation - I don't know how this could work...
+                if (rtt == 0 && in_msg.from != _self.id)
                 {
                     printf ("[%lu] processing PONG: RTT = 0 error, removing neighbor [%lu] currtime: %lu querytime: %lu\n", _self.id, in_msg.from, current, querytime);
                     removeRelay (in_msg.from);
@@ -317,6 +325,8 @@ namespace Vast
             {
                 listsize_t n;
                 in_msg.extract (n);
+
+                CPPDEBUG("VASTRelay: received relayList from " << in_msg.from << std::endl);
 
                 Node relay;
 
@@ -393,6 +403,8 @@ namespace Vast
 
                 // extract the responding relay
                 in_msg.extract (relay);
+
+                CPPDEBUG("VASTRelay::handleMessage Got RELAY_QUERY_R for " << requester.id << " from " << relay.id << std::endl);
 
                 // if I was the requester, record the relay
                 if (requester.id == _self.id)
@@ -699,7 +711,9 @@ namespace Vast
             // first check if we've gotten physical coordinate, 
             // if so then we start to query the closest relay 
             else if (getPhysicalCoordinate () != NULL)
+            {
                 _state = QUERYING;
+            }
         }
         else if (_state == QUERYING)
         {
@@ -741,6 +755,7 @@ namespace Vast
                     // if the relay has failed, we'll try again next tick 
                     if (sendRelay (msg) == 0)
                         _timeout_query = 0;
+                    CPPDEBUG("VASTRelay::postHandling Sending RELAY_QUERY" << std::endl);
                 }
             }
         }
