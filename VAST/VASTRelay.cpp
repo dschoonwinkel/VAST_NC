@@ -404,7 +404,8 @@ namespace Vast
                 // extract the responding relay
                 in_msg.extract (relay);
 
-                CPPDEBUG("VASTRelay::handleMessage Got RELAY_QUERY_R for " << requester.id << " from " << relay.id << std::endl);
+//                CPPDEBUG("VASTRelay::handleMessage Got RELAY_QUERY_R for " << requester.id << " from " << relay.id << std::endl);
+
 
                 // if I was the requester, record the relay
                 if (requester.id == _self.id)
