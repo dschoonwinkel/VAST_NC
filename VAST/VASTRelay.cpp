@@ -265,8 +265,8 @@ namespace Vast
                 // calculate RTT
                 timestamp_t current  = _net->getTimestamp ();
                 float rtt = (float)(current - querytime);
-//                if (rtt == 0)     //Previous implementation - I don't know how this could work...
-                if (rtt == 0 && in_msg.from != _self.id)
+                if (rtt == 0)
+                //if (rtt == 0 && in_msg.from != _self.id)
                 {
                     printf ("[%lu] processing PONG: RTT = 0 error, removing neighbor [%lu] currtime: %lu querytime: %lu\n", _self.id, in_msg.from, current, querytime);
                     removeRelay (in_msg.from);
