@@ -3,6 +3,8 @@
 
 #include "VASTRelay.h"
 #include "MessageQueue.h"
+#include <chrono>
+#include "logger.h"
 
 
 using namespace Vast;
@@ -163,16 +165,21 @@ namespace Vast
     bool 
     VASTRelay::isJoined ()
     {
-        if (getPhysicalCoordinate () == NULL)
-            CPPDEBUG("VASTRelay::isJoined getPhysicalCoordinate was NULL" << std::endl);
-
-        if (_curr_relay == NULL)
-            CPPDEBUG("VASTRelay::isJoined _curr_relay was NULL" << std::endl);
+        if (getPhysicalCoordinate () == NULL && _curr_relay == NULL)
+            Logger::debugPeriodic ("VASTRelay::isJoined getPhysicalCoordinate and _curr_relay both NULL", std::chrono::milliseconds(g_MS_PER_TIMESTEP*10), 10);
+        else if (_curr_relay == NULL)
+            Logger::debugPeriodic ("VASTRelay::isJoined _curr_relay was NULL", std::chrono::milliseconds(g_MS_PER_TIMESTEP*10), 10);
+        else if (getPhysicalCoordinate () == NULL)
+            Logger::debugPeriodic ("VASTRelay::isJoined getPhysicalCoordinate () was NULL", std::chrono::milliseconds(g_MS_PER_TIMESTEP*10), 10);
 
 
         if (getPhysicalCoordinate () == NULL || _curr_relay == NULL)
             return false;
-        CPPDEBUG("VASTRelay::isJoined _state" << _state << std::endl);
+//        CPPDEBUG("VASTRelay::isJoined _state" << _state << std::endl);
+
+        if (_state == JOINED)
+            Logger::debugPeriodic ("VASTRelay::isJoined == true", std::chrono::milliseconds(500));
+
         return (_state == JOINED);
     }
 
@@ -251,7 +258,9 @@ namespace Vast
 
         case PONG:
         case PONG_2:
-            {                
+            {
+                Logger::debugPeriodic (std::string("VASTRelay::handleMessage ") +
+                                       (in_msg.msgtype == PONG ? "PONG" : "PONG2"));
                 // tolerance for error to determine stabilization
                 //static float tolerance = RELAY_TOLERANCE;
                                                    
@@ -277,10 +286,10 @@ namespace Vast
                 // call the Vivaldi algorithm to update my physical coordinate
                 vivaldi (rtt, _temp_coord, xj, _error, ej);
 
-#ifdef DEBUG_DETAIL
-                printf ("[%lu] physcoord (%.3f, %.3f) rtt to [%lu]: %.3f error: %.3f requests: %d\n",
+//#ifdef DEBUG_DETAIL
+                printf ("VASTRelay::handleMessage [%lu] physcoord (%.3f, %.3f) rtt to [%lu]: %.3f error: %.3f requests: %d\n",
                          _self.id, _temp_coord.x, _temp_coord.y, in_msg.from, rtt, _error, _request_times);
-#endif
+//#endif
 
                 // if remote host is a relay, record its coordinates                
                 if (_relays.find (in_msg.from) != _relays.end ())
@@ -308,6 +317,7 @@ namespace Vast
                 else
                 {
                     _timeout_ping = 0;
+                    Logger::debug("VASTRelay::handleMessage Vivaldi error rate too large, retrying pings");
                 }
                 
 
@@ -326,7 +336,7 @@ namespace Vast
                 listsize_t n;
                 in_msg.extract (n);
 
-                CPPDEBUG("VASTRelay: received relayList from " << in_msg.from << std::endl);
+                CPPDEBUG("VASTRelay: RELAY msg: received relayList from " << in_msg.from << std::endl);
 
                 Node relay;
 
@@ -365,11 +375,14 @@ namespace Vast
                     // respond the query if I'm the closest 
                     if (closest->id == _self.id)
                     {
+
                         Message msg (RELAY_QUERY_R);
                         msg.priority = 1;
                         msg.store (joiner);
                         msg.store (*closest);
                         msg.addTarget (relay.host_id);
+
+                        Logger::debug ("VASTRelay::handleMessage [" + std::to_string (_self.id) + "] Sending RELAY_QUERY_R to [" + std::to_string (joiner.id) + "]");
                                         
                         notifyMapping (relay.host_id, &relay);
 
@@ -381,6 +394,7 @@ namespace Vast
                         }
                         // whether success or not, we have to leave the loop
                         break;
+
                     }
                     // otherwise greedy-forward the message to the next closest, valid relay
                     else
@@ -388,6 +402,9 @@ namespace Vast
                         in_msg.targets.clear ();
                         in_msg.addTarget (closest->id);
                         success = (sendRelay (in_msg) > 0);
+                        Logger::debugPeriodic ("VASTRelay::handleMessage greedy-forward to next closest: "
+                                               + std::to_string (closest->id),
+                                               std::chrono::milliseconds(g_MS_PER_TIMESTEP));
                     }          
                 }
             }
@@ -404,8 +421,10 @@ namespace Vast
                 // extract the responding relay
                 in_msg.extract (relay);
 
-//                CPPDEBUG("VASTRelay::handleMessage Got RELAY_QUERY_R for " << requester.id << " from " << relay.id << std::endl);
-
+                Logger::debugPeriodic ("VASTRelay::handleMessage " + std::to_string (_self.id) +
+                                       " received RELAY_QUERY_R from " + std::to_string (relay.id)
+                                       + " meant for " + std::to_string (requester.id),
+                                       std::chrono::milliseconds(g_MS_PER_TIMESTEP/10));
 
                 // if I was the requester, record the relay
                 if (requester.id == _self.id)
@@ -416,11 +435,21 @@ namespace Vast
                     if (isRelay () == true)
                         addRelay (_self);
 
+                    Logger::debug ("VASTRelay::handleMessage Sending RELAY_JOIN to my own relay");
                     joinRelay ();
                 }
                 // if I was the forwarder, forward the response to the requester
                 else
                 {
+                    if (!isJoined())
+                    {
+                        Logger::debugPeriodic ("VASTRelay::handleMessage Not joined, not ready to forward");
+                        break;
+                    }
+
+                    Logger::debugPeriodic ("VASTRelay::handleMessage Forwarding to requester: "
+                                          + std::to_string(requester.id),
+                                          std::chrono::milliseconds(g_MS_PER_TIMESTEP/10));
                     in_msg.reset ();
                     in_msg.targets.clear ();
                     in_msg.addTarget (requester.id);
@@ -454,7 +483,12 @@ namespace Vast
                 {
                     join_reply = true;                    
                     addClient (in_msg.from, joiner);
-                }                                
+                }
+
+                if (joiner.id == _self.id)
+                {
+                    Logger::debug("Received RELAY_JOIN from myself");
+                }
                 
                 // compose & send return message
                 Message msg (RELAY_JOIN_R);
@@ -471,6 +505,7 @@ namespace Vast
         // response from previous JOIN request
         case RELAY_JOIN_R:
             {
+            Logger::debug("VASTRelay::setJoined RELAY_JOIN_R");
                 // only update if we're currently seeking to join
                 if (_state == JOINED)
                     break;
@@ -675,6 +710,8 @@ namespace Vast
 
                 //ping (curr_relay_only);
 
+
+                Logger::debug ("VASTRelay::postHandling sending PING messages");
                 // we only ping current relay once joined (to reduce PING traffic)
                 ping (isJoined ());
                                
@@ -736,6 +773,7 @@ namespace Vast
                 {
                     // need to re-ping for relays
                     _timeout_ping = 0;
+                    Logger::debugPeriodic ("VASTRelay::postHandling No relays found, restting ping");
                 }
                 else
                 {
@@ -756,7 +794,7 @@ namespace Vast
                     // if the relay has failed, we'll try again next tick 
                     if (sendRelay (msg) == 0)
                         _timeout_query = 0;
-                    CPPDEBUG("VASTRelay::postHandling Sending RELAY_QUERY" << std::endl);
+                    CPPDEBUG("VASTRelay::postHandling Sending RELAY_QUERY to " << relay->id << std::endl);
                 }
             }
         }
@@ -797,6 +835,8 @@ namespace Vast
         if (relay == NULL)
             relay = nextRelay ();
 
+        Logger::debug ("VASTRelay::joinRelay sending RELAY_JOIN message to " + std::to_string (relay->id));
+
         // send JOIN request to the closest relay
         Message msg (RELAY_JOIN);
         msg.priority = 1;
@@ -805,8 +845,11 @@ namespace Vast
         msg.addTarget (relay->id);
         
         // reset countdown, if the send failed, try again next tick
-        if (sendRelay (msg) > 0)        
+        if (sendRelay (msg) > 0)
+        {
             _timeout_join = _net->getTimestamp () + (_TIMEOUT_RELAY_JOIN_ * _net->getTimestampPerSecond ());
+            Logger::debug ("VASTRelay::joinRelay _TIMEOUT_RELAY_JOIN reset");
+        }
         else
             _timeout_join = 0;
 
@@ -907,9 +950,9 @@ namespace Vast
         // avoid inserting the same relay, but note that we accept two relays have the same distance
         if (it != _relays.end ())
         {
-#ifdef DEBUG_DETAIL
+//#ifdef DEBUG_DETAIL
             printf ("[%lu] VASTRelay::addRelay () updating relay [%lu]..\n", _self.id, relay.id);
-#endif
+//#endif
 
             it->second = relay;
 
@@ -925,9 +968,9 @@ namespace Vast
         }
         else
         {
-#ifdef DEBUG_DETAIL
+//#ifdef DEBUG_DETAIL
             printf ("[%lu] VASTRelay::addRelay () adding relay [%lu]..\n", _self.id, relay.id);
-#endif
+//#endif
             _relays[relay.id] = relay;            
         }
 
@@ -1123,7 +1166,10 @@ namespace Vast
         CPPDEBUG("VASTRelay: setJoined relay_id " << relay_id << std::endl);
         // if no ID is specified, I myself is relay
         if (relay_id == NET_ID_UNASSIGNED)
+        {
             _curr_relay = &_self;
+            Logger::debug("VASTRelay::setJoined Joining own relay");
+        }
         else
         {
             // if the specify ID is not found
@@ -1132,6 +1178,7 @@ namespace Vast
                 return false;
 
             _curr_relay = &it->second;
+            Logger::debug("VASTRelay::setJoined Joining closest relay : " + std::to_string (_curr_relay->id));
         }
 
         // no longer needs this, reset so next time calls to nextRelay will return closest

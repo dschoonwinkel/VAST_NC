@@ -13,8 +13,18 @@ DRIFT_NODES = 6
 WORLDSENDSTAT = 7
 WORLDRECVSTAT = 8
 
-x_axis_interval = 20000
-MAX_TIMESTAMP = 130000
+with open("../VASTreal.ini", 'r') as config:
+    data = config.readlines()
+    TIMESTEP_DURATION = float(data[-1])
+    print(TIMESTEP_DURATION)
+    SIMULATION_STEPS = (int)(data[data.index('#TIME_STEPS;    // number of steps\n')+1])
+    print (SIMULATION_STEPS)
+
+# x_axis_interval = 20000
+x_axis_interval = TIMESTEP_DURATION * 2000
+# MAX_TIMESTAMP = 130000
+# Keep all except the last bit, where gateway has probably disconnected and other nodes do not know what's going on
+MAX_TIMESTAMP = (SIMULATION_STEPS * TIMESTEP_DURATION)
 
 results_text = list()
 
@@ -42,6 +52,12 @@ numpy_results = np.array(results)
 timestamps = numpy_results[:,0]
 timestamps = timestamps[np.where(timestamps < MAX_TIMESTAMP)]
 first_timestamp = int(results_text[0][0])
+last_relative_timestamp = timestamps[-1]
+
+if last_relative_timestamp < 0.9 * MAX_TIMESTAMP:
+    print("Test was not completed, using last timestamp as endpoint, rescaling xticks")
+    x_axis_interval = x_axis_interval * last_relative_timestamp / MAX_TIMESTAMP
+    MAX_TIMESTAMP = last_relative_timestamp
 
 
 plot.figure(1, figsize=(12, 10), dpi=80)

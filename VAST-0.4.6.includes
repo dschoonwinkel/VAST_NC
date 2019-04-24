@@ -18,9 +18,6 @@ Dependencies/include/ace/os_include/sys
 Dependencies/include/ace/SSL
 Dependencies/include/openssl
 VAST
-VASTATE
-VASTATE/old
-VASTATEsim
 VASTnet
 VASTsim
 VASTreal
@@ -32,3 +29,4 @@ tests
 coding_host
 coding_host/tests
 VASTnet/unit_tests
+common/tests
