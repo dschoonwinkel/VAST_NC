@@ -103,8 +103,8 @@ def myNetwork():
     if not AUTO:
         CLI(net)
 
-    for i in range(1, int(TIMESTEP_DURATION * 100)/10):
-            print("Connection wait sleep 10 seconds, %d to go" % (int(TIMESTEP_DURATION * 100) - i*10))
+    for i in range(1, int(TIMESTEP_DURATION * 500)/10):
+            print("Connection wait sleep 10 seconds, %d to go" % (int(TIMESTEP_DURATION * 500) - i*10))
             try:
                 time.sleep(10)
             except KeyboardInterrupt:

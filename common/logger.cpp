@@ -30,6 +30,11 @@ void Logger::info (std::string logmessage)
     std::cout << logmessage << std::endl;
 }
 
+void Logger::debugPeriodic (std::string logmessage, size_t millis, size_t repetition)
+{
+    debugPeriodic (logmessage, std::chrono::milliseconds(millis), repetition);
+}
+
 void Logger::debugPeriodic (std::string logmessage, std::chrono::milliseconds perDuration, size_t repetition)
 {
     getInstance ()->_debugPeriodic (logmessage, perDuration, repetition);

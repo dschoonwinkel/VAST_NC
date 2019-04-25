@@ -21,10 +21,7 @@ class ConcurrentQueue
   T pop() 
   {
     std::unique_lock<std::mutex> mlock(mutex_);
-    while (queue_.empty() && active)
-    {
-      cond_.wait(mlock);
-    }
+    while (queue_.empty() && active) {}
     if (!active)
         return T();
 
@@ -36,10 +33,7 @@ class ConcurrentQueue
   void pop(T& item)
   {
     std::unique_lock<std::mutex> mlock(mutex_);
-    while (queue_.empty() && active)
-    {
-      cond_.wait(mlock);
-    }
+    while (queue_.empty() && active) {}
 
     if (!active)
         return;

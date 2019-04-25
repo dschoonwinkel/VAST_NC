@@ -177,8 +177,8 @@ namespace Vast
             return false;
 //        CPPDEBUG("VASTRelay::isJoined _state" << _state << std::endl);
 
-        if (_state == JOINED)
-            Logger::debugPeriodic ("VASTRelay::isJoined == true", std::chrono::milliseconds(500));
+//        if (_state == JOINED)
+//            Logger::debugPeriodic ("VASTRelay::isJoined == true", std::chrono::milliseconds(5000));
 
         return (_state == JOINED);
     }
@@ -285,6 +285,12 @@ namespace Vast
                 
                 // call the Vivaldi algorithm to update my physical coordinate
                 vivaldi (rtt, _temp_coord, xj, _error, ej);
+
+
+                //NOTE: THIS IS COMPLETELY DISREGARDING THE USEFULNESS OF VIVALDI coords
+                //Force the coordinates to remain static, i.e. Ignore vivaldi results
+                _temp_coord = _self.aoi.center;
+                _error = 0;
 
 //#ifdef DEBUG_DETAIL
                 printf ("VASTRelay::handleMessage [%lu] physcoord (%.3f, %.3f) rtt to [%lu]: %.3f error: %.3f requests: %d\n",
@@ -433,7 +439,11 @@ namespace Vast
 
                     // add myself as initial relay
                     if (isRelay () == true)
+                    {
+                        Logger::debug("Adding self as relay [" + std::to_string (_self.id) +"]");
                         addRelay (_self);
+
+                    }
 
                     Logger::debug ("VASTRelay::handleMessage Sending RELAY_JOIN to my own relay");
                     joinRelay ();
@@ -551,6 +561,11 @@ namespace Vast
                 id_t client_host_id;
                 in_msg.extract (sub_id);
                 in_msg.extract (client_host_id);
+
+                Logger::debug("VASTRelay::handleMessge SUBSCRIBE_NOTIFY received from [" +
+                              std::to_string(in_msg.from) + "] mapping subID:hostID [" +
+                              std::to_string(sub_id) + "]:" + "["
+                              + std::to_string (client_host_id) + "]");
 
                 //_sub2client[sub_id] = in_msg.from;
                 _sub2client[sub_id] = client_host_id;
@@ -762,8 +777,17 @@ namespace Vast
             // query the closest relay to join
             else if (now >= _timeout_query)
             {                          
-                // set a timeout of re-querying
-                _timeout_query = now + (_TIMEOUT_RELAY_QUERY_ * _net->getTimestampPerSecond ());
+
+                //If not joined yet, query faster
+                if (!isJoined())
+                {
+                    _timeout_query = now + (_TIMEOUT_RELAY_QUERY_ * _net->getTimestampPerSecond ())/10;
+                }
+                else
+                {
+                    // set a timeout of re-querying
+                    _timeout_query = now + (_TIMEOUT_RELAY_QUERY_ * _net->getTimestampPerSecond ());
+                }
         
                 printf ("VASTRelay::postHandling () sending query to find closest relay\n");
 
@@ -875,6 +899,7 @@ namespace Vast
             //       otherwise the query may be thrown in circles
 
             double dist = it->second->aoi.center.distance (pos);
+            Logger::debug("VASTRelay::closestRelay: distance to relay [" +std::to_string (it->second->id) + "]" + (it->second->id == _self.id ? "(me)" : "") + ": " + std::to_string (dist));
             if (dist < min_dist || 
                 ((dist - min_dist < EQUAL_DISTANCE) && (it->second->id < closest->id)))
             {
@@ -901,17 +926,29 @@ namespace Vast
             }
 
             _contact_relay = _dist2relay.begin ()->second;
+            Logger::debug ("VASTRelay::nextRelay contact_relay = [" + std::to_string(_contact_relay->id) + "]");
         }
         else
         {
             // begin looping to find the next available relay in terms of distance to self
             multimap<double, Node *>::iterator it = _dist2relay.begin ();
             
+            Logger::debug("First relay in multimap: [" + std::to_string(it->second->id) + "], dist: " + std::to_string(it->first));
+            if (it != _dist2relay.end())
+            {
+                Logger::debug ("Choosing closest relay [" + std::to_string(it->second->id) + "] " + (it->second->id == _self.id ? "(me)":""));
+                _contact_relay = it->second;
+                return _contact_relay;
+            }
+
             // find the next closest
             for (; it != _dist2relay.end (); it++)
             {
                 if (it->second->id == _contact_relay->id)
+                {
+                    Logger::debug("_contact_relay found again: [" + std::to_string(it->second->id) + "], dist: " + std::to_string(it->first));
                     break;
+                }
             }
         
             // find next available
@@ -927,6 +964,7 @@ namespace Vast
         
             // set current relay as the next closest relay
             _contact_relay = it->second;
+            Logger::debug("new _contact_relay: [" + std::to_string(it->second->id) + "], dist: " + std::to_string(it->first));
         }
 
         return _contact_relay;
@@ -1038,8 +1076,7 @@ namespace Vast
         if (num_success > 0)
         {
             vector<id_t> failed;
-            sendMessage (msg, &failed);
-                
+            sendMessage (msg, &failed);    
             // remove failed relays
             for (size_t i=0; i < failed.size (); i++)
             {
@@ -1246,6 +1283,11 @@ namespace Vast
                 msg->targets.clear ();
                 msg->addTarget (host_id);
                 msg->msggroup = MSG_GROUP_VAST_CLIENT;
+
+                if (msg->msgtype == SUBSCRIBE_R)
+                    Logger::debug("VASTRelay::forwardMessage type SUBSCRIBE_R from ["
+                                  + std::to_string(msg->from) + "]-->["
+                                  + std::to_string (host_id) + "]");
 
                 sendMessage (*msg);
             }

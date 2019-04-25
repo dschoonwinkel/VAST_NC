@@ -242,11 +242,33 @@ namespace Vast {
 
     IPaddr* net_udp_handler::getRemoteAddress (id_t host_id)
     {
+//        CPPDEBUG("net_udp_handler::getRemoteAddress: checking _remote_addrs map" << std::endl);
+        for (auto iter = _remote_addrs.begin(); iter != _remote_addrs.end(); ++iter)
+        {
+            char ip_string[30];
+            iter->second.getString(ip_string);
+
+            for (auto iter2 = _remote_addrs.begin(); iter2 != _remote_addrs.end(); ++iter2)
+            {
+                if (iter->first != iter2->first && iter->second == iter2->second)
+                {
+                    char ip_string2[30];
+                    iter2->second.getString(ip_string2);
+                    CPPDEBUG("net_udp_handler::getRemoteAddress : Found duplicate IP addr" << std::endl);
+                    CPPDEBUG("id2: " << iter2->first << " - " << std::string(ip_string2) << std::endl);
+                    CPPDEBUG("id : " << iter->first << " - " << std::string(ip_string) << std::endl);
+                }
+            }
+
+//            CPPDEBUG("id: " << iter->first << " - " << std::string(ip_string) << std::endl);
+        }
+
         //Return the address if we have heard from this host before
         if (_remote_addrs.find (host_id) != _remote_addrs.end ())
         {
             return &_remote_addrs[host_id];
         }
+
         //There was no address found for this host id, return a null address
         else return NULL;
     }

@@ -1,6 +1,7 @@
 #include "net_udpnc_consumer.h"
 #include "VASTnet.h"
 #include "net_udpnc_mchandler.h"
+#include "logger.h"
 
 namespace Vast
 {
@@ -125,7 +126,7 @@ namespace Vast
         recvd_ordering[input_message.getFirstFromId ()] = input_message.getOrdering ();
 
         RLNCsink->RLNC_msg_received (input_message, remote_endptr);
-        CPPDEBUG("net_udpNC_consumer::order_input Size of _msg_queue " << _msg_queue.size() << std::endl);
+        Logger::debugPeriodic ("net_udpNC_consumer::order_input Size of _msg_queue " + std::to_string(_msg_queue.size()), 100, 10);
     }
 
     void net_udpNC_consumer::close()
