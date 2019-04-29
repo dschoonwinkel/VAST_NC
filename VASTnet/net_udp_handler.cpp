@@ -133,13 +133,28 @@ namespace Vast {
             {
                 //Store the host_id : IPaddr pair
                 IPaddr remote_addr(remote_endptr->address().to_v4().to_ulong(), remote_endptr->port());
-
+                //Check if this works correctly...
+//                Logger::debug();
 
 
                 //This host is looking for an ID, assign it a temporary ID to store the connection
                 if (remote_id == NET_ID_UNASSIGNED && msg.msgtype == ID_REQUEST)
                 {
                     temp_id = net_manager::resolveHostID(&remote_addr);
+                }
+
+                if (getRemoteAddress (temp_id))
+                {
+                    if (!(*getRemoteAddress (temp_id) == remote_addr))
+                    {
+                        CPPDEBUG("net_udp_handler::process_input Id [" + std::to_string(temp_id) + "] already has an address: " << std::endl);
+                        char ip_string2[30];
+                        getRemoteAddress(temp_id)->getString(ip_string2);
+                        CPPDEBUG("saved address: " << std::string(ip_string2) << std::endl);
+                        remote_addr.getString (ip_string2);
+                        CPPDEBUG("new address: " << std::string(ip_string2) << std::endl);
+                    }
+
                 }
 
                 storeRemoteAddress(temp_id, remote_addr);
@@ -247,6 +262,7 @@ namespace Vast {
         {
             return &_remote_addrs[host_id];
         }
+
         //There was no address found for this host id, return a null address
         else return NULL;
     }
@@ -274,6 +290,20 @@ namespace Vast {
 
     void net_udp_handler::storeRemoteAddress (id_t host_id, IPaddr addr)
     {
+        if (_remote_addrs[host_id] == addr)
+        {
+//            CPPDEBUG("net_udp_handler::storeRemoteAddress Got the same address again, not saving" << std::endl);
+            return;
+        }
+
+        else if (_remote_addrs.find (host_id) != _remote_addrs.end())
+        {
+            CPPDEBUG("net_udp_handler::storeRemoteAddress Trying to replace address for ["
+                     + std::to_string(host_id)
+                     + "] (previously [" << _remote_addrs[host_id].getString() << "]) with "
+                     << "[" << addr << "]" << std::endl);
+        }
+
         _remote_addrs[host_id] = addr;
 
 //        char ip_addr_str[22] = "";
@@ -284,6 +314,26 @@ namespace Vast {
 //        }
 
         _remote_ids_IPs[addr] = host_id;
+
+        for (auto iter = _remote_addrs.begin(); iter != _remote_addrs.end(); ++iter)
+        {
+            char ip_string[30];
+            iter->second.getString(ip_string);
+
+            for (auto iter2 = _remote_addrs.begin(); iter2 != _remote_addrs.end(); ++iter2)
+            {
+                if (iter->first != iter2->first && iter->second == iter2->second)
+                {
+                    char ip_string2[30];
+                    iter2->second.getString(ip_string2);
+                    CPPDEBUG("net_udp_handler::storeRemoteAddress : Found duplicate IP addr" << std::endl);
+                    CPPDEBUG("id2: " << iter2->first << " - " << std::string(ip_string2) << std::endl);
+                    CPPDEBUG("id : " << iter->first << " - " << std::string(ip_string) << std::endl);
+                }
+            }
+
+//            CPPDEBUG("id: " << iter->first << " - " << std::string(ip_string) << std::endl);
+        }
     }
 
     uint16_t net_udp_handler::getPort ()

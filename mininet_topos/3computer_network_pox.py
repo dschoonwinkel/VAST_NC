@@ -19,7 +19,7 @@ def myNetwork():
 
     loss_perc = 0
     BW = 1000
-    Node_count = 20
+    Node_count = 10
 
     if (len(sys.argv) > 1):
         print(sys.argv[1])
@@ -59,8 +59,8 @@ def myNetwork():
     info( '*** Post configure switches and hosts\n')
 
     for i in range(1,Node_count+1):
-        hosts[i-1].cmd("xterm -hold -fg black -bg green -geometry 80x60+%d+0 -e   \"./VASTreal_console %d 0 1037 10.0.0.1 \" &" % (200+i*40, i-1))    
-    #     hosts[i-1].cmd("./VASTreal_console %d 0 1037 10.0.0.1 &" % (i-1))
+        # hosts[i-1].cmd("xterm -hold -fg black -bg green -geometry 80x60+%d+0 -e   \"./VASTreal_console %d 0 1037 10.0.0.1 \" &" % (200+i*40, i-1))    
+        hosts[i-1].cmd("./VASTreal_console %d 0 1037 10.0.0.1 &> output_dump/node%d.txt &" % (i-1, i-1))
         time.sleep(2)
 
     # hosts[0].cmd("iperf -s &")

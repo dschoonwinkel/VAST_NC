@@ -29,6 +29,7 @@
 #include "VASTClient.h"
 #include "VASTMatcher.h"
 #include "VoronoiSF.h"
+#include "logger.h"
 
 // for starting separate thread for running VAST node
 #include "VASTThread.h"
@@ -84,6 +85,9 @@ namespace Vast
         
 		net->setBandwidthLimit (BW_UPLOAD,   para.send_quota / step_persec);
 		net->setBandwidthLimit (BW_DOWNLOAD, para.recv_quota / step_persec);
+
+        Logger::debug ("VASTVerse::createNet getTimestampPerSecond: " + std::to_string(net->getTimestampPerSecond ()));
+        Logger::debug ("VASTVerse::createNet _KEEPALIVE_RELAY_ * _net->getTimestampPerSecond (): " + std::to_string(_KEEPALIVE_RELAY_ * net->getTimestampPerSecond ()));
 
         return net;
     }
@@ -309,7 +313,7 @@ namespace Vast
         // wait for the network layer to join properly
         else if (handlers->net->isJoined () == false)
         {
-            CPPDEBUG("VASTVerse::net->isJoined failed" << std::endl);
+//            CPPDEBUG("VASTVerse::net->isJoined failed" << std::endl);
             return false;
         }
 
@@ -342,7 +346,7 @@ namespace Vast
         // NOTE: if physical coordinate is not supplied, the login process may pause here indefinitely
         else if (handlers->relay->isJoined () == false)
         {
-            CPPDEBUG("VASTVerse::relay->isJoined failed" << std::endl);
+//            CPPDEBUG("VASTVerse::relay->isJoined failed" << std::endl);
             return false;
         }
 
@@ -462,7 +466,8 @@ namespace Vast
     // advance one time-step 
 	int
     VASTVerse::tick (int time_budget, bool *per_sec)
-    {        
+    {
+
         // if no time is available, at least give a little time to run at least once
         if (time_budget < 0)
             time_budget = 1;
@@ -628,6 +633,8 @@ namespace Vast
 
                 // next time to enter this is one second later
 //                _next_periodic = (now / net->getTimestampPerSecond () + 1) * net->getTimestampPerSecond ();
+
+                //Record stats every step, not just every second
                 _next_periodic = now;
 
                 // record network stat for this node

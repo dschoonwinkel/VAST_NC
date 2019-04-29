@@ -256,6 +256,7 @@ namespace Vast {
     net_ace::stop ()
     {                
         net_manager::stop ();
+        CPPDEBUG("net_ace::stop Stopping net_ace" << std::endl);
 
         // close the listening thread, _active will set to false after calling
         this->close (0);

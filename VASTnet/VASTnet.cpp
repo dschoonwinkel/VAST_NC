@@ -24,6 +24,7 @@
 #include "net_udp.h"
 #include <iostream>
 #include <string.h>
+#include "logger.h"
 
 namespace Vast
 {   
@@ -72,6 +73,7 @@ namespace Vast
     VASTnet::~VASTnet ()
     {
         // make sure everything's stopped & released
+        Logger::debug ("VASTnet:~ Stopping net_manager");
         _manager->stop ();
 
         if (_model == VAST_NET_EMULATED)
