@@ -226,7 +226,9 @@ namespace Vast
         {
             printf ("net_udp::connect () connection for [%lu] already exists\n", target);
             return false;
-        }        
+        }
+
+        CPPDEBUG("net_udp::connect to [" + std::to_string(target) + "]" << std::endl);
 
 //        //If the UDP socket is not open yet, open it now
 //        _udphandler->open(_io_service, this);

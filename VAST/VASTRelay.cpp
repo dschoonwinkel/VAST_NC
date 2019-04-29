@@ -252,6 +252,7 @@ namespace Vast
 
                 // send back a list of known relays
                 //printf ("REQUEST received from [%lu]\n", in_msg.from);
+                Logger::debug("sendRelayList");
                 sendRelayList (in_msg.from, MAX_CONCURRENT_PING);
             }
             break;
@@ -356,6 +357,8 @@ namespace Vast
                     //{
                         // add a new relay (while storing ID->address mapping)
                         addRelay (relay);
+
+                        //IS THIS THE SAME AS WHAT WAS SERIALIZED?
                     //}
                 }
             }
@@ -508,6 +511,7 @@ namespace Vast
                 sendMessage (msg);
 
                 // also send the joiner some of my known relays, not too many though
+                Logger::debug("sendRelayList");
                 sendRelayList (joiner.id, MAX_CONCURRENT_PING);
             }
             break;
@@ -1157,6 +1161,7 @@ namespace Vast
                  printf ("(%lld) ", it->first);
 #endif
                  msg.store (it->second);
+                 //WHICH IP IS USED HERE?
              }
          }
 
