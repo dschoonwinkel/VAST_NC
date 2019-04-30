@@ -84,7 +84,8 @@ def myNetwork():
 
     coding_host.cmd("route add 239.255.0.1 codinghost-eth0")
     if (run_codinghost):
-        coding_host.cmd("xterm -hold -fg black -bg green -geometry 80x10+200+600 -e \"./coding_host \" &")
+        # coding_host.cmd("xterm -hold -fg black -bg green -geometry 80x10+200+600 -e \"./coding_host \" &")
+        coding_host.cmd("./coding_host &> output_dump/codnghost.txt &")
     CLI(net)
 
     for i in range(1,Node_count+1):

@@ -351,6 +351,14 @@ namespace Vast
                 {                    
                     in_msg.extract (relay);
 
+                    //WHICH IP IS RECEIVED HERE?
+                    CPPDEBUG("Received relay in RELAY message: " << std::endl << relay << std::endl);
+                    IPaddr addr_from_id((relay.id >> 32), 1037);
+                    CPPDEBUG(addr_from_id << " IPaddr from id: " << std::endl);
+                    CPPDEBUG("Equal: " << (addr_from_id == relay.addr.publicIP) << std::endl);
+
+                    
+
                     // check if it's not from differnet nodes from the same host 
                     //if (VASTnet::extractHost (relay.id) != VASTnet::extractHost (_self.id))
                     //{
@@ -1161,7 +1169,13 @@ namespace Vast
                  printf ("(%lld) ", it->first);
 #endif
                  msg.store (it->second);
+                 
                  //WHICH IP IS USED HERE?
+                 CPPDEBUG("Storing relay in RELAY message: " << std::endl << it->second << std::endl);
+                 Node node1 = it->second;
+                 IPaddr addr_from_id((node1.id >> 32), 1037);
+                 CPPDEBUG(addr_from_id << ": IPaddr from id: " << std::endl);
+                 CPPDEBUG("Equal: " << (addr_from_id == it->second.addr.publicIP) << std::endl);
              }
          }
 

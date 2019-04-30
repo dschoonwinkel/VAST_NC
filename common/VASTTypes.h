@@ -1074,11 +1074,22 @@ public:
         ar & addr.publicIP.port;
     }
 
+    friend std::ostream& operator<<(std::ostream&, Node const& node);
+
     id_t            id;         // unique ID for the node   
     timestamp_t     time;       // last update time    
     Area            aoi;        // the area of interest    
     Addr            addr;       // IP address for this node    
 };
+
+inline std::ostream& operator<<(std::ostream& output, Node const& node )
+{
+    output << "Incomplete function" << std::endl;
+    // node.id 
+    output << node.addr.publicIP;
+
+    return output;
+}
 
 class EXPORT Subscription : public Serializable
 {

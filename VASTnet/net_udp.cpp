@@ -236,6 +236,7 @@ namespace Vast
             throw std::logic_error("net_udp::connect Trying to connect, but _udphandler is not open yet");
 
         //Store the address for later use
+        CPPDEBUG("net_udp::connect" << std::endl);
         _udphandler->storeRemoteAddress(target, IPaddr(host, port));
 
         //UDP is NOT a connection orientated protocol, thus no connecting is done here

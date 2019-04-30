@@ -156,7 +156,7 @@ namespace Vast {
                     }
 
                 }
-
+                CPPDEBUG("net_udp_handler::proces_input MSG_TYPE " << msg.msgtype << std::endl);
                 storeRemoteAddress(temp_id, remote_addr);
 
                 //We assume if we can get a packet from the host, we are connected to that host
@@ -303,6 +303,21 @@ namespace Vast {
                      + "] (previously [" << _remote_addrs[host_id].getString() << "]) with "
                      << "[" << addr << "]" << std::endl);
         }
+
+        CPPDEBUG("net_udp_handler::storeRemoteAddress: " << std::endl << addr << std::endl);
+                    IPaddr addr_from_id((host_id >> 32), 1037);
+                    CPPDEBUG(addr_from_id << " IPaddr from id: " << std::endl);
+                    CPPDEBUG("Equal: " << (addr_from_id == addr) << std::endl);
+
+        // if (host_id != 0 && !(addr_from_id == addr))
+        // {
+        //     CPPDEBUG("Using fromID as IP address"<<std::endl);
+        //     addr = addr_from_id;
+        // }
+        // else if (host_id == 0) 
+        // {
+        //     CPPDEBUG("Host ID was 0" << std::endl);
+        // }
 
         _remote_addrs[host_id] = addr;
 
