@@ -22,6 +22,7 @@ RLNCMessage::RLNCMessage (const RLNCMessage &message)
     this->pkt_ids = message.pkt_ids;
     this->from_ids = message.from_ids;
     this->to_addrs = message.to_addrs;
+    this->endptr = message.endptr;
 
 //    CPPDEBUG("RLNCMessage copy constructor called" <<std::endl);
 }

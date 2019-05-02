@@ -84,6 +84,7 @@ namespace Vast
             {                    
                 // route to default host if mapping is not found
                 host_id = _default_host;
+                CPPDEBUG("MessageQueue::sendMessage Using default host, route not found" << std::endl);
             }            
 
             // verify the link is there
@@ -166,6 +167,7 @@ namespace Vast
     MessageQueue::setDefaultHost (id_t default_host)
     {
         _default_host = default_host;
+        CPPDEBUG("MessageQueue::setDefaultHost:  [" << default_host << "]" << std::endl);
     }
 
 

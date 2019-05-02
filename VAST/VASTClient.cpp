@@ -727,6 +727,8 @@ namespace Vast
                     adjust = -(int)((now - (gateway_time + latency)));
 
                 _net->setTimestampAdjustment (adjust);
+
+                CPPDEBUG("VASTClient::handleMessage SYNC_CLOCK adjust " << adjust << std::endl);
             }
             break;
 

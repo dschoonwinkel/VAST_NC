@@ -24,6 +24,7 @@
 #include "net_udp.h"
 #include <iostream>
 #include <string.h>
+#include "logger.h"
 
 namespace Vast
 {   
@@ -72,6 +73,7 @@ namespace Vast
     VASTnet::~VASTnet ()
     {
         // make sure everything's stopped & released
+        Logger::debug ("VASTnet:~ Stopping net_manager");
         _manager->stop ();
 
         if (_model == VAST_NET_EMULATED)
@@ -582,7 +584,7 @@ namespace Vast
             // otherwise, start to contact entry points to obtain ID
             else if (now >= _timeout_IDrequest)
             {
-                _timeout_IDrequest = now + (TIMEOUT_ID_REQUEST * this->getTimestampPerSecond ());
+                _timeout_IDrequest = now + (_TIMEOUT_ID_REQUEST_ * this->getTimestampPerSecond ());
 
                 // randomly pick an entry point
                 int i = (rand () % _entries.size ());

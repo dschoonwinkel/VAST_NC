@@ -3,6 +3,7 @@
 
 #include "VASTMatcher.h"
 #include "MessageQueue.h"
+#include "logger.h"
 
 #include "VASTUtil.h"   // LogManager
 
@@ -22,6 +23,7 @@ namespace Vast
              _is_static (is_static),
              _overload_limit (overload_limit)
     {
+        CPPDEBUG("VASTMatcher constructor" << std::endl);
         _next_periodic = 0;
         _matcher_keepalive = 0;
 
@@ -700,6 +702,8 @@ namespace Vast
                     msg.store (sub.id);
                     msg.store (sub.host_id);
                     msg.addTarget (sub.relay.host_id);
+                    Logger::debug("VASTMatcher::handleMessage Sending SUBSCRIBE_NOTIFY to relay ["
+                                 + std::to_string(sub.relay.host_id) + "]");
                     sendMessage (msg);
 
                     // send back acknowledgement of subscription to client via the relay
@@ -714,6 +718,9 @@ namespace Vast
                     msg.store (_self.addr);                    
                     
                     msg.addTarget (sub.id);
+
+                    Logger::debug("VASTMatcher::handleMessage Sending SUBSCRIBE_R via relay, subID ["
+                                 + std::to_string(sub.id) + "]");
                     sendClientMessage (msg);
 
                     /*
@@ -1004,7 +1011,10 @@ namespace Vast
             }
             break;
 
-        /*case SYNC_CLOCK:
+        case SYNC_CLOCK:
+            CPPDEBUG("VASTMatcher::handleMessage SYNC_CLOCK" << std::endl);
+            break;
+         /*
             {
                 if (isGateway () == false)
                 {

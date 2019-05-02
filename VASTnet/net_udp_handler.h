@@ -21,6 +21,7 @@ namespace Vast {
 
     public:
         net_udp_handler (ip::udp::endpoint local_endpoint);
+        virtual ~net_udp_handler ();
 
         virtual int open (io_service *io_service, abstract_net_udp *msghandler);
 
@@ -41,6 +42,10 @@ namespace Vast {
 
         void handle_disconnect (IPaddr ip_addr);
 
+        void process_input(const char* buffer, std::size_t bytes_transferred, ip::udp::endpoint* remote_endptr, size_t offset = 0);
+
+        bool isOpen();
+
     protected:
 
         //Start the receiving loop
@@ -50,8 +55,6 @@ namespace Vast {
         virtual int handle_input (const boost::system::error_code& error,
                           std::size_t bytes_transferred);
 
-        void process_input(const char* buffer, std::size_t bytes_transferred, ip::udp::endpoint* remote_endptr, size_t offset = 0);
-
         // if handle_input() returns -1, reactor would call handle_close()
         int handle_close ();
 
@@ -59,7 +62,7 @@ namespace Vast {
 
         uint16_t getPort ();
 
-        virtual ~net_udp_handler ();
+        bool                        is_open = false;
 
         ip::udp::socket             *_udp;
         ip::udp::endpoint           _remote_endpoint_;

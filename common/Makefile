@@ -16,7 +16,8 @@ sources_o = Compressor.cpp Errout.cpp \
             SectionedFile.cpp StdIO_SectionedFile.cpp \
             VoronoiSF.cpp VoronoiSFAlgorithm.cpp \
             MovementGenerator.cpp \
-            VASTUtil.cpp
+	    VASTUtil.cpp \
+	    logger.cpp
             
 sources=$(sources_o)
 

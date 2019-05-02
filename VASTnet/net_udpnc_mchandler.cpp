@@ -25,6 +25,7 @@ namespace Vast
     }
 
     int net_udpNC_MChandler::open(AbstractRLNCMsgReceiver *msghandler) {
+        CPPDEBUG("net_udpNC_MChandler::open" << std::endl);
         _msghandler = msghandler;
 
         if (_udp == NULL) {
@@ -96,7 +97,7 @@ namespace Vast
                 }
                 else {
                     CPPDEBUG("net_udpnc_mchandler::handle_input RLNC message received" << std::endl);
-                    throw std::logic_error("net_udpnc_mchandler::handle_input Received unencoded packet in MC handler\n");
+//                    throw std::logic_error("net_udpnc_mchandler::handle_input Received unencoded packet in MC handler\n");
                     RLNCMessage other;
                     other.deserialize (p, bytes_transferred);
                     putOtherRLNCMessage (other);
@@ -136,7 +137,7 @@ namespace Vast
                     if (_msghandler != NULL)
                     {
     //                    CPPDEBUG("net_udpNC_MChandler::process_encoded processing decoded message" << std::endl);
-                        _msghandler->RLNC_msg_received(*decoded_msg);
+                        _msghandler->RLNC_msg_received(*decoded_msg, NULL);
                         delete decoded_msg;
                     }
                     else {

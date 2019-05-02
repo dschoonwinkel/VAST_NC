@@ -51,6 +51,7 @@ namespace Vast
              _default_host (NET_ID_UNASSIGNED)
         {       
             // automatically start off the network
+            CPPDEBUG("MessageQueue constructor: _net->start()"<< std::endl);
             _net->start ();
         }
 

@@ -145,6 +145,8 @@ void initVariables()
 
     ofs << "timestamp," << "active_nodes," << "AN_actual," << "AN_visible,"
         << "Total drift," << "Max drift," << "drift nodes," << "worldSendStat," << "worldRecvStat," << std::endl;
+
+    g_MS_PER_TIMESTEP = simpara.TIMESTEP_DURATION;
 }
 
 void calculateUpdate()

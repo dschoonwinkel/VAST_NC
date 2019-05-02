@@ -17,7 +17,7 @@ namespace Vast
     {
     public:
         net_udpNC_MChandler(ip::udp::endpoint local_endpoint);
-        ~net_udpNC_MChandler();
+        virtual ~net_udpNC_MChandler();
 
         //MChandler will run its own io_service
         int open (AbstractRLNCMsgReceiver *msghandler);
@@ -31,12 +31,15 @@ namespace Vast
         // handling inserted message from elsewhere
         int handle_buffer (char *buf, std::size_t bytes_transferred);
 
-        void clearPacketPool();
+        virtual void clearPacketPool();
         size_t getPacketPoolSize();
 
         bool toAddrForMe(RLNCMessage msg);
 
     protected:
+
+        //Only called by mocking class
+        net_udpNC_MChandler() {}
 
         //Start the receiving loop
         void start_receive ();

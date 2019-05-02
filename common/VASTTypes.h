@@ -710,6 +710,15 @@ public:
         sprintf (p, "%d.%d.%d.%d:%u", (int)((host>>24) & 0xff), (int)((host>>16) & 0xff), (int)((host>>8) & 0xff), (int)(host & 0xff), port);
     }
 
+    std::string getString() const
+    {
+        char temp_string[30];
+        this->getString (temp_string);
+
+        return std::string(temp_string);
+
+    }
+
     void parseIP (const std::string & instr)
     {
         IPaddr::parseIP (*this, instr);
@@ -784,6 +793,7 @@ public:
     uint16_t      pad;        
 
     friend std::ostream& operator<<(std::ostream&, IPaddr const& addr);
+
     
 };
 
@@ -791,7 +801,7 @@ inline std::ostream& operator<<(std::ostream& output, IPaddr const& addr )
 {
     char temp_string[30];
     addr.getString (temp_string);
-    output << temp_string << std::endl;
+    output << temp_string;
 
     return output;
 }
@@ -1064,11 +1074,22 @@ public:
         ar & addr.publicIP.port;
     }
 
+    friend std::ostream& operator<<(std::ostream&, Node const& node);
+
     id_t            id;         // unique ID for the node   
     timestamp_t     time;       // last update time    
     Area            aoi;        // the area of interest    
     Addr            addr;       // IP address for this node    
 };
+
+inline std::ostream& operator<<(std::ostream& output, Node const& node )
+{
+    output << "Incomplete function" << std::endl;
+    // node.id 
+    output << node.addr.publicIP;
+
+    return output;
+}
 
 class EXPORT Subscription : public Serializable
 {

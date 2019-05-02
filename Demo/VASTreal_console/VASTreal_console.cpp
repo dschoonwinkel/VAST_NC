@@ -79,7 +79,7 @@ int main (int argc, char *argv[])
         // Create node is not yet joined
         if (nodes_created == 0)
         {
-            CreateNode (false);
+            CreateNode ();
             nodes_created++;
         }
 

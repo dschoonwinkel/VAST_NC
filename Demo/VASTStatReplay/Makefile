@@ -8,7 +8,7 @@ LIBS_COMMON = -lvastsim -lvast -lvastnet -lvastcommon
 LIBS_ACE    = -lACE 
 LIBS_THREAD = -lpthread
 LIBS_DL	    = -ldl
-LIBS_BOOST = -lboost_system -lboost_thread -lboost_serialization -lboost_filesystem -ljsoncpp
+LIBS_BOOST = -lboost_system -lboost_thread -lboost_serialization -lboost_filesystem
 ACE_PATH    = /usr
 
 LIBS_INCKODO = -I../../kodo-rlnc/resolve_symlinks/boost \

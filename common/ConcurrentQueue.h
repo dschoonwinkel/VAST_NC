@@ -21,10 +21,10 @@ class ConcurrentQueue
   T pop() 
   {
     std::unique_lock<std::mutex> mlock(mutex_);
-    while (queue_.empty())
-    {
-      cond_.wait(mlock);
-    }
+    while (queue_.empty() && active) {}
+    if (!active)
+        return T();
+
     auto val = queue_.front();
     queue_.pop();
     return val;
@@ -33,10 +33,11 @@ class ConcurrentQueue
   void pop(T& item)
   {
     std::unique_lock<std::mutex> mlock(mutex_);
-    while (queue_.empty())
-    {
-      cond_.wait(mlock);
-    }
+    while (queue_.empty() && active) {}
+
+    if (!active)
+        return;
+
     item = queue_.front();
     queue_.pop();
   }
@@ -51,11 +52,24 @@ class ConcurrentQueue
   ConcurrentQueue()=default;
   ConcurrentQueue(const ConcurrentQueue&) = delete;            // disable copying
   ConcurrentQueue& operator=(const ConcurrentQueue&) = delete; // disable assignment
+
+  size_t size()
+  {
+      std::unique_lock<std::mutex> mlock(mutex_);
+      return queue_.size ();
+  }
+
+  void close()
+  {
+    active = false;
+    cond_.notify_all ();
+  }
   
  private:
   std::queue<T> queue_;
   std::mutex mutex_;
   std::condition_variable cond_;
+  bool active = true;
 };
 
 #endif

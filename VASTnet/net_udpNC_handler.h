@@ -6,9 +6,7 @@
 #include "rlnc_packet_factory.h"
 #include "rlncmessage.h"
 #include "abstract_rlnc_msg_receiver.h"
-
-#define LOWEST_RESET_PACKET_ORDERING_NUMBER 240
-#define HIGHEST_RESET_ACCEPTING_ORDERING_NUMBER 10
+#include "net_udpnc_consumer.h"
 
 namespace Vast
 {
@@ -31,32 +29,22 @@ namespace Vast
         int handle_input (const boost::system::error_code& error,
                           std::size_t bytes_transferred);
 
-        //General processing, calls filter_input
-        void process_input (RLNCMessage input_message, ip::udp::endpoint* remote_endptr);
-        //Filters input based on toAddrs, passes to order_input
-        void filter_input (RLNCMessage input_message, ip::udp::endpoint* remote_endptr);
-        //Ensures order of incoming packets remains correct, passes to handoff_input
-        void order_input(RLNCMessage input_message, ip::udp::endpoint* remote_endptr);
         //Hands input packet off to net_udp_handler
         void handoff_input (RLNCMessage input_message, ip::udp::endpoint* remote_endptr);
 
 
 
-        void RLNC_msg_received(RLNCMessage msg);
+        void RLNC_msg_received(RLNCMessage input_message, ip::udp::endpoint* remote_endptr);
 
     private:
         uint8_t generation = 0;
         size_t pkt_gen_count = 0;
 
         net_udpNC_MChandler mchandler;
-        size_t decoded_from_mchandler = 0;
-        size_t total_packets_recvd = 0;
-        size_t total_packets_processed = 0;
-        size_t total_not_meantforme = 0;
-        size_t total_toolate_packets = 0;
-        size_t total_usedpackets = 0;
+        net_udpNC_consumer consumer;
 
-        std::map<id_t, uint8_t> recvd_ordering;
+        size_t total_packets_recvd = 0;
+
         std::map<id_t, uint8_t> send_ordering;
     };
 

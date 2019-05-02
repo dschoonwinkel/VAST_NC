@@ -84,23 +84,28 @@ def myNetwork():
 
     coding_host.cmd("route add 239.255.0.1 codinghost-eth0")
     if (run_codinghost):
-        coding_host.cmd("xterm -hold -fg black -bg green -geometry 80x10+200+600 -e \"./coding_host \" &")
+        # coding_host.cmd("xterm -hold -fg black -bg green -geometry 80x10+200+600 -e \"./coding_host \" &")
+        coding_host.cmd("./coding_host &> output_dump/codnghost.txt &")
     CLI(net)
 
     for i in range(1,Node_count+1):
-        print("Setting up node %d" % i)
-        hosts[i-1].cmd("route add 239.255.0.1 h%d-eth0" % i)
-        if AUTO:
-            # hosts[i-1].cmd("xterm -hold -fg black -bg green -geometry 80x60+%d+0 -e   \"./VASTreal_console %d 0 1037 10.0.0.1 \" &" % (200+i*40, i-1))    
-            hosts[i-1].cmd("./VASTreal_console %d 0 1037 10.0.0.1 &> output_dump/node%d.txt &" % (i-1, i-1))
-            # hosts[i-1].cmd("perf record --call-graph dwarf -o ./perf/perf%d.data ./VASTreal_console %d 0 1037 10.0.0.1 &> output_dump/node%d.txt &" % (i-1, i-1, i-1))
-        time.sleep(1 + TIMESTEP_DURATION * 10)
+        try:
+            print("Setting up node %d" % i)
+            hosts[i-1].cmd("route add 239.255.0.1 h%d-eth0" % i)
+            if AUTO:
+                # hosts[i-1].cmd("xterm -hold -fg black -bg green -geometry 80x60+%d+0 -e   \"./VASTreal_console %d 0 1037 10.0.0.1 \" &" % (200+i*40, i-1))    
+                hosts[i-1].cmd("./VASTreal_console %d 0 1037 10.0.0.1 &> output_dump/node%d.txt &" % (i-1, i-1))
+                # hosts[i-1].cmd("perf record --call-graph dwarf -o ./perf/perf%d.data ./VASTreal_console %d 0 1037 10.0.0.1 &> output_dump/node%d.txt &" % (i-1, i-1, i-1))
+            time.sleep(1 + TIMESTEP_DURATION * 10)
+        except KeyboardInterrupt:
+                print("Sleep interrupted, exiting")
+                break;
 
     if not AUTO:
         CLI(net)
 
-    for i in range(1, int(TIMESTEP_DURATION * 100) / 10):
-            print("Connection wait sleep 10 seconds, %d to go" % (int(TIMESTEP_DURATION * 100) - i*10))
+    for i in range(1, int(TIMESTEP_DURATION * 500)/10):
+            print("Connection wait sleep 10 seconds, %d to go" % (int(TIMESTEP_DURATION * 500) - i*10))
             try:
                 time.sleep(10)
             except KeyboardInterrupt:

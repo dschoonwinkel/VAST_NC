@@ -29,6 +29,8 @@
 #include <stdlib.h>         // strtok
 #include "vaststatlog_entry.h"
 #include "timeouts.h"
+#include <chrono>
+#include <thread>
 
 #define RECORD_LATENCY      // to record transmission latency for MOVEMENT messages
 //#include "Statistics.h"
@@ -418,6 +420,7 @@ bool CreateNode (bool wait_till_ready)
 
     if (wait_till_ready)
     {
+        CPPDEBUG("VASTreal::CreateNode sleep time in while loop: " << g_MS_PER_TIMESTEP/100 << std::endl);
         // make sure all nodes have joined before moving    
         do 
         {

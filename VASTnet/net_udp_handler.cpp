@@ -24,6 +24,8 @@ namespace Vast {
     }
 
     int net_udp_handler::open(boost::asio::io_service *io_service, abstract_net_udp *msghandler) {
+        CPPDEBUG("net_udp_handler::open " << std::endl);
+        is_open = true;
         _io_service = io_service;
         _msghandler = msghandler;
 
@@ -131,7 +133,8 @@ namespace Vast {
             {
                 //Store the host_id : IPaddr pair
                 IPaddr remote_addr(remote_endptr->address().to_v4().to_ulong(), remote_endptr->port());
-
+                //Check if this works correctly...
+//                Logger::debug();
 
 
                 //This host is looking for an ID, assign it a temporary ID to store the connection
@@ -140,6 +143,20 @@ namespace Vast {
                     temp_id = net_manager::resolveHostID(&remote_addr);
                 }
 
+                if (getRemoteAddress (temp_id))
+                {
+                    if (!(*getRemoteAddress (temp_id) == remote_addr))
+                    {
+                        CPPDEBUG("net_udp_handler::process_input Id [" + std::to_string(temp_id) + "] already has an address: " << std::endl);
+                        char ip_string2[30];
+                        getRemoteAddress(temp_id)->getString(ip_string2);
+                        CPPDEBUG("saved address: " << std::string(ip_string2) << std::endl);
+                        remote_addr.getString (ip_string2);
+                        CPPDEBUG("new address: " << std::string(ip_string2) << std::endl);
+                    }
+
+                }
+                CPPDEBUG("net_udp_handler::proces_input MSG_TYPE " << msg.msgtype << std::endl);
                 storeRemoteAddress(temp_id, remote_addr);
 
                 //We assume if we can get a packet from the host, we are connected to that host
@@ -158,6 +175,7 @@ namespace Vast {
     }
 
     int net_udp_handler::close() {
+        CPPDEBUG("net_udp_handler::close()" << std::endl);
         return this->handle_close();
     }
 
@@ -185,6 +203,8 @@ namespace Vast {
             _io_service->stop();
             _iosthread->join();
         }
+	
+	is_open = false;
 
         return 0;
     }
@@ -269,6 +289,35 @@ namespace Vast {
 
     void net_udp_handler::storeRemoteAddress (id_t host_id, IPaddr addr)
     {
+        if (_remote_addrs[host_id] == addr)
+        {
+//            CPPDEBUG("net_udp_handler::storeRemoteAddress Got the same address again, not saving" << std::endl);
+            return;
+        }
+
+        else if (_remote_addrs.find (host_id) != _remote_addrs.end())
+        {
+            CPPDEBUG("net_udp_handler::storeRemoteAddress Trying to replace address for ["
+                     + std::to_string(host_id)
+                     + "] (previously [" << _remote_addrs[host_id].getString() << "]) with "
+                     << "[" << addr << "]" << std::endl);
+        }
+
+        CPPDEBUG("net_udp_handler::storeRemoteAddress: " << std::endl << addr << std::endl);
+                    IPaddr addr_from_id((host_id >> 32), 1037);
+                    CPPDEBUG(addr_from_id << " IPaddr from id: " << std::endl);
+                    CPPDEBUG("Equal: " << (addr_from_id == addr) << std::endl);
+
+        // if (host_id != 0 && !(addr_from_id == addr))
+        // {
+        //     CPPDEBUG("Using fromID as IP address"<<std::endl);
+        //     addr = addr_from_id;
+        // }
+        // else if (host_id == 0) 
+        // {
+        //     CPPDEBUG("Host ID was 0" << std::endl);
+        // }
+
         _remote_addrs[host_id] = addr;
 
 //        char ip_addr_str[22] = "";
@@ -279,11 +328,36 @@ namespace Vast {
 //        }
 
         _remote_ids_IPs[addr] = host_id;
+
+        for (auto iter = _remote_addrs.begin(); iter != _remote_addrs.end(); ++iter)
+        {
+            char ip_string[30];
+            iter->second.getString(ip_string);
+
+            for (auto iter2 = _remote_addrs.begin(); iter2 != _remote_addrs.end(); ++iter2)
+            {
+                if (iter->first != iter2->first && iter->second == iter2->second)
+                {
+                    char ip_string2[30];
+                    iter2->second.getString(ip_string2);
+                    CPPDEBUG("net_udp_handler::storeRemoteAddress : Found duplicate IP addr" << std::endl);
+                    CPPDEBUG("id2: " << iter2->first << " - " << std::string(ip_string2) << std::endl);
+                    CPPDEBUG("id : " << iter->first << " - " << std::string(ip_string) << std::endl);
+                }
+            }
+
+//            CPPDEBUG("id: " << iter->first << " - " << std::string(ip_string) << std::endl);
+        }
     }
 
     uint16_t net_udp_handler::getPort ()
     {
         return _local_endpoint.port();
+    }
+
+    bool net_udp_handler::isOpen()
+    {
+        return is_open;
     }
 
 }

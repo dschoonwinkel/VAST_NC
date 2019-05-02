@@ -10,6 +10,7 @@
 
 #include "rlnc_packet_factory.h"
 #include <VASTTypes.h>
+#include <boost/asio.hpp>
 
 class RLNCMessage
 {
@@ -47,6 +48,9 @@ public:
     packetid_t static generatePacketId(Vast::id_t id, int ordering);
 
     friend std::ostream& operator<<(std::ostream&, RLNCMessage const& message);
+
+    //Only used for storing remote address in Concurrent queue. Not serialized
+    boost::asio::ip::udp::endpoint* endptr = NULL;
 
 private:
     RLNCHeader header;

@@ -3,13 +3,16 @@
 
 #include "VASTTypes.h"
 #include "rlncmessage.h"
+#include <boost/asio.hpp>
+
+using namespace boost::asio;
 
 namespace Vast
 {
     class AbstractRLNCMsgReceiver
     {
     public:
-        virtual void RLNC_msg_received(RLNCMessage msg) = 0;
+        virtual void RLNC_msg_received(RLNCMessage input_message, ip::udp::endpoint* remote_endptr) = 0;
     };
 }
 
