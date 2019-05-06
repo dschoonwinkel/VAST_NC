@@ -197,6 +197,10 @@ namespace Vast
         virtual StatType *getMessageLatency (msgtype_t msgtype) = 0;
     };
 
+    std::string MSGTYPEtoString(msgtype_t msgtype);
+
 } // end namespace Vast
+
+
 
 #endif // VAST_H

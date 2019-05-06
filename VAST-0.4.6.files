@@ -54,6 +54,7 @@ coding_host/tests/test_uncoded_coded_mixed2.cpp
 common/logger.cpp
 common/logger.h
 common/tests/Makefile
+common/tests/unittest_concurrentqueue.cpp
 common/tests/unittest_logger.cpp
 common/timeouts.h
 tests/rlnc_encoded_packet_test.cpp
@@ -170,6 +171,7 @@ common/Agent.h
 common/AgentLogic.h
 common/Arbitrator.h
 common/ArbitratorLogic.h
+common/blockingconcurrentqueue.h
 common/ClusterMovement.h
 common/Compressor.cpp
 common/ConcurrentQueue.h

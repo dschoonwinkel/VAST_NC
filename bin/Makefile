@@ -6,6 +6,7 @@ clean:
 	-rm logs/results/results1.txt
 	-rm output_dump/*.txt
 	-rm perf/*.data
+	-rm pcaps/*.pcap
 
 clean_binaries:
 	-rm demo_chatva_Qt

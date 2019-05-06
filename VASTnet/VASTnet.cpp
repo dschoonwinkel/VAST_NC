@@ -242,7 +242,8 @@ namespace Vast
     // return pointer to Message, or NULL for no more message        
     Message* 
     VASTnet::receiveMessage (id_t &fromhost)
-    {                   
+    {
+//        CPPDEBUG("VASTnet::receiveMessage: " << std::endl);
         if (_manager->isActive () == false)
             return NULL;
 
@@ -610,7 +611,7 @@ namespace Vast
                 msg.store (self_addr.publicIP);
           
                 sendMessage (target, msg, true, ID_REQUEST);
-                printf ("VASTnet::isJoined () sending ID_REQUEST to gateway [%lu]\n", target);
+                printf ("VASTnet::isJoined () sending ID_REQUEST (%lu) to gateway [%lu]\n", id, target);
             }
         }
 

@@ -33,7 +33,7 @@ AUTO = True
 
 def myNetwork():
 
-    loss_perc = 0
+    loss_perc = 10
 #    BW = 1000
     Node_count = 10
     run_codinghost = True
@@ -83,6 +83,10 @@ def myNetwork():
     info( '*** Post configure switches and hosts\n')
 
     coding_host.cmd("route add 239.255.0.1 codinghost-eth0")
+
+    h1 = net.get('h1')
+    h1.cmd("tcpdump -i h1-eth0 -w pcaps/h1.pcap &> pcaps/h1_pcapout.txt & ")
+
     if (run_codinghost):
         # coding_host.cmd("xterm -hold -fg black -bg green -geometry 80x10+200+600 -e \"./coding_host \" &")
         coding_host.cmd("./coding_host &> output_dump/codnghost.txt &")
@@ -160,6 +164,7 @@ def myNetwork():
     os.system("killall -s SIGKILL VASTreal_console")
     os.system("killall xterm")
     os.system("killall -s SIGKILL coding_host")
+    os.system("killall -s SIGKILL tcpdump")
 
 if __name__ == '__main__':
     setLogLevel( 'info' )

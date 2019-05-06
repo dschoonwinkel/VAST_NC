@@ -35,15 +35,23 @@ namespace Vast
 
     void net_udpNC_consumer::consume()
     {
+        if (running)
+            CPPDEBUG("net_udpNC_consumer::consume Starting processing message on thread" << std::endl);
+
+        RLNCMessage msg;
+
         while(running)
         {
-            if (total_packets_processed == 0)
-                CPPDEBUG("net_udpNC_consumer::consume Processing message on thread" << std::endl);
 
-            RLNCMessage msg = _msg_queue.pop ();
+
+            //If there are no messages to process, go around again
+            if (_msg_queue.size () == 0)
+                continue;
+
+            bool pop_success = _msg_queue.pop (msg);
 
             //Check if we are still running, or just been cancelled
-            if (running)
+            if (running && pop_success)
                 process_input(msg, msg.endptr);
         }
 

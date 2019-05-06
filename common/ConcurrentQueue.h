@@ -12,63 +12,70 @@
 #include <mutex>
 #include <condition_variable>
 #include <functional>
+#include <iostream>
 
 template <typename T>
 class ConcurrentQueue
 {
  public:
 
-  T pop() 
+//  T pop()
+//  {
+//    if (!active)
+//    {
+//        std::cout << "Returning an empty item" << std::endl;
+//        return T();
+//    }
+
+//    std::lock_guard<std::mutex> mlock(mutex_);
+//    auto val = queue_.front();
+//    queue_.pop();
+//    std::cout << "Returning an item" << std::endl;
+//    return val;
+//  }
+
+  //Return true if item was popped successfully
+  bool pop(T& item)
   {
-    std::unique_lock<std::mutex> mlock(mutex_);
-    while (queue_.empty() && active) {}
     if (!active)
-        return T();
+        return false;
 
-    auto val = queue_.front();
-    queue_.pop();
-    return val;
-  }
-
-  void pop(T& item)
-  {
-    std::unique_lock<std::mutex> mlock(mutex_);
-    while (queue_.empty() && active) {}
-
-    if (!active)
-        return;
+    std::lock_guard<std::mutex> mlock(mutex_);
+    if (queue_.size() <= 0)
+        return false;
 
     item = queue_.front();
     queue_.pop();
+    return true;
   }
 
   void push(const T& item)
   {
-    std::unique_lock<std::mutex> mlock(mutex_);
+    if (!active)
+        return;
+
+    std::lock_guard<std::mutex> mlock(mutex_);
     queue_.push(item);
-    mlock.unlock();
-    cond_.notify_one();
   }
+
   ConcurrentQueue()=default;
   ConcurrentQueue(const ConcurrentQueue&) = delete;            // disable copying
   ConcurrentQueue& operator=(const ConcurrentQueue&) = delete; // disable assignment
 
   size_t size()
   {
-      std::unique_lock<std::mutex> mlock(mutex_);
+      std::lock_guard<std::mutex> mlock(mutex_);
       return queue_.size ();
   }
 
   void close()
   {
     active = false;
-    cond_.notify_all ();
   }
   
  private:
   std::queue<T> queue_;
   std::mutex mutex_;
-  std::condition_variable cond_;
   bool active = true;
 };
 

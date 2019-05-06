@@ -1020,5 +1020,46 @@ namespace Vast
         stat.total += (size_t)duration;
         stat.num_records++;
     }
+
+    static const char* msgtype2string[] =
+    {
+        "MATCHER_CANDIDATE",
+        "MATCHER_INIT",
+        "MATCHER_ALIVE",
+        "MATCHER_WORLD_INFO",
+        "NOTIFY_MATCHER",
+        "NOTIFY_CLOSEST",
+        "JOIN",
+        "LEAVE",
+        "PUBLISH",
+        "SUBSCRIBE",
+        "SUBSCRIBE_R",
+        "SUBSCRIBE_TRANSFER",
+        "SUBSCRIBE_UPDATE",
+        "MOVE",
+        "MOVE_F",
+        "NEIGHBOR",
+        "NEIGHBOR_REQUEST",
+        "SEND",
+        "ORIGIN_MESSAGE",
+        "MESSAGE",
+        "SUBSCRIBE_NOTIFY",
+        "STAT",
+        "SYNC_CLOCK",
+        "REQUEST",
+        "RELAY",
+        "PING",
+        "PONG",
+        "PONG_2",
+        "RELAY_QUERY",
+        "RELAY_QUERY_R",
+        "RELAY_JOIN",
+        "RELAY_JOIN_R"
+    };
+
+    std::string MSGTYPEtoString(msgtype_t msgtype)
+    {
+        return std::string(msgtype2string[msgtype - VON_MAX_MSG]);
+    }
                                     
 } // end namespace Vast

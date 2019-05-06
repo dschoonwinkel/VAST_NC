@@ -176,6 +176,7 @@ namespace Vast
     int 
     MessageQueue::processMessages ()
     {
+//        CPPDEBUG("MessageQueue::processMessages: " << std::endl);
         int num_msg = 0;
 
         Message     *recvmsg;               // pointer to message received

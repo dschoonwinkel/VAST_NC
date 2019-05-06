@@ -1,4 +1,5 @@
 unittest_logger = ./unittest_logger
+unittest_concurrentqueue = ./unittest_concurrentqueue
 
 
 CC = g++
@@ -18,9 +19,9 @@ LIBS = $(LIBS_COMMON)
 INC_PATHS   = -I../../common
 LIB_PATHS   = -L../../lib
 
-.PHONY: unittest_logger
+.PHONY: unittest_logger unittest_concurrentqueue
 
-all: unittest_logger
+all: unittest_logger unittest_concurrentqueue
 
 unittest_logger: unittest_logger.cpp
 	$(CC) $(CFLAGS) $(INC_PATHS) $(LIB_PATHS) $^ $(LIBS) \
@@ -28,5 +29,11 @@ unittest_logger: unittest_logger.cpp
 	echo "Running: unittest_logger"
 	$(unittest_logger)
 
+unittest_concurrentqueue: unittest_concurrentqueue.cpp
+	$(CC) $(CFLAGS) $(INC_PATHS) $(LIB_PATHS) $^ $(LIBS) -lpthread \
+	-o $(unittest_concurrentqueue)
+	echo "Running: unittest_concurrentqueue"
+	$(unittest_concurrentqueue)
+
 clean:
-	-rm $(unittest_logger)
+	-rm $(unittest_logger) $(unittest_concurrentqueue)

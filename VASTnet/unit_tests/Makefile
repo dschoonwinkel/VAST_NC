@@ -75,7 +75,7 @@ unittest_net_udpnc_consumer: unittest_net_udpnc_consumer.cpp abstract_rlnc_msg_r
 	$(CC) $(CFLAGS) $(INC_PATHS) $(LIBS_INCKODO) $(LIB_PATHS) $^ $(LIBS) $(LIBS_KODO) \
 	-o $(unittest_net_udpnc_consumer)
 	echo "Running: unittest_net_udpnc_consumer"
-#	$(unittest_net_udpnc_consumer)
+	$(unittest_net_udpnc_consumer)
 
 make_vastnet:
 	$(MAKE) --directory=../

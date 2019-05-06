@@ -12,7 +12,7 @@
 #include <boost/thread/thread.hpp>
 #include <boost/chrono.hpp>
 
-size_t sleep_time = 200;
+size_t sleep_time = 1000;
 
 void testFirstIndex()
 {
