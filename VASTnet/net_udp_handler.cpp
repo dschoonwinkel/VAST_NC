@@ -271,7 +271,7 @@ namespace Vast {
         {
             char ip_string[30];
             iter->second.getString(ip_string);
-            IPaddr addr_from_id((iter->second >> 32), 1037);
+            IPaddr addr_from_id((iter->first >> 32), 1037);
             CPPDEBUG("id: " << iter->first << " - " << std::string(ip_string) << std::endl);
             CPPDEBUG(addr_from_id << " IPaddr from id: " << std::endl);
             CPPDEBUG("Equal: " << (addr_from_id == addr) << std::endl);

@@ -3,6 +3,7 @@
 #include "VASTClient.h"
 #include "MessageQueue.h"
 #include "VASTUtil.h"       // LogManager
+#include "logger.h"
 
 namespace Vast
 {   
@@ -63,6 +64,7 @@ namespace Vast
             return false;
             
         LogManager::instance ()->writeLogFile ("VASTClient [%lu] JOIN request to gateway [%lu]\n", _self.id, _gateway.host_id);
+        Logger::debug("VASTClient [" + std::to_string(_self.id) + "] JOIN request to gateway ["+ std::to_string(_gateway.host_id) + "]\n", true);
         
         // send out join request
         Message msg (JOIN);
