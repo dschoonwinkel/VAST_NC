@@ -38,7 +38,7 @@ namespace Vast {
 
     public:
 
-		net_emubridge (int loss_rate, int fail_rate, int seed, size_t net_spsc, timestamp_t init_time)
+		net_emubridge (int loss_rate, int fail_rate, int, size_t net_spsc, timestamp_t init_time)
 			:_loss_rate (loss_rate), _fail_rate (fail_rate), _time (init_time), _net_step_per_sec(net_spsc)
 		{
 			//srand (seed);

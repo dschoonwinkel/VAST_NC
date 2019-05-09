@@ -2,6 +2,7 @@
 
 #include "MessageQueue.h"
 //#include <iostream>
+#include "logger.h"
 
 namespace Vast
 {   
@@ -88,6 +89,8 @@ namespace Vast
             }            
 
             // verify the link is there
+            Logger::debug("MessageQueue::sendMessage: checking if we have a connection to ["
+                         + std::to_string(host_id) + "]");
             if (_net->validateConnection (host_id))
             {
                 num_msg++;    

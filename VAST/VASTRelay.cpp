@@ -166,11 +166,11 @@ namespace Vast
     VASTRelay::isJoined ()
     {
         if (getPhysicalCoordinate () == NULL && _curr_relay == NULL)
-            Logger::debugPeriodic ("VASTRelay::isJoined getPhysicalCoordinate and _curr_relay both NULL", std::chrono::milliseconds(g_MS_PER_TIMESTEP*10), 10);
+            Logger::debugPeriodic ("VASTRelay::isJoined getPhysicalCoordinate and _curr_relay both NULL", std::chrono::milliseconds(g_MS_PER_TIMESTEP*10), 10, true);
         else if (_curr_relay == NULL)
-            Logger::debugPeriodic ("VASTRelay::isJoined _curr_relay was NULL", std::chrono::milliseconds(g_MS_PER_TIMESTEP*10), 10);
+            Logger::debugPeriodic ("VASTRelay::isJoined _curr_relay was NULL", std::chrono::milliseconds(g_MS_PER_TIMESTEP*10), 10, true);
         else if (getPhysicalCoordinate () == NULL)
-            Logger::debugPeriodic ("VASTRelay::isJoined getPhysicalCoordinate () was NULL", std::chrono::milliseconds(g_MS_PER_TIMESTEP*10), 10);
+            Logger::debugPeriodic ("VASTRelay::isJoined getPhysicalCoordinate () was NULL", std::chrono::milliseconds(g_MS_PER_TIMESTEP*10), 10, true);
 
 
         if (getPhysicalCoordinate () == NULL || _curr_relay == NULL)
@@ -342,7 +342,7 @@ namespace Vast
                 listsize_t n;
                 in_msg.extract (n);
 
-                CPPDEBUG("VASTRelay: RELAY msg: received relayList from " << in_msg.from << std::endl);
+                CPPDEBUG("VASTRelay::handleMessage RELAY msg: received relayList from " << in_msg.from << std::endl);
 
                 Node relay;
 
@@ -379,6 +379,8 @@ namespace Vast
                 in_msg.extract (joiner);
                 in_msg.extract (relay);
 
+                Logger::debug("RELAY_QUERY from [" + std::to_string (joiner.id) + "]");
+
                 bool success = false;
 
                 // Eventually I will reply myself, unless the relay provided is invalid,
@@ -398,7 +400,9 @@ namespace Vast
                         msg.store (*closest);
                         msg.addTarget (relay.host_id);
 
-                        Logger::debug ("VASTRelay::handleMessage [" + std::to_string (_self.id) + "] Sending RELAY_QUERY_R to [" + std::to_string (joiner.id) + "]");
+                        Logger::debug ("VASTRelay::handleMessage [" + std::to_string (_self.id) +
+                                       "] Sending RELAY_QUERY_R to [" + std::to_string (joiner.id) + "]\n" +
+                                       "closestRelay: [\n" +  std::to_string(closest->id) + "]\n");
                                         
                         notifyMapping (relay.host_id, &relay);
 
@@ -526,7 +530,7 @@ namespace Vast
         // response from previous JOIN request
         case RELAY_JOIN_R:
             {
-            Logger::debug("VASTRelay::setJoined RELAY_JOIN_R");
+            Logger::debug("VASTRelay::handleMessage RELAY_JOIN_R");
                 // only update if we're currently seeking to join
                 if (_state == JOINED)
                     break;
@@ -701,7 +705,8 @@ namespace Vast
 
             // obtain some relays from network layer if no known relays
             if (_relays.size () == 0)
-            {                
+            {
+                Logger::debug("VASTRelay::postHandling Using entries (eg. GW) as initial relays");
                 // using network entry points as initial relays 
                 vector<IPaddr> &entries = _net->getEntries ();
                 Node relay;

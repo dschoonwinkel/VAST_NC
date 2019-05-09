@@ -1059,6 +1059,9 @@ namespace Vast
 
     std::string MSGTYPEtoString(msgtype_t msgtype)
     {
+        if (msgtype < 30)
+            return std::to_string(msgtype);
+
         return std::string(msgtype2string[msgtype - VON_MAX_MSG]);
     }
                                     

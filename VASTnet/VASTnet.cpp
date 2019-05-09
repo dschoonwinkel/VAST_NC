@@ -200,7 +200,11 @@ namespace Vast
 
         // make sure we have a connection, or establish one if not
         if (validateConnection (target) == false)
+        {
+            Logger::debug("VASTnet::sendMessage: validate connection failed for [" + std::to_string(target) + "]");
             return 0;
+
+        }
         
         // get the TCP or UDP queue, create one if necessary
         std::map<id_t, VASTBuffer *> &send_buf = (reliable ? _sendbuf_TCP : _sendbuf_UDP);        
@@ -663,6 +667,7 @@ namespace Vast
     bool 
     VASTnet::validateConnection (id_t host_id)
     {
+        Logger::debug("VASTnet::validateConnection: id=[" + std::to_string(host_id) + "]", true);
         // if it's message to self or already connected
         if (_manager->getID () == host_id || _manager->isConnected (host_id) == true)
             return true;
@@ -707,7 +712,7 @@ namespace Vast
 
     // set bandwidth limitation to this network interface (limit is in Kilo bytes / second)
     void 
-    VASTnet::setBandwidthLimit (bandwidth_t type, size_t limit)
+    VASTnet::setBandwidthLimit (bandwidth_t, size_t)
     {
         // TODO: currently empty
     }
@@ -900,7 +905,9 @@ namespace Vast
             {                    
                 // get actual detected IP for remote host
                 IPaddr actual_IP;
-                _manager->getRemoteAddress (remote_id, actual_IP);
+                if (!_manager->getRemoteAddress (remote_id, actual_IP))
+                    CPPDEBUG("VASTnet::processVASTMessage:: could not determine IPaddr for [" <<
+                             std::to_string(remote_id) << "]" << std::endl);
 
                 // obtain or assign new ID
                 id_t new_id = processIDRequest (*msg, actual_IP);
@@ -933,6 +940,8 @@ namespace Vast
             {        
                 // process handshake message                
                 id_t id = processHandshake (*msg);
+
+                CPPDEBUG("VASTnet::processVASTMessage: processing HANDSHAKE id=[" << id << "]" << std::endl);
                 
                 // register this connection with its ID if available, or terminate otherwise
                 if (id == NET_ID_UNASSIGNED)
@@ -998,7 +1007,7 @@ namespace Vast
             // NOTE: that the remote port used may not be the default bind port, as it's rather arbitrary
             // BUG: potential bug, the same 'port' if used by different hosts behind a NAT, will generate the same ID
             id = _manager->resolveHostID (&actualIP);
-            std::cout << "VASTnet::processIDRequest: resolvedHost ID: " << id << std::endl;
+            std::cout << "VASTnet::processIDRequest: !is_public, resolvedHost ID: " << id << std::endl;
         }
 
 //        //NOTE: I added this to try and resolve an ID for already public IPs
@@ -1057,6 +1066,8 @@ namespace Vast
         msg.priority = 0;
         msg.store (my_id);
 
+        CPPDEBUG("[" << std::to_string(_manager->getID()) << "] " << std::endl <<
+                 "sending HANDSHAKE to [" << std::to_string(target) << std::endl);
         // TODO: add authentication message
         sendMessage (target, msg, true, HANDSHAKE);
     }

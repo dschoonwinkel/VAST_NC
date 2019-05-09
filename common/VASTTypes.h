@@ -1084,7 +1084,7 @@ public:
 
 inline std::ostream& operator<<(std::ostream& output, Node const& node )
 {
-    output << "Incomplete function" << std::endl;
+    output << "Node::addr" << std::endl;
     // node.id 
     output << node.addr.publicIP;
 

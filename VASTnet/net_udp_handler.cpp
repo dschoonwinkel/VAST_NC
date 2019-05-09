@@ -4,6 +4,7 @@
 #include <cstring>
 #include <string>
 #include "VAST.h"
+#include "VASTnet.h"
 
 namespace Vast {
 
@@ -138,11 +139,16 @@ namespace Vast {
 //                Logger::debug();
 
 
-                //This host is looking for an ID, assign it a temporary ID to store the connection
-                if (remote_id == NET_ID_UNASSIGNED && msg.msgtype == ID_REQUEST)
-                {
-                    temp_id = net_manager::resolveHostID(&remote_addr);
-                }
+//                //This host is looking for an ID, assign it a temporary ID to store the connection
+//                if (remote_id == NET_ID_UNASSIGNED && msg.msgtype == ID_REQUEST)
+//                {
+//                    temp_id = net_manager::resolveHostID(&remote_addr);
+//                }
+
+                //Always use the from IP to generate a fromhost - needed by forwarded messages:
+                //fromhost can be != msg.from - the message is from ID given, but forwarded through
+                // fromhost
+                temp_id = net_manager::resolveHostID(&remote_addr);
 
                 if (getRemoteAddress (temp_id))
                 {
@@ -258,14 +264,35 @@ namespace Vast {
 
     IPaddr* net_udp_handler::getRemoteAddress (id_t host_id)
     {
+
+        CPPDEBUG("net_udp_handler::getRemoteAddress" << std::endl);
+
+        for (auto iter = _remote_addrs.begin(); iter != _remote_addrs.end(); ++iter)
+        {
+            char ip_string[30];
+            iter->second.getString(ip_string);
+            IPaddr addr_from_id((iter->second >> 32), 1037);
+            CPPDEBUG("id: " << iter->first << " - " << std::string(ip_string) << std::endl);
+            CPPDEBUG(addr_from_id << " IPaddr from id: " << std::endl);
+            CPPDEBUG("Equal: " << (addr_from_id == addr) << std::endl);
+
+        }
+
         //Return the address if we have heard from this host before
         if (_remote_addrs.find (host_id) != _remote_addrs.end ())
         {
+//            CPPDEBUG("net_udp_handler::getRemoteAddress ["
+//                     << std::to_string(host_id) << "]: " << _remote_addrs[host_id] << std::endl);
             return &_remote_addrs[host_id];
         }
 
         //There was no address found for this host id, return a null address
-        else return NULL;
+        else
+        {
+            CPPDEBUG("net_udp_handler::getRemoteAddress Could not determine address for ["
+                     << std::to_string(host_id) << "]" << std::endl);
+            return NULL;
+        }
     }
 
     id_t net_udp_handler::getRemoteIDByIP (IPaddr addr)

@@ -338,12 +338,17 @@ namespace Vast
         bool result = false;
 
 //        _conn_mutex.lock();
+        CPPDEBUG("net_udp::switchID prevID: " << prevID << " newID: " << newID << std::endl);
 
 //        //Only checks for new ID already in use, not for previous ID, because UDP is not connection based and therefore no connection exists before the packet arrives
         if (_id2conn.find (newID) != _id2conn.end ())
 ////        if (_id2conn.find (newID) != _id2conn.end () || _id2conn.find (prevID) == _id2conn.end ())
         {
-            printf("net_udp::switchID: [%lu] new ID already exists\n", _id);
+            printf("net_udp::switchID: [%lu] new ID already exists\n", newID);
+            if (prevID == newID)
+            {
+                CPPDEBUG("net_udp::switchID prevID == newID" << std::endl);
+            }
         }
 
         if (_id2conn.find (prevID) != _id2conn.end() && prevID != newID)
