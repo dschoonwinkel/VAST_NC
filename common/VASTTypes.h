@@ -691,6 +691,12 @@ public:
         host = i;
         port = p;
     }
+
+    IPaddr(id_t id)
+    {
+        host = id >> 32;
+        port = id >> 16;
+    }
     
     ~IPaddr ()
     {

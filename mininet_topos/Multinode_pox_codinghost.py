@@ -98,7 +98,7 @@ def myNetwork():
             hosts[i-1].cmd("route add 239.255.0.1 h%d-eth0" % i)
             if AUTO:
                 # hosts[i-1].cmd("xterm -hold -fg black -bg green -geometry 80x60+%d+0 -e   \"./VASTreal_console %d 0 1037 10.0.0.1 \" &" % (200+i*40, i-1))    
-                hosts[i-1].cmd("./VASTreal_console %d 0 1037 10.0.0.1 &> output_dump/node%d.txt &" % (i-1, i-1))
+                hosts[i-1].cmd("./VASTreal_console %d 0 1037 10.0.0.1 &> output_dump/node_10.0.0.%d.txt &" % (i-1, i))
                 # hosts[i-1].cmd("perf record --call-graph dwarf -o ./perf/perf%d.data ./VASTreal_console %d 0 1037 10.0.0.1 &> output_dump/node%d.txt &" % (i-1, i-1, i-1))
             time.sleep(1 + TIMESTEP_DURATION * 10)
         except KeyboardInterrupt:

@@ -188,7 +188,7 @@ namespace Vast
     net_udp::getRemoteAddress (id_t host_id, IPaddr &addr)
     {
 
-        IPaddr *resolved_addr = _udphandler->getRemoteAddress (host_id);
+        const IPaddr *resolved_addr = _udphandler->getRemoteAddress (host_id);
         CPPDEBUG("net_udp::getRemoteAddress: host_id " << host_id << std::endl);
         //IPaddr could not be found, probably because we have never communicated with it
         if (resolved_addr == NULL)
@@ -289,7 +289,7 @@ namespace Vast
         //Resolve addr from id_t if not given
         if (addr == NULL)
         {
-            IPaddr *resolved_addr = _udphandler->getRemoteAddress(target);
+            const IPaddr *resolved_addr = _udphandler->getRemoteAddress(target);
             if (resolved_addr == NULL)
             {
                 std::cerr << "\n net_udp::send IPaddr could not be resolved for id_t " << target << std::endl;
@@ -418,7 +418,7 @@ namespace Vast
         }
 
         //If I have never heard from this connection before, add it as a new connection
-        if (it == _id2conn.end() && message != NULL)
+        if (it == _id2conn.end() && message != NULL && msg->fromhost != NET_ID_UNASSIGNED)
         {
             socket_connected(fromhost, _udphandler, false);
         }

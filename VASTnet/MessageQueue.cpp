@@ -48,6 +48,13 @@ namespace Vast
     MessageQueue::notifyMapping (id_t nodeID, Addr *addr)
     {        
         // store local copy of the mapping
+        if (_id2host[nodeID] != addr->host_id && _id2host[nodeID] != NET_ID_UNASSIGNED)
+        {
+            CPPDEBUG("MessageQueue:notifyMapping: Changing" << std::endl);
+            CPPDEBUG(nodeID << ":" << _id2host[nodeID] << " to " << nodeID << ":" << addr->host_id << std::endl);
+        }
+
+
         _id2host[nodeID] = addr->host_id;
         _net->storeMapping (*addr);
 
@@ -89,8 +96,8 @@ namespace Vast
             }            
 
             // verify the link is there
-            Logger::debug("MessageQueue::sendMessage: checking if we have a connection to ["
-                         + std::to_string(host_id) + "]");
+//            Logger::debug("MessageQueue::sendMessage: checking if we have a connection to ["
+//                         + std::to_string(host_id) + "]");
             if (_net->validateConnection (host_id))
             {
                 num_msg++;    
@@ -103,7 +110,15 @@ namespace Vast
             }
             // if link doesn't exist, record failed targets
             else if (failed_targets != NULL)
+            {
                 failed_targets->push_back (target);            
+            }
+
+            if (!_net->validateConnection(host_id))
+            {
+                Logger::debug("MessageQueue::sendMessage: No connection to ["
+                             + std::to_string(host_id) + "]");
+            }
         }
         
         // go through each host and send the message to them individually
@@ -243,8 +258,19 @@ namespace Vast
                     // record mapping if this is not a relayed message
                     if (recvmsg->from == fromhost)
                         _id2host[recvmsg->from] = fromhost;
+
+                    CPPDEBUG("MessageQueue::processMessage: Changing _id2host" << std::endl);
+                    for (auto iter = _id2host.begin(); iter != _id2host.end(); ++iter)
+                    {
+
+                            CPPDEBUG(iter->first << ": " << iter->second << std::endl);
+                        if (iter->first != iter->second)
+                        {
+                            CPPDEBUG("Equal: " << (iter->first == iter->second) << std::endl);
+                        }
+                    }
                 }
-                
+
                 
                 //
                 // go through each target
@@ -287,6 +313,7 @@ namespace Vast
                         printf ("MessageQueue::processMessages () cannot find proper handler with msggroup: %d for message from [%d]\n", (int)msggroup, (int)recvmsg->from);
                         continue;
                     }
+                    CPPDEBUG("MessageQueue::processMessages () : msggroup :" << msggroup << std::endl);
                     if (_handlers[msggroup]->handleMessage (*recvmsg) == true)
                         num_msg++;                          
                 }

@@ -50,7 +50,7 @@ namespace Vast
 
         void process_encoded(std::size_t bytes_transferred);
 
-        void process_message(char *buf, std::size_t bytes_transferred);
+//        void process_message(char *buf, std::size_t bytes_transferred);
 
         // if handle_input() returns -1, reactor would call handle_close()
         int handle_close ();

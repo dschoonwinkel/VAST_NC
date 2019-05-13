@@ -36,7 +36,7 @@ void Logger::debug (std::string logmessage, bool timestamp)
 
         std::stringstream ss;
         ss << std::put_time(std::localtime(&in_time_t), "%T");
-        ss << "." << std::setw(6) << std::to_string(value.count() % 1000000) << " :";
+        ss << "." << std::setw(6) << std::to_string(value.count() % 1000000) << ": ";
         logmessage = ss.str() + logmessage;
     }
 

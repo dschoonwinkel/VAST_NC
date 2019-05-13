@@ -29,7 +29,7 @@ namespace Vast {
         virtual int close (void);
 
         // obtain address of remote host
-        IPaddr *getRemoteAddress (id_t host_id);
+        const IPaddr *getRemoteAddress (id_t host_id);
 
         // obtain id_t of remote host IP
         id_t getRemoteIDByIP (IPaddr ip);

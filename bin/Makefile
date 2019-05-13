@@ -34,6 +34,7 @@ backup_results:
 restore_results:
 	$(backup_results)
 	cp logs/logs_backup/logs_$(foo)/*.txt ./logs/
+	cp -r logs/logs_backup/logs_$(foo)/output_dump/* ./output_dump
 	echo $(foo)
 
 save_plots:

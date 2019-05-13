@@ -351,11 +351,13 @@ namespace Vast
                 {                    
                     in_msg.extract (relay);
 
-                    //WHICH IP IS RECEIVED HERE?
-                    CPPDEBUG("Received relay in RELAY message: " << std::endl << relay << std::endl);
+                    CPPDEBUG("VASTRelay::handleMessage RELAY message: " << std::endl << relay << std::endl);
                     IPaddr addr_from_id((relay.id >> 32), 1037);
-                    CPPDEBUG(addr_from_id << " IPaddr from id: " << std::endl);
-                    CPPDEBUG("Equal: " << (addr_from_id == relay.addr.publicIP) << std::endl);
+                    if (!(addr_from_id == relay.addr.publicIP))
+                    {
+                        CPPDEBUG(addr_from_id << " IPaddr from id: " << std::endl);
+                        CPPDEBUG("Equal: " << (addr_from_id == relay.addr.publicIP) << std::endl);
+                    }
 
                     
 
@@ -951,12 +953,13 @@ namespace Vast
             multimap<double, Node *>::iterator it = _dist2relay.begin ();
             
             Logger::debug("First relay in multimap: [" + std::to_string(it->second->id) + "], dist: " + std::to_string(it->first));
-            if (it != _dist2relay.end())
-            {
-                Logger::debug ("Choosing closest relay [" + std::to_string(it->second->id) + "] " + (it->second->id == _self.id ? "(me)":""));
-                _contact_relay = it->second;
-                return _contact_relay;
-            }
+			Logger::debug("Might not use it, depending on requirement of nextRelay");
+            //if (it != _dist2relay.end())
+            //{
+            //    Logger::debug ("Choosing closest relay [" + std::to_string(it->second->id) + "] " + (it->second->id == _self.id ? "(me)":""));
+            //    _contact_relay = it->second;
+            //    return _contact_relay;
+            //}
 
             // find the next closest
             for (; it != _dist2relay.end (); it++)
@@ -1176,11 +1179,16 @@ namespace Vast
                  msg.store (it->second);
                  
                  //WHICH IP IS USED HERE?
-                 CPPDEBUG("Storing relay in RELAY message: " << std::endl << it->second << std::endl);
+
                  Node node1 = it->second;
                  IPaddr addr_from_id((node1.id >> 32), 1037);
-                 CPPDEBUG(addr_from_id << ": IPaddr from id: " << std::endl);
-                 CPPDEBUG("Equal: " << (addr_from_id == it->second.addr.publicIP) << std::endl);
+
+                 if (!(addr_from_id == it->second.addr.publicIP))
+                 {
+                     CPPDEBUG("Storing relay in RELAY message: " << std::endl << it->second << std::endl);
+                     CPPDEBUG(addr_from_id << ": IPaddr from id: " << std::endl);
+                     CPPDEBUG("Equal: " << (addr_from_id == it->second.addr.publicIP) << std::endl);
+                 }
              }
          }
 

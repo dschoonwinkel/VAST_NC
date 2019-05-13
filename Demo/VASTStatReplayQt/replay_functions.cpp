@@ -22,17 +22,22 @@ timestamp_t latest_timestamp;
 std::string results_file = "./logs/results/results1.txt";
 std::ofstream ofs(results_file);
 
+std::string individual_drift = "./logs/results/individual_drift.txt";
+std::ofstream drift_distances_file(individual_drift);
+
 
 //Variables needed for calc_consistency
 size_t total_AN_actual =0, total_AN_visible =0, total_drift =0, max_drift =0, drift_nodes =0, total_active_nodes =0;
 long worldSendStat =0, worldRecvStat = 0;
 long prevWorldSendStat = 0, prevWorldRecvStat = 0;
+
+map <int, size_t> drift_distances;
 int g_MS_PER_TIMESTEP;
 
 void initVariables();
 void readIniFile();
 void calculateUpdate();
-void calc_consistency (const VASTStatLog &restoredLog, size_t &total_AN_actual,
+size_t calc_consistency (const VASTStatLog &restoredLog, size_t &total_AN_actual,
                        size_t &total_AN_visible, size_t &total_drift, size_t &max_drift,
                        size_t &drift_nodes, timestamp_t latest_timestamp);
 void outputResults();
@@ -146,6 +151,12 @@ void initVariables()
     ofs << "timestamp," << "active_nodes," << "AN_actual," << "AN_visible,"
         << "Total drift," << "Max drift," << "drift nodes," << "worldSendStat," << "worldRecvStat," << std::endl;
 
+    for (size_t i = 0; i < simpara.NODE_SIZE; i++)
+    {
+        drift_distances_file << "Node " << i << ",";
+    }
+    drift_distances_file << std::endl;
+
     g_MS_PER_TIMESTEP = simpara.TIMESTEP_DURATION;
 }
 
@@ -185,7 +196,7 @@ void calculateUpdate()
 
         if (restoredLog.isJoinedAt(latest_timestamp))
         {
-            calc_consistency(restoredLog, total_AN_actual, total_AN_visible, total_drift, max_drift, drift_nodes, latest_timestamp);
+            drift_distances[log_iter] = calc_consistency(restoredLog, total_AN_actual, total_AN_visible, total_drift, max_drift, drift_nodes, latest_timestamp);
 //            worldSendStat += restoredLog.getWorldSendStat().average;
             tempWorldSendStat += restoredLog.getWorldSendStat().total;
             tempWorldRecvStat += restoredLog.getWorldRecvStat().total;
@@ -235,12 +246,12 @@ void calculateUpdate()
 
 }
 
-void calc_consistency (const Vast::VASTStatLog &restoredLog, size_t &total_AN_actual,
+size_t calc_consistency (const Vast::VASTStatLog &restoredLog, size_t &total_AN_actual,
                                    size_t &total_AN_visible, size_t &total_drift, size_t &max_drift,
                                    size_t &drift_nodes, timestamp_t latest_timestamp)
 {
 //    AN_actual = AN_visible = total_drift = max_drift = drift_nodes = 0;
-
+    size_t node_drift = 0;
     // loop through all nodes
     for (size_t j=0; j< allRestoredLogs.size (); ++j)
     {
@@ -268,6 +279,9 @@ void calc_consistency (const Vast::VASTStatLog &restoredLog, size_t &total_AN_ac
                 size_t drift = (size_t)restoredLog.getNeighborByID(otherLog.getSubID()).aoi.center.distance (otherLog.getClientNode().aoi.center);
                 total_drift += drift;
 
+                //What is the drift of this individual node?
+                node_drift += drift;
+
                 if (max_drift < drift)
                 {
                     max_drift = drift;
@@ -279,6 +293,7 @@ void calc_consistency (const Vast::VASTStatLog &restoredLog, size_t &total_AN_ac
         }
     } // end looping through all other nodes
 
+    return node_drift;
 
 }
 
@@ -287,10 +302,24 @@ void outputResults() {
     ofs << latest_timestamp << "," << total_active_nodes << "," << total_AN_actual <<
            "," << total_AN_visible << "," << total_drift << "," << max_drift << ","
         << drift_nodes << "," << worldSendStat << "," << worldRecvStat << std::endl;
+
+    //Save the individual drift distances seperately
+    drift_distances_file << latest_timestamp << ",";
+    for (size_t log_iter = 0; log_iter < allRestoredLogs.size(); log_iter++)
+    {
+        drift_distances_file << drift_distances[log_iter];
+        if (log_iter < allRestoredLogs.size() - 1)
+            drift_distances_file << ",";
+    }
+    drift_distances_file << std::endl;
+
 }
 
 void closeOutputFile()
 {
     ofs.flush();
     ofs.close();
+
+    drift_distances_file.flush();
+    drift_distances_file.close();
 }

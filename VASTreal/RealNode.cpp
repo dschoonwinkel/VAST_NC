@@ -72,6 +72,7 @@
     
     RealNode::~RealNode ()
     {   
+#pragma message "Check this line again - double calling of vnode->leave()"
         if (vnode != NULL)
             vnode->leave ();
         _world->destroyVASTNode (vnode);

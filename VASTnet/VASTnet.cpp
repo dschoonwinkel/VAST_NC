@@ -667,7 +667,7 @@ namespace Vast
     bool 
     VASTnet::validateConnection (id_t host_id)
     {
-        Logger::debug("VASTnet::validateConnection: id=[" + std::to_string(host_id) + "]", true);
+//        Logger::debug("VASTnet::validateConnection: id=[" + std::to_string(host_id) + "]", true);
         // if it's message to self or already connected
         if (_manager->getID () == host_id || _manager->isConnected (host_id) == true)
             return true;
@@ -1095,7 +1095,11 @@ namespace Vast
 
         // check for UDP message, if so, replace 'fromhost'
         if (fromhost == NET_ID_UNASSIGNED)
+        {
             fromhost = msg->from;
+            CPPDEBUG("VASTnet::storeVASTMessage: using msg->from as fromhost" << std::endl);
+
+        }
 
         // store the message into priority queue in a FULL_VMSG structure
         FULL_VMSG *vastmsg = new FULL_VMSG (fromhost, msg, _manager->getTimestamp ());
@@ -1113,6 +1117,7 @@ namespace Vast
         if (_manager->isActive () == false)
             return false;
         
+        CPPDEBUG("VASTnet::storeSocketMessage: from " << msg->fromhost << std::endl);
         _socket_queue.push_back (new NetSocketMsg (*msg));
 
         return true;

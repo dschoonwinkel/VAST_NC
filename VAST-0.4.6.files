@@ -51,8 +51,10 @@ coding_host/tests/test_recoding_decoding.cpp
 coding_host/tests/Makefile
 coding_host/tests/test_uncoded_coded_mixed.cpp
 coding_host/tests/test_uncoded_coded_mixed2.cpp
+common/ipaddr_warning.cpp
 common/logger.cpp
 common/logger.h
+common/resolvehostid.cpp
 common/tests/Makefile
 common/tests/unittest_concurrentqueue.cpp
 common/tests/unittest_logger.cpp

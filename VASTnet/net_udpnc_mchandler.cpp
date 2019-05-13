@@ -154,51 +154,51 @@ namespace Vast
 
     }
 
-    void net_udpNC_MChandler::process_message(char *buf, std::size_t bytes_transferred)
-    {
-        //Process UDP messages
-        size_t n = bytes_transferred;
-        VASTHeader header;
-        id_t remote_id;
+//    void net_udpNC_MChandler::process_message(char *buf, std::size_t bytes_transferred)
+//    {
+//        //Process UDP messages
+//        size_t n = bytes_transferred;
+//        VASTHeader header;
+//        id_t remote_id;
 
-        char *p = buf;
+//        char *p = buf;
 
-        //NOTE: there may be several valid UDP messages received at once -- is this really necessary?
-        while (n > sizeof (VASTHeader))
-        {
-            //extract message header
-            mempcpy (&header, p, sizeof (VASTHeader));
-            n -= sizeof(VASTHeader);
-            p += sizeof(VASTHeader);
+//        //NOTE: there may be several valid UDP messages received at once -- is this really necessary?
+//        while (n > sizeof (VASTHeader))
+//        {
+//            //extract message header
+//            mempcpy (&header, p, sizeof (VASTHeader));
+//            n -= sizeof(VASTHeader);
+//            p += sizeof(VASTHeader);
 
-            //Check if it is really a VAST message: Start and end bytes of header should be correct
-            if (!(header.start == 10 && header.end == 5))
-            {
-                CPPDEBUG("net_udp_handler::handle_input Non-VAST message received on UDP socket" << std::endl);
-                return;
-            }
+//            //Check if it is really a VAST message: Start and end bytes of header should be correct
+//            if (!(header.start == 10 && header.end == 5))
+//            {
+//                CPPDEBUG("net_udp_handler::handle_input Non-VAST message received on UDP socket" << std::endl);
+//                return;
+//            }
 
-            Message *msg = new Message(0);
-            if (0 == msg->deserialize (p, header.msg_size))
-            {
-                printf("net_udp_handler::handle_input deserialize message fail: size = %u\n", header.msg_size);
-            }
-            remote_id = msg->from;
+//            Message *msg = new Message(0);
+//            if (0 == msg->deserialize (p, header.msg_size))
+//            {
+//                printf("net_udp_handler::handle_input deserialize message fail: size = %u\n", header.msg_size);
+//            }
+//            remote_id = msg->from;
 
-            //Break up messages into VASTMessage sizes
-            //msg start at p - 4, i.e. start of header
-            //msgsize = header.msg_size + 4 for header
+//            //Break up messages into VASTMessage sizes
+//            //msg start at p - 4, i.e. start of header
+//            //msgsize = header.msg_size + 4 for header
 
-            if (remote_id != NET_ID_UNASSIGNED) //Only allow encoded packets from hosts I have heard from before
-            {
-                ((net_udp*)_msghandler)->msg_received(remote_id, p - sizeof(VASTHeader), header.msg_size + sizeof(VASTHeader));
-            }
+//            if (remote_id != NET_ID_UNASSIGNED) //Only allow encoded packets from hosts I have heard from before
+//            {
+//                ((net_udp*)_msghandler)->msg_received(remote_id, p - sizeof(VASTHeader), header.msg_size + sizeof(VASTHeader));
+//            }
 
-            //Next message
-            p += header.msg_size;
-            n -= header.msg_size;
-        }
-    }
+//            //Next message
+//            p += header.msg_size;
+//            n -= header.msg_size;
+//        }
+//    }
 
     void net_udpNC_MChandler::putOtherRLNCMessage(RLNCMessage other)
     {

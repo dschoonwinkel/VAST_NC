@@ -15,7 +15,7 @@ extern size_t total_AN_actual, total_AN_visible, total_drift, max_drift, drift_n
 void initVariables();
 bool readIniFile(const char * filename = "VASTreal.ini");
 void calculateUpdate();
-void calc_consistency (const VASTStatLog &restoredLog, size_t &total_AN_actual,
+size_t calc_consistency (const VASTStatLog &restoredLog, size_t &total_AN_actual,
                        size_t &total_AN_visible, size_t &total_drift, size_t &max_drift,
                        size_t &drift_nodes, timestamp_t latest_timestamp);
 void outputResults();

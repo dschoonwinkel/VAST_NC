@@ -5,6 +5,7 @@
 #include <string>
 #include "VAST.h"
 #include "VASTnet.h"
+#include "logger.h"
 
 namespace Vast {
 
@@ -102,10 +103,18 @@ namespace Vast {
         //Process UDP messages
         size_t n = bytes_transferred - offset;
         VASTHeader header;
-        id_t remote_id;
 
         //Contents is char, not pointer
         const char *p = buffer + offset;
+
+        if (remote_endptr)
+        {
+            CPPDEBUG("net_udp_handler::process_input Using a unicast packet" << std::endl);
+        }
+        else
+        {
+            CPPDEBUG("net_udp_handler::process_input Using a multicast packet" << std::endl);
+        }
 
         //NOTE: there may be several valid UDP messages received at once -- is this really necessary?
         while (n > sizeof (VASTHeader))
@@ -122,14 +131,10 @@ namespace Vast {
                 return;
             }
 
-            Message msg(0);
-            if (0 == msg.deserialize (p, header.msg_size))
-            {
-                printf("net_udp_handler::process_input deserialize message fail: size = %u\n", header.msg_size);
-            }
-            remote_id = msg.from;
+//                printf("net_udp_handler::process_input deserialize message fail: size = %u\n", header.msg_size);
+//            remote_id = msg.from;
 
-            id_t temp_id = remote_id;
+            id_t temp_id = NET_ID_UNASSIGNED;
 
             if (remote_endptr)
             {
@@ -163,11 +168,23 @@ namespace Vast {
                     }
 
                 }
-                CPPDEBUG("net_udp_handler::proces_input MSG_TYPE " << MSGTYPEtoString(msg.msgtype) << "(" << msg.msgtype << ")" << std::endl);
+
+                Message msg(0);
+                if (0 == msg.deserialize (p, header.msg_size))
+                {
+                    Logger::debugPeriodic("net_udp_handler::proces_input MSG_TYPE " + MSGTYPEtoString(msg.msgtype)
+                                          + "(" + std::to_string(msg.msgtype) + ")");
+                }
+
                 storeRemoteAddress(temp_id, remote_addr);
 
                 //We assume if we can get a packet from the host, we are connected to that host
                 _msghandler->socket_connected(temp_id, this, false);
+            }
+
+            if (temp_id == NET_ID_UNASSIGNED)
+            {
+                CPPDEBUG("temp_id still unassigned even after process remote_endpoint" << std::endl);
             }
 
             //Break up messages into VASTMessage sizes
@@ -262,19 +279,22 @@ namespace Vast {
         return true;
     }
 
-    IPaddr* net_udp_handler::getRemoteAddress (id_t host_id)
+    const IPaddr* net_udp_handler::getRemoteAddress (id_t host_id)
     {
 
-        CPPDEBUG("net_udp_handler::getRemoteAddress" << std::endl);
+//        CPPDEBUG("net_udp_handler::getRemoteAddress" << std::endl);
 
         for (auto iter = _remote_addrs.begin(); iter != _remote_addrs.end(); ++iter)
         {
             char ip_string[30];
             iter->second.getString(ip_string);
             IPaddr addr_from_id((iter->first >> 32), 1037);
-            CPPDEBUG("id: " << iter->first << " - " << std::string(ip_string) << std::endl);
-            CPPDEBUG(addr_from_id << " IPaddr from id: " << std::endl);
-            CPPDEBUG("Equal: " << (addr_from_id == addr) << std::endl);
+            if (!(addr_from_id == iter->second))
+            {
+                CPPDEBUG("id: " << iter->first << " - " << std::string(ip_string) << std::endl);
+                CPPDEBUG(addr_from_id << " IPaddr from id: " << std::endl);
+                CPPDEBUG("Equal: " << (addr_from_id == iter->second) << std::endl);
+            }
 
         }
 
@@ -332,10 +352,13 @@ namespace Vast {
                      << "[" << addr << "]" << std::endl);
         }
 
-        CPPDEBUG("net_udp_handler::storeRemoteAddress: " << std::endl << addr << std::endl);
-                    IPaddr addr_from_id((host_id >> 32), 1037);
-                    CPPDEBUG(addr_from_id << " IPaddr from id: " << std::endl);
-                    CPPDEBUG("Equal: " << (addr_from_id == addr) << std::endl);
+        IPaddr addr_from_id((host_id >> 32), 1037);
+        if (!(addr_from_id == addr))
+        {
+            CPPDEBUG("net_udp_handler::storeRemoteAddress: " << std::endl << addr << std::endl);
+            CPPDEBUG(addr_from_id << " IPaddr from id: " << std::endl);
+            CPPDEBUG("Equal: " << (addr_from_id == addr) << std::endl);
+        }
 
          if (host_id != 0 && !(addr_from_id == addr))
          {
