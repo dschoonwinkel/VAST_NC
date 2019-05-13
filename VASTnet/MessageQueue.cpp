@@ -313,7 +313,7 @@ namespace Vast
                         printf ("MessageQueue::processMessages () cannot find proper handler with msggroup: %d for message from [%d]\n", (int)msggroup, (int)recvmsg->from);
                         continue;
                     }
-                    CPPDEBUG("MessageQueue::processMessages () : msggroup :" << msggroup << std::endl);
+                    CPPDEBUG("MessageQueue::processMessages () : msggroup :" << MessageHandler::MSG_GROUPtoString(msggroup) << std::endl);
                     if (_handlers[msggroup]->handleMessage (*recvmsg) == true)
                         num_msg++;                          
                 }

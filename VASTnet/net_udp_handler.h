@@ -42,7 +42,7 @@ namespace Vast {
 
         void handle_disconnect (IPaddr ip_addr);
 
-        void process_input(const char* buffer, std::size_t bytes_transferred, ip::udp::endpoint* remote_endptr, size_t offset = 0);
+        void process_input(const char* buffer, std::size_t bytes_transferred, ip::udp::endpoint* remote_endptr, id_t fromhost = NET_ID_UNASSIGNED, size_t offset = 0);
 
         bool isOpen();
 

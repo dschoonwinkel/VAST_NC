@@ -129,7 +129,8 @@ namespace Vast
 
     void net_udpNC_handler::handoff_input (RLNCMessage input_message, ip::udp::endpoint *remote_endptr)
     {
-        net_udp_handler::process_input(input_message.getMessage (), input_message.getMessageSize (), remote_endptr);
+        id_t fromhost = input_message.getFirstFromId();
+        net_udp_handler::process_input(input_message.getMessage (), input_message.getMessageSize (), remote_endptr, fromhost);
     }
 
     void net_udpNC_handler::RLNC_msg_received(RLNCMessage input_message, ip::udp::endpoint* remote_endptr)

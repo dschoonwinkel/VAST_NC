@@ -76,5 +76,29 @@ namespace Vast
     }
     */
 
+    std::string MSG_GROUPtoString(byte_t msggroup)
+    {
+        switch(msggroup)
+        {
+        case MSG_GROUP_VAST_RELAY:
+            return std::string("MSG_GROUP_VAST_RELAY:") + std::to_string(msggroup);
+            break;
+        case MSG_GROUP_VAST_MATCHER:
+            return std::string("MSG_GROUP_VAST_MATCHER:") + std::to_string(msggroup);
+            break;
+        case MSG_GROUP_VAST_CLIENT:
+            return std::string("MSG_GROUP_VAST_CLIENT:") + std::to_string(msggroup) ;
+            break;
+        case MSG_GROUP_VASTATE_AGENT:
+            return std::string("MSG_GROUP_VASTATE_AGENT:") + std::to_string(msggroup);
+            break;
+        case MSG_GROUP_VASTATE_ARBITRATOR:
+            return std::string("MSG_GROUP_VASTATE_ARBITRATOR:") + std::to_string(msggroup);
+            break;
+        default:
+            return std::string("Unknown");
+        }
+    }
+
 } // end namespace Vast
 

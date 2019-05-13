@@ -31,6 +31,7 @@
 #define _VAST_MessageHandler_H
 
 #include "VASTnet.h"
+#include <string>
 
 using namespace std;
 
@@ -92,6 +93,8 @@ namespace Vast
         byte_t       _msggroup;         // unique ID to identify which message group the handler belongs
         void *       _msgqueue;         // pointer to message queue (in case to register new handlers from within)    
         VASTnet *    _net;              // pointer to network interface
+
+        static std::string MSG_GROUPtoString(byte_t msggroup);
     };
 
 } // end namespace Vast

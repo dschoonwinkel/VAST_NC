@@ -98,7 +98,7 @@ namespace Vast {
         return -1;
     }
 
-    void net_udp_handler::process_input(const char *buffer, std::size_t bytes_transferred, ip::udp::endpoint *remote_endptr, size_t offset)
+    void net_udp_handler::process_input(const char *buffer, std::size_t bytes_transferred, ip::udp::endpoint *remote_endptr, id_t fromhost, size_t offset)
     {
         //Process UDP messages
         size_t n = bytes_transferred - offset;
@@ -134,7 +134,7 @@ namespace Vast {
 //                printf("net_udp_handler::process_input deserialize message fail: size = %u\n", header.msg_size);
 //            remote_id = msg.from;
 
-            id_t temp_id = NET_ID_UNASSIGNED;
+            id_t temp_id = fromhost;
 
             if (remote_endptr)
             {
@@ -154,6 +154,11 @@ namespace Vast {
                 //fromhost can be != msg.from - the message is from ID given, but forwarded through
                 // fromhost
                 temp_id = net_manager::resolveHostID(&remote_addr);
+                if (temp_id != fromhost)
+                {
+                    CPPDEBUG("net_udp_handler::process_input Something strange happened - fromhost != resolveHostID: "
+                             << fromhost << ":" << temp_id << std::endl);
+                }
 
                 if (getRemoteAddress (temp_id))
                 {

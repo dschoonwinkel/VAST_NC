@@ -1,5 +1,5 @@
-#ifndef ABSTRACT_NET_MANAGER_H
-#define ABSTRACT_NET_MANAGER_H
+#ifndef ABSTRACT_NET_UDP_H
+#define ABSTRACT_NET_UDP_H
 
 #include "VASTTypes.h"
 
@@ -24,4 +24,4 @@ namespace Vast
 
 
 
-#endif // ABSTRACT_NET_MANAGER_H
+#endif // ABSTRACT_NET_UDP_H
