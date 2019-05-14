@@ -33,7 +33,7 @@ AUTO = True
 
 def myNetwork():
 
-    loss_perc = 10
+    loss_perc = 0
 #    BW = 1000
     Node_count = 10
     run_codinghost = True

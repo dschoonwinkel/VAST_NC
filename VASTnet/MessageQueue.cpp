@@ -258,6 +258,11 @@ namespace Vast
                     // record mapping if this is not a relayed message
                     if (recvmsg->from == fromhost)
                         _id2host[recvmsg->from] = fromhost;
+                    else
+                    {
+                        CPPDEBUG("MessageQueue::processMessage: forwarded message: fromhost:recvmsg->from "
+                                 << fromhost << ":" << recvmsg->from << std::endl);
+                    }
 
                     CPPDEBUG("MessageQueue::processMessage: Changing _id2host" << std::endl);
                     for (auto iter = _id2host.begin(); iter != _id2host.end(); ++iter)
