@@ -21,10 +21,11 @@ namespace Vast
         start_consuming();
     }
 
-    void net_udpNC_consumer::RLNC_msg_received (RLNCMessage msg, ip::udp::endpoint* remote_endptr)
+    void net_udpNC_consumer::RLNC_msg_received (RLNCMessage msg, IPaddr socket_addr)
     {
-        msg.endptr = remote_endptr;
+        msg.socket_addr = socket_addr;
         _msg_queue.push (msg);
+
     }
 
     void net_udpNC_consumer::start_consuming()
@@ -52,12 +53,16 @@ namespace Vast
 
             //Check if we are still running, or just been cancelled
             if (running && pop_success)
-                process_input(msg, msg.endptr);
+            {
+//                CPPDEBUG("net_udpNC_consumer::consume\n" << msg << std::endl);
+                process_input(msg, msg.socket_addr);
+
+            }
         }
 
     }
 
-    void net_udpNC_consumer::process_input (RLNCMessage input_message, ip::udp::endpoint* remote_endptr)
+    void net_udpNC_consumer::process_input (RLNCMessage input_message, IPaddr socket_addr)
     {
 
         total_packets_processed++;
@@ -65,10 +70,10 @@ namespace Vast
         if (input_message.getPacketIds ().size() > 1)
             throw std::logic_error("net_udpNC_consumer::process_input: Should not have encoded packets here\n");
 
-        filter_input (input_message, remote_endptr);
+        filter_input (input_message, socket_addr);
     }
 
-    void net_udpNC_consumer::filter_input (RLNCMessage input_message, ip::udp::endpoint* remote_endptr)
+    void net_udpNC_consumer::filter_input (RLNCMessage input_message, IPaddr socket_addr)
     {
         if (input_message.getToAddrs ().size () > 0)
         {
@@ -76,7 +81,7 @@ namespace Vast
             {
                 //All is well, continue
                 //CPPDEBUG("net_udpNC_consumer::process_input Message ToAddr was meant for me..." << std::endl);
-                order_input(input_message, remote_endptr);
+                order_input(input_message, socket_addr);
                 return;
             }
             else
@@ -94,7 +99,7 @@ namespace Vast
         }
     }
 
-    void net_udpNC_consumer::order_input(RLNCMessage input_message, ip::udp::endpoint* remote_endptr)
+    void net_udpNC_consumer::order_input(RLNCMessage input_message, IPaddr socket_addr)
     {
         id_t firstFromID = input_message.getFirstFromId ();
 
@@ -133,8 +138,10 @@ namespace Vast
         //Save latest packet number
         recvd_ordering[input_message.getFirstFromId ()] = input_message.getOrdering ();
 
-        RLNCsink->RLNC_msg_received (input_message, remote_endptr);
-        Logger::debugPeriodic ("net_udpNC_consumer::order_input Size of _msg_queue " + std::to_string(_msg_queue.size()), 100, 10);
+        RLNCsink->RLNC_msg_received (input_message, socket_addr);
+        size_t msgqueuesize = _msg_queue.size();
+        if (msgqueuesize > 0)
+            Logger::debugPeriodic ("net_udpNC_consumer::order_input Size of _msg_queue, working on reducing it" + std::to_string(msgqueuesize), 100, 10);
     }
 
     void net_udpNC_consumer::close()

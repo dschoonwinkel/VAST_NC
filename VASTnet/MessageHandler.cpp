@@ -76,7 +76,7 @@ namespace Vast
     }
     */
 
-    std::string MSG_GROUPtoString(byte_t msggroup)
+    std::string MessageHandler::MSG_GROUPtoString(byte_t msggroup)
     {
         switch(msggroup)
         {

@@ -1059,7 +1059,7 @@ namespace Vast
         "RELAY_JOIN_R"
     };
 
-    std::string MSGTYPEtoString(msgtype_t msgtype)
+    std::string VAST::MSGTYPEtoString(msgtype_t msgtype)
     {
         if (msgtype < 30)
             return std::to_string(msgtype);

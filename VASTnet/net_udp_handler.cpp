@@ -87,7 +87,9 @@ namespace Vast {
 
         if (!error)
         {
-            process_input(_buf, bytes_transferred, &_remote_endpoint_);
+            IPaddr remote_addr(_remote_endpoint_.address().to_v4().to_ulong(), _remote_endpoint_.port());
+            id_t fromhost = net_manager::resolveHostID(&remote_addr);
+            process_input(_buf, bytes_transferred, remote_addr, fromhost);
 
             //Restart waiting for new packets
             start_receive();
@@ -98,7 +100,7 @@ namespace Vast {
         return -1;
     }
 
-    void net_udp_handler::process_input(const char *buffer, std::size_t bytes_transferred, ip::udp::endpoint *remote_endptr, id_t fromhost, size_t offset)
+    void net_udp_handler::process_input(const char *buffer, std::size_t bytes_transferred, IPaddr remote_addr, id_t fromhost, size_t offset)
     {
         //Process UDP messages
         size_t n = bytes_transferred - offset;
@@ -107,9 +109,9 @@ namespace Vast {
         //Contents is char, not pointer
         const char *p = buffer + offset;
 
-        if (remote_endptr)
+        if (!(remote_addr.host == 0 && remote_addr.port == 0))
         {
-            CPPDEBUG("net_udp_handler::process_input Using a unicast packet" << std::endl);
+//            CPPDEBUG("net_udp_handler::process_input Using a unicast packet" << std::endl);
         }
         else
         {
@@ -131,24 +133,21 @@ namespace Vast {
                 return;
             }
 
-//                printf("net_udp_handler::process_input deserialize message fail: size = %u\n", header.msg_size);
-//            remote_id = msg.from;
+            Message msg(0);
+            if (msg.deserialize (p, header.msg_size) > 0)
+            {
+//                Logger::debugPeriodic("net_udp_handler::proces_input MSG_TYPE " + VAST::MSGTYPEtoString(msg.msgtype)
+//                                      + "(" + std::to_string(msg.msgtype) + ")");
+            }
 
             id_t temp_id = fromhost;
 
-            if (remote_endptr)
+            //Check if this is a legitimate address, i.e. both host and port is not 0
+            if (!(remote_addr.host == 0 && remote_addr.port == 0))
             {
                 //Store the host_id : IPaddr pair
-                IPaddr remote_addr(remote_endptr->address().to_v4().to_ulong(), remote_endptr->port());
                 //Check if this works correctly...
 //                Logger::debug();
-
-
-//                //This host is looking for an ID, assign it a temporary ID to store the connection
-//                if (remote_id == NET_ID_UNASSIGNED && msg.msgtype == ID_REQUEST)
-//                {
-//                    temp_id = net_manager::resolveHostID(&remote_addr);
-//                }
 
                 //Always use the from IP to generate a fromhost - needed by forwarded messages:
                 //fromhost can be != msg.from - the message is from ID given, but forwarded through
@@ -173,23 +172,20 @@ namespace Vast {
                     }
 
                 }
-
-                Message msg(0);
-                if (0 == msg.deserialize (p, header.msg_size))
-                {
-                    Logger::debugPeriodic("net_udp_handler::proces_input MSG_TYPE " + MSGTYPEtoString(msg.msgtype)
-                                          + "(" + std::to_string(msg.msgtype) + ")");
-                }
-
                 storeRemoteAddress(temp_id, remote_addr);
 
                 //We assume if we can get a packet from the host, we are connected to that host
                 _msghandler->socket_connected(temp_id, this, false);
             }
+            else if (temp_id == NET_ID_UNASSIGNED && msg.msgtype == ID_REQUEST)
+            {
+//                temp_id = net_manager::resolveHostID(&remote_addr);
+                CPPDEBUG("msg.msgtype was ID_REQUEST from: " << fromhost << " socket_addr: " << remote_addr << std::endl);
+            }
 
             if (temp_id == NET_ID_UNASSIGNED)
             {
-                CPPDEBUG("temp_id still unassigned even after process remote_endpoint" << std::endl);
+                CPPDEBUG("temp_id still unassigned even after process remote_addr" << std::endl);
             }
 
             //Break up messages into VASTMessage sizes

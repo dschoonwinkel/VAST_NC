@@ -70,7 +70,7 @@ void testHandoffInput()
     Vast::absnet_udp_testimpl tester;
     io_service ios;
     handler.open (&ios, &tester);
-    handler.RLNC_msg_received (message1, NULL);
+    handler.RLNC_msg_received (message1, Vast::IPaddr());
 
 
     std::cout << tester.message << std::endl;

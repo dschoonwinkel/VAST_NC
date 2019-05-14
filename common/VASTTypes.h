@@ -697,6 +697,14 @@ public:
         host = id >> 32;
         port = id >> 16;
     }
+
+    //Copy constructor
+    IPaddr(const IPaddr &addr)
+    {
+        host = addr.host;
+        port = addr.port;
+//        CPPDEBUG("IPaddr copy constructor called" << std::endl);
+    }
     
     ~IPaddr ()
     {

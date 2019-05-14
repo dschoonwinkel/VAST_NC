@@ -195,9 +195,11 @@ namespace Vast
         // get message latencies, currently support PUBLISH & MOVE
         // msgtype == 0 indicates clear up existing latency records
         virtual StatType *getMessageLatency (msgtype_t msgtype) = 0;
+
+        static std::string MSGTYPEtoString(msgtype_t msgtype);
     };
 
-    std::string MSGTYPEtoString(msgtype_t msgtype);
+
 
 } // end namespace Vast
 

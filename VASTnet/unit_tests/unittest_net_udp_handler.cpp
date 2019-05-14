@@ -53,7 +53,7 @@ void testProcessInput()
     Vast::absnet_udp_testimpl tester;
     io_service ios;
     handler.open (&ios, &tester);
-    handler.process_input (buf1.data, buf1.size, NULL);
+    handler.process_input (buf1.data, buf1.size, Vast::IPaddr());
 
 
     std::cout << tester.message << std::endl;

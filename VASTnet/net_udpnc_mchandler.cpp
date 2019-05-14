@@ -137,7 +137,8 @@ namespace Vast
                     if (_msghandler != NULL)
                     {
     //                    CPPDEBUG("net_udpNC_MChandler::process_encoded processing decoded message" << std::endl);
-                        _msghandler->RLNC_msg_received(*decoded_msg, NULL);
+                        //MC loses original source socket addr, pass empty IPaddr
+                        _msghandler->RLNC_msg_received(*decoded_msg, IPaddr());
                         delete decoded_msg;
                     }
                     else {

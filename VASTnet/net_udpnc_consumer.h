@@ -30,11 +30,11 @@ namespace Vast{
 
         void close();
 
-        void RLNC_msg_received (RLNCMessage msg, ip::udp::endpoint* remote_endptr);
+        void RLNC_msg_received (RLNCMessage msg, IPaddr socket_addr);
 
     protected:
         //General processing, calls filter_input
-        void process_input (RLNCMessage input_message, ip::udp::endpoint* remote_endptr);
+        void process_input (RLNCMessage input_message, IPaddr socket_addr);
         friend class unittest_net_udpnc_consumer;
 
     private:
@@ -44,9 +44,9 @@ namespace Vast{
 
 
         //Filters input based on toAddrs, passes to order_input
-        void filter_input (RLNCMessage input_message, ip::udp::endpoint* remote_endptr);
+        void filter_input (RLNCMessage input_message, IPaddr socket_addr);
         //Ensures order of incoming packets remains correct, passes to handoff_input
-        void order_input(RLNCMessage input_message, ip::udp::endpoint* remote_endptr);
+        void order_input(RLNCMessage input_message, IPaddr socket_addr);
 
         AbstractRLNCMsgReceiver                 *RLNCsink = NULL;
         abstract_net_udp                        *abs_netudp = NULL;
