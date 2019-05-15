@@ -58,6 +58,7 @@ common/resolvehostid.cpp
 common/tests/Makefile
 common/tests/unittest_concurrentqueue.cpp
 common/tests/unittest_logger.cpp
+common/tests/unittest_vastmessage.cpp
 common/timeouts.h
 tests/rlnc_encoded_packet_test.cpp
 tests/rlnc_packet_test.cpp

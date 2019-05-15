@@ -229,7 +229,7 @@ namespace Vast {
             _iosthread->join();
         }
 	
-	is_open = false;
+		is_open = false;
 
         return 0;
     }

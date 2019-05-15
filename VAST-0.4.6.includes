@@ -1,5 +1,6 @@
 common
 common/standard
+common/tests
 Demo/build-demo_chatva_Qt-Desktop_Qt_5_10_1_GCC_64bit-Debug
 Demo/demo_chatva_Qt
 Demo/my_demo

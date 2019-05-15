@@ -99,6 +99,7 @@ namespace Vast
         _timeout_subscribe = 0;
          
         _state = ABSENT;
+        Logger::debug("VASTClient::leave _state ABSENT isJoined == false");
     }
     
 	// specify a subscription area for point or area publications 

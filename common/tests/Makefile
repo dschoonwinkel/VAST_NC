@@ -1,6 +1,6 @@
 unittest_logger = ./unittest_logger
 unittest_concurrentqueue = ./unittest_concurrentqueue
-
+unittest_vastmessage = ./unittest_vastmessage
 
 CC = g++
 
@@ -19,9 +19,9 @@ LIBS = $(LIBS_COMMON)
 INC_PATHS   = -I../../common
 LIB_PATHS   = -L../../lib
 
-.PHONY: unittest_logger unittest_concurrentqueue make_vastcommon
+.PHONY: unittest_logger unittest_concurrentqueue unittest_vastmessage make_vastcommon
 
-all: unittest_logger unittest_concurrentqueue
+all: unittest_logger unittest_concurrentqueue unittest_vastmessage
 
 unittest_logger: unittest_logger.cpp
 	$(MAKE) make_vastcommon
@@ -37,8 +37,15 @@ unittest_concurrentqueue: unittest_concurrentqueue.cpp
 	echo "Running: unittest_concurrentqueue"
 	$(unittest_concurrentqueue)
 
+unittest_vastmessage: unittest_vastmessage.cpp
+	$(MAKE) make_vastcommon
+	$(CC) $(CFLAGS) $(INC_PATHS) $(LIB_PATHS) $^ $(LIBS) -lpthread \
+	-o $(unittest_vastmessage)
+	echo "Running: unittest_vastmessage"
+	$(unittest_vastmessage)
+
 make_vastcommon:
 	$(MAKE) --directory=../
 
 clean:
-	-rm $(unittest_logger) $(unittest_concurrentqueue)
+	-rm $(unittest_logger) $(unittest_concurrentqueue) $(unittest_vastmessage)

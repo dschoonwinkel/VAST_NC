@@ -98,8 +98,8 @@ namespace Vast
 
         _world_id = 0;
 
-        printf ("VASTMatcher leave () called\n");
         _state = ABSENT;
+        Logger::debug("VASTMatcher::leave _state ABSENT isJoined == false");
       
         return true;
     }

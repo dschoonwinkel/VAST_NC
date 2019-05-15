@@ -1369,6 +1369,23 @@ public:
         return *this;
     }
 
+    bool operator==(Message other) {
+        bool equals = from == other.from;
+        equals = equals && size == other.size;
+        equals = equals && msgtype == other.msgtype;
+        equals = equals && msggroup == other.msggroup;
+        equals = equals && reliable == other.reliable;
+        equals = equals && priority == other.priority;
+        equals = equals && size == other.size;
+        equals = equals && _alloc == other._alloc;
+        equals = equals && _free == other._free;
+
+        equals = equals && (strcmp(data, other.data) == 0);
+        equals = equals && (targets == other.targets);
+
+        return equals;
+    }
+
     // ensure the Message object can store at least data of size 'len' 
     void expand (size_t len)
     {
