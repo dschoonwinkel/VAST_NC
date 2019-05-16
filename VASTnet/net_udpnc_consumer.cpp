@@ -140,8 +140,8 @@ namespace Vast
 
         RLNCsink->RLNC_msg_received (input_message, socket_addr);
         size_t msgqueuesize = _msg_queue.size();
-        if (msgqueuesize > 0)
-            Logger::debugPeriodic ("net_udpNC_consumer::order_input Size of _msg_queue, working on reducing it" + std::to_string(msgqueuesize), 100, 10);
+//        if (msgqueuesize > 0)
+            Logger::debugPeriodic("net_udpNC_consumer::order_input Size of _msg_queue, working on reducing it " + std::to_string(msgqueuesize), 100, 10, true);
     }
 
     void net_udpNC_consumer::close()

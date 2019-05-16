@@ -461,7 +461,7 @@ namespace Vast
 
                     }
 
-                    Logger::debug ("VASTRelay::handleMessage Sending RELAY_JOIN to my own relay");
+                    Logger::debug ("VASTRelay::handleMessage Sending RELAY_JOIN to " +  std::to_string(relay.id));
                     joinRelay ();
                 }
                 // if I was the forwarder, forward the response to the requester
@@ -877,6 +877,7 @@ namespace Vast
         // if no preferred relay is provided, find next available (distance sorted)
         if (relay == NULL)
             relay = nextRelay ();
+            //Possibly replace with closestRelay()?
 
         Logger::debug ("VASTRelay::joinRelay sending RELAY_JOIN message to " + std::to_string (relay->id));
 
@@ -890,7 +891,14 @@ namespace Vast
         // reset countdown, if the send failed, try again next tick
         if (sendRelay (msg) > 0)
         {
-            _timeout_join = _net->getTimestamp () + (_TIMEOUT_RELAY_JOIN_ * _net->getTimestampPerSecond ());
+            if (!isJoined())
+            {
+                _timeout_join = _net->getTimestamp () + (_TIMEOUT_RELAY_JOIN_/10 * _net->getTimestampPerSecond ());
+            }
+            else
+            {
+                _timeout_join = _net->getTimestamp () + (_TIMEOUT_RELAY_JOIN_ * _net->getTimestampPerSecond ());
+            }
             Logger::debug ("VASTRelay::joinRelay _TIMEOUT_RELAY_JOIN reset");
         }
         else

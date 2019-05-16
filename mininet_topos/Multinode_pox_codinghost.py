@@ -33,7 +33,7 @@ AUTO = True
 
 def myNetwork():
 
-    loss_perc = 0
+    loss_perc = 10
 #    BW = 1000
     Node_count = 10
     run_codinghost = True
@@ -89,7 +89,8 @@ def myNetwork():
 
     if (run_codinghost):
         # coding_host.cmd("xterm -hold -fg black -bg green -geometry 80x10+200+600 -e \"./coding_host \" &")
-        coding_host.cmd("./coding_host &> output_dump/codnghost.txt &")
+        # coding_host.cmd("./coding_host &> output_dump/codnghost.txt &")
+        pass
     CLI(net)
 
     for i in range(1,Node_count+1):
@@ -108,8 +109,8 @@ def myNetwork():
     if not AUTO:
         CLI(net)
 
-    for i in range(1, int(TIMESTEP_DURATION * 500)/10):
-            print("Connection wait sleep 10 seconds, %d to go" % (int(TIMESTEP_DURATION * 500) - i*10))
+    for i in range(1, int(TIMESTEP_DURATION * 1000)/10):
+            print("Connection wait sleep 10 seconds, %d to go" % (int(TIMESTEP_DURATION * 1000) - i*10))
             try:
                 time.sleep(10)
             except KeyboardInterrupt:

@@ -75,6 +75,9 @@ namespace Vast
         id_t target;
         id_t host_id;
 
+        static Message prevDefaultHostMsg = Message(0);
+        static size_t defaultHostCounter = 0;
+
 //        CPPDEBUG("MessageQueue::sendMessage \n" << msg.toString() << std::endl);
 
         vector<id_t> &targets = msg.targets;               
@@ -92,7 +95,21 @@ namespace Vast
             {                    
                 // route to default host if mapping is not found
                 host_id = _default_host;
-                CPPDEBUG("MessageQueue::sendMessage Using default host, route not found" << std::endl);
+                CPPDEBUG("MessageQueue::sendMessage Using default host, route to [" << target << "] not found" << std::endl);
+
+                if (prevDefaultHostMsg == msg)
+                {
+                    defaultHostCounter++;
+                    CPPDEBUG("MessageQueue::sendMessage incrementing defaultHostCounter" << std::endl);
+                }
+                prevDefaultHostMsg = msg;
+                if (defaultHostCounter == 10)
+                {
+                    CPPDEBUG("MessageQueue::sendMessage discarding packet to [" << target << "] after 10 retries" << std::endl);
+                    return 0;
+                }
+
+
             }            
 
             // verify the link is there
