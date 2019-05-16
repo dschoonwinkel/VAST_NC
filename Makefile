@@ -32,6 +32,7 @@ all: $(common) $(VASTnet) $(VAST) $(VASTsim) $(VASTreal) $(vaststat_replay) $(VA
 noqt: $(common) $(VASTnet) $(VAST) $(VASTsim) $(VASTreal) $(random_walkertalker) $(VASTreal_console) $(coding_host)
 
 VASTreal_console: $(common) $(VASTnet) $(VAST) $(VASTsim) $(VASTreal) $(VASTreal_console)
+VASTStatReplayQt: $(common) $(VASTnet) $(VAST) $(VASTsim) $(VASTreal) $(vaststat_replay_Qt)
 
 # $(VAST) $(VASTsim) $(common) $(VASTnet) $(test_console) $(VASTsim_Qt) $(demo_console) $(my_demo) $(VASTsim_console) $(myVASTsim) $(random_walkertalker) $(demo_chatva_Qt) $(vaststat_replay):
 $(common) $(VAST) $(VASTnet) $(VASTsim) $(VASTreal) $(random_walkertalker) $(demo_chatva_Qt) $(vaststat_replay) $(vaststat_replay_Qt) $(VASTsim_Qt) $(VASTreal_console) $(coding_host):

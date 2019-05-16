@@ -25,7 +25,7 @@ with open("../bin/VASTreal.ini", 'r') as config:
     print (SIMULATION_STEPS)
 
 
-# SIMULATION_STEPS = 15000
+SIMULATION_STEPS = 1000
 TOTAL_SIMULATION_TIME = TIMESTEP_DURATION * SIMULATION_STEPS
 # TOTAL_SIMULATION_TIME = 0
 AUTO = True
@@ -99,8 +99,11 @@ def myNetwork():
             hosts[i-1].cmd("route add 239.255.0.1 h%d-eth0" % i)
             if AUTO:
                 # hosts[i-1].cmd("xterm -hold -fg black -bg green -geometry 80x60+%d+0 -e   \"./VASTreal_console %d 0 1037 10.0.0.1 \" &" % (200+i*40, i-1))    
-                hosts[i-1].cmd("./VASTreal_console %d 0 1037 10.0.0.1 &> output_dump/node_10.0.0.%d.txt &" % (i-1, i))
-                # hosts[i-1].cmd("perf record --call-graph dwarf -o ./perf/perf%d.data ./VASTreal_console %d 0 1037 10.0.0.1 &> output_dump/node%d.txt &" % (i-1, i-1, i-1))
+                # hosts[i-1].cmd("./VASTreal_console %d 0 1037 10.0.0.1 &> output_dump/node_10.0.0.%d.txt &" % (i-1, i))
+
+                #DELAY before starting profiling = TIMESTEP_DURATION * (10 STEPS * NODE_COUNT + 100 STEPS) * 1000 ms
+                DELAY = TIMESTEP_DURATION * (10 * Node_count + 100) * 1000
+                hosts[i-1].cmd("perf record --delay %d --freq 100 --call-graph dwarf -o ./perf/perf%d.data ./VASTreal_console %d 0 1037 10.0.0.1 &> output_dump/node%d.txt &" % (DELAY, i-1, i-1, i-1))
             time.sleep(1 + TIMESTEP_DURATION * 10)
         except KeyboardInterrupt:
                 print("Sleep interrupted, exiting")
