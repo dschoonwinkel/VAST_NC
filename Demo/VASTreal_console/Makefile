@@ -8,7 +8,7 @@ LIBS_COMMON = -lvastreal -lvast -lvastnet -lvastcommon
 LIBS_ACE    = -lACE 
 LIBS_THREAD = -lpthread
 LIBS_DL	    = -ldl
-LIBS_BOOST = -lboost_system -lboost_thread -lboost_serialization
+LIBS_BOOST = -lboost_system -lboost_thread -lboost_serialization -lboost_filesystem
 
 ACE_PATH    = /usr
 

@@ -32,8 +32,6 @@ namespace Vast
         //Hands input packet off to net_udp_handler
         void handoff_input (RLNCMessage input_message, IPaddr socket_addr);
 
-
-
         void RLNC_msg_received(RLNCMessage input_message, IPaddr socket_addr);
 
     private:

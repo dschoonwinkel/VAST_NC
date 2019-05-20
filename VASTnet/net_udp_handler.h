@@ -38,7 +38,7 @@ namespace Vast {
         void storeRemoteAddress (id_t host_id, IPaddr addr);
 
         // swtich remote ID to a new one
-        bool switchRemoteID (id_t oldID, id_t newID);
+        virtual bool switchRemoteID (id_t oldID, id_t newID);
 
         void handle_disconnect (IPaddr ip_addr);
 

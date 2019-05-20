@@ -1000,9 +1000,9 @@ namespace Vast
             {
                 removeNeighbor (remove_list[i]);
                 Logger::debugPeriodic(std::string("VASTClient::removeGhosts () no updates received ") +
-                                      "for " + std::to_string(remove_list[i]) + "for over "
+                                      "for " + std::to_string(remove_list[i]) + " for over "
                                       + std::to_string(_TIMEOUT_REMOVE_GHOST_)
-                                      + "seconds\n");
+                                      + " seconds\n");
             }
         }
     }

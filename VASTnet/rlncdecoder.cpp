@@ -1,5 +1,6 @@
 #include "rlncdecoder.h"
 #include "net_manager.h"
+#include "VASTnet.h"
 
 rlncdecoder::rlncdecoder ():
     decoder_factory(field, MAX_SYMBOLS, MAX_PACKET_SIZE),
@@ -21,7 +22,7 @@ void rlncdecoder::stopAddLockTimer()
     addLockTimer += std::chrono::duration_cast<std::chrono::microseconds>(t2-t1);
 }
 
-void rlncdecoder::addRLNCMessage(RLNCMessage msg)
+void rlncdecoder::addRLNCMessage(RLNCMessage input_message)
 {
 #ifndef COMPUTE_RLNC
     return;
@@ -31,35 +32,35 @@ void rlncdecoder::addRLNCMessage(RLNCMessage msg)
 
     startAddLockTimer ();
 //    CPPDEBUG("rlncdecoder::addRLNCMessage " << std::endl);
-    auto pktids = msg.getPacketIds();
+    auto pktids = input_message.getPacketIds();
     std::lock_guard<std::mutex> guard(packet_pool_mutex);
 
     //If an uncoded packet, it is within the codable size and not from NET_ID_UNASSIGNED
     if (pktids.size() == 1
-            && msg.getMessageSize() < MAX_PACKET_SIZE
-            && msg.getFirstFromId () != NET_ID_UNASSIGNED)
+            && input_message.getMessageSize() < MAX_PACKET_SIZE
+            && input_message.getFirstFromId () != NET_ID_UNASSIGNED)
     {
         if (packet_pool.find (pktids.front()) != packet_pool.end ())
         {
             CPPDEBUG("Replacing a packet " << pktids.front() << std::endl);
 //            CPPDEBUG("Original: " << packet_pool.find(pktids.front())->second << std::endl);
 //            CPPDEBUG("New: " << msg << std::endl);
-            if (!(packet_pool[pktids.front()] == msg))
+            if (!(packet_pool[pktids.front()] == input_message))
             {
                 CPPDEBUG("Stored packet: \n" << packet_pool[pktids.front()] << std::endl);
-                CPPDEBUG("Recvd packet: \n" << msg << std::endl);
+                CPPDEBUG("Recvd packet: \n" << input_message << std::endl);
                 throw std::logic_error("rlncdecoder::addRLNCMessage: packet ids are supposed unique: \
                                        Found different packet with same ID ");
             }
         }
 
-        packet_pool[pktids.front()] = msg;
+        packet_pool[pktids.front()] = input_message;
     }
 
     //If encoded, add to NC_packets queue to be decoded
     else if (pktids.size() > 1)
     {
-        NC_packets.push_back(msg);    
+        NC_packets.push_back(input_message);
     }
     stopAddLockTimer ();
 }

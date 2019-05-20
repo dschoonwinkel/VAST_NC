@@ -28,7 +28,7 @@ objects = $(subst .cpp,.o,$(sources))
 all: $(lib_vastcommon)	resolvehostid
 
 # $@ refers $(lib_vast) and $^ refers to $(objects)
-$(lib_vastcommon): $(objects) VASTTypes.h
+$(lib_vastcommon): $(objects) VASTTypes.h ConcurrentQueue.h
 	$(AR) rcs $@ $^
 	
 .cpp.o:

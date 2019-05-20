@@ -40,10 +40,11 @@ class ConcurrentQueue
     if (!active)
         return false;
 
-    std::lock_guard<std::mutex> mlock(mutex_);
+
     if (queue_.size() <= 0)
         return false;
 
+    std::lock_guard<std::mutex> mlock(mutex_);
     item = queue_.front();
     queue_.pop();
     return true;
@@ -64,7 +65,7 @@ class ConcurrentQueue
 
   size_t size()
   {
-      std::lock_guard<std::mutex> mlock(mutex_);
+//      std::lock_guard<std::mutex> mlock(mutex_);
       return queue_.size ();
   }
 

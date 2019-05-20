@@ -131,6 +131,7 @@ namespace Vast {
         VAST* _client = NULL;                       //
         VASTVerse* _world;                          //
 
+        std::string _logfilename_base = "./logs/VASTStat";
         std::string _logfilename = "./logs/VASTStat";
         std::ofstream *ofs = NULL;
         boost::archive::text_oarchive *ar = NULL;
