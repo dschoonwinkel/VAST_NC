@@ -12,7 +12,7 @@ namespace Vast
     class AbstractRLNCMsgReceiver
     {
     public:
-        virtual void RLNC_msg_received(RLNCMessage input_message, ip::udp::endpoint* remote_endptr) = 0;
+        virtual void RLNC_msg_received(RLNCMessage input_message, IPaddr) = 0;
     };
 }
 

@@ -6,6 +6,7 @@ clean:
 	-rm logs/results/results1.txt
 	-rm output_dump/*.txt
 	-rm perf/*.data
+	-rm pcaps/*.pcap
 
 clean_binaries:
 	-rm demo_chatva_Qt
@@ -33,6 +34,7 @@ backup_results:
 restore_results:
 	$(backup_results)
 	cp logs/logs_backup/logs_$(foo)/*.txt ./logs/
+	cp -r logs/logs_backup/logs_$(foo)/output_dump/* ./output_dump
 	echo $(foo)
 
 save_plots:

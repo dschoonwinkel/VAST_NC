@@ -425,6 +425,9 @@ bool CreateNode (bool wait_till_ready)
         do 
         {
                 g_node->processMessage ();
+                //Limit how quickly this while loop can execute
+                using namespace std::chrono_literals;
+                std::this_thread::sleep_for(std::chrono::milliseconds(g_MS_PER_TIMESTEP/100));
         }
         // make sure the new node has joined before moving on
         while (g_node->isJoined () == false);

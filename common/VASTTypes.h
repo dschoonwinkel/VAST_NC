@@ -691,6 +691,20 @@ public:
         host = i;
         port = p;
     }
+
+    IPaddr(id_t id)
+    {
+        host = id >> 32;
+        port = id >> 16;
+    }
+
+    //Copy constructor
+    IPaddr(const IPaddr &addr)
+    {
+        host = addr.host;
+        port = addr.port;
+//        CPPDEBUG("IPaddr copy constructor called" << std::endl);
+    }
     
     ~IPaddr ()
     {
@@ -1084,7 +1098,7 @@ public:
 
 inline std::ostream& operator<<(std::ostream& output, Node const& node )
 {
-    output << "Incomplete function" << std::endl;
+    output << "Node::addr" << std::endl;
     // node.id 
     output << node.addr.publicIP;
 
@@ -1353,6 +1367,23 @@ public:
 
         targets = msg.targets;
         return *this;
+    }
+
+    bool operator==(Message other) {
+        bool equals = from == other.from;
+        equals = equals && size == other.size;
+        equals = equals && msgtype == other.msgtype;
+        equals = equals && msggroup == other.msggroup;
+        equals = equals && reliable == other.reliable;
+        equals = equals && priority == other.priority;
+        equals = equals && size == other.size;
+        equals = equals && _alloc == other._alloc;
+        equals = equals && _free == other._free;
+
+        equals = equals && (strcmp(data, other.data) == 0);
+        equals = equals && (targets == other.targets);
+
+        return equals;
     }
 
     // ensure the Message object can store at least data of size 'len' 

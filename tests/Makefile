@@ -16,7 +16,7 @@ LIBS_COMMON = -lvastsim -lvast -lvastnet -lvastcommon
 LIBS_ACE    = -lACE
 LIBS_THREAD = -lpthread
 LIBS_DL	    = -ldl
-LIBS_BOOST = -lboost_system -lboost_thread -lboost_serialization -lboost_iostreams -lboost_thread -lboost_chrono -lpthread
+LIBS_BOOST = -lboost_system -lboost_thread -lboost_serialization -lboost_filesystem -lboost_iostreams -lboost_thread -lboost_chrono -lpthread
 LIBS_INCKODO = -I../../kodo-rlnc/resolve_symlinks/kodo-core/src \
 			-I../../kodo-rlnc/resolve_symlinks/endian/src \
 			-I../../kodo-rlnc/kodo_build/include

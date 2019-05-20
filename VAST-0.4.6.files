@@ -51,10 +51,14 @@ coding_host/tests/test_recoding_decoding.cpp
 coding_host/tests/Makefile
 coding_host/tests/test_uncoded_coded_mixed.cpp
 coding_host/tests/test_uncoded_coded_mixed2.cpp
+common/ipaddr_warning.cpp
 common/logger.cpp
 common/logger.h
+common/resolvehostid.cpp
 common/tests/Makefile
+common/tests/unittest_concurrentqueue.cpp
 common/tests/unittest_logger.cpp
+common/tests/unittest_vastmessage.cpp
 common/timeouts.h
 tests/rlnc_encoded_packet_test.cpp
 tests/rlnc_packet_test.cpp
@@ -170,6 +174,7 @@ common/Agent.h
 common/AgentLogic.h
 common/Arbitrator.h
 common/ArbitratorLogic.h
+common/blockingconcurrentqueue.h
 common/ClusterMovement.h
 common/Compressor.cpp
 common/ConcurrentQueue.h

@@ -77,7 +77,7 @@ namespace Vast
             for (size_t i = 0; i < iterations; i++)
             {
                 message1.putOrdering(i);
-                consumer.RLNC_msg_received (message1, NULL);
+                consumer.RLNC_msg_received (message1, IPaddr());
                 //Start the clock for processing time here
                 auto t1 = std::chrono::high_resolution_clock::now();
 
@@ -161,6 +161,7 @@ namespace Vast
             uint16_t remote_port = 1037;
             ip::udp::endpoint local_endpoint = ip::udp::endpoint(
                         ip::address::from_string(remote_ip), remote_port);
+            Vast::IPaddr local_addr(local_endpoint.address().to_v4().to_ulong(), local_endpoint.port());
 
             std::cout << message1 << std::endl;
             std::cout << message2 << std::endl;
@@ -169,17 +170,21 @@ namespace Vast
             Vast::absnet_udp_testimpl absnet_udp;
             Vast::AbstractRNLCMsgReceiverTestImpl recv_tester;
             consumer.open (&recv_tester, &absnet_udp, NULL);
-            consumer.RLNC_msg_received (message1, &local_endpoint);
-            consumer.RLNC_msg_received (message2, &local_endpoint);
+            consumer.RLNC_msg_received (message1, local_addr);
+            consumer.RLNC_msg_received (message2, local_addr);
             boost::this_thread::sleep_for (boost::chrono::milliseconds(sleep_time));
 
             consumer.close ();
 
+            std::cout << message2 << std::endl;
             std::cout << recv_tester.recv_msg << std::endl;
-            std::cout << (size_t)&local_endpoint << std::endl;
-            std::cout << (size_t)recv_tester.recv_msg.endptr << std::endl;
+//            std::cout << (size_t)&local_endpoint << std::endl;
+            std::cout << recv_tester.recv_msg.socket_addr << std::endl;
+
+            //Add the socket_addr to message2 - it was added in RLNC_msg_received
+            message2.socket_addr = local_addr;
             assert(recv_tester.recv_msg == message2);
-            assert(recv_tester.recv_msg.endptr == &local_endpoint);
+            assert(recv_tester.recv_msg.socket_addr == local_addr);
 
             boost::this_thread::sleep_for (boost::chrono::milliseconds(sleep_time));
         }
@@ -246,8 +251,8 @@ namespace Vast
             Vast::absnet_udp_testimpl absnet_udp;
             Vast::AbstractRNLCMsgReceiverTestImpl tester;
             consumer.open (&tester, &absnet_udp, NULL);
-            consumer.process_input (message1, NULL);
-            consumer.process_input (message2, NULL);
+            consumer.process_input (message1, Vast::IPaddr());
+            consumer.process_input (message2, Vast::IPaddr());
             consumer.close ();
 
 
@@ -318,8 +323,8 @@ namespace Vast
             Vast::absnet_udp_testimpl absnet_udp;
             Vast::AbstractRNLCMsgReceiverTestImpl tester;
             consumer.open (&tester, &absnet_udp, NULL);
-            consumer.process_input (message1, NULL);
-            consumer.process_input (message2, NULL);
+            consumer.process_input (message1, Vast::IPaddr());
+            consumer.process_input (message2, Vast::IPaddr());
             consumer.close ();
 
             std::cout << tester.recv_msg << std::endl;
@@ -386,8 +391,8 @@ namespace Vast
             Vast::AbstractRNLCMsgReceiverTestImpl tester;
             consumer.open (&tester, &absnet_udp, NULL);
             boost::this_thread::sleep_for (boost::chrono::milliseconds(sleep_time));
-            consumer.process_input (message1, NULL);
-            consumer.process_input (message2, NULL);
+            consumer.process_input (message1, Vast::IPaddr());
+            consumer.process_input (message2, Vast::IPaddr());
 
             std::cout << tester.recv_msg << std::endl;
             assert(tester.recv_msg == message2);
@@ -395,7 +400,7 @@ namespace Vast
             //Try to process the same packet again - changing the message so that we can distinguish it
             message2.putMessage (buf1.data, buf1.size);
 
-            consumer.process_input(message2, NULL);
+            consumer.process_input(message2, Vast::IPaddr());
 
             //The latest received packet should still be the same as previously, i.e. changed message 2 should not
             // be processed, i.e. with the original message: buf2
@@ -472,12 +477,12 @@ namespace Vast
             Vast::AbstractRNLCMsgReceiverTestImpl tester;
             consumer.open (&tester, &absnet_udp, NULL);
             boost::this_thread::sleep_for (boost::chrono::milliseconds(sleep_time));
-            consumer.process_input (message1, NULL);
+            consumer.process_input (message1, Vast::IPaddr());
             //Check if we have received the first message from the first ID
             //Returned message is the entire RLNC payload, i.e. VAST message - contained in buf2
             assert(tester.recv_msg == message1);
 
-            consumer.process_input (message2, NULL);
+            consumer.process_input (message2, Vast::IPaddr());
             //Check if we have received the second message from the second ID
             assert(tester.recv_msg == message2);
 
@@ -552,8 +557,8 @@ namespace Vast
             consumer.open (&tester, &absnet_udp, &mock);
             boost::this_thread::sleep_for (boost::chrono::milliseconds(sleep_time));
 
-            consumer.process_input (message1, NULL);
-            consumer.process_input (message2, NULL);
+            consumer.process_input (message1, Vast::IPaddr());
+            consumer.process_input (message2, Vast::IPaddr());
 
             consumer.close();
 
@@ -633,8 +638,8 @@ namespace Vast
             consumer.open (&tester, &absnet_udp, &mock);
             boost::this_thread::sleep_for (boost::chrono::milliseconds(sleep_time));
 
-            consumer.process_input (message1, NULL);
-            consumer.process_input (message2, NULL);
+            consumer.process_input (message1, Vast::IPaddr());
+            consumer.process_input (message2, Vast::IPaddr());
 
             std::cout << tester.recv_msg << std::endl;
             //Returned message is the entire RLNC payload, i.e. VAST message - contained in buf2
@@ -714,8 +719,8 @@ namespace Vast
             boost::this_thread::sleep_for (boost::chrono::milliseconds(sleep_time));
 
             //Simulate loss of packets -> last highest packet and first low packet
-            consumer.process_input (message1, NULL);
-            consumer.process_input (message2, NULL);
+            consumer.process_input (message1, Vast::IPaddr());
+            consumer.process_input (message2, Vast::IPaddr());
 
             std::cout << tester.recv_msg << std::endl;
             //Do not accept packets out of reset bounds
@@ -725,8 +730,8 @@ namespace Vast
             message1.putOrdering (254);
             message2.putOrdering (HIGHEST_RESET_ACCEPTING_ORDERING_NUMBER + 1);
 
-            consumer.process_input (message1, NULL);
-            consumer.process_input (message2, NULL);
+            consumer.process_input (message1, Vast::IPaddr());
+            consumer.process_input (message2, Vast::IPaddr());
 
             std::cout << tester.recv_msg << std::endl;
             //Do not accept packets out of reset bounds
@@ -758,8 +763,8 @@ namespace Vast
             consumer.open (&tester, &absnet_udp, NULL);
             boost::this_thread::sleep_for (boost::chrono::milliseconds(sleep_time));
 
-            consumer.process_input (message1, NULL);
-            consumer.process_input (message2, NULL);
+            consumer.process_input (message1, Vast::IPaddr());
+            consumer.process_input (message2, Vast::IPaddr());
 
             std::cout << tester.recv_msg << std::endl;
             //Do not accept packets without a toAddr
@@ -821,7 +826,8 @@ namespace Vast
             boost::this_thread::sleep_for (boost::chrono::milliseconds(sleep_time));
 
             try {
-                consumer.process_input (message1, NULL);
+
+                consumer.process_input (message1, Vast::IPaddr());
                 std::cout << "Test should have thrown an exception already before this" << std::endl;
                 std::abort();
             }

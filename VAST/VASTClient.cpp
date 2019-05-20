@@ -3,6 +3,7 @@
 #include "VASTClient.h"
 #include "MessageQueue.h"
 #include "VASTUtil.h"       // LogManager
+#include "logger.h"
 
 namespace Vast
 {   
@@ -63,6 +64,7 @@ namespace Vast
             return false;
             
         LogManager::instance ()->writeLogFile ("VASTClient [%lu] JOIN request to gateway [%lu]\n", _self.id, _gateway.host_id);
+        Logger::debug("VASTClient [" + std::to_string(_self.id) + "] JOIN request to gateway ["+ std::to_string(_gateway.host_id) + "]\n", true);
         
         // send out join request
         Message msg (JOIN);
@@ -97,6 +99,7 @@ namespace Vast
         _timeout_subscribe = 0;
          
         _state = ABSENT;
+        Logger::debug("VASTClient::leave _state ABSENT isJoined == false");
     }
     
 	// specify a subscription area for point or area publications 
@@ -994,7 +997,13 @@ namespace Vast
                 handleMatcherDisconnect ();
             }
             else
+            {
                 removeNeighbor (remove_list[i]);
+                Logger::debugPeriodic(std::string("VASTClient::removeGhosts () no updates received ") +
+                                      "for " + std::to_string(remove_list[i]) + " for over "
+                                      + std::to_string(_TIMEOUT_REMOVE_GHOST_)
+                                      + " seconds\n");
+            }
         }
     }
 
@@ -1019,6 +1028,50 @@ namespace Vast
 
         stat.total += (size_t)duration;
         stat.num_records++;
+    }
+
+    static const char* msgtype2string[] =
+    {
+        "MATCHER_CANDIDATE",
+        "MATCHER_INIT",
+        "MATCHER_ALIVE",
+        "MATCHER_WORLD_INFO",
+        "NOTIFY_MATCHER",
+        "NOTIFY_CLOSEST",
+        "JOIN",
+        "LEAVE",
+        "PUBLISH",
+        "SUBSCRIBE",
+        "SUBSCRIBE_R",
+        "SUBSCRIBE_TRANSFER",
+        "SUBSCRIBE_UPDATE",
+        "MOVE",
+        "MOVE_F",
+        "NEIGHBOR",
+        "NEIGHBOR_REQUEST",
+        "SEND",
+        "ORIGIN_MESSAGE",
+        "MESSAGE",
+        "SUBSCRIBE_NOTIFY",
+        "STAT",
+        "SYNC_CLOCK",
+        "REQUEST",
+        "RELAY",
+        "PING",
+        "PONG",
+        "PONG_2",
+        "RELAY_QUERY",
+        "RELAY_QUERY_R",
+        "RELAY_JOIN",
+        "RELAY_JOIN_R"
+    };
+
+    std::string VAST::MSGTYPEtoString(msgtype_t msgtype)
+    {
+        if (msgtype < 30)
+            return std::to_string(msgtype);
+
+        return std::string(msgtype2string[msgtype - VON_MAX_MSG]);
     }
                                     
 } // end namespace Vast

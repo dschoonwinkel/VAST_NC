@@ -50,7 +50,7 @@ public:
     friend std::ostream& operator<<(std::ostream&, RLNCMessage const& message);
 
     //Only used for storing remote address in Concurrent queue. Not serialized
-    boost::asio::ip::udp::endpoint* endptr = NULL;
+    Vast::IPaddr socket_addr;
 
 private:
     RLNCHeader header;

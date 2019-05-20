@@ -62,7 +62,6 @@ namespace Vast
         //Add to the decoder, if later used for decoding
         mchandler.putOtherRLNCMessage (message);
 
-
         std::vector<char> buf(message.sizeOf());
         int sending_len = message.serialize(buf.data ());
         return _udp->send_to(buffer(buf, sending_len), remote_endpoint);
@@ -110,8 +109,9 @@ namespace Vast
                     input_message.deserialize (_buf, bytes_transferred);
                     //Add uncoded messages to the packet pool to aid in decoding later
                     mchandler.putOtherRLNCMessage (input_message);
-                    ip::udp::endpoint* remote_endptr = &_remote_endpoint_;
-                    consumer.RLNC_msg_received (input_message, remote_endptr);
+                    IPaddr remote_addr(_remote_endpoint_.address().to_v4().to_ulong(), _remote_endpoint_.port());
+//                    CPPDEBUG("net_udpNC_handler handle_input: IPaddr " << remote_addr << std::endl);
+                    consumer.RLNC_msg_received (input_message, remote_addr);
 
 
 
@@ -128,18 +128,19 @@ namespace Vast
     }
 
 
-    void net_udpNC_handler::handoff_input (RLNCMessage input_message, ip::udp::endpoint *remote_endptr)
+    void net_udpNC_handler::handoff_input (RLNCMessage input_message, IPaddr socket_addr)
     {
-        net_udp_handler::process_input(input_message.getMessage (), input_message.getMessageSize (), remote_endptr);
+        id_t fromhost = input_message.getFirstFromId();
+        net_udp_handler::process_input(input_message.getMessage (), input_message.getMessageSize (), socket_addr, fromhost);
     }
 
-    void net_udpNC_handler::RLNC_msg_received(RLNCMessage input_message, ip::udp::endpoint* remote_endptr)
+    void net_udpNC_handler::RLNC_msg_received(RLNCMessage input_message, IPaddr socket_addr)
     {
 //        CPPDEBUG("net_udpNC_handler::RLNC_msg_received Decoded from mc_handler: " << decoded_from_mchandler << std::endl);
 //        CPPDEBUG("net_udpNC_handler::RLNC_msg_received first from_id: " << msg.getFirstFromId ()<< std::endl);
 
         //MC message are not associated with a specific endpoint
-        handoff_input (input_message, remote_endptr);
+        handoff_input (input_message, socket_addr);
     }
 
     int net_udpNC_handler::close ()

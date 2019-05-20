@@ -14,12 +14,12 @@ namespace Vast
     public:
         AbstractRNLCMsgReceiverTestImpl();
 
-        void RLNC_msg_received (RLNCMessage input_message, ip::udp::endpoint *remote_endptr);
+        void RLNC_msg_received (RLNCMessage input_message, IPaddr socket_addr);
 
 
         RLNCMessage recv_msg;
         size_t RLNC_msg_received_call_count = 0;
-        ip::udp::endpoint *endptr;
+        IPaddr socket_addr;
     };
 }
 

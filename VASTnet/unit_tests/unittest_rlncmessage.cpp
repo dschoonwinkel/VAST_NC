@@ -2,6 +2,7 @@
 #include <rlncmessage.h>
 #include <assert.h>
 #include <string.h>
+#include <queue>
 
 void runUnitTest1()
 {
@@ -153,12 +154,14 @@ void testEquals()
     packetid_t id1 = 1234567890;
     Vast::id_t from_id = 13132323123;
     Vast::IPaddr addr1("127.0.0.1", 1037);
+    Vast::IPaddr sock_addr("127.0.1.2", 1039);
 
     msg1.putPacketId (id1);
     msg1.putFromId (from_id);
     msg1.putToAddr (addr1);
 
     msg1.putMessage (test1.c_str (), test1.length ());
+    msg1.socket_addr = sock_addr;
 
     RLNCMessage msg2(header1);
 
@@ -167,6 +170,7 @@ void testEquals()
     msg2.putToAddr (addr1);
 
     msg2.putMessage (test1.c_str (), test1.length ());
+    msg2.socket_addr = sock_addr;
 
     assert(msg1 == msg2);
 
@@ -176,6 +180,43 @@ void testEquals()
     msg2.putToAddr (addr1);
 
     assert(!(msg1 == msg2));
+
+}
+
+void testQueueDequeue()
+{
+    std::queue<RLNCMessage> queue1;
+
+    std::cout << "testQueueDequeue" << std::endl;
+
+    std::string test1 = "Hello World!123";
+
+    RLNCHeader_factory factory1;
+    RLNCHeader header1 = factory1.build ();
+
+    header1.enc_packet_count = 1;
+    header1.generation = 1;
+    header1.gensize = 0;
+    header1.ordering = 3;
+
+    RLNCMessage msg1(header1);
+    packetid_t id1 = 1234567890;
+    Vast::id_t from_id = 13132323123;
+    Vast::IPaddr addr1("127.0.0.1", 1037);
+    Vast::IPaddr sock_addr("127.0.1.2", 1039);
+
+    msg1.putPacketId (id1);
+    msg1.putFromId (from_id);
+    msg1.putToAddr (addr1);
+
+    msg1.putMessage (test1.c_str (), test1.length ());
+    msg1.socket_addr = sock_addr;
+
+    queue1.push(msg1);
+
+    RLNCMessage msg2 = queue1.front();
+
+    assert(msg1 == msg2);
 
 }
 
@@ -190,6 +231,7 @@ int main()
     testFactoryOrdering ();
     testSizeOfSerialize();
     testEquals();
+    testQueueDequeue();
 
     std::cout << "****************" << std::endl;
     std::cout << "All tests passed" << std::endl;

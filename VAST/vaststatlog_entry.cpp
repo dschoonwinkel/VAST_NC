@@ -7,6 +7,8 @@
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_oarchive.hpp>
 #include <stdexcept>
+#include <boost/filesystem.hpp>
+using namespace boost::filesystem;
 
 namespace Vast {
 
@@ -24,7 +26,16 @@ namespace Vast {
         if (_world != NULL)
             _world->clearStat();
 
-       _logfilename = _logfilename + "_N" + std::to_string(client->getSelf()->id) + ".txt";
+        size_t logfile_count = 0;
+       do
+        {
+           _logfilename = _logfilename_base + "_N" + std::to_string(client->getSelf()->id) +
+                   "_"+ std::to_string(logfile_count) + ".txt";
+           CPPDEBUG("VASTStatLogEntry: _logfilename: " << _logfilename << std::endl);
+           logfile_count++;
+        } while (boost::filesystem::exists(_logfilename));
+
+        std::cout << "Logfilename: " << _logfilename << std::endl;
 
             ofs = new std::ofstream(_logfilename);
        if (!ofs->is_open())

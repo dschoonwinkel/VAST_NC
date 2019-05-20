@@ -29,7 +29,7 @@ namespace Vast {
         virtual int close (void);
 
         // obtain address of remote host
-        IPaddr *getRemoteAddress (id_t host_id);
+        const IPaddr *getRemoteAddress (id_t host_id);
 
         // obtain id_t of remote host IP
         id_t getRemoteIDByIP (IPaddr ip);
@@ -38,11 +38,11 @@ namespace Vast {
         void storeRemoteAddress (id_t host_id, IPaddr addr);
 
         // swtich remote ID to a new one
-        bool switchRemoteID (id_t oldID, id_t newID);
+        virtual bool switchRemoteID (id_t oldID, id_t newID);
 
         void handle_disconnect (IPaddr ip_addr);
 
-        void process_input(const char* buffer, std::size_t bytes_transferred, ip::udp::endpoint* remote_endptr, size_t offset = 0);
+        void process_input(const char* buffer, std::size_t bytes_transferred, IPaddr remote_addr, id_t fromhost = NET_ID_UNASSIGNED, size_t offset = 0);
 
         bool isOpen();
 

@@ -3,6 +3,9 @@
 #include <fstream>
 #include <chrono>
 #include <thread>
+#include <assert.h>
+#include <boost/filesystem.hpp>
+using namespace boost::filesystem;
 
 // use VAST for functions
 #include "VASTVerse.h"
@@ -104,7 +107,53 @@ int main ()
         exit(123);
     }
 
+
+    path dir_path("./logs");
+    directory_iterator end_itr;
+
+    for (directory_iterator itr(dir_path); itr != end_itr; ++itr) {
+
+        //Skip subfolders
+        if (is_directory(itr->path())) continue;
+
+        CPPDEBUG(itr->path() << std::endl);
+        std::string filename = itr->path().string();
+        //If this is not a TXT file, it is probably not a VASTStatLog file
+        if (filename.find(".txt") == string::npos)
+        {
+            CPPDEBUG("Skipping " << filename << std::endl);
+            continue;
+        }
+        std::vector<Vast::VASTStatLogEntry> restoredLogs = Vast::VASTStatLogEntry::restoreAllFromLogFile(filename);
+
+        //Cut off .txt
+        std::string id_string = filename.substr(0, filename.find(".txt"));
+        //Extract id_t
+        id_string = id_string.substr(id_string.find("N") + 1);
+        id_string = id_string.substr(id_string.find("_") - 1);
+
+        Vast::id_t restoredLogID = stoll(id_string);
+//        allRestoredLogs[restoredLogID] = restoredLog;
+//        logIDs.push_back(restoredLogID);
+
+//        latest_timestamp = ULONG_LONG_MAX;
+//        //Initiate latest_timestamp to the earliest timestamp
+//        for (size_t log_iter = 0; log_iter < logIDs.size(); log_iter++)
+//        {
+//          CPPDEBUG("Starting timestamp: " << allRestoredLogs[logIDs[log_iter]].getTimestamp() << std::endl);
+//          if (allRestoredLogs[logIDs[log_iter]].getTimestamp() < latest_timestamp)
+//          {
+//              latest_timestamp = allRestoredLogs[logIDs[log_iter]].getTimestamp();
+//          }
+
+
+//        }
+
+    }
+
     restoredLogs[0].printStat();
+
+    assert(*g_statlog == restoredLogs[0]);
 
 
 //    Node node1 = *g_self->getSelf();
@@ -113,6 +162,10 @@ int main ()
 
 //    std::cout << "Nodes are equal: " << (node1 == node2) << std::endl;
 //    std::cout << "Nodes are equal: " << (node1 == node3) << std::endl;
+
+    std::cout << "**********************" << std::endl;
+    std::cout << "All tests passed"       << std::endl;
+    std::cout << "**********************" << std::endl;
 
 
     g_world->destroyVASTNode(g_self);

@@ -30,11 +30,9 @@ namespace Vast
                           std::size_t bytes_transferred);
 
         //Hands input packet off to net_udp_handler
-        void handoff_input (RLNCMessage input_message, ip::udp::endpoint* remote_endptr);
+        void handoff_input (RLNCMessage input_message, IPaddr socket_addr);
 
-
-
-        void RLNC_msg_received(RLNCMessage input_message, ip::udp::endpoint* remote_endptr);
+        void RLNC_msg_received(RLNCMessage input_message, IPaddr socket_addr);
 
     private:
         uint8_t generation = 0;

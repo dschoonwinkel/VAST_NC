@@ -188,7 +188,7 @@ namespace Vast
     net_udp::getRemoteAddress (id_t host_id, IPaddr &addr)
     {
 
-        IPaddr *resolved_addr = _udphandler->getRemoteAddress (host_id);
+        const IPaddr *resolved_addr = _udphandler->getRemoteAddress (host_id);
         CPPDEBUG("net_udp::getRemoteAddress: host_id " << host_id << std::endl);
         //IPaddr could not be found, probably because we have never communicated with it
         if (resolved_addr == NULL)
@@ -226,7 +226,7 @@ namespace Vast
         {
             printf ("net_udp::connect () connection for [%lu] already exists\n", target);
             return false;
-        }        
+        }
 
         CPPDEBUG("net_udp::connect to [" + std::to_string(target) + "]" << std::endl);
 
@@ -289,7 +289,7 @@ namespace Vast
         //Resolve addr from id_t if not given
         if (addr == NULL)
         {
-            IPaddr *resolved_addr = _udphandler->getRemoteAddress(target);
+            const IPaddr *resolved_addr = _udphandler->getRemoteAddress(target);
             if (resolved_addr == NULL)
             {
                 std::cerr << "\n net_udp::send IPaddr could not be resolved for id_t " << target << std::endl;
@@ -338,12 +338,17 @@ namespace Vast
         bool result = false;
 
 //        _conn_mutex.lock();
+        CPPDEBUG("net_udp::switchID prevID: " << prevID << " newID: " << newID << std::endl);
 
 //        //Only checks for new ID already in use, not for previous ID, because UDP is not connection based and therefore no connection exists before the packet arrives
         if (_id2conn.find (newID) != _id2conn.end ())
 ////        if (_id2conn.find (newID) != _id2conn.end () || _id2conn.find (prevID) == _id2conn.end ())
         {
-            printf("net_udp::switchID: [%lu] new ID already exists\n", _id);
+            printf("net_udp::switchID: [%lu] new ID already exists\n", newID);
+            if (prevID == newID)
+            {
+                CPPDEBUG("net_udp::switchID prevID == newID" << std::endl);
+            }
         }
 
         if (_id2conn.find (prevID) != _id2conn.end() && prevID != newID)
@@ -413,7 +418,7 @@ namespace Vast
         }
 
         //If I have never heard from this connection before, add it as a new connection
-        if (it == _id2conn.end() && message != NULL)
+        if (it == _id2conn.end() && message != NULL && msg->fromhost != NET_ID_UNASSIGNED)
         {
             socket_connected(fromhost, _udphandler, false);
         }

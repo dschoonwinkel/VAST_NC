@@ -541,6 +541,7 @@ namespace Vast
                                 _timeout = 0;
                                 destroyClient (handlers->client);
                                 _state = ABSENT;
+                                Logger::debug("VASTVerse::tick _state ABSENT isJoined == false after join timeout");
                             }
                         }
                     }
@@ -588,6 +589,7 @@ namespace Vast
             else if (_state == JOINED && _vastinfo.size () == 0)
             {
                 _state = ABSENT;
+                Logger::debug("VASTVerse::tick _state ABSENT isJoined == false after leave network");
                 printf ("Node left\nstate = ABSENT\n");
         
                 // call callback to notify for leave

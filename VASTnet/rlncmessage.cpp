@@ -15,14 +15,15 @@ RLNCMessage::RLNCMessage (RLNCHeader header)
     header.enc_packet_count = 0;
 }
 
-RLNCMessage::RLNCMessage (const RLNCMessage &message)
+RLNCMessage::RLNCMessage (const RLNCMessage &message):
+    socket_addr(message.socket_addr.host, message.socket_addr.port)
 {
     this->header = message.header;
     this->msg = message.msg;
     this->pkt_ids = message.pkt_ids;
     this->from_ids = message.from_ids;
     this->to_addrs = message.to_addrs;
-    this->endptr = message.endptr;
+    this->socket_addr = socket_addr;
 
 //    CPPDEBUG("RLNCMessage copy constructor called" <<std::endl);
 }
@@ -235,6 +236,7 @@ bool RLNCMessage::operator==(const RLNCMessage other)
         return false;
 
     equals = equals && other.msg == this->msg;
+    equals = equals && other.socket_addr == this->socket_addr;
 
     return equals;
 }
@@ -259,6 +261,9 @@ std::ostream& operator<<(std::ostream& output, RLNCMessage const& message )
         boost::format format("%1$#x");
         output << message.msg;
         output << std::endl;
+
+        output << "socket_addr: " << message.socket_addr << std::endl;
+
 
         output << "******************************************************" << std::endl;
         return output;

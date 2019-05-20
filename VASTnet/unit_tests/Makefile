@@ -13,7 +13,7 @@ ACE_ROOT = /usr
 #CFLAGS=-O2 -ftree-vectorize -std=c++14 -Wall -Wextra
 CFLAGS=-ggdb -std=c++14 -Wall -Wextra
 
-LIBS_COMMON = -lvastsim -lvast -lvastnet -lvastcommon
+LIBS_COMMON = -lvastsim -lvast -lvastnet -lvastcommon -lvastreal
 #-lz -ldl -lpthread
 LIBS_ACE    = -lACE
 LIBS_THREAD = -lpthread
@@ -75,7 +75,7 @@ unittest_net_udpnc_consumer: unittest_net_udpnc_consumer.cpp abstract_rlnc_msg_r
 	$(CC) $(CFLAGS) $(INC_PATHS) $(LIBS_INCKODO) $(LIB_PATHS) $^ $(LIBS) $(LIBS_KODO) \
 	-o $(unittest_net_udpnc_consumer)
 	echo "Running: unittest_net_udpnc_consumer"
-#	$(unittest_net_udpnc_consumer)
+	$(unittest_net_udpnc_consumer)
 
 make_vastnet:
 	$(MAKE) --directory=../

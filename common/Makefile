@@ -1,4 +1,5 @@
 
+resolvehostid = /usr/local/bin/resolvehostid
 lib_vastcommon = ../lib/libvastcommon.a
 AR = ar
 CC = g++
@@ -17,24 +18,33 @@ sources_o = Compressor.cpp Errout.cpp \
             VoronoiSF.cpp VoronoiSFAlgorithm.cpp \
             MovementGenerator.cpp \
 	    VASTUtil.cpp \
-	    logger.cpp
+	    logger.cpp \
+	    ipaddr_warning.cpp
             
 sources=$(sources_o)
 
 objects = $(subst .cpp,.o,$(sources))
 
-all: $(lib_vastcommon)	
+all: $(lib_vastcommon)	resolvehostid
 
 # $@ refers $(lib_vast) and $^ refers to $(objects)
-$(lib_vastcommon): $(objects) VASTTypes.h
+$(lib_vastcommon): $(objects) VASTTypes.h ConcurrentQueue.h
 	$(AR) rcs $@ $^
 	
 .cpp.o:
 	$(CC) $(CFLAGS) $^
 
+resolvehostid: resolvehostid.cpp
+	-rm $(resolvehostid)
+	$(CC) $^ -o $(resolvehostid)
+
 clean:
 	$(if $(objects), rm -f $(objects))
 	$(if $(lib_vastcommon), rm -f $(lib_vastcommon))
+	-rm $(resolvehostid)
+
 
 noace:
 	make TARGET=noace
+
+

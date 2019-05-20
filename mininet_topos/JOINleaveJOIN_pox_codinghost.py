@@ -131,38 +131,49 @@ def myNetwork():
         dstLink = links[0][1]
         dstLink.config(**{'loss' : loss_perc})
 
+    for i in range(2,Node_count+1):
+        try:
+            print("Setting up node %d" % i)
+            if AUTO:
+                hosts[i-1].cmd("kill $(ps a | grep \"VASTreal_console %d 0 1037 10.0.0.1\" | head -c 5)" % (i-1))
 
-    #h1 = net.get('h1')
-    #links = h1.connectionsTo(s1)
-
-    #srcLink = links[0][0]
-    #dstLink = links[0][1]
-
-    #dstLink.config(**{ 'bw' : 1, 'loss' : loss_perc})
-    # srcLink.config(**{ 'bw' : 1, 'loss' : 10})
-
-    #print(srcLink)
-    #print(dstLink)
-    # hosts[0].cmd("iperf -s &")
-    # hosts[1].cmd("iperf -s &")
-    # hosts[2].cmd("iperf -s &")
-    # hosts[37].cmd("xterm -hold -fg black -bg green -geometry 80x60+20+0 -e \"iperf -c 10.0.0.3 \" &")
-    # hosts[38].cmd("xterm -hold -fg black -bg green -geometry 80x60+20+0 -e \"iperf -c 10.0.0.1 \" &")
-    # hosts[39].cmd("xterm -hold -fg black -bg green -geometry 80x60+40+0 -e \"iperf -c 10.0.0.2 \" &")
-
-    if AUTO:
-        for i in range(1, int(TOTAL_SIMULATION_TIME) / 10):
-            print("Sleeping 10 seconds, %d to go" % (TOTAL_SIMULATION_TIME - i*10))
-            try:
-                time.sleep(10)
-            except KeyboardInterrupt:
+        except KeyboardInterrupt:
                 print("Sleep interrupted, exiting")
                 break;
+
+    for i in range(2,Node_count+1):
+        try:
+            print("Setting up node %d" % i)
+            hosts[i-1].cmd("route add 239.255.0.1 h%d-eth0" % i)
+            if AUTO:
+                # hosts[i-1].cmd("xterm -hold -fg black -bg green -geometry 80x60+%d+0 -e   \"./VASTreal_console %d 0 1037 10.0.0.1 \" &" % (200+i*40, i-1))    
+                hosts[i-1].cmd("echo \"\n\n\n*******************\nRestarting node\n*******************\n\" >> output_dump/node_10.0.0.%d.txt &" % (i))
+                hosts[i-1].cmd("./VASTreal_console %d 0 1037 10.0.0.1 &>> output_dump/node_10.0.0.%d.txt &" % (i-1, i))
+
+                #DELAY before starting profiling = TIMESTEP_DURATION * (10 STEPS * NODE_COUNT + 100 STEPS) * 1000 ms
+                DELAY = TIMESTEP_DURATION * (10 * Node_count + 100) * 1000
+                # hosts[i-1].cmd("perf record --delay %d --freq 100 --call-graph dwarf -o ./perf/perf%d.data ./VASTreal_console %d 0 1037 10.0.0.1 &> output_dump/node%d.txt &" % (DELAY, i-1, i-1, i-1))
+            time.sleep(1 + TIMESTEP_DURATION * 10)
+        except KeyboardInterrupt:
+                print("Sleep interrupted, exiting")
+                break;
+
+    CLI(net)
+
+
+    # if AUTO:
+    #     for i in range(1, int(TOTAL_SIMULATION_TIME) / 10):
+    #         print("Sleeping 10 seconds, %d to go" % (TOTAL_SIMULATION_TIME - i*10))
+    #         try:
+    #             time.sleep(10)
+    #         except KeyboardInterrupt:
+    #             print("Sleep interrupted, exiting")
+    #             break;
         
     os.system("killall -s SIGINT VASTreal_console")
 
     # time.sleep(1)
-    CLI(net)
+    
     net.stop()
 
     os.system("killall -s SIGKILL VASTreal_console")

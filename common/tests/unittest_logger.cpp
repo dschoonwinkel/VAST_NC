@@ -22,4 +22,10 @@ int main()
         Logger::debugPeriodic ("Hello! repeated");
     }
 
+
+    for(size_t i = 0; i < 100000; i++)
+    {
+        if (i % 10000 == 0)
+            Logger::debug("Debug message with timestamp", true);
+    }
 }
