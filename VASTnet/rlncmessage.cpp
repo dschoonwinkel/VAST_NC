@@ -3,6 +3,7 @@
 #include <boost/format.hpp>
 #include <exception>
 #include <stdio.h>
+#include <boost/crc.hpp>
 
 RLNCMessage::RLNCMessage()
 {
@@ -24,6 +25,7 @@ RLNCMessage::RLNCMessage (const RLNCMessage &message):
     this->from_ids = message.from_ids;
     this->to_addrs = message.to_addrs;
     this->socket_addr = socket_addr;
+    this->checksum = message.checksum;
 
 //    CPPDEBUG("RLNCMessage copy constructor called" <<std::endl);
 }
@@ -96,6 +98,16 @@ uint8_t RLNCMessage::getOrdering()
     return header.ordering;
 }
 
+uint32_t RLNCMessage::getChecksum()
+{
+    return checksum;
+}
+
+void RLNCMessage::setChecksum(uint32_t checksum)
+{
+    this->checksum = checksum;
+}
+
 // size of this class, must be implemented
 size_t RLNCMessage::sizeOf ()
 {
@@ -105,6 +117,8 @@ size_t RLNCMessage::sizeOf ()
     //Size of internals of the IPaddr class = 4 bytes IP + 2 * 2 bytes for port and padding
     size += header.enc_packet_count * sizeof (uint32_t) + sizeof (uint16_t) * 2;
     size += header.packetsize;
+    //Size of checksum
+    size += sizeof(uint32_t);
 
     return size;
 }
@@ -136,6 +150,10 @@ size_t RLNCMessage::serialize (char *buffer)
         throw std::logic_error(errmsg);
     }
 
+    //Get the checksum
+    memcpy(buffer+n, &checksum, sizeof(uint32_t));
+    n += sizeof(uint32_t);
+
 
     for (int i = 0; i < header.enc_packet_count; i++)
     {
@@ -148,6 +166,7 @@ size_t RLNCMessage::serialize (char *buffer)
         n += to_addrs[i].sizeOf ();
 
     }
+
     //Copy the std::string to buffer
     msg.copy(buffer+n, header.packetsize);
     n += header.packetsize;
@@ -179,6 +198,10 @@ int RLNCMessage::deserialize (const char *buffer, size_t size)
 
             return -1;
         }
+
+        //Get the checksum
+        memcpy(&checksum, buffer+n, sizeof(uint32_t));
+        n += sizeof(uint32_t);
 
         packetid_t pkt_id = -1;
         Vast::id_t from_id = -1;
@@ -213,6 +236,8 @@ int RLNCMessage::deserialize (const char *buffer, size_t size)
         msg.resize(header.packetsize);
         msg.assign(buffer+n, header.packetsize);
 
+        n += header.packetsize;
+
         return n;
     }
     else
@@ -237,6 +262,7 @@ bool RLNCMessage::operator==(const RLNCMessage other)
 
     equals = equals && other.msg == this->msg;
     equals = equals && other.socket_addr == this->socket_addr;
+    equals = equals && other.checksum == this->checksum;
 
     return equals;
 }
@@ -263,6 +289,7 @@ std::ostream& operator<<(std::ostream& output, RLNCMessage const& message )
         output << std::endl;
 
         output << "socket_addr: " << message.socket_addr << std::endl;
+        output << "CRC32 checksum" << message.checksum << std::endl;
 
 
         output << "******************************************************" << std::endl;
@@ -280,4 +307,16 @@ packetid_t RLNCMessage::generatePacketId(Vast::id_t id, int ordering)
     x ^= (x >> 31);
     x += ordering;
     return x;
+}
+
+uint32_t RLNCMessage::generateChecksum(const uint8_t *buffer, size_t bufsize)
+{
+    return generateChecksum(reinterpret_cast<const char*>(buffer), bufsize);
+}
+
+uint32_t RLNCMessage::generateChecksum(const char *buffer, size_t bufsize)
+{
+    boost::crc_32_type  result;
+    result.process_bytes(buffer, bufsize);
+    return result.checksum();
 }

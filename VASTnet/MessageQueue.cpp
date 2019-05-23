@@ -167,7 +167,7 @@ namespace Vast
         // perform msggroup to hostID translation        
         else if (_id2host.find (id) == _id2host.end ())
         {
-            printf ("MessageQueue::getAddress () cannot find hostID for msggroup: %d\n", (int)id);
+            printf ("MessageQueue::getAddress () cannot find hostID for msggroup: %lu\n", id);
             return null_address;
         }
 
@@ -327,11 +327,13 @@ namespace Vast
                     recvmsg->targets = local_targets;
 
                     // check if local handler for the message group exists
-                    id_t msggroup = recvmsg->msggroup;
+                    byte_t msggroup = recvmsg->msggroup;
                                         
                     if (_handlers.find (msggroup) == _handlers.end ())
                     {
-                        printf ("MessageQueue::processMessages () cannot find proper handler with msggroup: %d for message from [%d]\n", (int)msggroup, (int)recvmsg->from);
+                        Logger::debug("MessageQueue::processMessages () cannot find proper handler with msggroup: " +
+                                std::to_string((int)msggroup) + " for message from " +
+                                std::to_string(recvmsg->from));
                         continue;
                     }
 //                    CPPDEBUG("MessageQueue::processMessages () : msggroup :" << MessageHandler::MSG_GROUPtoString(msggroup) << std::endl);

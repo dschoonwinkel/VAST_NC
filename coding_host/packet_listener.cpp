@@ -132,6 +132,13 @@ int packet_listener::process_input (std::size_t bytes_transferred)
             if (message.getFirstFromId () == NET_ID_UNASSIGNED)
                 return 0;
 
+            //Do not code empty RLNCMessage packets, used as synchronise packets, only unicast
+            if (message.getMessageSize() == 0)
+            {
+                CPPDEBUG("packet_listener::process_input Empty RLNC Keep alive packet found " << std::endl);
+                return 0;
+            }
+
             recoder.addRLNCMessage(message);
 
             msgs_mutex.lock();

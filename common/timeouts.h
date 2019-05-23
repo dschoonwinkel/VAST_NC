@@ -48,6 +48,9 @@ extern int g_MS_PER_TIMESTEP;       //Be sure to declare this in your executable
 //net_udp timeouts
 #define _UDP_TIMEOUT_MS_ 500*MS_PER_STEP
 
+//net_udpNC timeouts
+#define _KEEPALIVE_UDPNC_TIMEOUT_ 10*MS_PER_STEP
+
 
 #define VASTREAL_STEP_DISPLAY_DIVISOR 5000
 

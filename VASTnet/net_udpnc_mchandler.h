@@ -20,7 +20,7 @@ namespace Vast
         virtual ~net_udpNC_MChandler();
 
         //MChandler will run its own io_service
-        int open (AbstractRLNCMsgReceiver *msghandler);
+        int open (AbstractRLNCMsgReceiver *msghandler, bool startthread = true);
 
         // close connection & unregister from io_service
         int close (void);

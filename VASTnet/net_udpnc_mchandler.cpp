@@ -20,11 +20,11 @@ namespace Vast
         delete _io_service;
         _io_service = NULL;
 
-        CPPDEBUG("~net_udpNC_MChandler packets_recvd: " << packets_received << std::endl);
+        CPPDEBUG("\n~net_udpNC_MChandler packets_recvd: " << packets_received << std::endl);
         CPPDEBUG("~net_udpNC_MChandler toaddrs_pkts_ignored: " << toaddrs_pkts_ignored << std::endl);
     }
 
-    int net_udpNC_MChandler::open(AbstractRLNCMsgReceiver *msghandler) {
+    int net_udpNC_MChandler::open(AbstractRLNCMsgReceiver *msghandler, bool startthread) {
         CPPDEBUG("net_udpNC_MChandler::open" << std::endl);
         _msghandler = msghandler;
 
@@ -52,8 +52,11 @@ namespace Vast
 
             std::cout << "net_udpnc_mchandler::open _udp->_local_endpoint: " << _udp->local_endpoint() << " _local_endpoint" << _local_endpoint << std::endl;
 
-            //Start the thread handling async receives
-            _iosthread = new boost::thread(boost::bind(&boost::asio::io_service::run, _io_service));
+            if (startthread)
+            {
+                //Start the thread handling async receives
+                _iosthread = new boost::thread(boost::bind(&boost::asio::io_service::run, _io_service));
+            }
         }
 
         return 0;
@@ -228,7 +231,11 @@ namespace Vast
         }
 
         _io_service->stop();
-        _iosthread->join();
+
+        if (_iosthread != NULL)
+        {
+            _iosthread->join ();
+        }
 
         return 0;
     }

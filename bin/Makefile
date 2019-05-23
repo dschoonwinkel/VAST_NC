@@ -17,9 +17,11 @@ clean_binaries:
 	-rm SimNode_demo
 	-rm test_console
 	-rm vastplayground
+	-rm vaststat_replay
 	-rm VASTStatReplayQt
 	-rm VASTsim_console
 	-rm VASTsim_Qt
+	-rm VASTreal_console
 
 
 backup_results:

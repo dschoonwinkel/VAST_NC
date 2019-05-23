@@ -103,7 +103,7 @@ namespace Vast {
 
 
         _steps_recorded++;
-        saveToLogFile(_steps_recorded, _logfilename);
+        saveToLogFile();
     }
 
     void VASTStatLogEntry::printStat ()
@@ -200,7 +200,7 @@ namespace Vast {
         return total_size;
     }
 
-    void VASTStatLogEntry::saveToLogFile(int step, std::string filename) {
+    void VASTStatLogEntry::saveToLogFile() {
 
         this->serialize(*ar, 0);
         ofs->flush();

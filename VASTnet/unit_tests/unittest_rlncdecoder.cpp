@@ -716,6 +716,89 @@ void testThrowPktNotUnique()
     }
 }
 
+void testChecksum()
+{
+    std::cout << "\ntestChecksum" << std::endl;
+
+    char data1[] = {'d', 'e', 'a', 'd'};
+    char data2[] = {'b', 'e', 'e', 'f'};
+
+    std::array<char, 100> vast_data1;
+
+    Vast::VASTHeader vast_header1;
+    vast_header1.start = 10;
+    vast_header1.type = 0;
+    vast_header1.end = 5;
+    vast_header1.msg_size = 4;
+    std::fill(vast_data1.begin (), vast_data1.end (), 0);
+    memcpy(vast_data1.data (), &vast_header1, sizeof(Vast::VASTHeader));
+    memcpy(vast_data1.data()+sizeof(Vast::VASTHeader), data1, 4);
+
+    std::array<char, 100> vast_data2;
+
+    Vast::VASTHeader vast_header2;
+    vast_header2.start = 10;
+    vast_header2.type = 0;
+    vast_header2.end = 5;
+    vast_header2.msg_size = 4;
+    std::fill(vast_data2.begin (), vast_data2.end (), 0);
+    memcpy(vast_data2.data (), &vast_header2, sizeof(Vast::VASTHeader));
+    memcpy(vast_data2.data ()+sizeof(Vast::VASTHeader), data2, 4);
+
+    RLNCHeader_factory factory;
+    RLNCHeader header1 = factory.build();
+
+    RLNCMessage message1(header1);
+
+    int id1 = 123;
+
+    Vast::IPaddr addr1("127.0.0.1", 1037);
+
+    message1.putPacketId(id1);
+    message1.putFromId (id1);
+    message1.putToAddr (addr1);
+
+    message1.putMessage(vast_data1.data (), 100);
+
+    RLNCrecoder recoder;
+    recoder.addRLNCMessage (message1);
+
+    //Normal packet adding
+    RLNCHeader header2 = factory.build();
+    RLNCMessage message2(header2);
+
+    int id2 = 456;
+
+    Vast::IPaddr addr2("127.0.0.1", 1037);
+
+    message2.putPacketId(id2);
+    message2.putFromId (id2);
+    message2.putToAddr (addr2);
+
+    message2.putMessage(vast_data2.data (), 100);
+
+    recoder.addRLNCMessage (message2);
+
+    std::array<char, MAX_PACKET_SIZE> buffer;
+
+    uint32_t checksum = 0;
+    message1.serialize(buffer.data());
+    checksum = RLNCMessage::generateChecksum(buffer.data(), message1.sizeOf());
+
+    buffer.fill(0);
+    message2.serialize(buffer.data());
+    checksum += RLNCMessage::generateChecksum(buffer.data(), message2.sizeOf());
+
+    RLNCMessage *encoded_msg = recoder.produceRLNCMessage();
+
+    assert(encoded_msg != NULL);
+    assert(encoded_msg->getChecksum() == checksum);
+
+    std::cout << "Checksum: " << checksum << std::endl;
+    assert(encoded_msg->getChecksum() == 966138353);
+//    assert(encoded_msg->getChecksum() == 3547018482);
+}
+
 void testRepeated()
 {
     std::cout << "testRepeated" << std::endl;
@@ -825,13 +908,14 @@ void testRepeated()
 
 int main() {
 
-    testFirstIndex ();
-    testSecondIndex ();
-    testUndecodable ();
-    testUnnecessary ();
-    testExtraPacket ();
-    testNETIDUNASSIGNED();
-    testThrowPktNotUnique();
+//    testFirstIndex ();
+//    testSecondIndex ();
+//    testUndecodable ();
+//    testUnnecessary ();
+//    testExtraPacket ();
+//    testNETIDUNASSIGNED();
+//    testThrowPktNotUnique();
+    testChecksum();
 //    testRepeated ();
 
     std::cout << "****************" << std::endl;

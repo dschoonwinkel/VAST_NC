@@ -120,6 +120,11 @@ namespace Vast {
         return recorded_steps;
     }
 
+    size_t VASTStatLog::getCurrentStep()
+    {
+        return current_step;
+    }
+
     bool VASTStatLog::finished() const
     {
 //        CPPDEBUG(getClientNode().id << "current_step: " << current_step

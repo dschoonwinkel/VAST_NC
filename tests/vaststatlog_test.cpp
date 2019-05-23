@@ -12,6 +12,7 @@ using namespace boost::filesystem;
 #include "VASTUtil.h"
 #include "VASTCallback.h"       // for creating callback handler
 #include "vaststatlog_entry.h"
+#include "vaststatlog.h"
 
 #define VAST_EVENT_LAYER    1                   // layer ID for sending events
 #define VAST_UPDATE_LAYER   2                   // layer ID for sending updates
@@ -94,18 +95,18 @@ int main ()
         }
     }
 
-    string _logfilename = "./logs/VASTStat";
-    _logfilename = _logfilename + "_N" + std::to_string(g_self->getSelf()->id) + ".txt";
-    std::cout << "Reading file: " << _logfilename << std::endl;
+//    string _logfilename = "./logs/VASTStat";
+//    _logfilename = _logfilename + "_N" + std::to_string(g_self->getSelf()->id) + ".txt";
+//    std::cout << "Reading file: " << _logfilename << std::endl;
 
 
-    std::vector<Vast::VASTStatLogEntry> restoredLogs = Vast::VASTStatLogEntry::restoreAllFromLogFile(_logfilename);
+//    std::vector<Vast::VASTStatLogEntry> restoredLogs = Vast::VASTStatLogEntry::restoreAllFromLogFile(_logfilename);
 
-    if (restoredLogs.size() < 1)
-    {
-        std::cerr << "Could not restore any logs from filename specified: " << _logfilename << std::endl;
-        exit(123);
-    }
+//    if (restoredLogs.size() < 1)
+//    {
+//        std::cerr << "Could not restore any logs from filename specified: " << _logfilename << std::endl;
+//        exit(123);
+//    }
 
 
     path dir_path("./logs");
@@ -124,7 +125,8 @@ int main ()
             CPPDEBUG("Skipping " << filename << std::endl);
             continue;
         }
-        std::vector<Vast::VASTStatLogEntry> restoredLogs = Vast::VASTStatLogEntry::restoreAllFromLogFile(filename);
+        std::vector<Vast::VASTStatLogEntry> restoredLogEntries =
+                Vast::VASTStatLogEntry::restoreAllFromLogFile(filename);
 
         //Cut off .txt
         std::string id_string = filename.substr(0, filename.find(".txt"));
@@ -149,11 +151,18 @@ int main ()
 
 //        }
 
+        restoredLogEntries[0].printStat();
+
+        VASTStatLog restoredLog(restoredLogEntries);
+
+        std::cout << "restoredLog.finished(): " << restoredLog.finished() << std::endl;
+        std::cout << "restoredLog.getRecordedSteps(): " << restoredLog.getRecordedSteps() << std::endl;
+        std::cout << "restoredLog.getCurrentStep(): " << restoredLog.getCurrentStep() << std::endl;
+        assert(*g_statlog == restoredLogEntries[0]);
+
     }
 
-    restoredLogs[0].printStat();
 
-    assert(*g_statlog == restoredLogs[0]);
 
 
 //    Node node1 = *g_self->getSelf();

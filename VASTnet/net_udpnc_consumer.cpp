@@ -12,13 +12,17 @@ namespace Vast
 
     void net_udpNC_consumer::open(AbstractRLNCMsgReceiver *RLNCsink,
                                   abstract_net_udp *abs_netudp,
-                                  net_udpNC_MChandler* mchandler)
+                                  net_udpNC_MChandler* mchandler, bool startthread)
     {
         CPPDEBUG("net_udpNC_consumer::open" << std::endl);
         this->RLNCsink = RLNCsink;
         this->abs_netudp = abs_netudp;
         this->mchandler = mchandler;
-        start_consuming();
+
+        if (startthread)
+        {
+            start_consuming();
+        }
     }
 
     void net_udpNC_consumer::RLNC_msg_received (RLNCMessage msg, IPaddr socket_addr)
@@ -69,7 +73,6 @@ namespace Vast
 
         if (input_message.getPacketIds ().size() > 1)
             throw std::logic_error("net_udpNC_consumer::process_input: Should not have encoded packets here\n");
-
         filter_input (input_message, socket_addr);
     }
 
@@ -103,7 +106,14 @@ namespace Vast
     {
         id_t firstFromID = input_message.getFirstFromId ();
 
-        if (firstFromID == NET_ID_UNASSIGNED)
+        if (input_message.getMessageSize() == 0)
+        {
+//            CPPDEBUG("net_udpNC_consumer::process_input Empty RLNC packet received, using as sync packet" << std::endl);
+            recvd_ordering[input_message.getFirstFromId ()] = input_message.getOrdering ();
+            mchandler->clearPacketPool();
+        }
+
+        else if (firstFromID == NET_ID_UNASSIGNED)
         {
 //            CPPDEBUG("net_udpNC_consumer::process_input NET_ID_UNASSIGNED in fromID, processing" << std::endl);
         }
@@ -139,9 +149,9 @@ namespace Vast
         recvd_ordering[input_message.getFirstFromId ()] = input_message.getOrdering ();
 
         RLNCsink->RLNC_msg_received (input_message, socket_addr);
-        size_t msgqueuesize = _msg_queue.size();
+//        size_t msgqueuesize = _msg_queue.size();
 //        if (msgqueuesize > 0)
-            Logger::debugPeriodic("net_udpNC_consumer::order_input Size of _msg_queue, working on reducing it " + std::to_string(msgqueuesize), 100, 10, true);
+//            Logger::debugPeriodic("net_udpNC_consumer::order_input Size of _msg_queue, working on reducing it " + std::to_string(msgqueuesize), 100, 10, true);
     }
 
     void net_udpNC_consumer::close()
@@ -149,14 +159,17 @@ namespace Vast
         CPPDEBUG("net_udpNC_consumer::close()" << std::endl);
         running = false;
         _msg_queue.close();
-        _consumerthread->join ();
+        if (_consumerthread != NULL)
+        {
+            _consumerthread->join ();
+        }
     }
 
     net_udpNC_consumer::~net_udpNC_consumer ()
     {
         delete _consumerthread;
 
-        CPPDEBUG("~net_udpNC_consumer: total_packets_processed: " << total_packets_processed << std::endl);
+        CPPDEBUG("\n~net_udpNC_consumer: total_packets_processed: " << total_packets_processed << std::endl);
         CPPDEBUG("~net_udpNC_consumer: total_not_meantforme: " << total_not_meantforme <<  std::endl);
         CPPDEBUG("~net_udpNC_consumer: total_toolate_packets: " << total_toolate_packets <<  std::endl);
         CPPDEBUG("~net_udpNC_consumer: total used packets: " << total_usedpackets <<  std::endl);

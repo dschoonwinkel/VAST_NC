@@ -118,10 +118,18 @@ void testSizeOfSerialize()
 
     msg1.putMessage (test1.c_str (), test1.length ());
 
+    //Sizeof RLNCMessage:
+    //Header = 8 bytes
+    //Packetid = 8 bytes
+    //FromId = 8 bytes
+    //ToAddr = 4 bytes IP + 2 bytes port
+    //Variable length msg in chars
+    //Checksum
     assert(msg1.sizeOf () == (sizeof(RLNCHeader)
                               + sizeof(packetid_t) * 1 + sizeof(Vast::id_t) * 1
-                              + sizeof(char) * test1.length ()
                               + sizeof(uint32_t) + 2 * sizeof(uint16_t)
+                              + sizeof(char) * test1.length ()
+                              + sizeof(uint32_t)
                               )
            );
 

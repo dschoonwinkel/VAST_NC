@@ -26,7 +26,7 @@ namespace Vast{
 
         void open(AbstractRLNCMsgReceiver *RLNCsink,
                   abstract_net_udp *abs_netudp,
-                  net_udpNC_MChandler* mchandler);
+                  net_udpNC_MChandler* mchandler, bool startthread = true);
 
         void close();
         void RLNC_msg_received (RLNCMessage msg, IPaddr socket_addr);

@@ -15,6 +15,7 @@ namespace Vast
         virtual bool socket_connected (id_t id, void *stream, bool is_secure) = 0;
         virtual bool socket_disconnected (id_t id) = 0;
         virtual const IPaddr getPublicIPaddr() = 0;
+        virtual timestamp_t getTimestamp() = 0;
         virtual net_udp* getReal_net_udp()
         {
             return NULL;

@@ -1327,7 +1327,8 @@ namespace Vast
             for (; it2 != _subscriptions.end (); it2++)
             {
                 // check for overlap separately for the two subscribers                
-                // NOTE: that if layer 0 is subscribed, then all known subscribers within the Voronoi region of this matcher are reported
+                // NOTE: that if layer 0 is subscribed, then all known subscribers within the
+                // Voronoi region of this matcher are reported
                 Subscription &sub2 = it2->second;
 
                 if (_VSOpeer->isOwner (sub1.id))
@@ -1510,7 +1511,7 @@ namespace Vast
         for (size_t i=0; i < remove_list.size (); i++)
         {       
             id_t matcher_id = remove_list[i];
-            LogManager::instance ()->writeLogFile ("Matcher [%lu] timeout, remove it. world_id: %u\n", matcher_id, _matchers[matcher_id].world_id);
+            LogManager::instance ()->writeLogFile ("VASTMatcher::removeExpiredMatchers: Matcher [%lu] timeout, remove it. world_id: %u\n", matcher_id, _matchers[matcher_id].world_id);
 
             if (isOriginMatcher (matcher_id))
                 originDisconnected (matcher_id);

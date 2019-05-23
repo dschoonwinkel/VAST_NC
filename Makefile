@@ -58,3 +58,9 @@ clean:
 
 noace:
 	make TARGET=noace
+
+unittests:
+	$(MAKE) TARGET=all
+	$(MAKE) --directory=VASTnet/unit_tests
+	$(MAKE) --directory=common/tests
+	$(MAKE) --directory=coding_host/tests

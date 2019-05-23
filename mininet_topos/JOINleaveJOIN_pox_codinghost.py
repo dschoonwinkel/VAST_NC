@@ -89,7 +89,7 @@ def myNetwork():
 
     if (run_codinghost):
         # coding_host.cmd("xterm -hold -fg black -bg green -geometry 80x10+200+600 -e \"./coding_host \" &")
-        # coding_host.cmd("./coding_host &> output_dump/codnghost.txt &")
+        coding_host.cmd("./coding_host &> output_dump/codinghost.txt &")
         pass
     CLI(net)
 
@@ -131,15 +131,23 @@ def myNetwork():
         dstLink = links[0][1]
         dstLink.config(**{'loss' : loss_perc})
 
+
+
     for i in range(2,Node_count+1):
         try:
-            print("Setting up node %d" % i)
+            print("Killing node %d" % i)
             if AUTO:
                 hosts[i-1].cmd("kill $(ps a | grep \"VASTreal_console %d 0 1037 10.0.0.1\" | head -c 5)" % (i-1))
 
         except KeyboardInterrupt:
                 print("Sleep interrupted, exiting")
                 break;
+
+    print("Sleeping between leave and join")
+    try:
+        time.sleep(1 + TIMESTEP_DURATION * 10)
+    except KeyboardInterrupt:
+        print("Sleep interrupted, exiting")
 
     for i in range(2,Node_count+1):
         try:

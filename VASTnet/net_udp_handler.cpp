@@ -26,7 +26,7 @@ namespace Vast {
         _udp = NULL;
     }
 
-    int net_udp_handler::open(boost::asio::io_service *io_service, abstract_net_udp *msghandler) {
+    int net_udp_handler::open(boost::asio::io_service *io_service, abstract_net_udp *msghandler, bool startthread) {
         CPPDEBUG("net_udp_handler::open " << std::endl);
         is_open = true;
         _io_service = io_service;
@@ -63,8 +63,11 @@ namespace Vast {
 
             CPPDEBUG("net_udp_handler::open _udp->_local_endpoint: " << _udp->local_endpoint() << " _local_endpoint" << _local_endpoint << std::endl);
 
-            //Start the thread handling async receives
-            _iosthread = new boost::thread(boost::bind(&boost::asio::io_service::run, io_service));
+            if (startthread)
+            {
+                //Start the thread handling async receives
+                _iosthread = new boost::thread(boost::bind(&boost::asio::io_service::run, io_service));
+            }
 
         }
 
@@ -223,10 +226,14 @@ namespace Vast {
             if (_udp != NULL && _udp->is_open())
             {
                 _udp->close();
+
+                _io_service->stop();
             }
 
-            _io_service->stop();
-            _iosthread->join();
+            if (_iosthread != NULL)
+            {
+                _iosthread->join();
+            }
         }
 	
 		is_open = false;

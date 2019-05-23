@@ -8,6 +8,7 @@ Demo/random_walkertalker
 Demo/VASTsim_Qt
 Demo/VASTreal_console
 Demo/VASTStatReplay
+Demo/VASTStatReplay/tests
 Demo/VASTStatReplayQt
 Dependencies/include
 Dependencies/include/ace

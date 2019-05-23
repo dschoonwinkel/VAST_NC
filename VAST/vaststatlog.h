@@ -40,6 +40,7 @@ namespace Vast {
         Area* getMatcherAOI();
 
         size_t getRecordedSteps();
+        size_t getCurrentStep();
 
         bool finished() const;
 

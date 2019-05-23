@@ -30,6 +30,11 @@ namespace Vast
             return true;
         }
 
+        timestamp_t getTimestamp()
+        {
+            return timestamp++;
+        }
+
         size_t sock_conn_called = 0;
         size_t sock_disc_called = 0;
         id_t fromhost;
@@ -37,6 +42,7 @@ namespace Vast
         size_t size;
         timestamp_t recvtime;
         bool in_front;
+        timestamp_t timestamp = 0;
 
         // abstract_net_udp interface
     public:

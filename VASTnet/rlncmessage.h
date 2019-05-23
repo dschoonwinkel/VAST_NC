@@ -38,6 +38,9 @@ public:
     void putOrdering(uint8_t ordering);
     uint8_t getOrdering();
 
+    uint32_t getChecksum();
+    void setChecksum(uint32_t checksum);
+
     size_t sizeOf ();
     size_t serialize (char *buffer);
     //Returns -1 on error
@@ -46,6 +49,9 @@ public:
     bool operator==(const RLNCMessage other);
 
     packetid_t static generatePacketId(Vast::id_t id, int ordering);
+
+    uint32_t static generateChecksum(const uint8_t *buffer, size_t bufsize);
+    uint32_t static generateChecksum(const char *buffer, size_t bufsize);
 
     friend std::ostream& operator<<(std::ostream&, RLNCMessage const& message);
 
@@ -58,6 +64,8 @@ private:
     std::vector<Vast::id_t> from_ids;
     std::vector<Vast::IPaddr> to_addrs;
     std::string msg;
+    uint32_t checksum = 0;
+
 
 };
 

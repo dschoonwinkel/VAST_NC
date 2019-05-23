@@ -70,7 +70,7 @@ namespace Vast {
             ar & _steps_recorded;
         }
 
-        void saveToLogFile(int step, std::string filename);
+        void saveToLogFile();
         void restoreFirstFromLogFile(std::string filename);
         static std::vector<VASTStatLogEntry> restoreAllFromLogFile(std::string filename);
 

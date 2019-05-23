@@ -10,29 +10,50 @@ namespace Vast
 
     }
 
-    int net_udpNC_handler::open (io_service *io_service, abstract_net_udp *msghandler)
+    int net_udpNC_handler::open (io_service *io_service, abstract_net_udp *msghandler, bool startthread)
     {
         CPPDEBUG("net_udpNC_handler::open" << std::endl);
-        net_udp_handler::open(io_service, msghandler);
-        mchandler.open (&consumer);
-        consumer.open (this, msghandler, &mchandler);
+        _timeout_keepalive = msghandler->getTimestamp();
+        net_udp_handler::open(io_service, msghandler, startthread);
+        mchandler.open (&consumer, startthread);
+        consumer.open (this, msghandler, &mchandler, startthread);
 
         return 0;
     }
 
     size_t net_udpNC_handler::send(const char *msg, size_t n, ip::udp::endpoint remote_endpoint)
     {
+        if (_msghandler->getTimestamp() > _timeout_keepalive + _KEEPALIVE_UDPNC_TIMEOUT_)
+        {
+            //Send keep alive packet to syncronise receiver
+            send_helper(NULL, n, remote_endpoint);
+            _timeout_keepalive = _msghandler->getTimestamp();
+        }
+
+        return send_helper(msg, n, remote_endpoint);
+    }
+
+    size_t net_udpNC_handler::send_helper(const char *msg, size_t n, ip::udp::endpoint remote_endpoint)
+    {
         if (_udp == NULL)
         {
-            std::cerr << "net_udpNC_handler::send trying to send before socket is ready" << std::endl;
+            std::cerr << "net_udpNC_handler::send_helper trying to send before socket is ready" << std::endl;
             return -1;
-
         }
 
         RLNCHeader_factory header_factory(GENSIZE, generation);
         RLNCMessage message(header_factory.build());
 
-        message.putMessage(msg, n);
+        if (n != 0 && msg != NULL)
+        {
+            message.putMessage(msg, n);
+        }
+        else
+        {
+            CPPDEBUG("net_udpNC_handler::send_helper Sending keepalive packet" << std::endl);
+            if (message.getMessageSize() != 0)
+                throw std::logic_error("net_udpNC_handler::send_helper keepalive packet should have 0 length");
+        }
 
         IPaddr to_addr(remote_endpoint.address().to_v4().to_ulong(), remote_endpoint.port ());
 

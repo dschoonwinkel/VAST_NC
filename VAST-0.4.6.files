@@ -1,4 +1,4 @@
-VAST/timeouts.cpp
+Demo/VASTStatReplay/read_vaststatlog.cpp
 VAST/vaststatlog.cpp
 VAST/vaststatlog.h
 VAST/vaststatlog_entry.cpp
@@ -38,6 +38,7 @@ VASTreal/RealNode.cpp
 VASTreal/RealNode.h
 VASTreal/test/test_vastreal_initpara.cpp
 VASTreal/test/Makefile
+coding_host/boost_crc_example.cpp
 coding_host/main.cpp
 coding_host/mc_listener_main.cpp
 coding_host/mc_packet_listener.cpp
@@ -51,10 +52,12 @@ coding_host/tests/test_recoding_decoding.cpp
 coding_host/tests/Makefile
 coding_host/tests/test_uncoded_coded_mixed.cpp
 coding_host/tests/test_uncoded_coded_mixed2.cpp
+coding_host/tests/unittest_rlncrecoder.cpp
 common/ipaddr_warning.cpp
 common/logger.cpp
 common/logger.h
 common/resolvehostid.cpp
+common/timeouts.cpp
 common/tests/Makefile
 common/tests/unittest_concurrentqueue.cpp
 common/tests/unittest_logger.cpp
@@ -118,6 +121,7 @@ Demo/test_console/test_console.cpp
 Demo/vastplayground/vastplayground.cpp
 Demo/VASTStatReplay/vaststat_replay.cpp
 Demo/VASTStatReplay/Makefile
+Demo/VASTStatReplay/tests/unittest_vaststatlog.cpp
 Demo/VASTStatReplayQt/mainwindow.cpp
 Demo/VASTStatReplayQt/mainwindow.h
 Demo/VASTStatReplayQt/mainwindow.cpp

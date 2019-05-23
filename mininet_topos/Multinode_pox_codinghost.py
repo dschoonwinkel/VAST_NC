@@ -89,7 +89,7 @@ def myNetwork():
 
     if (run_codinghost):
         # coding_host.cmd("xterm -hold -fg black -bg green -geometry 80x10+200+600 -e \"./coding_host \" &")
-        # coding_host.cmd("./coding_host &> output_dump/codnghost.txt &")
+        coding_host.cmd("./coding_host &> output_dump/codinghost.txt &")
         pass
     CLI(net)
 

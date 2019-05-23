@@ -19,7 +19,8 @@ sources_o = Compressor.cpp Errout.cpp \
             MovementGenerator.cpp \
 	    VASTUtil.cpp \
 	    logger.cpp \
-	    ipaddr_warning.cpp
+	    ipaddr_warning.cpp \
+	    timeouts.cpp
             
 sources=$(sources_o)
 
@@ -28,7 +29,7 @@ objects = $(subst .cpp,.o,$(sources))
 all: $(lib_vastcommon)	resolvehostid
 
 # $@ refers $(lib_vast) and $^ refers to $(objects)
-$(lib_vastcommon): $(objects) VASTTypes.h ConcurrentQueue.h
+$(lib_vastcommon): $(objects) VASTTypes.h ConcurrentQueue.h timeouts.h
 	$(AR) rcs $@ $^
 	
 .cpp.o:

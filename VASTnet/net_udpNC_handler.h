@@ -7,6 +7,7 @@
 #include "rlncmessage.h"
 #include "abstract_rlnc_msg_receiver.h"
 #include "net_udpnc_consumer.h"
+#include "timeouts.h"
 
 namespace Vast
 {
@@ -16,11 +17,13 @@ namespace Vast
         net_udpNC_handler(ip::udp::endpoint local_endpoint);
         virtual ~net_udpNC_handler();
 
-        int open (io_service *io_service, abstract_net_udp *msghandler);
+        int open (io_service *io_service, abstract_net_udp *msghandler, bool startthread = true);
         // call net_udp_handler close and mchandler close
         int close (void);
 
         size_t send(const char *msg, size_t n, ip::udp::endpoint remote_endpoint);
+        size_t send_keepalive(ip::udp::endpoint remote_endpoint);
+        size_t send_helper(const char *msg, size_t n, ip::udp::endpoint remote_endpoint);
 
         //Start the receiving loop
         void start_receive ();
@@ -44,6 +47,8 @@ namespace Vast
         size_t total_packets_recvd = 0;
 
         std::map<id_t, uint8_t> send_ordering;
+
+        timestamp_t         _timeout_keepalive;      // timeout for re-attempt to join
     };
 
 

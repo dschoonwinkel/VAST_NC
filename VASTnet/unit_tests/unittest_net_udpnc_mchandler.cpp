@@ -47,7 +47,7 @@ void test_process_encoded()
 
     //Setting a route for 239.255.0.1 is required to open mc socket
     system("sudo route add 239.255.0.1 enp0s3");
-    mchandler.open (&tester);
+    mchandler.open (&tester, false);
 
     mchandler.handle_buffer (buffer, msg1.sizeOf ());
 
