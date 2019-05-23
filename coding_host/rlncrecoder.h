@@ -18,6 +18,7 @@ class RLNCrecoder
 {
 public:
     RLNCrecoder();
+    ~RLNCrecoder();
 
     void addRLNCMessage(RLNCMessage msg);
     RLNCMessage* produceRLNCMessage();
@@ -34,6 +35,8 @@ private:
     // The factories are used to build actual encoders/decoders
     rlnc_encoder::factory encoder_factory;
     RLNCHeader_factory header_factory;
+
+    size_t max_packetpool_size = 0;
 };
 
 #endif // RLNCRECODER_H

@@ -20,6 +20,11 @@ void RLNCrecoder::addRLNCMessage(RLNCMessage msg)
         packet_pool[pktids.front()] = msg;
     else if (msg.getMessageSize() > MAX_PACKET_SIZE)
         std::cerr << "rlncrecoder::addRLNCMessage: Could not add packet, size too large" << std::endl;
+
+    if (packet_pool.size() > max_packetpool_size)
+    {
+        max_packetpool_size = packet_pool.size();
+    }
 }
 
 RLNCMessage *RLNCrecoder::produceRLNCMessage()
@@ -79,4 +84,9 @@ RLNCMessage *RLNCrecoder::produceRLNCMessage()
 size_t RLNCrecoder::getPacketPoolSize ()
 {
     return packet_pool.size();
+}
+
+RLNCrecoder::~RLNCrecoder()
+{
+    std::cout << "~RLNCrecoder: Max packet_pool size: " << max_packetpool_size << std::endl;
 }
