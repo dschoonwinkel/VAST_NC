@@ -44,6 +44,7 @@
 #include "VASTCallback.h"   // callback for handling incoming message at a VAST node
 #include "VASTnet.h"
 #include "timeouts.h"
+#include "abstvastverse.h"
 
 #define VASTVERSE_RETRY_PERIOD  (_VASTVERSE_RETRY_PERIOD_)     // # of seconds if we're stuck in a state, revert to the previous
 
@@ -118,7 +119,7 @@ namespace Vast
     // TODO: need to cleanup current implementation (too ugly for hiding internal classes from user)
     
     // NOTE: a general rule: avoid STL objects passing across DLL boundaries
-    class EXPORT VASTVerse 
+    class EXPORT VASTVerse : public AbstVASTVerse
     {
     friend class VASTThread;
 

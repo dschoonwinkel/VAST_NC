@@ -42,7 +42,7 @@ FORMS += \
         mainwindow.ui
 
 
-LIBS += -L$$PWD/../../lib/ -lvastsim -lvast -lvastnet -lvastcommon -lvaststatlog -lACE -lboost_system -lboost_thread -lboost_serialization -lboost_filesystem -Wl,-Bstatic -L/home/daniel/Development/kodo-rlnc/kodo_build -lkodo_rlnc -lfifi -lcpuid -Wl,-Bdynamic
+LIBS += -L$$PWD/../../lib/ -lvastcommon -lvaststatlog
 
 #INCLUDEPATH += $$PWD/../../
 DEPENDPATH += $$PWD/../../

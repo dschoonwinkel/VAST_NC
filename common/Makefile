@@ -26,7 +26,7 @@ sources=$(sources_o)
 
 objects = $(subst .cpp,.o,$(sources))
 
-all: $(lib_vastcommon)	resolvehostid
+all: $(lib_vastcommon)
 
 # $@ refers $(lib_vast) and $^ refers to $(objects)
 $(lib_vastcommon): $(objects) VASTTypes.h ConcurrentQueue.h timeouts.h

@@ -67,3 +67,8 @@ unittests:
 	$(MAKE) --directory=VASTnet/unit_tests
 	$(MAKE) --directory=common/tests
 	$(MAKE) --directory=coding_host/tests
+
+VASTStatReplay:
+	$(MAKE) --directory=common
+	$(MAKE) --directory=VASTStatLog
+	$(MAKE) --directory=Demo/VASTStatReplay
