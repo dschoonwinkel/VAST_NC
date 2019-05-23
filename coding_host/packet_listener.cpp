@@ -162,11 +162,15 @@ int packet_listener::handle_close ()
         if (_recv_udp != NULL && _recv_udp->is_open())
         {
             _recv_udp->close();
+            _recv_io_service->stop();
         }
 
-        _recv_io_service->stop();
-        std::cout << "Waiting for _iosthread_recv" << std::endl;
-        _iosthread_recv->join();
+
+        if (_iosthread_recv)
+        {
+            std::cout << "Waiting for _iosthread_recv" << std::endl;
+            _iosthread_recv->join();
+        }
     }
 
     running = false;
@@ -176,14 +180,21 @@ int packet_listener::handle_close ()
         if (_send_udp != NULL && _send_udp->is_open ())
         {
             _send_udp->close ();
+            _send_io_service->stop();
         }
-        _send_io_service->stop();
-        std::cout << "Waiting for _iosthread_send_ioservice" << std::endl;
-        _iosthread_send_ioservice->join();
+
+        if (_iosthread_send_ioservice)
+        {
+            std::cout << "Waiting for _iosthread_send_ioservice" << std::endl;
+            _iosthread_send_ioservice->join();
+        }
     }
 
-    std::cout << "Waiting for _iosthread_send_startsend" << std::endl;
-    _iosthread_send_startsend->join ();
+    if (_iosthread_send_startsend)
+    {
+        std::cout << "Waiting for _iosthread_send_startsend" << std::endl;
+        _iosthread_send_startsend->join ();
+    }
 
 
     return 0;

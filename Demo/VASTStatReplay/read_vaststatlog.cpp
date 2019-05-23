@@ -46,6 +46,7 @@ void readLogFile(string filename)
 //        std::cout << "restoredLog.getCurrentStep(): " << restoredLog.getCurrentStep() << std::endl;
     }
 
+    std::cout << "After running through log" << std::endl;
     std::cout << "restoredLog.finished(): " << restoredLog.finished() << std::endl;
     std::cout << "restoredLog.getRecordedSteps(): " << restoredLog.getRecordedSteps() << std::endl;
     std::cout << "restoredLog.getCurrentStep(): " << restoredLog.getCurrentStep() << std::endl;

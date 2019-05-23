@@ -8,6 +8,13 @@ namespace Vast {
         recorded_steps = _restoredLogs.size();
     }
 
+    VASTStatLog::VASTStatLog(std::string filename)
+    {
+        _restoredLogs = VASTStatLogEntry::restoreAllFromLogFile(filename);
+        recorded_steps = _restoredLogs.size();
+        this->filename = filename;
+    }
+
     void VASTStatLog::nextStep()
     {
         if (current_step +1 < recorded_steps)
@@ -132,6 +139,11 @@ namespace Vast {
 
         //Check if this is the final step (index off by one)
         return (current_step+1) == recorded_steps;
+    }
+
+    std::string VASTStatLog::getFilename()
+    {
+        return filename;
     }
 
 }

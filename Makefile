@@ -55,6 +55,7 @@ $(coding_host) : $(VAST)
 
 clean: 
 	make TARGET=clean
+	-rm $(VASTStatReplayQt)
 
 noace:
 	make TARGET=noace

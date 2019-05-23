@@ -110,6 +110,10 @@ namespace Vast
         {
 //            CPPDEBUG("net_udpNC_consumer::process_input Empty RLNC packet received, using as sync packet" << std::endl);
             recvd_ordering[input_message.getFirstFromId ()] = input_message.getOrdering ();
+
+            //NOTE: why does this clear cause such a big improvement in performance?
+            //Effects include - packet pool not large enough to be practical for any decoding
+            //Am I simply not using multicasts packet?
             mchandler->clearPacketPool();
         }
 

@@ -121,8 +121,9 @@ void initVariables()
             CPPDEBUG("Skipping " << filename << std::endl);
             continue;
         }
-        std::vector<Vast::VASTStatLogEntry> restoredLogs = Vast::VASTStatLogEntry::restoreAllFromLogFile(filename);
-        VASTStatLog restoredLog(restoredLogs);
+//        std::vector<Vast::VASTStatLogEntry> restoredLogs = Vast::VASTStatLogEntry::restoreAllFromLogFile(filename);
+//        VASTStatLog restoredLog(restoredLogs);
+        VASTStatLog restoredLog(filename);
 
         //Cut off .txt
         std::string id_string = filename.substr(0, filename.find(".txt"));
@@ -178,7 +179,11 @@ void calculateUpdate()
 
         //If the log entries are finished, skip
         if (restoredLog.finished())
+        {
+            std::cout << restoredLog.getFilename()
+                      << ": replay_functions::calculateUpdate finished" << std::endl;
             continue;
+        }
 
         //Get client node state
         Node node = restoredLog.getClientNode();
@@ -207,6 +212,8 @@ void calculateUpdate()
 
 
     }
+
+    std::cout << "replay_functions::calculateUpdate: total_active_nodes: " << total_active_nodes << std::endl;
 
     if (tempWorldSendStat > prevWorldSendStat)
     {

@@ -145,7 +145,7 @@ def myNetwork():
 
     print("Sleeping between leave and join")
     try:
-        time.sleep(1 + TIMESTEP_DURATION * 10)
+        time.sleep(1 + TIMESTEP_DURATION * 50)
     except KeyboardInterrupt:
         print("Sleep interrupted, exiting")
 
@@ -179,6 +179,7 @@ def myNetwork():
     #             break;
         
     os.system("killall -s SIGINT VASTreal_console")
+    os.system("killall -s SIGINT coding_host")
 
     # time.sleep(1)
     

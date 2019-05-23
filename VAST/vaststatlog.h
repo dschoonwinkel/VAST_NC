@@ -11,6 +11,7 @@ namespace Vast {
     public:
         VASTStatLog() {}
         VASTStatLog(std::vector<VASTStatLogEntry> entries);
+        VASTStatLog(std::string filename);
 
         void nextStep();
 
@@ -44,10 +45,13 @@ namespace Vast {
 
         bool finished() const;
 
+        std::string getFilename();
+
     private:
         std::vector<Vast::VASTStatLogEntry> _restoredLogs;
         size_t current_step = 0;
         size_t recorded_steps = 0;
+        std::string filename = "";
     };
 
 } //end namespace Vast
