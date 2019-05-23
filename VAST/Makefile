@@ -8,9 +8,9 @@ CC = g++
 ACE_ROOT = /usr
 
 CFLAGS = -static -c -Wall -Wextra -I../common -I../VASTnet  -I$(ACE_ROOT)/include -ggdb -std=c++14
-#CFLAGS = -fPIC -c -Wall -I../common -I../VASTnet  -I$(ACE_ROOT)
+#CFLAGS = -fPIC -c -Wall -I../common -I../VASTnet ../VASTStatLog -I$(ACE_ROOT)
 
-sources = VASTClient.cpp  VASTMatcher.cpp  VASTRelay.cpp  VASTVerse.cpp  VASTThread.cpp VONPeer.cpp  VSOPeer.cpp vaststatlog_entry.cpp vaststatlog.cpp
+sources = VASTClient.cpp  VASTMatcher.cpp  VASTRelay.cpp  VASTVerse.cpp  VASTThread.cpp VONPeer.cpp  VSOPeer.cpp
  
 objects = $(subst .cpp,.o,$(sources))
 

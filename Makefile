@@ -1,6 +1,7 @@
 
 VASTnet := VASTnet
-VAST    := VAST 
+VAST    := VAST
+VASTStatLog    := VASTStatLog
 VASTsim := VASTsim
 VASTreal := VASTreal
 common  := common
@@ -27,19 +28,20 @@ coding_host := coding_host
 #all: $(common) $(VASTnet) $(VAST) $(VASTsim) $(test_console) $(demo_console) $(my_demo) $(demo_chatva_Qt)
 # all: $(common) $(VASTnet) $(VAST) $(VASTsim) $(my_demo) $(VASTsim_console) $(VASTsim_Qt) $(myVASTsim) $(random_walkertalker) $(demo_chatva_Qt) $(vaststat_replay)
 #all: $(common) $(VASTnet) $(VAST) $(VASTsim) $(VASTreal) $(random_walkertalker) $(demo_chatva_Qt) $(vaststat_replay) $(vaststat_replay_Qt) $(VASTsim_Qt) $(VASTreal_console)
-all: $(common) $(VASTnet) $(VAST) $(VASTsim) $(VASTreal) $(vaststat_replay) $(VASTreal_console) $(coding_host)
+all: $(common) $(VASTnet) $(VAST) $(VASTStatLog) $(VASTsim) $(VASTreal) $(vaststat_replay) $(VASTreal_console) $(coding_host)
 
-noqt: $(common) $(VASTnet) $(VAST) $(VASTsim) $(VASTreal) $(random_walkertalker) $(VASTreal_console) $(coding_host)
+noqt: $(common) $(VASTnet) $(VAST) $(VASTStatLog) $(VASTsim) $(VASTreal) $(random_walkertalker) $(VASTreal_console) $(coding_host)
 
-VASTreal_console: $(common) $(VASTnet) $(VAST) $(VASTsim) $(VASTreal) $(VASTreal_console)
-VASTStatReplayQt: $(common) $(VASTnet) $(VAST) $(VASTsim) $(VASTreal) $(vaststat_replay_Qt)
+VASTreal_console: $(common) $(VASTnet) $(VAST) $(VASTStatLog) $(VASTsim) $(VASTreal) $(VASTreal_console)
+VASTStatReplayQt: $(common) $(VASTnet) $(VAST) $(VASTStatLog) $(VASTsim) $(VASTreal) $(vaststat_replay_Qt)
 
 # $(VAST) $(VASTsim) $(common) $(VASTnet) $(test_console) $(VASTsim_Qt) $(demo_console) $(my_demo) $(VASTsim_console) $(myVASTsim) $(random_walkertalker) $(demo_chatva_Qt) $(vaststat_replay):
-$(common) $(VAST) $(VASTnet) $(VASTsim) $(VASTreal) $(random_walkertalker) $(demo_chatva_Qt) $(vaststat_replay) $(vaststat_replay_Qt) $(VASTsim_Qt) $(VASTreal_console) $(coding_host):
+$(common) $(VAST) $(VASTStatLog) $(VASTnet) $(VASTsim) $(VASTreal) $(random_walkertalker) $(demo_chatva_Qt) $(vaststat_replay) $(vaststat_replay_Qt) $(VASTsim_Qt) $(VASTreal_console) $(coding_host):
 	$(MAKE) --directory=$@ $(TARGET)
 
 $(VASTnet) : $(common)
-$(VAST) : $(VASTnet) 
+$(VAST) : $(VASTnet)
+$(VASTStatLog) : $(VASTnet)
 $(VASTsim): $(VAST)
 $(VASTreal): $(VAST)
 $(test_console) : $(VASTsim)

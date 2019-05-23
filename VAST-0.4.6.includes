@@ -20,6 +20,7 @@ Dependencies/include/ace/os_include/sys
 Dependencies/include/ace/SSL
 Dependencies/include/openssl
 VAST
+VASTStatLog
 VASTnet
 VASTsim
 VASTreal

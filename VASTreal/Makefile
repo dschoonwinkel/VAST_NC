@@ -1,7 +1,7 @@
 lib_vastsim = ../lib/libvastreal.a
 AR = ar
 CC = g++
-CFLAGS = -static -c -Wall -I../common -I../VAST -O -ggdb -g3 -std=c++14
+CFLAGS = -static -c -Wall -I../common -I../VAST -I../VASTStatLog -O -ggdb -g3 -std=c++14
 #CFLAGS = -fPIC -c -Wall -I../common
 
 

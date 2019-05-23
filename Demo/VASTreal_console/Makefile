@@ -3,7 +3,7 @@ VASTreal_console = ../../bin/VASTreal_console
 .PHONY: all noace
 
 # IMPORTANT NOTE: the least dependent library must begin from the rightmost (often vastcommon) 
-LIBS_COMMON = -lvastreal -lvast -lvastnet -lvastcommon 
+LIBS_COMMON = -lvastreal -lvast -lvastnet -lvastcommon -lvaststatlog
 #-lz -ldl -lpthread
 LIBS_ACE    = -lACE 
 LIBS_THREAD = -lpthread
@@ -23,7 +23,7 @@ LIBS_INCKODO = -I../../kodo-rlnc/resolve_symlinks/boost \
 LIBS_KODO = -Wl,-Bstatic -L/home/daniel/Development/kodo-rlnc/kodo_build -lkodo_rlnc -lfifi -lcpuid -Wl,-Bdynamic
 
 
-INC_PATHS   = -I../../common -I../../VASTreal -I$(ACE_PATH)/include -I../../VAST
+INC_PATHS   = -I../../common -I../../VASTreal -I$(ACE_PATH)/include -I../../VAST -I../../VASTStatLog
 
 LIB_PATHS   = -L../../lib -L../../Dependencies/lib/Release -L$(ACE_PATH)/lib
 
