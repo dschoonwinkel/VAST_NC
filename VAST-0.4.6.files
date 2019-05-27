@@ -1,3 +1,7 @@
+VASTStatLog/unit_test/unittest_vast_capturemsgs.cpp
+VASTStatLog/vast_capturemsgs.cpp
+VASTStatLog/vast_capturemsgs.h
+VASTnet/integration_tests/udpnc_integration_test.cpp
 bin/Makefile
 bin/VASTreal.ini
 bin/VASTsim.ini
@@ -50,6 +54,7 @@ common/StorageLogic.h
 common/tests/Makefile
 common/tests/unittest_concurrentqueue.cpp
 common/tests/unittest_logger.cpp
+common/tests/unittest_messageserialize.cpp
 common/tests/unittest_vastmessage.cpp
 common/timeouts.cpp
 common/timeouts.h
@@ -206,6 +211,7 @@ VASTnet/unit_tests/unittest_net_udpnc_handler.cpp
 VASTnet/unit_tests/unittest_net_udpnc_mchandler.cpp
 VASTnet/unit_tests/unittest_rlncdecoder.cpp
 VASTnet/unit_tests/unittest_rlncmessage.cpp
+VASTnet/integration_tests/Makefile
 VASTnet/VASTnet.cpp
 VASTreal/Makefile
 VASTreal/RealNode.cpp
@@ -225,3 +231,4 @@ VASTStatLog/vaststatlog.cpp
 VASTStatLog/vaststatlog.h
 VASTStatLog/vaststatlog_entry.cpp
 VASTStatLog/vaststatlog_entry.h
+VASTStatLog/unit_test/Makefile

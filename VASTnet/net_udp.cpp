@@ -301,6 +301,7 @@ namespace Vast
 
         ip::udp::endpoint target_addr(ip::address_v4(addr->publicIP.host), addr->publicIP.port);
         size_t result = _udphandler->send(msg, size, target_addr);
+
         return result;
     }
 

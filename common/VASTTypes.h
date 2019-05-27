@@ -1386,6 +1386,22 @@ public:
         return equals;
     }
 
+    bool contentEquals(Message other)
+    {
+        bool equals = from == other.from;
+        equals = equals && size == other.size;
+        equals = equals && msgtype == other.msgtype;
+        equals = equals && msggroup == other.msggroup;
+        equals = equals && reliable == other.reliable;
+        equals = equals && priority == other.priority;
+        equals = equals && size == other.size;
+
+        equals = equals && (strcmp(data, other.data) == 0);
+        equals = equals && (targets == other.targets);
+
+        return equals;
+    }
+
     // ensure the Message object can store at least data of size 'len' 
     void expand (size_t len)
     {
@@ -1839,13 +1855,76 @@ public:
     char       *data;           // pointer to the message buffer
     std::vector<id_t> targets;  // NodeIDs this message targets    
            
+    //Boost serialization
+    friend class boost::serialization::access;
+    template<typename Archive>
+    void save(Archive& ar, const unsigned /*version*/) const
+    {
+        ar << from;
+        ar << size;
+        ar << msgtype;
+        ar << msggroup;
+        ar << priority;
+        ar << reliable;
+        ar << reserved1;
+        ar << reserved2;
+        ar << reserved3;
+        ar << std::string(data, size);
+        ar << targets;
+    }
+
+    template<typename Archive>
+    void load(Archive& ar, const unsigned /*version*/)
+    {
+        ar >> from;
+        ar >> size;
+        ar >> msgtype;
+        ar >> msggroup;
+        ar >> priority;
+        ar >> reliable;
+        ar >> reserved1;
+        ar >> reserved2;
+        ar >> reserved3;
+        std::string temp_string;
+        ar >> temp_string;
+        _curr = data = new char[size];
+        temp_string.copy(data, size);
+        ar >> targets;
+    }
+    BOOST_SERIALIZATION_SPLIT_MEMBER()
+
 private:
     // book-keeping variables
     size_t      _free;          // # of bytes left in buffer
     char       *_curr;          // current position in buffer
     bool        _alloc;         // whether internal allocation was used
 
+    friend std::ostream& operator<<(std::ostream&, Message const& msg);
+
 };
+
+inline std::ostream& operator<<(std::ostream& output, Message const& msg )
+{
+    output << "from: " << msg.from << std::endl;
+    output << "size: " << msg.size << std::endl;
+    output << "msgtype: " << msg.msgtype << std::endl;
+    output << "msggroup: " << msg.msggroup << std::endl;
+    output << "priority: " << msg.priority << std::endl;
+    output << "reliable: " << msg.reliable << std::endl;
+    output << "reserved1: " << msg.reserved1 << std::endl;
+    output << "reserved2: " << msg.reserved2 << std::endl;
+    output << "reserved3: " << msg.reserved3 << std::endl;
+    std::string temp_string(msg.data, msg.size);
+    output << "data: " << temp_string << std::endl;
+
+    output << "Targets: " << std::endl;
+    for (id_t target : msg.targets)
+    {
+        output << target << std::endl;
+    }
+
+    return output;
+}
 
 
 

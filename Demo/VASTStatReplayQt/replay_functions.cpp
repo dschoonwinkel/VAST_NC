@@ -15,8 +15,8 @@ SimPara simpara;
 VASTPara_Net netpara(VAST_NET_EMULATED);
 map <int, vector<Node *> *> nodes;
 
-std::map<Vast::id_t, VASTStatLog> allRestoredLogs;
-std::vector<Vast::id_t> logIDs;
+std::map<std::string, VASTStatLog> allRestoredLogs;
+std::vector<std::string> logIDs;
 timestamp_t latest_timestamp;
 
 std::string results_file = "./logs/results/results1.txt";
@@ -130,9 +130,9 @@ void initVariables()
         //Extract id_t
         id_string = id_string.substr(id_string.find("N") + 1);
 
-        Vast::id_t restoredLogID = stoll(id_string);
-        allRestoredLogs[restoredLogID] = restoredLog;
-        logIDs.push_back(restoredLogID);
+//        Vast::id_t restoredLogID = stoll(id_string);
+        allRestoredLogs[filename] = restoredLog;
+        logIDs.push_back(filename);
 
         latest_timestamp = ULONG_LONG_MAX;
         //Initiate latest_timestamp to the earliest timestamp
@@ -152,9 +152,9 @@ void initVariables()
     ofs << "timestamp," << "active_nodes," << "AN_actual," << "AN_visible,"
         << "Total drift," << "Max drift," << "drift nodes," << "worldSendStat," << "worldRecvStat," << std::endl;
 
-    for (size_t i = 0; i < simpara.NODE_SIZE; i++)
+    for (size_t log_iter = 0; log_iter < logIDs.size(); log_iter++)
     {
-        drift_distances_file << "Node " << i << ",";
+        drift_distances_file << "Node " << logIDs[log_iter] << ",";
     }
     drift_distances_file << std::endl;
     g_MS_PER_TIMESTEP = simpara.TIMESTEP_DURATION;
@@ -180,8 +180,6 @@ void calculateUpdate()
         //If the log entries are finished, skip
         if (restoredLog.finished())
         {
-            std::cout << restoredLog.getFilename()
-                      << ": replay_functions::calculateUpdate finished" << std::endl;
             continue;
         }
 
@@ -212,8 +210,6 @@ void calculateUpdate()
 
 
     }
-
-    std::cout << "replay_functions::calculateUpdate: total_active_nodes: " << total_active_nodes << std::endl;
 
     if (tempWorldSendStat > prevWorldSendStat)
     {

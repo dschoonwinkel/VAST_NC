@@ -25,6 +25,7 @@
 #include <iostream>
 #include <string.h>
 #include "logger.h"
+#include "vast_capturemsgs.h"
 
 namespace Vast
 {   
@@ -119,6 +120,10 @@ namespace Vast
         for (; it4 != _sendbuf_UDP.end (); it4++)
             delete it4->second;
         _sendbuf_UDP.clear ();
+
+#ifdef VAST_CAPTUREMSGS
+        vast_capturemsgs::close();
+#endif
 
     }
 
@@ -238,6 +243,11 @@ namespace Vast
 
         // collect download transmission stat
         updateTransmissionStat (target, msg.msgtype, msg.size + sizeof (VASTHeader), 1);
+
+#ifdef VAST_CAPTUREMSGS
+        vast_capturemsgs::saveVASTMessage(_manager->getTimestamp(), msg,
+                                          _manager->resolveHostID(&_manager->getAddress().publicIP));
+#endif
 
         return header.msg_size;
     }

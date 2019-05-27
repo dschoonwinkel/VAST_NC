@@ -123,13 +123,13 @@ def myNetwork():
 
     #print(net.links)
     
-    print("\n*** Applying loss to links")
+    # print("\n*** Applying loss to links")
 
-    for i in range(1, Node_count+1):
-        links = hosts[i-1].connectionsTo(s1)
-        srcLink = links[0][0]
-        dstLink = links[0][1]
-        dstLink.config(**{'loss' : loss_perc})
+    # for i in range(1, Node_count+1):
+    #     links = hosts[i-1].connectionsTo(s1)
+    #     srcLink = links[0][0]
+    #     dstLink = links[0][1]
+    #     dstLink.config(**{'loss' : loss_perc})
 
 
 

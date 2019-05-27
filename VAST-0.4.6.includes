@@ -21,6 +21,7 @@ Dependencies/include/ace/SSL
 Dependencies/include/openssl
 VAST
 VASTStatLog
+VASTStatLog/unit_test
 VASTnet
 VASTsim
 VASTreal
@@ -32,4 +33,5 @@ tests
 coding_host
 coding_host/tests
 VASTnet/unit_tests
+VASTnet/integration_tests
 common/tests

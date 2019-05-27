@@ -4,6 +4,7 @@ clean:
 	-rm *.stat
 	-rm logs/*.txt
 	-rm logs/results/results1.txt
+	-rm logs/msgcap/*.txt
 	-rm output_dump/*.txt
 	-rm perf/*.data
 	-rm pcaps/*.pcap
@@ -32,11 +33,15 @@ backup_results:
 	cp logs/results/results1.txt logs/logs_backup/logs_$(foo)_$(date_string)/results/
 	mkdir logs/logs_backup/logs_$(foo)_$(date_string)/output_dump
 	cp output_dump/*.txt logs/logs_backup/logs_$(foo)_$(date_string)/output_dump/
+	mkdir logs/logs_backup/logs_$(foo)_$(date_string)/msgcap
+	cp msgcap/*.txt logs/logs_backup/logs_$(foo)_$(date_string)/msgcap/
+
 
 restore_results:
 	$(backup_results)
 	cp logs/logs_backup/logs_$(foo)/*.txt ./logs/
 	cp -r logs/logs_backup/logs_$(foo)/output_dump/* ./output_dump
+	cp -r logs/logs_backup/logs_$(foo)/msgcap/* ./msgcap
 	echo $(foo)
 
 save_plots:

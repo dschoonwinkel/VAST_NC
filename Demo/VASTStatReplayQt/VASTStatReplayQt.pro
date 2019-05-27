@@ -10,10 +10,7 @@ INCLUDEPATH += . \
                 ../../common \
                 ../../VASTsim \
 		../../VAST \
-		../../VASTStatLog \
-		../../../kodo-rlnc/resolve_symlinks/kodo-core/src \
-		../../../kodo-rlnc/resolve_symlinks/endian/src \
-		../../../kodo-rlnc/kodo_build/include
+		../../VASTStatLog
 
 QT += gui
 QT += widgets
@@ -42,7 +39,7 @@ FORMS += \
         mainwindow.ui
 
 
-LIBS += -L$$PWD/../../lib/ -lvastcommon -lvaststatlog
+LIBS += -L$$PWD/../../lib/ -lvastcommon -lvaststatlog -lboost_system -lboost_thread -lboost_serialization -lboost_filesystem
 
 #INCLUDEPATH += $$PWD/../../
 DEPENDPATH += $$PWD/../../
