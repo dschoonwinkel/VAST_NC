@@ -89,3 +89,7 @@ VAST-0.4.6.cflags
 VAST-0.4.6.creator.user
 VAST-0.4.6.creator.user.da14797.4.8-pre1
 VAST-0.4.6.cxxflags
+
+#Doxygen
+html/*
+latex/*

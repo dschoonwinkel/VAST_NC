@@ -1,4 +1,5 @@
 unittest_vast_capturemsgs = ./unittest_vast_capturemsgs
+unittest_nc_capturemsgs = ./unittest_nc_capturemsgs
 
 CC = g++
 
@@ -14,9 +15,9 @@ LIB_PATHS   = -L../../lib
 
 LIBS = $(LIBS_COMMON) $(LIBS_BOOST)
 
-.PHONY: unittest_vast_capturemsgs make_vaststatlog
+.PHONY: unittest_vast_capturemsgs unittest_nc_capturemsgs make_vaststatlog
 
-all: make_vaststatlog unittest_vast_capturemsgs
+all: make_vaststatlog unittest_vast_capturemsgs unittest_nc_capturemsgs
 
 unittest_vast_capturemsgs: unittest_vast_capturemsgs.cpp
 	$(MAKE) make_vaststatlog
@@ -26,11 +27,19 @@ unittest_vast_capturemsgs: unittest_vast_capturemsgs.cpp
 	$(unittest_vast_capturemsgs)
 	echo "Consider running make clean && make to clean ./logs"
 
+unittest_nc_capturemsgs: unittest_nc_capturemsgs.cpp
+	$(MAKE) make_vaststatlog
+	$(CC) $(CFLAGS) $(INC_PATHS) $(LIBS_INCKODO) $(LIB_PATHS) $^ $(LIBS) $(LIBS_KODO) \
+	-o $(unittest_nc_capturemsgs)
+	echo "Running: unittest_nc_capturemsgs"
+	$(unittest_nc_capturemsgs)
+	echo "Consider running make clean && make to clean ./logs"
+
 make_vaststatlog:
 	$(MAKE) --directory=../
 
 clean:
-	-rm $(unittest_vast_capturemsgs)
-	-rm ./logs/*.txt
+	-rm $(unittest_vast_capturemsgs) $(unittest_nc_capturemsgs)
+	-rm ./logs/msgcap/*.txt
 
 noace:

@@ -7,7 +7,7 @@ ACE_ROOT = /usr
 CFLAGS = -static -c -Wall -Wextra -I../common -ggdb -std=c++14
 #CFLAGS = -fPIC -c -Wall -I../common -I../VASTnet  -I$(ACE_ROOT)
 
-sources = vaststatlog_entry.cpp vaststatlog.cpp vast_capturemsgs.cpp
+sources = vaststatlog_entry.cpp vaststatlog.cpp vast_capturemsgs.cpp netudpnc_capturemsgs.cpp
  
 objects = $(subst .cpp,.o,$(sources))
 
@@ -17,7 +17,7 @@ objects = $(subst .cpp,.o,$(sources))
 all: $(lib_vaststatlog)
 
 # $@ refers $(lib_vast) and $^ refers to $(objects)
-$(lib_vaststatlog): $(objects)
+$(lib_vaststatlog): $(objects) messagewrapper.h ncwrapper.h
 	$(AR) rcs $@ $^
 	
 .cpp.o:

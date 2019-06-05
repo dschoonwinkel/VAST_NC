@@ -1,0 +1,4 @@
+#ifndef ABSTRACT_SENDER_H
+#define ABSTRACT_SENDER_H
+
+#endif // ABSTRACT_SENDER_H

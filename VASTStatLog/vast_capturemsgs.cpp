@@ -18,7 +18,7 @@ namespace Vast
          {
             _logfilename = _logfilename_base + "_N" + std::to_string(id) +
                     "_"+ std::to_string(logfile_count) + ".txt";
-            CPPDEBUG("VASTStatLogEntry: _logfilename: " << _logfilename << std::endl);
+            CPPDEBUG("vast_capturemsgs: _logfilename: " << _logfilename << std::endl);
             logfile_count++;
          } while (boost::filesystem::exists(_logfilename));
 
@@ -40,25 +40,27 @@ namespace Vast
 
     vast_capturemsgs::vast_capturemsgs(std::string filename)
     {
-        if (filename == "")
-        {
-            throw std::logic_error("Cannot open an empty filename");
-        }
+//        if (filename == "")
+//        {
+//            throw std::logic_error("Cannot open an empty filename");
+//        }
 
-        if (ofs)
-        {
-            ofs->close();
-        }
+//        if (ofs)
+//        {
+//            ofs->close();
+//        }
 
-        std::cerr << "vast_capturemsgs::constructor filename: " << filename << std::endl;
-        ifs = new std::ifstream(filename);
-        if (!ifs->is_open())
-        {
+//        std::cerr << "vast_capturemsgs::constructor filename: " << filename << std::endl;
+//        ifs = new std::ifstream(filename);
+//        if (!ifs->is_open())
+//        {
 
-            std::cerr << "vast_capturemsgs::constructor file open : " << (ifs->is_open() ? "true":"false") << std::endl << "EXITING" <<std::endl;
-            exit(EXIT_FAILURE);
-        }
-        ari = new boost::archive::text_iarchive(*ifs);
+//            std::cerr << "vast_capturemsgs::constructor file open : " << (ifs->is_open() ? "true":"false") << std::endl << "EXITING" <<std::endl;
+//            exit(EXIT_FAILURE);
+//        }
+//        ari = new boost::archive::text_iarchive(*ifs);
+        restoreAllVASTMessage(filename);
+
     }
 
     void vast_capturemsgs::saveVASTMessage(timestamp_t timestamp, Message msg, id_t id)
@@ -86,24 +88,8 @@ namespace Vast
         msgcapCount++;
     }
 
-    MessageWrapper vast_capturemsgs::restoreVASTMessage(std::string filename)
+    void vast_capturemsgs::restoreAllVASTMessage(std::string filename)
     {
-        if (instance == NULL || instance->ari == NULL)
-        {
-            if (instance != NULL)
-            {
-                std::cout << "Reopening vast_capturemsgs for reading" << std::endl;
-            }
-            instance = new vast_capturemsgs(filename);
-        }
-
-
-        return instance->_restoreVASTMessage();
-    }
-
-    std::vector<MessageWrapper> vast_capturemsgs::restoreAllVASTMessage(std::string filename)
-    {
-        std::vector<MessageWrapper> restoredMsgs;
         std::ifstream ifs(filename);
         boost::archive::text_iarchive ar(ifs);
 
@@ -112,15 +98,46 @@ namespace Vast
             msg.serialize(ar,0);
             restoredMsgs.push_back(msg);
         }
-
-        return restoredMsgs;
     }
 
-    MessageWrapper vast_capturemsgs::_restoreVASTMessage()
+    bool vast_capturemsgs::getCurrentVASTMessage(Message &msg)
     {
-        Vast::MessageWrapper msg2;
-        msg2.serialize(*ari, 0);
-        return msg2;
+        if (step < restoredMsgs.size())
+        {
+            msg = restoredMsgs[step]._msg;
+            return true;
+        }
+        return false;
+    }
+
+    bool vast_capturemsgs::getCurrentTimestamp(timestamp_t &timestamp)
+    {
+        if (step < restoredMsgs.size())
+        {
+            timestamp = restoredMsgs[step].timestamp;
+            return true;
+        }
+        return false;
+    }
+
+    bool vast_capturemsgs::restoreNextVASTMessage(timestamp_t curr_time, Message &msg)
+    {
+        for (; step < restoredMsgs.size(); step++)
+        {
+            if (restoredMsgs[step].timestamp < curr_time)
+            {
+                msg = restoredMsgs[step]._msg;
+                step++;
+                return true;
+            }
+
+        }
+        return false;
+    }
+
+    size_t vast_capturemsgs::getRestoredMsgsCount()
+    {
+        return restoredMsgs.size();
     }
 
     void vast_capturemsgs::close()
@@ -128,8 +145,6 @@ namespace Vast
         if (instance)
             delete instance;
     }
-
-
 
     vast_capturemsgs::~vast_capturemsgs()
     {
