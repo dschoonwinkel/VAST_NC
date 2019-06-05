@@ -6,6 +6,8 @@
 #include "rlnc_packet_factory.h"
 #include "rlncmessage.h"
 #include "rlncrecoder.h"
+#include "abstract_sender.h"
+#include "abstract_input_processor.h"
 #include <deque>
 #include <mutex>
 
@@ -13,13 +15,16 @@
 
 using namespace boost::asio;
 
-class packet_listener
+class packet_listener : public abstract_sender
 {
 public:
     packet_listener (ip::udp::endpoint local_endpoint);
     virtual ~packet_listener ();
 
-    virtual int open (io_service *io_service);
+    virtual int open (io_service *io_service, abstract_sender *sender = NULL);
+
+    virtual void process_input (const char *buf,
+                           std::size_t bytes_transferred);
 
     // close connection & unregister from io_service
     virtual int close (void);
@@ -34,7 +39,6 @@ protected:
     // handling incoming message
     virtual int handle_input (const boost::system::error_code& error,
                       std::size_t bytes_transferred);
-    virtual int process_input(std::size_t bytes_transferred);
 
     // if handle_input() returns -1, reactor would call handle_close()
     virtual int handle_close ();
@@ -53,12 +57,16 @@ protected:
     ip::udp::endpoint           _remote_endpoint_;
 
     // the same io_service as net_udp
-    io_service                  *_recv_io_service;
-    io_service                  *_send_io_service;
-    io_service::work            *_send_io_service_work;
-    boost::thread               *_iosthread_recv;
-    boost::thread               *_iosthread_send_ioservice;
-    boost::thread               *_iosthread_send_startsend;
+    io_service                  *_recv_io_service = NULL;
+    io_service                  *_send_io_service = NULL;
+    io_service::work            *_send_io_service_work = NULL;
+    boost::thread               *_iosthread_recv = NULL;
+    boost::thread               *_iosthread_send_ioservice = NULL;
+    boost::thread               *_iosthread_send_startsend = NULL;
+
+    abstract_sender             *_sender = NULL;
+
+
     bool                        running = true;
 
     RLNCrecoder                 recoder;
@@ -71,10 +79,10 @@ protected:
     std::deque<RLNCMessage> msgs;
     std::mutex msgs_mutex;
 
-    size_t coded_msgs_sent = 0;
     size_t total_coded_msgs_sent = 0;
     size_t total_resets = 0;
     size_t recv_msgs_count = 0;
+    size_t process_msg_count = 0;
 
 };
 

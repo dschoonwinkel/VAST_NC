@@ -12,6 +12,7 @@ namespace Vast
     class AbstractRLNCMsgReceiver
     {
     public:
+        virtual ~AbstractRLNCMsgReceiver() {}
         virtual void RLNC_msg_received(RLNCMessage input_message, IPaddr) = 0;
     };
 }

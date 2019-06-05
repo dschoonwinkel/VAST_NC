@@ -35,7 +35,7 @@ objects = $(subst .cpp,.o,$(sources))
 all: $(lib_vastnet)	
 
 # $@ refers $(lib_vast) and $^ refers to $(objects)
-$(lib_vastnet): $(objects)
+$(lib_vastnet): $(objects) abstract_input_processor.h
 	$(AR) rcs $@ $^
 	
 .cpp.o:

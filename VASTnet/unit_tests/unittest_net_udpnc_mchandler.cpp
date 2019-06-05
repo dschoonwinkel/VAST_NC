@@ -49,7 +49,7 @@ void test_process_encoded()
     system("sudo route add 239.255.0.1 enp0s3");
     mchandler.open (&tester, false);
 
-    mchandler.handle_buffer (buffer, msg1.sizeOf ());
+    mchandler.process_input(buffer, msg1.sizeOf ());
 
     //The message has no PktIds, assure that it is not added to the decoder incorrectly
     assert(mchandler.getPacketPoolSize () == 0);
@@ -61,7 +61,7 @@ void test_process_encoded()
 
     msg1.serialize (buffer);
 
-    mchandler.handle_buffer (buffer, msg1.sizeOf ());
+    mchandler.process_input(buffer, msg1.sizeOf ());
 
     assert(mchandler.getPacketPoolSize () == 1);
 
@@ -98,7 +98,7 @@ void test_process_encoded()
     payload.fill (0);
     temp_msg->serialize(reinterpret_cast<char*>(payload.data()));
     //Equivalent to receive
-    mchandler.handle_buffer(reinterpret_cast<char*>(payload.data()), payload.size ());
+    mchandler.process_input(reinterpret_cast<char*>(payload.data()), payload.size ());
 
     assert(tester.RLNC_msg_received_call_count == 1);
     assert(tester.recv_msg == msg2);

@@ -24,7 +24,7 @@ void testFirstIndex()
 
     Vast::net_udpNC_MChandler mchandler(local_endpoint);
     Vast::AbstractRNLCMsgReceiverTestImpl tester;
-    mchandler.open(&tester);
+    mchandler.open(&tester, false);
 
     char data1[] = {'d', 'e', 'a', 'd'};
     char data2[] = {'b', 'e', 'e', 'f'};
@@ -101,17 +101,19 @@ void testFirstIndex()
     payload.fill (0);
     message1.serialize(reinterpret_cast<char*>(payload.data()));
     //Equivalent to receive
-    mchandler.handle_buffer(reinterpret_cast<char*>(payload.data()), payload.size ());
+    mchandler.process_input(reinterpret_cast<char*>(payload.data()), payload.size ());
 
     payload.fill (0);
     temp_msg->serialize(reinterpret_cast<char*>(payload.data()));
     //Equivalent to receive
-    mchandler.handle_buffer (reinterpret_cast<char*>(payload.data()), payload.size ());
+    mchandler.process_input (reinterpret_cast<char*>(payload.data()), payload.size ());
 
     assert(tester.RLNC_msg_received_call_count == 1);
     assert(tester.recv_msg == message2);
 
-    boost::this_thread::sleep_for (boost::chrono::milliseconds(sleep_time));
+    mchandler.close();
+
+//    boost::this_thread::sleep_for (boost::chrono::milliseconds(sleep_time));
 
 }
 
@@ -125,7 +127,7 @@ void testSecondIndex()
 
     Vast::net_udpNC_MChandler mchandler(local_endpoint);
     Vast::AbstractRNLCMsgReceiverTestImpl tester;
-    mchandler.open(&tester);
+    mchandler.open(&tester, false);
 
     char data1[] = {'d', 'e', 'a', 'd'};
     char data2[] = {'b', 'e', 'e', 'f'};
@@ -203,17 +205,18 @@ void testSecondIndex()
     payload.fill (0);
     message2.serialize(reinterpret_cast<char*>(payload.data()));
     //Equivalent to receive
-    mchandler.handle_buffer(reinterpret_cast<char*>(payload.data()), payload.size ());
+    mchandler.process_input(reinterpret_cast<char*>(payload.data()), payload.size ());
 
     payload.fill (0);
     temp_msg->serialize(reinterpret_cast<char*>(payload.data()));
     //Equivalent to receive
-    mchandler.handle_buffer (reinterpret_cast<char*>(payload.data()), payload.size ());
+    mchandler.process_input (reinterpret_cast<char*>(payload.data()), payload.size ());
 
     assert(tester.RLNC_msg_received_call_count == 1);
     assert(tester.recv_msg == message1);
 
-    boost::this_thread::sleep_for (boost::chrono::milliseconds(sleep_time));
+    mchandler.close();
+//    boost::this_thread::sleep_for (boost::chrono::milliseconds(sleep_time));
 }
 
 void testUndecodable()
@@ -226,7 +229,7 @@ void testUndecodable()
 
     Vast::net_udpNC_MChandler mchandler(local_endpoint);
     Vast::AbstractRNLCMsgReceiverTestImpl tester;
-    mchandler.open(&tester);
+    mchandler.open(&tester, false);
 
     char data1[] = {'d', 'e', 'a', 'd'};
     char data2[] = {'b', 'e', 'e', 'f'};
@@ -301,12 +304,14 @@ void testUndecodable()
     payload.fill (0);
     temp_msg->serialize(reinterpret_cast<char*>(payload.data()));
     //Equivalent to receive
-    mchandler.handle_buffer (reinterpret_cast<char*>(payload.data()), payload.size ());
+    mchandler.process_input (reinterpret_cast<char*>(payload.data()), payload.size ());
 
     assert(tester.RLNC_msg_received_call_count == 0);
     assert(mchandler.getPacketPoolSize () == 0);
 
-    boost::this_thread::sleep_for (boost::chrono::milliseconds(sleep_time));
+    mchandler.close();
+
+//    boost::this_thread::sleep_for (boost::chrono::milliseconds(sleep_time));
 }
 
 void testUnnecessary()
@@ -319,7 +324,7 @@ void testUnnecessary()
 
     Vast::net_udpNC_MChandler mchandler(local_endpoint);
     Vast::AbstractRNLCMsgReceiverTestImpl tester;
-    mchandler.open(&tester);
+    mchandler.open(&tester, false);
 
     char data1[] = {'d', 'e', 'a', 'd'};
     char data2[] = {'b', 'e', 'e', 'f'};
@@ -394,21 +399,23 @@ void testUnnecessary()
     payload.fill (0);
     message1.serialize(reinterpret_cast<char*>(payload.data()));
     //Equivalent to receive
-    mchandler.handle_buffer(reinterpret_cast<char*>(payload.data()), payload.size ());
+    mchandler.process_input(reinterpret_cast<char*>(payload.data()), payload.size ());
 
     payload.fill (0);
     message2.serialize(reinterpret_cast<char*>(payload.data()));
     //Equivalent to receive
-    mchandler.handle_buffer(reinterpret_cast<char*>(payload.data()), payload.size ());
+    mchandler.process_input(reinterpret_cast<char*>(payload.data()), payload.size ());
 
     payload.fill (0);
     temp_msg->serialize(reinterpret_cast<char*>(payload.data()));
     //Equivalent to receive
-    mchandler.handle_buffer (reinterpret_cast<char*>(payload.data()), payload.size ());
+    mchandler.process_input (reinterpret_cast<char*>(payload.data()), payload.size ());
 
     assert(tester.RLNC_msg_received_call_count == 0);
 
-    boost::this_thread::sleep_for (boost::chrono::milliseconds(sleep_time));
+    mchandler.close();
+
+//    boost::this_thread::sleep_for (boost::chrono::milliseconds(sleep_time));
 }
 
 void testExtraPacket()
@@ -421,7 +428,7 @@ void testExtraPacket()
 
     Vast::net_udpNC_MChandler mchandler(local_endpoint);
     Vast::AbstractRNLCMsgReceiverTestImpl tester;
-    mchandler.open(&tester);
+    mchandler.open(&tester, false);
 
     char data1[] = {'d', 'e', 'a', 'd'};
     char data2[] = {'b', 'e', 'e', 'f'};
@@ -523,12 +530,12 @@ void testExtraPacket()
     payload.fill (0);
     message1.serialize(reinterpret_cast<char*>(payload.data()));
     //Equivalent to receive
-    mchandler.handle_buffer(reinterpret_cast<char*>(payload.data()), payload.size ());
+    mchandler.process_input(reinterpret_cast<char*>(payload.data()), payload.size ());
 
     payload.fill (0);
     temp_msg->serialize(reinterpret_cast<char*>(payload.data()));
     //Equivalent to receive
-    mchandler.handle_buffer (reinterpret_cast<char*>(payload.data()), payload.size ());
+    mchandler.process_input (reinterpret_cast<char*>(payload.data()), payload.size ());
 
     assert(tester.RLNC_msg_received_call_count == 1);
     assert(tester.recv_msg == message2);
@@ -543,20 +550,24 @@ void testExtraPacket()
         exit(EXIT_FAILURE);
     }
 
+    std::cout << message3 << std::endl << std::endl;
+    std::cout << (*temp_msg) << std::endl;
+
     payload.fill (0);
     message3.serialize(reinterpret_cast<char*>(payload.data()));
     //Equivalent to receive
-    mchandler.handle_buffer(reinterpret_cast<char*>(payload.data()), payload.size ());
+    mchandler.process_input(reinterpret_cast<char*>(payload.data()), payload.size ());
 
     payload.fill (0);
     temp_msg->serialize(reinterpret_cast<char*>(payload.data()));
     //Equivalent to receive
-    mchandler.handle_buffer (reinterpret_cast<char*>(payload.data()), payload.size ());
+    mchandler.process_input (reinterpret_cast<char*>(payload.data()), payload.size ());
 
     assert(tester.RLNC_msg_received_call_count == 2);
     assert(tester.recv_msg == message1);
 
-    boost::this_thread::sleep_for (boost::chrono::milliseconds(sleep_time));
+    mchandler.close();
+//    boost::this_thread::sleep_for (boost::chrono::milliseconds(sleep_time));
 
 }
 
@@ -795,12 +806,17 @@ void testChecksum()
     assert(encoded_msg->getChecksum() == checksum);
 
     std::cout << "Checksum: " << checksum << std::endl;
-    assert(encoded_msg->getChecksum() == 966138353);
-//    assert(encoded_msg->getChecksum() == 3547018482);
+//    assert(encoded_msg->getChecksum() == 966138353);
+    assert(encoded_msg->getChecksum() == 3547018482);
 }
 
 void testRepeated()
 {
+    std::chrono::microseconds coding_timer = std::chrono::microseconds::zero();
+    std::chrono::microseconds decoding_timer = std::chrono::microseconds::zero();
+
+    size_t iterations = 10000;
+
     std::cout << "testRepeated" << std::endl;
     srand(time(NULL));
 
@@ -811,9 +827,9 @@ void testRepeated()
 
     Vast::net_udpNC_MChandler mchandler(local_endpoint);
     Vast::AbstractRNLCMsgReceiverTestImpl tester;
-    mchandler.open(&tester);
+    mchandler.open(&tester, false);
 
-    for (int i = 0; i < 1000000; i++)
+    for (size_t i = 0; i < iterations; i++)
     {
 
         char data1[] = {'d', 'e', 'a', 'd'};
@@ -852,11 +868,12 @@ void testRepeated()
         RLNCMessage message1(header1);
         RLNCMessage message2(header2);
 
-        int id1 = rand() % 10;
+        //Assure that the messages does not have similar or 0 fromIDs
+        int id1 = rand() % 10 + 1;
         int id2 = -1;
         do
         {
-           id2  = rand() % 10;
+           id2  = rand() % 10 + 1;
         }
         while(id2 == id1);
 
@@ -876,10 +893,16 @@ void testRepeated()
 //        std::cout << "Symbol 1:" << message1 << std::endl;
 //        std::cout << "Symbol 2:" << message2 << std::endl;
 
+        auto t1 = std::chrono::high_resolution_clock::now();
+
         recoder.addRLNCMessage(message1);
         recoder.addRLNCMessage(message2);
 
         RLNCMessage *temp_msg = recoder.produceRLNCMessage();
+
+        auto t2 = std::chrono::high_resolution_clock::now();
+
+        coding_timer += std::chrono::duration_cast<std::chrono::microseconds>(t2-t1);
 
         if (!temp_msg)
         {
@@ -891,32 +914,45 @@ void testRepeated()
         payload.fill (0);
         message1.serialize(reinterpret_cast<char*>(payload.data()));
         //Equivalent to receive
-        mchandler.handle_buffer(reinterpret_cast<char*>(payload.data()), payload.size ());
+        mchandler.process_input(reinterpret_cast<char*>(payload.data()), payload.size ());
 
         payload.fill (0);
         temp_msg->serialize(reinterpret_cast<char*>(payload.data()));
         //Equivalent to receive
-        mchandler.handle_buffer (reinterpret_cast<char*>(payload.data()), payload.size ());
 
-//        assert(tester.RLNC_msg_received_call_count == 1);
+        auto t3 = std::chrono::high_resolution_clock::now();
+        mchandler.process_input (reinterpret_cast<char*>(payload.data()), payload.size ());
+        auto t4 = std::chrono::high_resolution_clock::now();
+
+        decoding_timer += std::chrono::duration_cast<std::chrono::microseconds>(t4-t3);
+
+        //This does not work well as these could be linearly dependent coded messages
+//        while(tester.RLNC_msg_received_call_count != i+1) {}
+//        assert(tester.RLNC_msg_received_call_count == i+1);
 //        assert(tester.recv_msg == message2);
-
 
         delete temp_msg;
     }
+
+    mchandler.close();
+
+    CPPDEBUG("testRepeated: coding_timer per iteration: " <<
+             coding_timer.count() /iterations << " microseconds " << std::endl);
+    CPPDEBUG("testRepeated: decoding_timer per iteration: " <<
+             decoding_timer.count() /iterations << " microseconds " << std::endl);
 }
 
 int main() {
 
-//    testFirstIndex ();
-//    testSecondIndex ();
-//    testUndecodable ();
-//    testUnnecessary ();
-//    testExtraPacket ();
-//    testNETIDUNASSIGNED();
-//    testThrowPktNotUnique();
+    testFirstIndex ();
+    testSecondIndex ();
+    testUndecodable ();
+    testUnnecessary ();
+    testExtraPacket ();
+    testNETIDUNASSIGNED();
+    testThrowPktNotUnique();
     testChecksum();
-//    testRepeated ();
+    testRepeated ();
 
     std::cout << "****************" << std::endl;
     std::cout << "All tests passed" << std::endl;

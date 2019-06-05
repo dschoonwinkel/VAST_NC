@@ -13,5 +13,11 @@ namespace Vast
         recv_msg = input_message;
         RLNC_msg_received_call_count++;
         this->socket_addr = socket_addr;
+        all_recv_msgs.push_back(input_message);
+    }
+
+    AbstractRNLCMsgReceiverTestImpl::~AbstractRNLCMsgReceiverTestImpl()
+    {
+        CPPDEBUG("~AbstractRNLCMsgReceiverTestImpl: all_recv_msgs.size() " << all_recv_msgs.size() << std::endl);
     }
 }

@@ -52,14 +52,15 @@ void testProcessInput()
     Vast::net_udp_handler handler(local_endpoint);
     Vast::absnet_udp_testimpl tester;
     io_service ios;
-    handler.open (&ios, &tester, false);
-    handler.process_input (buf1.data, buf1.size, Vast::IPaddr());
-
+    handler.open (&ios, &tester, true);
+    handler.process_input (buf2.data, buf2.size, addr1);
 
     std::cout << tester.message << std::endl;
     std::cout << std::string(buf2.data, buf2.size) << std::endl;
-    //Returned message is the entire RLNC payload, i.e. VAST message - contained in buf2
     assert(tester.message == std::string(buf2.data, buf2.size));
+
+    handler.process_input (buf1.data, buf1.size, Vast::IPaddr());
+    assert(tester.message == std::string(buf1.data, buf1.size));
 
     boost::this_thread::sleep_for (boost::chrono::milliseconds(sleep_time));
 }
@@ -67,8 +68,7 @@ void testProcessInput()
 int main()
 {
 //    runUnitTest1();
-
-
+    testProcessInput();
 
     std::cout << "****************" << std::endl;
     std::cout << "All tests passed" << std::endl;

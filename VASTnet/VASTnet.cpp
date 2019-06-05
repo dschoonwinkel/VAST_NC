@@ -41,7 +41,7 @@ namespace Vast
           _timeout_IDrequest (0),
           _timeout_cleanup (0)
     {
-        char *IP_string;
+        char *IP_string = NULL;
         if (GWstr[0] != 0)
         {
             IP_string = strtok(GWstr, ":");
@@ -1279,6 +1279,12 @@ namespace Vast
     //Note: based on example from http://man7.org/linux/man-pages/man3/getifaddrs.3.html or man getifaddrs
     char *getInterfaceAddrFromRemoteAddr(char *remote_IP)
     {
+        if (remote_IP == NULL)
+        {
+            CPPDEBUG("VASTnet::getInterfaceAddrFromRemoteAddr remote_IP was NULL");
+            return NULL;
+        }
+
         struct ifaddrs *ifaddr, *ifa;
         struct sockaddr_in *ip_addr, *netmask;
         int family, s, n;

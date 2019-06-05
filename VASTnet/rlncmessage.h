@@ -29,6 +29,9 @@ public:
     void putPacketId(packetid_t pkt_id, bool autonumber = true);
     void putFromId(Vast::id_t from_id);
     void putToAddr(Vast::IPaddr addr);
+    void putIdsAddr(packetid_t pkt_id, Vast::id_t from_id, Vast::IPaddr addr, bool autonumber = true);
+
+
     void putMessage(const char* buffer, size_t len);
 
     const char* getMessage();
@@ -46,7 +49,8 @@ public:
     //Returns -1 on error
     int deserialize(const char *buffer, size_t size);
 
-    bool operator==(const RLNCMessage other);
+    bool operator==(const RLNCMessage other) const;
+    bool contentEquals(const RLNCMessage other) const;
 
     packetid_t static generatePacketId(Vast::id_t id, int ordering);
 

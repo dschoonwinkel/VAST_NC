@@ -103,14 +103,22 @@ namespace Vast {
         return -1;
     }
 
-    void net_udp_handler::process_input(const char *buffer, std::size_t bytes_transferred, IPaddr remote_addr, id_t fromhost, size_t offset)
+    /**
+     * @brief Process incoming messages, directly received or passed by net_udpNC_handler and net_udpNC_MChandler
+     * @param buffer Buffer containing VAST message
+     * @param bytes_transferred Number of bytes in the buffer
+     * @param remote_addr Source address of VAST message, if available
+     * @param fromhost From ID of sender, only unavailable in ID_REQUEST messages
+     */
+    void net_udp_handler::process_input(const char *buffer, std::size_t bytes_transferred,
+                                        IPaddr remote_addr, id_t fromhost)
     {
         //Process UDP messages
-        size_t n = bytes_transferred - offset;
+        size_t n = bytes_transferred;
         VASTHeader header;
 
         //Contents is char, not pointer
-        const char *p = buffer + offset;
+        const char *p = buffer;
 
         if (!(remote_addr.host == 0 && remote_addr.port == 0))
         {

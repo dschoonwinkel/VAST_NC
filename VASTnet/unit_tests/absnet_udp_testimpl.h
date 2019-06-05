@@ -8,6 +8,11 @@ namespace Vast
     class absnet_udp_testimpl : public abstract_net_udp
     {
     public:
+        absnet_udp_testimpl(): ip("127.0.0.1", 1037)
+        {}
+        absnet_udp_testimpl(IPaddr ip_addr) : ip(ip_addr)
+        {}
+
         bool msg_received(id_t fromhost, const char *message, size_t size, timestamp_t recvtime, bool in_front)
         {
             this->fromhost = fromhost;
@@ -35,6 +40,15 @@ namespace Vast
             return timestamp++;
         }
 
+        const IPaddr getPublicIPaddr()
+        {
+            return ip;
+        }
+        net_udp *getReal_net_udp()
+        {
+            return NULL;
+        }
+
         size_t sock_conn_called = 0;
         size_t sock_disc_called = 0;
         id_t fromhost;
@@ -43,17 +57,7 @@ namespace Vast
         timestamp_t recvtime;
         bool in_front;
         timestamp_t timestamp = 0;
-
-        // abstract_net_udp interface
-    public:
-        const IPaddr getPublicIPaddr()
-        {
-            return IPaddr("127.0.0.1", 1037);
-        }
-        net_udp *getReal_net_udp()
-        {
-            return NULL;
-        }
+        IPaddr ip;
     };
 }
 

@@ -3,6 +3,8 @@
 #include <sstream>
 #include <iomanip>
 #include <chrono>
+#include <stdio.h>
+#include <sstream>
 
 Logger::Logger()
 {
@@ -10,6 +12,8 @@ Logger::Logger()
 }
 
 Logger* Logger::instance = NULL;
+std::map<std::thread::id, std::string> Logger::thread_names;
+std::mutex Logger::thread_names_mux;
 
 Logger *Logger::getInstance()
 {
@@ -82,5 +86,39 @@ void Logger::_debugPeriodic (std::string logmessage, std::chrono::milliseconds p
     }
     prev_time = std::chrono::high_resolution_clock::now();
     prev_message = logmessage;
+}
+
+void Logger::debugThread(std::string logmessage, bool timestamp)
+{
+    std::thread::id threadid = std::this_thread::get_id();
+    if (thread_names.find(threadid) != thread_names.end())
+    {
+        debug("thread=" + thread_names[threadid] + ":" + logmessage, timestamp);
+    }
+    else
+    {
+        std::stringstream ss;
+        ss << threadid;
+        std::string thread_id_str = ss.str();
+        debug(thread_id_str + ":" + logmessage, timestamp);
+    }
+}
+
+void Logger::registerThreadName(std::thread::id id, std::string name)
+{
+    std::lock_guard<std::mutex> guard(thread_names_mux);
+    thread_names[id] = name;
+}
+
+std::string Logger::printArray(const char array[], size_t len)
+{
+    char buffer[len * 3 + 1];
+
+    for (size_t i = 0; i < len; i++)
+    {
+        sprintf(buffer+i*3, "%x ", (char)(array[i] && 0xFF));
+    }
+
+    return std::string(buffer);
 }
 

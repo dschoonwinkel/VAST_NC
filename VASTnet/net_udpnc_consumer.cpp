@@ -2,6 +2,7 @@
 #include "VASTnet.h"
 #include "net_udpnc_mchandler.h"
 #include "logger.h"
+#include "pthread.h"
 
 namespace Vast
 {
@@ -34,6 +35,7 @@ namespace Vast
 
     void net_udpNC_consumer::start_consuming()
     {
+        pthread_setname_np(pthread_self(), "net_udpNC_consumer:consume_thread");
         CPPDEBUG("net_udpNC_consumer::start_consuming" << std::endl);
         _consumerthread = new boost::thread(boost::bind(&net_udpNC_consumer::consume, this));
     }
@@ -80,10 +82,12 @@ namespace Vast
     {
         if (input_message.getToAddrs ().size () > 0)
         {
+//            CPPDEBUG("abs_netudp->getPublicIPaddr (): " << abs_netudp->getPublicIPaddr () << std::endl);
             if (abs_netudp->getPublicIPaddr () == input_message.getToAddrs ()[0])
             {
                 //All is well, continue
                 //CPPDEBUG("net_udpNC_consumer::process_input Message ToAddr was meant for me..." << std::endl);
+//                CPPDEBUG("input_message.getToAddrs ()[0]: " << input_message.getToAddrs ()[0] << std::endl);
                 order_input(input_message, socket_addr);
                 return;
             }
@@ -91,7 +95,14 @@ namespace Vast
             {
 //                CPPDEBUG("net_udpNC_consumer::process_input Message ToAddr was not meant for me..." << std::endl);
                 //Reject in some way - probably return
-                total_not_meantforme++;
+                if (!(socket_addr.host == 0 && socket_addr.port == 0))
+                {
+                    total_not_meantforme_unicast++;
+                }
+                else
+                {
+                    total_not_meantforme_multicast++;
+                }
                 return;
             }
         }
@@ -162,6 +173,12 @@ namespace Vast
     {
         CPPDEBUG("net_udpNC_consumer::close()" << std::endl);
         running = false;
+
+        if (_msg_queue.size() > 0)
+        {
+            CPPDEBUG("net_udpNC_consumer::close() still has " << _msg_queue.size() << "packets left in queue" << std::endl);
+        }
+
         _msg_queue.close();
         if (_consumerthread != NULL)
         {
@@ -174,7 +191,8 @@ namespace Vast
         delete _consumerthread;
 
         CPPDEBUG("\n~net_udpNC_consumer: total_packets_processed: " << total_packets_processed << std::endl);
-        CPPDEBUG("~net_udpNC_consumer: total_not_meantforme: " << total_not_meantforme <<  std::endl);
+        CPPDEBUG("~net_udpNC_consumer: total_not_meantforme_unicast: " << total_not_meantforme_unicast <<  std::endl);
+        CPPDEBUG("~net_udpNC_consumer: total_not_meantforme_multicast: " << total_not_meantforme_multicast <<  std::endl);
         CPPDEBUG("~net_udpNC_consumer: total_toolate_packets: " << total_toolate_packets <<  std::endl);
         CPPDEBUG("~net_udpNC_consumer: total used packets: " << total_usedpackets <<  std::endl);
     }

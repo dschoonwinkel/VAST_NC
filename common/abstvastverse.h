@@ -9,6 +9,7 @@ namespace Vast
     class AbstVASTVerse
     {
     public:
+        virtual ~AbstVASTVerse () {}
         // get current timestamp from host machine (millisecond since 1970)
         virtual timestamp_t getTimestamp () = 0;
 

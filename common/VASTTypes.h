@@ -1319,6 +1319,28 @@ public:
         _free = 0;
     }
 
+    Message (msgtype_t type, byte_t group, const char *msg, size_t msize, bool alloc = true, id_t sender = 0)
+    {
+        from     = sender;
+        msgtype  = type;
+        msggroup = group;
+        reliable = true;
+        priority = 3;          // default is 3, smaller value indicates more important
+        _alloc   = alloc;
+
+        // check if we need to allocate new space, or could simply use the pointer given
+        if (alloc == true)
+        {
+            _curr = data = new char[msize];
+            memcpy (data, msg, msize);
+        }
+        else
+            _curr = data = (char *)msg;
+
+        size = msize;
+        _free = 0;
+    }
+
     // copy constructor
     Message (Message const& msg)
     {
@@ -1396,7 +1418,7 @@ public:
         equals = equals && priority == other.priority;
         equals = equals && size == other.size;
 
-        equals = equals && (strcmp(data, other.data) == 0);
+        equals = equals && (std::string(data, size) == std::string(other.data, other.size));
         equals = equals && (targets == other.targets);
 
         return equals;

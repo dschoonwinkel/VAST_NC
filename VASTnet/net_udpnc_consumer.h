@@ -58,7 +58,8 @@ namespace Vast{
         boost::thread                           *_consumerthread = NULL;
 
         size_t                                  total_packets_processed = 0;
-        size_t                                  total_not_meantforme = 0;
+        size_t                                  total_not_meantforme_unicast = 0;
+        size_t                                  total_not_meantforme_multicast = 0;
         size_t                                  total_toolate_packets = 0;
         size_t                                  total_usedpackets = 0;
         std::mutex                              mutex_;

@@ -8,34 +8,45 @@
 #include "abstract_rlnc_msg_receiver.h"
 #include "net_udpnc_consumer.h"
 #include "timeouts.h"
+#include "abstract_input_processor.h"
 
 namespace Vast
 {
-    class net_udpNC_handler : public net_udp_handler, public AbstractRLNCMsgReceiver
+    class net_udpNC_handler : public net_udp_handler, public AbstractRLNCMsgReceiver, public abstract_input_processor
     {
     public:
         net_udpNC_handler(ip::udp::endpoint local_endpoint);
         virtual ~net_udpNC_handler();
 
-        int open (io_service *io_service, abstract_net_udp *msghandler, bool startthread = true);
+        int open (io_service *io_service, abstract_net_udp *msghandler, AbstractRLNCMsgReceiver *RLNCsink = NULL, bool startthread = true);
         // call net_udp_handler close and mchandler close
         int close (void);
 
         size_t send(const char *msg, size_t n, ip::udp::endpoint remote_endpoint);
         size_t send_keepalive(ip::udp::endpoint remote_endpoint);
-        size_t send_helper(const char *msg, size_t n, ip::udp::endpoint remote_endpoint);
 
-        //Start the receiving loop
-        void start_receive ();
-
-        // handling incoming message
-        int handle_input (const boost::system::error_code& error,
+        // processing work done here
+        void process_input (const char *buf, ip::udp::endpoint remote_endpoint,
                           std::size_t bytes_transferred);
+
+        //send encoded packet to mchandler to process
+        void process_encoded(const char *buf,
+                             std::size_t bytes_transferred);
 
         //Hands input packet off to net_udp_handler
         void handoff_input (RLNCMessage input_message, IPaddr socket_addr);
 
         void RLNC_msg_received(RLNCMessage input_message, IPaddr socket_addr);
+
+    protected:
+        //Start the receiving loop
+        void start_receive ();
+
+        // handling incoming message, pass to process_input
+        int handle_input (const boost::system::error_code& error,
+                          std::size_t bytes_transferred);
+
+        size_t send_helper(const char *msg, size_t n, ip::udp::endpoint remote_endpoint);
 
     private:
         uint8_t generation = 0;

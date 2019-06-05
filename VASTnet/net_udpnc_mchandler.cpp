@@ -2,6 +2,7 @@
 #include "net_udp.h"
 #include "rlncmessage.h"
 #include "VASTnet.h"
+#include "pthread.h"
 
 
 namespace Vast
@@ -11,17 +12,6 @@ namespace Vast
     {
         _io_service = new io_service();
         _local_endpoint = local_endpoint;
-    }
-
-    net_udpNC_MChandler::~net_udpNC_MChandler()
-    {
-        delete _udp;
-        _udp = NULL;
-        delete _io_service;
-        _io_service = NULL;
-
-        CPPDEBUG("\n~net_udpNC_MChandler packets_recvd: " << packets_received << std::endl);
-        CPPDEBUG("~net_udpNC_MChandler toaddrs_pkts_ignored: " << toaddrs_pkts_ignored << std::endl);
     }
 
     int net_udpNC_MChandler::open(AbstractRLNCMsgReceiver *msghandler, bool startthread) {
@@ -75,37 +65,15 @@ namespace Vast
     int net_udpNC_MChandler::handle_input (const boost::system::error_code& error,
           std::size_t bytes_transferred)
     {
-
-        RLNCHeader header;
-
         if (!error)
         {
             //Store UDP messages
             packets_received++;
-//            CPPDEBUG("net_udpnc_mchandler::handle_input Received " << packets_received << " messages!" << std::endl);
+            CPPDEBUG("net_udpnc_mchandler::handle_input Received " << packets_received << " messages!" << std::endl);
 
-            char *p = _buf;
+            process_input(_buf, bytes_transferred);
 
-            memcpy(&header, p, sizeof(RLNCHeader));
-
-                //Check if it is really a VAST message: Start and end bytes of header should be correct
-                if (!RLNCHeader_factory::isRLNCHeader(header))
-                {
-                        CPPDEBUG("net_udp_handler::handle_input Non-RLNC message received on UDP socket" << std::endl);
-                }
-                else if (RLNCHeader_factory::isRLNCHeader (header) && header.enc_packet_count > 1)
-                {
-//                    CPPDEBUG("net_udpnc_mchandler::handle_input: Encoded packet received" << std::endl);
-                    process_encoded (bytes_transferred);
-                }
-                else {
-                    CPPDEBUG("net_udpnc_mchandler::handle_input RLNC message received" << std::endl);
-//                    throw std::logic_error("net_udpnc_mchandler::handle_input Received unencoded packet in MC handler\n");
-                    RLNCMessage other;
-                    other.deserialize (p, bytes_transferred);
-                    putOtherRLNCMessage (other);
-                }
-
+            pthread_setname_np(pthread_self(), "net_udpNC_MChandler:receive_thread");
             //Restart waiting for new packets
             start_receive();
         }
@@ -115,20 +83,35 @@ namespace Vast
         return -1;
     }
 
-    //Used for testing purposes
-    int net_udpNC_MChandler::handle_buffer (char *buf, std::size_t bytes_transferred)
+    void net_udpNC_MChandler::process_input(const char *buf, std::size_t bytes_transferred)
     {
-        memcpy(_buf, buf, bytes_transferred);
+        RLNCHeader header;
+        memcpy(&header, buf, sizeof(RLNCHeader));
 
-        boost::system::error_code errcode;
-        return handle_input(errcode, bytes_transferred);
+            //Check if it is really a VAST message: Start and end bytes of header should be correct
+            if (!RLNCHeader_factory::isRLNCHeader(header))
+            {
+                    CPPDEBUG("net_udp_handler::process_input Non-RLNC message received on UDP socket" << std::endl);
+            }
+            else if (RLNCHeader_factory::isRLNCHeader (header) && header.enc_packet_count > 1)
+            {
+//                CPPDEBUG("net_udpnc_mchandler::process_input: Encoded packet received" << std::endl);
+                process_encoded (buf, bytes_transferred);
+            }
+            else {
+                CPPDEBUG("net_udpnc_mchandler::process_input uncoded RLNC message received" << std::endl);
+//                    throw std::logic_error("net_udpnc_mchandler::process_input Received unencoded packet in MC handler\n");
+                RLNCMessage other;
+                other.deserialize (buf, bytes_transferred);
+                putOtherRLNCMessage (other);
+            }
     }
 
-    void net_udpNC_MChandler::process_encoded (std::size_t bytes_transferred)
+    void net_udpNC_MChandler::process_encoded (const char *buf, std::size_t bytes_transferred)
     {
-//            CPPDEBUG("net_udpNC_MChandler::process_encoded: processing message" << std::endl);
+            CPPDEBUG("net_udpNC_MChandler::process_encoded: processing message" << std::endl);
             RLNCMessage message1;
-            message1.deserialize (_buf, bytes_transferred);
+            message1.deserialize (buf, bytes_transferred);
             if (toAddrForMe (message1))
             {
                 putOtherRLNCMessage (message1);
@@ -218,28 +201,6 @@ namespace Vast
         return decoder.getPacketPoolSize ();
     }
 
-    int net_udpNC_MChandler::close() {
-        CPPDEBUG("net_udpNC_MChandler: close()" << std::endl);
-        return this->handle_close();
-    }
-
-    int net_udpNC_MChandler::handle_close()
-    {
-        if (_udp != NULL && _udp->is_open())
-        {
-            _udp->close();
-        }
-
-        _io_service->stop();
-
-        if (_iosthread != NULL)
-        {
-            _iosthread->join ();
-        }
-
-        return 0;
-    }
-
     bool net_udpNC_MChandler::toAddrForMe(RLNCMessage msg)
     {
         IPaddr local_addr(_local_endpoint.address().to_v4().to_ulong(), _local_endpoint.port ());
@@ -254,5 +215,53 @@ namespace Vast
         }
 
         return false;
+    }
+
+    int net_udpNC_MChandler::close() {
+        CPPDEBUG("net_udpNC_MChandler: close()" << std::endl);
+        return this->handle_close();
+    }
+
+    int net_udpNC_MChandler::handle_close()
+    {
+        if (_udp != NULL && _udp->is_open())
+        {
+            _udp->close();
+        }
+
+        if (_io_service != NULL)
+        {
+            _io_service->stop();
+        }
+
+        if (_iosthread != NULL)
+        {
+            _iosthread->join ();
+        }
+
+        return 0;
+    }
+
+    net_udpNC_MChandler::~net_udpNC_MChandler()
+    {
+        if (_udp != NULL)
+        {
+            delete _udp;
+            _udp = NULL;
+        }
+        if (_io_service != NULL)
+        {
+            delete _io_service;
+            _io_service = NULL;
+        }
+
+        if (_iosthread != NULL)
+        {
+            delete _iosthread;
+            _iosthread = NULL;
+        }
+
+        CPPDEBUG("\n~net_udpNC_MChandler packets_recvd: " << packets_received << std::endl);
+        CPPDEBUG("~net_udpNC_MChandler toaddrs_pkts_ignored: " << toaddrs_pkts_ignored << std::endl);
     }
 }

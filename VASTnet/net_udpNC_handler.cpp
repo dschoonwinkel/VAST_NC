@@ -1,5 +1,7 @@
 #include "net_udpNC_handler.h"
 #include "net_udp.h"
+#include "netudpnc_capturemsgs.h"
+#include "pthread.h"
 
 namespace Vast
 {
@@ -10,13 +12,17 @@ namespace Vast
 
     }
 
-    int net_udpNC_handler::open (io_service *io_service, abstract_net_udp *msghandler, bool startthread)
+    int net_udpNC_handler::open (io_service *io_service, abstract_net_udp *msghandler,
+                                 AbstractRLNCMsgReceiver *RLNCsink, bool startthread)
     {
+        if (RLNCsink == NULL)
+            RLNCsink = this;
+
         CPPDEBUG("net_udpNC_handler::open" << std::endl);
         _timeout_keepalive = msghandler->getTimestamp();
         net_udp_handler::open(io_service, msghandler, startthread);
         mchandler.open (&consumer, startthread);
-        consumer.open (this, msghandler, &mchandler, startthread);
+        consumer.open (RLNCsink, msghandler, &mchandler, startthread);
 
         return 0;
     }
@@ -85,7 +91,18 @@ namespace Vast
 
         std::vector<char> buf(message.sizeOf());
         int sending_len = message.serialize(buf.data ());
+
+#ifdef NETUDPNC_CAPTUREMSG
+        netudpnc_capturemsgs::saveNCMessage(_msghandler->getTimestamp(),
+                                            std::string(buf.data(), sending_len),
+                                            remote_endpoint,
+                                            _local_endpoint,
+                                            net_manager::resolveHostID(&_msghandler->getReal_net_udp()->getAddress().publicIP));
+#endif
+
         return _udp->send_to(buffer(buf, sending_len), remote_endpoint);
+
+
     }
 
     void net_udpNC_handler::start_receive()
@@ -101,51 +118,63 @@ namespace Vast
     int net_udpNC_handler::handle_input (const boost::system::error_code& error,
           std::size_t bytes_transferred)
     {
-        RLNCHeader header;
-
         total_packets_recvd++;
 
         if (!error)
         {
             //Store UDP messages
-//            CPPDEBUG("net_udpNC_handler::handle_input Received a message!" << std::endl);
-
-            char *p = _buf;
-
-            memcpy(&header, p, sizeof(RLNCHeader));
-
-                //Check if it is really a VAST message: Start and end bytes of header should be correct
-                if (!RLNCHeader_factory::isRLNCHeader(header))
-                {
-//                    CPPDEBUG("net_udp_handler::handle_input Non-RLNC message received on UDP socket" << std::endl);
-                }
-                else if (RLNCHeader_factory::isRLNCHeader (header) && header.enc_packet_count > 1)
-                {
-                    throw std::logic_error("net_udpNC_handler::handle_input: Encoded packet received in unicast handler\n");
-                }
-                else {
-//                    CPPDEBUG("net_udpNC_handler::handle_input RLNC message received on the coding host" << std::endl);
-
-                    RLNCMessage input_message;
-                    input_message.deserialize (_buf, bytes_transferred);
-                    //Add uncoded messages to the packet pool to aid in decoding later
-                    mchandler.putOtherRLNCMessage (input_message);
-                    IPaddr remote_addr(_remote_endpoint_.address().to_v4().to_ulong(), _remote_endpoint_.port());
-//                    CPPDEBUG("net_udpNC_handler handle_input: IPaddr " << remote_addr << std::endl);
-                    consumer.RLNC_msg_received (input_message, remote_addr);
-
-
-
-                }
-
-
+    //        CPPDEBUG("net_udpNC_handler::handle_input Received a message!" << std::endl);
+            process_input(_buf, _remote_endpoint_, bytes_transferred);
             //Restart waiting for new packets
+            pthread_setname_np(pthread_self(), "net_udpNC_handler:receive_thread");
             start_receive();
         }
         else {
             CPPDEBUG("Error on UDP socket receive: " << error.message() << std::endl);
         }
         return -1;
+    }
+
+    void net_udpNC_handler::process_input(const char *buf, ip::udp::endpoint remote_endpoint, std::size_t bytes_transferred)
+    {
+        RLNCHeader header;
+
+        memcpy(&header, buf, sizeof(RLNCHeader));
+
+        //Check if it is really a VAST message: Start and end bytes of header should be correct
+        if (!RLNCHeader_factory::isRLNCHeader(header))
+        {
+//                    CPPDEBUG("net_udp_handler::handle_input Non-RLNC message received on UDP socket" << std::endl);
+        }
+        else if (RLNCHeader_factory::isRLNCHeader (header) && header.enc_packet_count > 1)
+        {
+//            throw std::logic_error("net_udpNC_handler::handle_input: Encoded packet received in unicast handler\n");
+            CPPDEBUG("net_udpNC_handler::handle_input: Encoded packet received in unicast handler\n");
+            process_encoded(buf, bytes_transferred);
+
+        }
+        else {
+//                    CPPDEBUG("net_udpNC_handler::handle_input RLNC message received" << std::endl);
+
+            RLNCMessage input_message;
+            input_message.deserialize (buf, bytes_transferred);
+            //Add uncoded messages to the packet pool to aid in decoding later
+            mchandler.putOtherRLNCMessage (input_message);
+            IPaddr remote_addr(remote_endpoint.address().to_v4().to_ulong(), remote_endpoint.port());
+//                CPPDEBUG("net_udpNC_handler handle_input: IPaddr " << remote_addr << std::endl);
+            consumer.RLNC_msg_received (input_message, remote_addr);
+
+        }
+    }
+
+    /**
+     * @brief Send the encoded packet to net_udpNC_mchandler for processing
+     * @param buf
+     * @param bytes_transferred
+     */
+    void net_udpNC_handler::process_encoded(const char *buf, std::size_t bytes_transferred)
+    {
+        mchandler.process_encoded(buf, bytes_transferred);
     }
 
 
@@ -176,6 +205,9 @@ namespace Vast
 
     net_udpNC_handler::~net_udpNC_handler()
     {
+        if (_udp != NULL)
+            close();
+
         CPPDEBUG("~net_udpNC_handler: total_packets_recvd: " << total_packets_recvd << std::endl);
     }
 

@@ -42,8 +42,9 @@ namespace Vast {
         restoreAllNCMessage(filename);
     }
 
-    void netudpnc_capturemsgs::saveNCMessage(timestamp_t timestamp,
-                                             std::string buffer, ip::udp::endpoint remote_endpoint,
+    void netudpnc_capturemsgs::saveNCMessage(timestamp_t timestamp, std::string buffer,
+                                             ip::udp::endpoint remote_endpoint,
+                                             ip::udp::endpoint local_endpoint,
                                              id_t id)
     {
         if (instance == NULL || instance->aro == NULL)
@@ -54,15 +55,16 @@ namespace Vast {
             }
             instance = new netudpnc_capturemsgs(id);
         }
-        instance->_saveNCMessage(timestamp, buffer, remote_endpoint);
+        instance->_saveNCMessage(timestamp, buffer, remote_endpoint, local_endpoint);
     }
 
     void netudpnc_capturemsgs::_saveNCMessage(timestamp_t timestamp,
                                               std::string buffer,
-                                              ip::udp::endpoint remote_endpoint)
+                                              ip::udp::endpoint remote_endpoint,
+                                              ip::udp::endpoint local_endpoint)
     {
         t1 = std::chrono::high_resolution_clock::now();
-        NCWrapper ncwrapper(timestamp, buffer, remote_endpoint);
+        NCWrapper ncwrapper(timestamp, buffer, remote_endpoint, local_endpoint);
         ncwrapper.serialize(*aro, 0);
         ofs->flush();
 
@@ -125,6 +127,11 @@ namespace Vast {
         return restoredNCMsgs.size();
     }
 
+    std::vector<NCWrapper> netudpnc_capturemsgs::getRestoredNCMsgs()
+    {
+        return restoredNCMsgs;
+    }
+
     void netudpnc_capturemsgs::close()
     {
         if (instance)
@@ -133,6 +140,12 @@ namespace Vast {
 
     netudpnc_capturemsgs::~netudpnc_capturemsgs()
     {
+        if (aro)
+        {
+            CPPDEBUG("~netudpnc_capturemsgs:: time spent in msgcapTimer: " << msgcapTimer.count() / 1000 << " milliseconds " << std::endl);
+            CPPDEBUG("~netudpnc_capturemsgs:: msgcapCount " << msgcapCount << std::endl);
+        }
+
         //Do memory free here....
         if (aro)
         {
@@ -156,10 +169,6 @@ namespace Vast {
             ifs->close();
             delete ifs;
         }
-
-
-        CPPDEBUG("~netudpnc_capturemsgs:: time spent in msgcapTimer: " << msgcapTimer.count() / 1000 << " milliseconds " << std::endl);
-        CPPDEBUG("~netudpnc_capturemsgs:: msgcapCount " << msgcapCount << std::endl);
 
     }
 

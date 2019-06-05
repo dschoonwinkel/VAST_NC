@@ -25,8 +25,18 @@ namespace Vast {
 
         virtual int open (io_service *io_service, abstract_net_udp *msghandler, bool startthread = true);
 
-        // close connection & unregister from io_service
+        /**
+         * @brief close connection & unregister from io_service
+         * @return
+         */
         virtual int close (void);
+
+        void handle_disconnect (IPaddr ip_addr);
+
+        virtual size_t send (const char *msg, size_t n, ip::udp::endpoint remote_endpoint);
+
+        void process_input(const char* buffer, std::size_t bytes_transferred, IPaddr remote_addr,
+                           id_t fromhost = NET_ID_UNASSIGNED);
 
         // obtain address of remote host
         const IPaddr *getRemoteAddress (id_t host_id);
@@ -39,10 +49,6 @@ namespace Vast {
 
         // swtich remote ID to a new one
         virtual bool switchRemoteID (id_t oldID, id_t newID);
-
-        void handle_disconnect (IPaddr ip_addr);
-
-        void process_input(const char* buffer, std::size_t bytes_transferred, IPaddr remote_addr, id_t fromhost = NET_ID_UNASSIGNED, size_t offset = 0);
 
         bool isOpen();
 
@@ -58,14 +64,13 @@ namespace Vast {
         // if handle_input() returns -1, reactor would call handle_close()
         int handle_close ();
 
-        virtual size_t send (const char *msg, size_t n, ip::udp::endpoint remote_endpoint);
-
         uint16_t getPort ();
 
         bool                        is_open = false;
 
         ip::udp::socket             *_udp;
         ip::udp::endpoint           _remote_endpoint_;
+        ip::udp::endpoint           _local_endpoint;
         char                        _buf[VAST_BUFSIZ];
         abstract_net_udp            *_msghandler;
 
@@ -80,8 +85,6 @@ namespace Vast {
 
         // secure connection stream
         bool                        _secure;
-        ip::udp::endpoint           _local_endpoint;
-
 
         // the same io_service as net_udp
         io_service                  *_io_service = NULL;

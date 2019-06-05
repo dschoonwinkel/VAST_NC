@@ -25,11 +25,10 @@ namespace Vast
         // close connection & unregister from io_service
         int close (void);
 
-        void handle_disconnect (IPaddr ip_addr);
-        void putOtherRLNCMessage(RLNCMessage other);
+        void process_input(const char *buf, std::size_t bytes_transferred);
+        void process_encoded(const char *buf, std::size_t bytes_transferred);
 
-        // handling inserted message from elsewhere
-        int handle_buffer (char *buf, std::size_t bytes_transferred);
+        void putOtherRLNCMessage(RLNCMessage other);
 
         virtual void clearPacketPool();
         size_t getPacketPoolSize();
@@ -47,10 +46,6 @@ namespace Vast
         // handling incoming message
         int handle_input (const boost::system::error_code& error,
                           std::size_t bytes_transferred);
-
-        void process_encoded(std::size_t bytes_transferred);
-
-//        void process_message(char *buf, std::size_t bytes_transferred);
 
         // if handle_input() returns -1, reactor would call handle_close()
         int handle_close ();

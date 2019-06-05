@@ -286,6 +286,8 @@ namespace Vast
         if (_active == false)
             return 0;
 
+        Addr temp_addr;
+
         //Resolve addr from id_t if not given
         if (addr == NULL)
         {
@@ -295,7 +297,7 @@ namespace Vast
                 std::cerr << "\n net_udp::send IPaddr could not be resolved for id_t " << target << std::endl;
                 return 0;
             }
-            Addr temp_addr(target, resolved_addr);
+            temp_addr = Addr(target, resolved_addr);
             addr = &temp_addr;
         }
 

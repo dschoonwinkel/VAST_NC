@@ -67,6 +67,15 @@ void RLNCMessage::putToAddr(Vast::IPaddr addr)
     to_addrs.push_back (addr);
 }
 
+void RLNCMessage::putIdsAddr(packetid_t pkt_id,
+                             Vast::id_t from_id,
+                             Vast::IPaddr addr, bool autonumber)
+{
+    putPacketId(pkt_id, autonumber);
+    putFromId(from_id);
+    putToAddr(addr);
+}
+
 void RLNCMessage::putMessage(const char* buffer, size_t len)
 {
     msg.assign (buffer, len);
@@ -248,7 +257,7 @@ int RLNCMessage::deserialize (const char *buffer, size_t size)
     return 0;
 }
 
-bool RLNCMessage::operator==(const RLNCMessage other)
+bool RLNCMessage::operator==(const RLNCMessage other) const
 {
     bool equals = true;
 
@@ -262,6 +271,29 @@ bool RLNCMessage::operator==(const RLNCMessage other)
 
     equals = equals && other.msg == this->msg;
     equals = equals && other.socket_addr == this->socket_addr;
+    equals = equals && other.checksum == this->checksum;
+
+    return equals;
+}
+
+/**
+ * @brief Compares everything similarly, except socket_addr which is not serialized
+ * @param other
+ * @return
+ */
+bool RLNCMessage::contentEquals(const RLNCMessage other) const
+{
+    bool equals = true;
+
+    equals = equals && (RLNCHeader_factory::isRLNCHeadersEqual (other.header, this->header));
+    equals = equals && (other.pkt_ids == this->pkt_ids);
+    equals = equals && (other.from_ids == this->from_ids);
+    equals = equals && (other.to_addrs == this->to_addrs);
+
+    if (other.header.packetsize != this->header.packetsize)
+        return false;
+
+    equals = equals && other.msg == this->msg;
     equals = equals && other.checksum == this->checksum;
 
     return equals;
