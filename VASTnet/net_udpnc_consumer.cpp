@@ -35,7 +35,6 @@ namespace Vast
 
     void net_udpNC_consumer::start_consuming()
     {
-        pthread_setname_np(pthread_self(), "net_udpNC_consumer:consume_thread");
         CPPDEBUG("net_udpNC_consumer::start_consuming" << std::endl);
         _consumerthread = new boost::thread(boost::bind(&net_udpNC_consumer::consume, this));
     }

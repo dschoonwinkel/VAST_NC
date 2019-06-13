@@ -33,11 +33,12 @@ AbstractRNLCMsgReceiverTestImpl RLNCsink;
 SimPara simpara;
 int g_MS_PER_TIMESTEP;
 
+bool running = true;
+
 void SIGINT_handler (int)
 {
     std::cout << "Interrupt received" << std::endl;
     running = false;
-
 }
 
 
@@ -163,8 +164,6 @@ void sendMessages()
 
     Logger::registerThreadName(std::this_thread::get_id(), "udpnc_integration_test_thread");
 
-
-    bool running = true;
     while (running)
     {
 //        std::cout << "Current ticker: " << ticker << std::endl;

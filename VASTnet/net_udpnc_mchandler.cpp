@@ -2,7 +2,6 @@
 #include "net_udp.h"
 #include "rlncmessage.h"
 #include "VASTnet.h"
-#include "pthread.h"
 
 
 namespace Vast
@@ -73,7 +72,8 @@ namespace Vast
 
             process_input(_buf, bytes_transferred);
 
-            pthread_setname_np(pthread_self(), "net_udpNC_MChandler:receive_thread");
+#pragma message "register thread name here"
+
             //Restart waiting for new packets
             start_receive();
         }
