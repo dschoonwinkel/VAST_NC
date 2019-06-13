@@ -11,6 +11,22 @@ RLNCrecoder::RLNCrecoder() :
 
 }
 
+void RLNCrecoder::startEncodeTimer()
+{
+    t1 = std::chrono::high_resolution_clock::now();
+    encodeTimerRunning = true;
+}
+
+void RLNCrecoder::stopEncodeTimer()
+{
+    if (encodeTimerRunning)
+    {
+        auto t2 = std::chrono::high_resolution_clock::now();
+        encodeTimer += std::chrono::duration_cast<std::chrono::microseconds>(t2-t1);
+    }
+    encodeTimerRunning = false;
+}
+
 void RLNCrecoder::addRLNCMessage(RLNCMessage msg)
 {
     Logger::debugThread("RLNCrecoder::addRLNCMessage");
@@ -57,10 +73,12 @@ void RLNCrecoder::addRLNCMessage(RLNCMessage msg)
 
 RLNCMessage *RLNCrecoder::produceRLNCMessage()
 {
+    startEncodeTimer();
     Logger::debugThread("RLNCrecoder::produceRLNCMessage");
     if (packet_pool.size() < 2)
     {
         CPPDEBUG("RLNCrecoder::produceRLNCMessage packet_pool.size() too small" << std::endl);
+        stopEncodeTimer();
         return NULL;
     }
 
@@ -87,6 +105,7 @@ RLNCMessage *RLNCrecoder::produceRLNCMessage()
     if (message1->getFirstFromId() == message2->getFirstFromId())
     {
         CPPDEBUG("rlncrecoder::produceRLNCMessage could not find packets from different hosts" << std::endl);
+        stopEncodeTimer();
         return NULL;
     }
 
@@ -116,9 +135,17 @@ RLNCMessage *RLNCrecoder::produceRLNCMessage()
                         message2->getFromIds ()[0],
                         message2->getToAddrs ()[0]);
 
-    uint32_t checksum = RLNCMessage::generateChecksum(data1.data(), message1->sizeOf());
-    checksum += RLNCMessage::generateChecksum(data2.data(), message2->sizeOf());
-    message->setChecksum(checksum);
+    uint32_t checksum1 = RLNCMessage::generateChecksum(data1.data(), message1->sizeOf());
+    Logger::saveBinaryArray("RLNCrecoder " + std::to_string(message1->getPacketIds()[0]) + ".txt", data1.data(), message1->sizeOf());
+    CPPDEBUG("rlncrecoder::produceRLNCMessage packet:" << message1->getPacketIds()[0] << "->checksum=" << checksum1 << std::endl);
+    CPPDEBUG("rlncrecoder::produceRLNCMessage packet:" << message1->getPacketIds()[0] << "->sizeOf=" << message1->sizeOf() << std::endl);
+    CPPDEBUG("rlncrecoder::produceRLNCMessage packet:" << *message1 << std::endl);
+    uint32_t checksum2 = RLNCMessage::generateChecksum(data2.data(), message2->sizeOf());
+    Logger::saveBinaryArray("RLNCrecoder " + std::to_string(message2->getPacketIds()[0]) + ".txt", data2.data(), message2->sizeOf());
+    CPPDEBUG("rlncrecoder::produceRLNCMessage packet:" << message2->getPacketIds()[0] << "->checksum=" << checksum2 << std::endl);
+    CPPDEBUG("rlncrecoder::produceRLNCMessage packet:" << message2->getPacketIds()[0] << "->sizeOf=" << message2->sizeOf() << std::endl);
+    CPPDEBUG("rlncrecoder::produceRLNCMessage packet:" << *message2 << std::endl);
+    message->setChecksum(checksum1 + checksum2);
 
     encoder->set_const_symbol (0, storage::storage (data1));
     encoder->set_const_symbol (1, storage::storage (data2));
@@ -135,6 +162,7 @@ RLNCMessage *RLNCrecoder::produceRLNCMessage()
     //This is almost always 0
 //    std::cout << "Recoder packet_pool size: " << packet_pool.size() << std::endl;
 
+    stopEncodeTimer();
     return message;
 }
 
@@ -146,4 +174,5 @@ size_t RLNCrecoder::getPacketPoolSize ()
 RLNCrecoder::~RLNCrecoder()
 {
     std::cout << "~RLNCrecoder: Max packet_pool size: " << max_packetpool_size << std::endl;
+    CPPDEBUG("~RLNCrecoder:: time spent encoding: " << encodeTimer.count() / 1000 << " milliseconds " << std::endl);
 }

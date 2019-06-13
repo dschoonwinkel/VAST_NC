@@ -2,7 +2,6 @@
 #include <iostream>
 #include "rlnc_packet_factory.h"
 #include "VASTnet.h"
-#include "pthread.h"
 
 packet_listener::packet_listener (ip::udp::endpoint local_endpoint):
     _MC_address(ip::address::from_string("239.255.0.1"), 1037)
@@ -158,7 +157,7 @@ void packet_listener::process_input (const char *buf,
 
 void packet_listener::start_send()
 {
-    pthread_setname_np(pthread_self(), "packet_listener:sending_thread");
+    
 
     if (_sender == NULL)
     {

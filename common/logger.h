@@ -26,6 +26,10 @@ public:
     //Printing array helper function
     static std::string printArray(const char array[], size_t len);
 
+    ///Save binary array to a file
+    static void saveBinaryArray(std::string name, const char array[], size_t len);
+    static void saveBinaryArray(std::string name, const unsigned char array[], size_t len);
+
     static Logger* getInstance();
 
     static Logger *instance;

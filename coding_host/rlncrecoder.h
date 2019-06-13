@@ -6,6 +6,7 @@
 #include <map>
 #include <array>
 #include <memory>
+#include <chrono>
 
 #include <boost/asio.hpp>
 #include "rlnc_fieldsize_defs.h"
@@ -37,6 +38,12 @@ private:
     RLNCHeader_factory header_factory;
 
     size_t max_packetpool_size = 0;
+
+    void startEncodeTimer();
+    void stopEncodeTimer();
+    std::chrono::microseconds encodeTimer = std::chrono::microseconds::zero();
+    std::chrono::high_resolution_clock::time_point t1;
+    bool encodeTimerRunning = false;
 };
 
 #endif // RLNCRECODER_H

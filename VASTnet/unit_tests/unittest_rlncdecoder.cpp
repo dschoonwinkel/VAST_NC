@@ -554,7 +554,7 @@ void testExtraPacket()
     std::cout << (*temp_msg) << std::endl;
 
     payload.fill (0);
-    message3.serialize(reinterpret_cast<char*>(payload.data()));
+    message2.serialize(reinterpret_cast<char*>(payload.data()));
     //Equivalent to receive
     mchandler.process_input(reinterpret_cast<char*>(payload.data()), payload.size ());
 

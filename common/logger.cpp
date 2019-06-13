@@ -5,6 +5,7 @@
 #include <chrono>
 #include <stdio.h>
 #include <sstream>
+#include <fstream>
 
 Logger::Logger()
 {
@@ -120,5 +121,21 @@ std::string Logger::printArray(const char array[], size_t len)
     }
 
     return std::string(buffer);
+}
+
+void Logger::saveBinaryArray(std::string name, const char array[], size_t len)
+{
+    saveBinaryArray(name, reinterpret_cast<const unsigned char*>(array), len);
+}
+
+void Logger::saveBinaryArray(std::string name, const unsigned char array[], size_t len)
+{
+    std::ofstream ofstr(name);
+    for (size_t i = 0; i < len; i++)
+    {
+        ofstr << array[i];
+    }
+    ofstr.flush();
+    ofstr.close();
 }
 

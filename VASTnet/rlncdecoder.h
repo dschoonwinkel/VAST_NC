@@ -59,11 +59,21 @@ private:
     size_t packets_already_decoded = 0;
     size_t packets_missing_undecodable = 0;
     size_t packets_checksum_incorrect = 0;
+    size_t decodes_attempted = 0;
     size_t max_packetpool_size = 0;
     size_t max_NC_packets_size = 0;
 
+    //Add lock timing
     std::chrono::microseconds addLockTimer = std::chrono::microseconds::zero();
     std::chrono::high_resolution_clock::time_point t1;
+
+
+    //Decode timing
+    void startDecodeTimer();
+    void stopDecodeTimer();
+    std::chrono::microseconds decodeTimer = std::chrono::microseconds::zero();
+    std::chrono::high_resolution_clock::time_point decode_t1;
+    bool decodeTimerRunning = false;
 };
 
 #endif // RLNCDECODER_H

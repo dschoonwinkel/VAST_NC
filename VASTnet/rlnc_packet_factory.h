@@ -6,6 +6,7 @@
 
 #include <stdint.h>
 #include <vector>
+#include <iostream>
 
 typedef size_t packetid_t;
 
@@ -23,6 +24,8 @@ typedef struct
     uint32_t end        : 4;     // end marker (number 0xE: 1110)
 } RLNCHeader;
 
+std::ostream& operator<<(std::ostream& output, RLNCHeader const& header);
+
 class RLNCHeader_factory
 {
 public:
@@ -35,6 +38,7 @@ public:
     static bool isRLNCHeader(RLNCHeader header);
     static size_t getRLNCHeaderOffset(RLNCHeader header);
     static bool isRLNCHeadersEqual(const RLNCHeader header1, const RLNCHeader header2);
+
 
     void resetRLNCHeader(RLNCHeader &header);
 

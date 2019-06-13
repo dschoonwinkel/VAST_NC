@@ -78,6 +78,7 @@ void testEncodedChecksum()
     {
         std::cout << "Decoded Symbol: " << std::endl
                   << (*decoded_msg) << std::endl;
+        exit(EXIT_FAILURE);
     }
 
     assert(*decoded_msg == message2);

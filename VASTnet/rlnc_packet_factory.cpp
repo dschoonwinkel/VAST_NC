@@ -69,3 +69,16 @@ bool RLNCHeader_factory::isRLNCHeadersEqual(const RLNCHeader header1, const RLNC
 
     return equals;
 }
+
+std::ostream& operator<<(std::ostream& output, RLNCHeader const& header )
+{
+
+        output << "RLNCHeader::stream >> output: ******************************\n";
+        output << "Header: " << std::endl;
+        output << "header.ordering " << header.ordering<< std::endl;
+        output << "header.packetsize " << header.packetsize << std::endl;
+        output << "header.gensize " << header.gensize << std::endl;
+        output << "header.generation " << header.generation << std::endl;
+        output << "header.enc_pack_count " << header.enc_packet_count << std::endl;
+        return output;
+}

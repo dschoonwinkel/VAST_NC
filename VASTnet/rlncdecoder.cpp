@@ -1,6 +1,7 @@
 #include "rlncdecoder.h"
 #include "net_manager.h"
 #include "VASTnet.h"
+#include "logger.h"
 
 rlncdecoder::rlncdecoder ():
     decoder_factory(field, MAX_SYMBOLS, MAX_PACKET_SIZE),
@@ -20,6 +21,22 @@ void rlncdecoder::stopAddLockTimer()
 {
     auto t2 = std::chrono::high_resolution_clock::now();
     addLockTimer += std::chrono::duration_cast<std::chrono::microseconds>(t2-t1);
+}
+
+void rlncdecoder::startDecodeTimer()
+{
+    decode_t1 = std::chrono::high_resolution_clock::now();
+    decodeTimerRunning = true;
+}
+
+void rlncdecoder::stopDecodeTimer()
+{
+    if (decodeTimerRunning)
+    {
+        auto decode_t2 = std::chrono::high_resolution_clock::now();
+        decodeTimer += std::chrono::duration_cast<std::chrono::microseconds>(decode_t2-decode_t1);
+    }
+    decodeTimerRunning = false;
 }
 
 void rlncdecoder::addRLNCMessage(RLNCMessage input_message)
@@ -92,6 +109,9 @@ RLNCMessage *rlncdecoder::produceDecodedRLNCMessage()
 #ifndef COMPUTE_RLNC
     return NULL;
 #endif
+    decodes_attempted++;
+
+    startDecodeTimer();
 
     RLNCMessage *decoded_msg = NULL;
     //Leave enough space for RLNC coefficients
@@ -181,12 +201,14 @@ RLNCMessage *rlncdecoder::produceDecodedRLNCMessage()
     {
         CPPDEBUG("rlncdecoder::produceDecodedRLNCMessage Packet already decoded" << std::endl);
         packets_already_decoded++;
+        stopDecodeTimer();
         return NULL;
     }
     else if (available_packets.size () != (active_encoded_packet.getPacketIds ().size () - 1))
     {
         CPPDEBUG("rlncdecoder::produceDecodedRLNCMessage Could not find enough available packets to decode" << std::endl);
         packets_missing_undecodable++;
+        stopDecodeTimer();
         return NULL;
     }
 
@@ -213,7 +235,7 @@ RLNCMessage *rlncdecoder::produceDecodedRLNCMessage()
 
 
     //Used to check if the checksum of two decoded packets are correct
-    uint32_t checksum = 0;
+    uint32_t total_checksum = 0;
 
     for (k = 0; k < active_encoded_packet.getPacketIds ().size(); k++)
     {
@@ -231,7 +253,13 @@ RLNCMessage *rlncdecoder::produceDecodedRLNCMessage()
 
 //            //Serialize the whole packet, not just the (un-encoded) message
         available_packets[k].serialize(reinterpret_cast<char*>(buffer.data()));
-        checksum += RLNCMessage::generateChecksum(buffer.data(), available_packets[k].sizeOf());
+        uint32_t checksum = 0;
+        checksum = RLNCMessage::generateChecksum(buffer.data(), available_packets[k].sizeOf());
+        Logger::saveBinaryArray("RLNCdecoder " + std::to_string(available_packets[k].getPacketIds()[0]) + ".txt", buffer.data(), available_packets[k].sizeOf());
+        total_checksum += checksum;
+        CPPDEBUG("rlncdecoder::produceDecodedRLNCMessage packet:" << available_packets[k].getPacketIds()[0] << "->checksum=" << checksum << std::endl);
+        CPPDEBUG("rlncdecoder::produceDecodedRLNCMessage packet:" << available_packets[k].getPacketIds()[0] << "->sizeOf=" << available_packets[k].sizeOf() << std::endl);
+        CPPDEBUG("rlncdecoder::produceDecodedRLNCMessage packet" << available_packets[k] << std::endl);
 
 //            CPPDEBUG("Packet from packet pool: " << available_packets[k] << std::endl);
 
@@ -246,6 +274,7 @@ RLNCMessage *rlncdecoder::produceDecodedRLNCMessage()
         if (decoder->is_complete ())
         {
             break;
+            //Sanity check
         }
 
     }
@@ -275,15 +304,17 @@ RLNCMessage *rlncdecoder::produceDecodedRLNCMessage()
             decoded_msg = new RLNCMessage(msg);
 
             //Calculate checksum to see if decoding is correct
-            checksum += RLNCMessage::generateChecksum(data_out.data () + decoded_packet_index * MAX_PACKET_SIZE,
+            total_checksum += RLNCMessage::generateChecksum(data_out.data () + decoded_packet_index * MAX_PACKET_SIZE,
                                                      msg.sizeOf());
 
-            if (checksum != active_encoded_packet.getChecksum())
+            if (total_checksum != active_encoded_packet.getChecksum())
             {
-//                CPPDEBUG("rlncdecoder::produceDecodedRLNCMessage Checksum was not correct" << std::endl);
+                CPPDEBUG("rlncdecoder::produceDecodedRLNCMessage Checksum was not correct"
+                         << std::endl << (*decoded_msg) << std::endl);
                 packets_checksum_incorrect++;
                 delete decoded_msg;
                 decoded_msg = NULL;
+                stopDecodeTimer();
                 return NULL;
             }
 
@@ -309,12 +340,14 @@ RLNCMessage *rlncdecoder::produceDecodedRLNCMessage()
         //CPPDEBUG("Sizeof NC_packets: " << NC_packets.size() << std::endl);
     }
 
+    stopDecodeTimer();
     return decoded_msg;
 }
 
 rlncdecoder::~rlncdecoder ()
 {
     CPPDEBUG("\n~rlncdecoder:: packets added to packet pool: " << packets_added_packetpool << std::endl);
+    CPPDEBUG("~rlncdecoder:: decodes_attempted: " << decodes_attempted << std::endl);
     CPPDEBUG("~rlncdecoder:: packet_recovered: " << packets_recovered << std::endl);
     CPPDEBUG("~rlncdecoder:: packets_already_decoded: " << packets_already_decoded << std::endl);
     CPPDEBUG("~rlncdecoder:: packets_missing_undecodable: " << packets_missing_undecodable << std::endl);
@@ -322,5 +355,8 @@ rlncdecoder::~rlncdecoder ()
     CPPDEBUG("~rlncdecoder:: max_packetpool_size: " << max_packetpool_size << std::endl);
     CPPDEBUG("~rlncdecoder:: max_NC_packets_size: " << max_NC_packets_size << std::endl);
     CPPDEBUG("~rlncdecoder:: time spent in addLock: " << addLockTimer.count() / 1000 << " milliseconds " << std::endl);
+    CPPDEBUG("~rlncdecoder:: time spent decoding: " << decodeTimer.count() / 1000 << " milliseconds " << std::endl);
+    if (decodes_attempted > 0)
+        CPPDEBUG("~rlncdecoder:: time spent decoding per msg: " << decodeTimer.count() / decodes_attempted << " microseconds " << std::endl);
 }
 

@@ -653,7 +653,7 @@ class EXPORT IPaddr : public Serializable
 {
 public:
     IPaddr ()
-        : host(0), port(0)
+        : host(0), port(0), pad(0)
     {
     }
     
@@ -661,6 +661,7 @@ public:
     {
         host = i;
         port = p;
+        pad = 0;
     }
     
     IPaddr (const char *ip_string, uint16_t p)
@@ -690,12 +691,14 @@ public:
 
         host = i;
         port = p;
+        pad = 0;
     }
 
     IPaddr(id_t id)
     {
         host = id >> 32;
         port = id >> 16;
+        pad = 0;
     }
 
     //Copy constructor
@@ -703,6 +706,7 @@ public:
     {
         host = addr.host;
         port = addr.port;
+        pad = addr.pad;
 //        CPPDEBUG("IPaddr copy constructor called" << std::endl);
     }
     

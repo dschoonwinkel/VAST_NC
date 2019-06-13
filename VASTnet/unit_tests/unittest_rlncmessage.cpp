@@ -3,6 +3,7 @@
 #include <assert.h>
 #include <string.h>
 #include <queue>
+#include "logger.h"
 
 void runUnitTest1()
 {
@@ -228,9 +229,28 @@ void testQueueDequeue()
 
 }
 
+void testSerializeHeader()
+{
+    std::cout << "testSerializeHeader" << std::endl;
+
+    RLNCHeader_factory factory1;
+    RLNCHeader header1 = factory1.build ();
+
+    header1.enc_packet_count = 1;
+    header1.generation = 1;
+    header1.gensize = 0;
+    header1.ordering = 0xf2;
+    header1.packetsize = 0xbeef;
+
+    std::array<unsigned char, 8> buffer;
+    memcpy(buffer.data(), &header1, sizeof(RLNCHeader));
+
+    Logger::saveBinaryArray("header.txt", buffer.data(), 8);
+
+}
+
 int main()
 {
-//    runUnitTest1();
     testPacketIds ();
     testFromId ();
     testToAddrs();
@@ -240,6 +260,7 @@ int main()
     testSizeOfSerialize();
     testEquals();
     testQueueDequeue();
+    testSerializeHeader();
 
     std::cout << "****************" << std::endl;
     std::cout << "All tests passed" << std::endl;
