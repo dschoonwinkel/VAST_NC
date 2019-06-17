@@ -113,14 +113,26 @@ void Logger::registerThreadName(std::thread::id id, std::string name)
 
 std::string Logger::printArray(const char array[], size_t len)
 {
-    char buffer[len * 3 + 1];
+    char buffer[3];
+    std::string result = "";
 
     for (size_t i = 0; i < len; i++)
     {
-        sprintf(buffer+i*3, "%x ", (char)(array[i] && 0xFF));
+        if (i % 16 == 0)
+        {
+            result += "\n";
+        }
+        sprintf(buffer, "%02x", (array[i] & 0xFF));
+        result += buffer;
+
+        if ((i) % 2 == 1)
+        {
+            result += " ";
+        }
+
     }
 
-    return std::string(buffer);
+    return result;
 }
 
 void Logger::saveBinaryArray(std::string name, const char array[], size_t len)
@@ -130,7 +142,7 @@ void Logger::saveBinaryArray(std::string name, const char array[], size_t len)
 
 void Logger::saveBinaryArray(std::string name, const unsigned char array[], size_t len)
 {
-    std::ofstream ofstr(name);
+    std::ofstream ofstr("save/"+name);
     for (size_t i = 0; i < len; i++)
     {
         ofstr << array[i];

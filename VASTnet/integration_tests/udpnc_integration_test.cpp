@@ -198,7 +198,7 @@ void sendMessages()
         {
             std::cout << "Tick\n*******************" << std::endl;
             ticker += simpara.TIMESTEP_DURATION;
-            this_thread::sleep_for (std::chrono::milliseconds(simpara.TIMESTEP_DURATION / 10));
+            this_thread::sleep_for (std::chrono::milliseconds(simpara.TIMESTEP_DURATION / 5));
 //            ticker += 1;
             sending = false;
         }

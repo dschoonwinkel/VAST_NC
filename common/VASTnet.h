@@ -42,6 +42,7 @@
 #include <netdb.h>
 #include <ifaddrs.h>
 #include "timeouts.h"
+#include <iostream>
 
 #define GATEWAY_DEFAULT_PORT    (1037)          // default port for gateway
 
@@ -95,6 +96,16 @@ namespace Vast {
         uint32_t msg_size : 22;    // size of message (max: 4,194,304 bytes)
         uint32_t end      : 4;     // end marker (number 5: 0101)
     } VASTHeader;
+
+    inline std::ostream& operator<<(std::ostream& output, VASTHeader const& header)
+    {
+        output << "startbits:" << header.start << std::endl;
+        output << "type:" << header.type << std::endl;
+        output << "msg_size:" << header.msg_size << std::endl;
+        output << "end:" << header.end << std::endl;
+
+        return output;
+    }
 
     // simple structure for a partially received VAST message
     class HALF_VMSG

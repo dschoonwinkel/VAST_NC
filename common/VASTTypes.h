@@ -38,6 +38,7 @@
 #include <cstring>      //strncpy
 #include <string>
 #include <iostream>
+#include "logger.h"
 
 #include <boost/archive/text_iarchive.hpp>
 #include <boost/archive/text_oarchive.hpp>
@@ -1934,20 +1935,21 @@ inline std::ostream& operator<<(std::ostream& output, Message const& msg )
     output << "from: " << msg.from << std::endl;
     output << "size: " << msg.size << std::endl;
     output << "msgtype: " << msg.msgtype << std::endl;
-    output << "msggroup: " << msg.msggroup << std::endl;
-    output << "priority: " << msg.priority << std::endl;
-    output << "reliable: " << msg.reliable << std::endl;
+    output << "msggroup: " << (uint16_t)(msg.msggroup & 0xff) << std::endl;
+    output << "priority: " << (uint16_t)(msg.priority & 0xff) << std::endl;
+    output << "reliable: " << (uint16_t)(msg.reliable & 0xff) << std::endl;
     output << "reserved1: " << msg.reserved1 << std::endl;
     output << "reserved2: " << msg.reserved2 << std::endl;
     output << "reserved3: " << msg.reserved3 << std::endl;
-    std::string temp_string(msg.data, msg.size);
-    output << "data: " << temp_string << std::endl;
 
+    output << "Num targets: " << msg.targets.size() << std::endl;
     output << "Targets: " << std::endl;
     for (id_t target : msg.targets)
     {
         output << target << std::endl;
     }
+
+    output << "data: " << Logger::printArray(msg.data, msg.size) << std::endl;
 
     return output;
 }

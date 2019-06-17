@@ -8,6 +8,7 @@ VASTStatLog/vast_capturemsgs.cpp
 VASTStatLog/vast_capturemsgs.h
 VASTnet/abstract_input_processor.h
 VASTnet/integration_tests/abstract_sender_impl.h
+VASTnet/integration_tests/differentlen_codingtest.cpp
 VASTnet/integration_tests/hexnumber_conv.cpp
 VASTnet/integration_tests/rlncdissector.cpp
 VASTnet/integration_tests/udpnc_integration_test.cpp

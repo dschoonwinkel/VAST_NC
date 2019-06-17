@@ -4,6 +4,8 @@
 #include <exception>
 #include <stdio.h>
 #include <boost/crc.hpp>
+#include "logger.h"
+#include <string>
 
 RLNCMessage::RLNCMessage()
 {
@@ -316,8 +318,11 @@ std::ostream& operator<<(std::ostream& output, RLNCMessage const& message )
             output << "To addr[" << i << "]" << message.to_addrs[i] << std::endl;
         }
         output << "msg: " << std::endl;
-        boost::format format("%1$#x");
-        output << message.msg;
+//        boost::format format("%1$#x");
+//        output << message.msg;
+
+        output << Logger::printArray(message.msg.c_str(), message.msg.length());
+
         output << std::endl;
 
         output << "socket_addr: " << message.socket_addr << std::endl;

@@ -48,7 +48,6 @@ void rlncdecoder::addRLNCMessage(RLNCMessage input_message)
     packets_added_packetpool++;
 
     startAddLockTimer ();
-//    CPPDEBUG("rlncdecoder::addRLNCMessage " << std::endl);
     auto pktids = input_message.getPacketIds();
     std::lock_guard<std::mutex> guard(packet_pool_mutex);
 
@@ -60,8 +59,6 @@ void rlncdecoder::addRLNCMessage(RLNCMessage input_message)
         if (packet_pool.find (pktids.front()) != packet_pool.end ())
         {
             CPPDEBUG("Replacing a packet " << pktids.front() << std::endl);
-//            CPPDEBUG("Original: " << packet_pool.find(pktids.front())->second << std::endl);
-//            CPPDEBUG("New: " << msg << std::endl);
             if (!(packet_pool[pktids.front()] == input_message))
             {
                 CPPDEBUG("Stored packet: \n" << packet_pool[pktids.front()] << std::endl);
@@ -127,7 +124,6 @@ RLNCMessage *rlncdecoder::produceDecodedRLNCMessage()
     size_t decoded_packet_index = -1;
 
     //Check if we can decode something and then copy out the relevant packets
-//  CPPDEBUG("produceDecodedRLNCMessage Starting lockguard block" << std::endl);
     std::unique_lock<std::mutex> guard(packet_pool_mutex);
 
     for (size_t i = 0; i < NC_packets.size(); i++)
@@ -145,11 +141,9 @@ RLNCMessage *rlncdecoder::produceDecodedRLNCMessage()
         }
 
         //Even if we have all the pktids, this message could be newer than what we have
-//        //If we have all the pktids, this message has already been decoded
+        //If we have all the pktids, this message has already been decoded
         if (available_ids == pktids.size())
         {
-//                    CPPDEBUG("We have all the packetids, this message has already been decoded,\n"
-//                             << "Or an old packet is clouding our judgement " << std::endl);
         }
 
 
@@ -167,7 +161,6 @@ RLNCMessage *rlncdecoder::produceDecodedRLNCMessage()
                 {
                     //Save packet index for later use
                     decoded_packet_index = j;
-//                    CPPDEBUG("rlncdecoder::produceDecodedRLNCMessage Index of missing packet : " << decoded_packet_index << std::endl);
                 }
             }
 
@@ -183,7 +176,6 @@ RLNCMessage *rlncdecoder::produceDecodedRLNCMessage()
 
             active_encoded_packet = NC_packets[i];
             //We have found our packet we want to decode, stop looking
-//            NC_packets.clear();
             break;
         }
 
@@ -199,7 +191,6 @@ RLNCMessage *rlncdecoder::produceDecodedRLNCMessage()
 
     if (available_packets.size () == active_encoded_packet.getPacketIds().size())
     {
-        CPPDEBUG("rlncdecoder::produceDecodedRLNCMessage Packet already decoded" << std::endl);
         packets_already_decoded++;
         stopDecodeTimer();
         return NULL;
@@ -212,7 +203,6 @@ RLNCMessage *rlncdecoder::produceDecodedRLNCMessage()
         return NULL;
     }
 
-//        CPPDEBUG("\nrlncdecoder::produceDecodedRLNCMessage Attempting to decode, all msgs available except 1" << std::endl);
     auto decoder = decoder_factory.build();
     decoder->set_mutable_symbols(storage::storage(data_out));
     size_t k = 0;
@@ -224,16 +214,6 @@ RLNCMessage *rlncdecoder::produceDecodedRLNCMessage()
                                "should be 1, as we only currently code 2 packets together\n");
     }
 
-    CPPDEBUG("rlncdecoder::produceDecodedRLNCMessage packets encoded together: "
-             << active_encoded_packet.getPacketIds()[0]
-            << "+" << active_encoded_packet.getPacketIds()[1] << std::endl);
-    CPPDEBUG("rlncdecoder::produceDecodedRLNCMessage decoded_msg->to_addrs[0] " << active_encoded_packet.getToAddrs()[0] << std::endl);
-    CPPDEBUG("rlncdecoder::produceDecodedRLNCMessage decoded_msg->from_ids[0] " << active_encoded_packet.getFromIds()[0] << std::endl);
-    CPPDEBUG("rlncdecoder::produceDecodedRLNCMessage decoded_msg->to_addrs[1] " << active_encoded_packet.getToAddrs()[1] << std::endl);
-    CPPDEBUG("rlncdecoder::produceDecodedRLNCMessage decoded_msg->from_ids[1] " << active_encoded_packet.getFromIds()[1] << std::endl << std::endl);
-
-
-
     //Used to check if the checksum of two decoded packets are correct
     uint32_t total_checksum = 0;
 
@@ -243,31 +223,19 @@ RLNCMessage *rlncdecoder::produceDecodedRLNCMessage()
         if (k == decoded_packet_index)
             continue;
 
-//            payload.fill(0);
-
-//            //Quickly construct a encoder to give us the correct
+        //Quickly construct a encoder to give us the correct
         std::array<uint8_t, MAX_PACKET_SIZE> buffer;
-//            buffer.fill(0);
-//            auto encoder = encoder_factory.build();
-//            encoder->set_systematic_on();
+        buffer.fill(0);
 
-//            //Serialize the whole packet, not just the (un-encoded) message
+        //Serialize the whole packet, not just the (un-encoded) message
         available_packets[k].serialize(reinterpret_cast<char*>(buffer.data()));
         uint32_t checksum = 0;
         checksum = RLNCMessage::generateChecksum(buffer.data(), available_packets[k].sizeOf());
-        Logger::saveBinaryArray("RLNCdecoder " + std::to_string(available_packets[k].getPacketIds()[0]) + ".txt", buffer.data(), available_packets[k].sizeOf());
+#ifdef SAVE_PACKETS
+        Logger::saveBinaryArray("RLNCdecoder_" + std::to_string(available_packets[k].getPacketIds()[0]) + ".txt", buffer.data(), available_packets[k].sizeOf());
+#endif
         total_checksum += checksum;
-        CPPDEBUG("rlncdecoder::produceDecodedRLNCMessage packet:" << available_packets[k].getPacketIds()[0] << "->checksum=" << checksum << std::endl);
-        CPPDEBUG("rlncdecoder::produceDecodedRLNCMessage packet:" << available_packets[k].getPacketIds()[0] << "->sizeOf=" << available_packets[k].sizeOf() << std::endl);
-        CPPDEBUG("rlncdecoder::produceDecodedRLNCMessage packet" << available_packets[k] << std::endl);
 
-//            CPPDEBUG("Packet from packet pool: " << available_packets[k] << std::endl);
-
-//            encoder->set_const_symbol(k, storage::storage(buffer));
-//            encoder->write_payload(payload.data());
-
-        //Use the new systematic uncoded packet to decode received packet
-//            decoder->read_payload(payload.data());
         decoder->read_uncoded_symbol (buffer.data(), k);
 
         //Stop if we have enough packets to decode.
@@ -284,11 +252,8 @@ RLNCMessage *rlncdecoder::produceDecodedRLNCMessage()
     memcpy(payload.data(), active_encoded_packet.getMessage(), active_encoded_packet.getMessageSize());
     decoder->read_payload(payload.data());
 
-//    CPPDEBUG("Coded packet from NC_packets: " << (active_encoded_packet) << std::endl);
-
     if (decoder->is_complete())
     {
-    //    CPPDEBUG("rlncdecoder::produceDecodedRLNCMessage: Size of packet_pool: " << packet_pool.size () << std::endl);
         if (packet_pool.size() > 1)
         {
             //This can be a problem - preferrably we only want the necessary
@@ -302,6 +267,10 @@ RLNCMessage *rlncdecoder::produceDecodedRLNCMessage()
         {
             //Use the newly decoded packet - should be most cases true
             decoded_msg = new RLNCMessage(msg);
+#ifdef SAVE_PACKETS
+            Logger::saveBinaryArray("RLNCdecoder_" + std::to_string(msg.getPacketIds()[0]) + ".txt",
+                    reinterpret_cast<char*>(data_out.data () + decoded_packet_index * MAX_PACKET_SIZE), msg.sizeOf());
+#endif
 
             //Calculate checksum to see if decoding is correct
             total_checksum += RLNCMessage::generateChecksum(data_out.data () + decoded_packet_index * MAX_PACKET_SIZE,
@@ -311,6 +280,7 @@ RLNCMessage *rlncdecoder::produceDecodedRLNCMessage()
             {
                 CPPDEBUG("rlncdecoder::produceDecodedRLNCMessage Checksum was not correct"
                          << std::endl << (*decoded_msg) << std::endl);
+                CPPDEBUG("rlncdecoder::produceDecodedRLNCMessage: Packets coded together " << active_encoded_packet.getPacketIds()[0] << "," << active_encoded_packet.getPacketIds()[1] << std::endl);
                 packets_checksum_incorrect++;
                 delete decoded_msg;
                 decoded_msg = NULL;
@@ -329,15 +299,6 @@ RLNCMessage *rlncdecoder::produceDecodedRLNCMessage()
     else
     {
         CPPDEBUG("rlncdecoder::produceDecodedRLNCMessage: Could not decode, probably linearly dependent, deleting it and its packets" << std::endl);
-//            std::vector<packetid_t> pkt_ids_to_delete = NC_packets[i].getPacketIds ();
-//            for (auto it = pkt_ids_to_delete.begin (); it != pkt_ids_to_delete.end (); ++it)
-//            {
-//                if (packet_pool.find(*it) != packet_pool.end ())
-//                {
-//                    packet_pool.erase (packet_pool.find (*it));
-//                }
-//            }
-        //CPPDEBUG("Sizeof NC_packets: " << NC_packets.size() << std::endl);
     }
 
     stopDecodeTimer();
