@@ -89,7 +89,7 @@ void testFirstIndex()
     recoder.addRLNCMessage(message1);
     recoder.addRLNCMessage(message2);
 
-    RLNCMessage *temp_msg = recoder.produceRLNCMessage();
+    std::shared_ptr<RLNCMessage> temp_msg = recoder.produceRLNCMessage();
 
     if (!temp_msg)
     {
@@ -192,7 +192,7 @@ void testSecondIndex()
     recoder.addRLNCMessage(message1);
     recoder.addRLNCMessage(message2);
 
-    RLNCMessage *temp_msg = recoder.produceRLNCMessage();
+    std::shared_ptr<RLNCMessage> temp_msg = recoder.produceRLNCMessage();
 
     if (!temp_msg)
     {
@@ -291,7 +291,7 @@ void testUndecodable()
     recoder.addRLNCMessage(message1);
     recoder.addRLNCMessage(message2);
 
-    RLNCMessage *temp_msg = recoder.produceRLNCMessage();
+    std::shared_ptr<RLNCMessage> temp_msg = recoder.produceRLNCMessage();
 
     if (!temp_msg)
     {
@@ -386,7 +386,7 @@ void testUnnecessary()
     recoder.addRLNCMessage(message1);
     recoder.addRLNCMessage(message2);
 
-    RLNCMessage *temp_msg = recoder.produceRLNCMessage();
+    std::shared_ptr<RLNCMessage> temp_msg = recoder.produceRLNCMessage();
 
     if (!temp_msg)
     {
@@ -517,7 +517,7 @@ void testExtraPacket()
     recoder.addRLNCMessage(message2);
     recoder.addRLNCMessage(message3);
 
-    RLNCMessage *temp_msg = recoder.produceRLNCMessage();
+    std::shared_ptr<RLNCMessage> temp_msg = recoder.produceRLNCMessage();
 
     if (!temp_msg)
     {
@@ -800,9 +800,9 @@ void testChecksum()
     message2.serialize(buffer.data());
     checksum += RLNCMessage::generateChecksum(buffer.data(), message2.sizeOf());
 
-    RLNCMessage *encoded_msg = recoder.produceRLNCMessage();
+    std::shared_ptr<RLNCMessage> encoded_msg = recoder.produceRLNCMessage();
 
-    assert(encoded_msg != NULL);
+    assert(encoded_msg);
     assert(encoded_msg->getChecksum() == checksum);
 
     std::cout << "Checksum: " << checksum << std::endl;
@@ -893,7 +893,7 @@ void testRepeated()
         recoder.addRLNCMessage(message1);
         recoder.addRLNCMessage(message2);
 
-        RLNCMessage *temp_msg = recoder.produceRLNCMessage();
+        std::shared_ptr<RLNCMessage> temp_msg = recoder.produceRLNCMessage();
 
         auto t2 = std::chrono::high_resolution_clock::now();
 
@@ -925,8 +925,6 @@ void testRepeated()
 //        while(tester.RLNC_msg_received_call_count != i+1) {}
 //        assert(tester.RLNC_msg_received_call_count == i+1);
 //        assert(tester.recv_msg == message2);
-
-        delete temp_msg;
     }
 
     mchandler.close();

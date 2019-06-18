@@ -71,7 +71,7 @@ void RLNCrecoder::addRLNCMessage(RLNCMessage msg)
     }
 }
 
-RLNCMessage *RLNCrecoder::produceRLNCMessage()
+std::shared_ptr<RLNCMessage> RLNCrecoder::produceRLNCMessage()
 {
     startEncodeTimer();
     Logger::debugThread("RLNCrecoder::produceRLNCMessage");
@@ -79,12 +79,10 @@ RLNCMessage *RLNCrecoder::produceRLNCMessage()
     {
         CPPDEBUG("RLNCrecoder::produceRLNCMessage packet_pool.size() too small" << std::endl);
         stopEncodeTimer();
-        return NULL;
+        return nullptr;
     }
 
     //print packet_pool size
-
-    RLNCMessage *message = NULL;
 
     auto encoder = encoder_factory.build();
 
@@ -103,7 +101,7 @@ RLNCMessage *RLNCrecoder::produceRLNCMessage()
     {
         CPPDEBUG("rlncrecoder::produceRLNCMessage could not find packets from different hosts" << std::endl);
         stopEncodeTimer();
-        return NULL;
+        return nullptr;
     }
 
     std::array<uint8_t, MAX_PACKET_SIZE> data1;
@@ -116,7 +114,7 @@ RLNCMessage *RLNCrecoder::produceRLNCMessage()
     message2->serialize(reinterpret_cast<char*>(data2.data()));
 
     auto header = header_factory.build();
-    message = new RLNCMessage(header);
+    std::shared_ptr<RLNCMessage> message (new RLNCMessage(header));
     message->putIdsAddr(message1->getPacketIds()[0],
                         message1->getFromIds ()[0],
                         message1->getToAddrs ()[0]);

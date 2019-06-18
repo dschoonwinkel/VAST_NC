@@ -4,7 +4,7 @@ CC = g++
 
 ACE_ROOT = /usr
 
-CFLAGS = -static -c -Wall -Wextra -I../common -ggdb -std=c++14
+CFLAGS = -static -c -Wall -Wextra -I../common -ggdb -std=c++14 -fsanitize=address
 #CFLAGS = -fPIC -c -Wall -I../common -I../VASTnet  -I$(ACE_ROOT)
 
 sources = vaststatlog_entry.cpp vaststatlog.cpp vast_capturemsgs.cpp netudpnc_capturemsgs.cpp

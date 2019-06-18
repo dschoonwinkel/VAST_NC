@@ -8,7 +8,7 @@ CC = g++
 
 
 #CFLAGS=-O2 -ftree-vectorize -std=c++14 -Wall -Wextra -Wno-expansion-to-defined
-CFLAGS=-ggdb -std=c++14 -Wall -Wextra
+CFLAGS=-ggdb -std=c++14 -Wall -Wextra -fsanitize=address
 
 LIBS_COMMON = -lvastsim -lvast -lvastnet -lvastcommon
 #-lz -ldl -lpthread

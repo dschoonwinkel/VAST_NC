@@ -140,14 +140,13 @@ void packet_listener::process_input (const char *buf,
         recoder.addRLNCMessage(message);
 
         msgs_mutex.lock();
-        RLNCMessage *temp_msg = recoder.produceRLNCMessage();
+        std::shared_ptr<RLNCMessage> temp_msg = recoder.produceRLNCMessage();
 
 
-        if (temp_msg != NULL)
+        if (temp_msg)
         {
             msgs.push_back(RLNCMessage(*temp_msg));
             CPPDEBUG("packet_listener::handle_input: Adding RLNCmessage to queue" << std::endl);
-            delete temp_msg;
         }
 
         msgs_mutex.unlock();

@@ -42,9 +42,9 @@ int main()
     recoder.addRLNCMessage(message1);
     recoder.addRLNCMessage(message2);
 
-    RLNCMessage *temp_msg = recoder.produceRLNCMessage();
+    std::shared_ptr<RLNCMessage> temp_msg = recoder.produceRLNCMessage();
 
-    if (temp_msg == NULL)
+    if (!temp_msg)
     {
         std::cerr << "Could not produce coded message" << std::endl;
         exit(EXIT_FAILURE);
@@ -55,7 +55,7 @@ int main()
     decoder.addRLNCMessage(*temp_msg);
 
     decoder.addRLNCMessage(message1);
-    RLNCMessage *decoded_msg = decoder.produceDecodedRLNCMessage();
+    std::shared_ptr<RLNCMessage> decoded_msg = decoder.produceDecodedRLNCMessage();
 
     if (decoded_msg != NULL)
     {

@@ -28,7 +28,7 @@ public:
     ~customrlncdecoder();
 
     void addRLNCMessage(RLNCMessage msg);
-    RLNCMessage* produceDecodedRLNCMessage();
+    std::shared_ptr<RLNCMessage> produceDecodedRLNCMessage();
 
     //Called to clear packet pool and NC_packets at the end of each "generation"
     void clearPacketPool();

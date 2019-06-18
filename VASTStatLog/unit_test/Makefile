@@ -7,7 +7,7 @@ LIBS_COMMON = -lvastcommon -lvaststatlog
 LIBS_BOOST = -lboost_system -lboost_thread -lboost_serialization -lboost_filesystem
 
 # CFLAGS      = -Wall -static
-CFLAGS      = -Wall -fPIC -ggdb -std=c++14
+CFLAGS      = -Wall -fPIC -ggdb -std=c++14 -fsanitize=address
 
 INC_PATHS   = -I../../common -I../VASTStatLog -I../
 

@@ -213,7 +213,7 @@ bool customrlncdecoder::_putAvailableInDecoder(std::shared_ptr<kodo_rlnc::decode
     return true;
 }
 
-RLNCMessage *customrlncdecoder::produceDecodedRLNCMessage()
+std::shared_ptr<RLNCMessage> customrlncdecoder::produceDecodedRLNCMessage()
 {
 #ifndef COMPUTE_RLNC
     return NULL;
@@ -222,7 +222,7 @@ RLNCMessage *customrlncdecoder::produceDecodedRLNCMessage()
 
     AutoDestructorTimer timer("decodingTimer", &decoderTimer);
 
-    RLNCMessage *decoded_msg = NULL;
+    std::shared_ptr<RLNCMessage> decoded_msg = nullptr;
     //Leave enough space for RLNC coefficients
     std::array<uint8_t, MAX_PACKET_SIZE + 20> payload;
     payload.fill(0);
@@ -282,7 +282,7 @@ RLNCMessage *customrlncdecoder::produceDecodedRLNCMessage()
         if (msg.deserialize (reinterpret_cast<char*>(data_out.data () + decoded_packet_index * MAX_PACKET_SIZE), MAX_PACKET_SIZE) != -1)
         {
             //Use the newly decoded packet - should be most cases true
-            decoded_msg = new RLNCMessage(msg);
+            decoded_msg = std::make_shared<RLNCMessage>(msg);
 #ifdef SAVE_PACKETS
             Logger::saveBinaryArray("RLNCdecoder_" + std::to_string(msg.getPacketIds()[0]) + ".txt",
                     reinterpret_cast<char*>(data_out.data () + decoded_packet_index * MAX_PACKET_SIZE), msg.sizeOf());
@@ -298,9 +298,7 @@ RLNCMessage *customrlncdecoder::produceDecodedRLNCMessage()
                          << std::endl << (*decoded_msg) << std::endl);
                 CPPDEBUG("customrlncdecoder::produceDecodedRLNCMessage: Packets coded together " << active_encoded_packet.getPacketIds()[0] << "," << active_encoded_packet.getPacketIds()[1] << std::endl);
                 packets_checksum_incorrect++;
-                delete decoded_msg;
-                decoded_msg = NULL;
-                return NULL;
+                return nullptr;
             }
 
             packets_recovered++;

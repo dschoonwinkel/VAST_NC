@@ -72,7 +72,6 @@ namespace Vast
 
             process_input(_buf, bytes_transferred);
 
-#pragma message "register thread name here"
             Logger::registerThreadName(std::this_thread::get_id(), "net_udpnc_mchandler");
 
             //Restart waiting for new packets
@@ -116,7 +115,7 @@ namespace Vast
             if (toAddrForMe (message1))
             {
                 putOtherRLNCMessage (message1);
-                RLNCMessage *decoded_msg = decoder.produceDecodedRLNCMessage();
+                std::shared_ptr<RLNCMessage> decoded_msg = decoder.produceDecodedRLNCMessage();
 
 
                 if (decoded_msg != NULL)
@@ -125,7 +124,6 @@ namespace Vast
                     {
                         //MC loses original source socket addr, pass empty IPaddr
                         _msghandler->RLNC_msg_received(*decoded_msg, IPaddr());
-                        delete decoded_msg;
                     }
                     else {
                         std::cerr << "net_udpNC_MChandler::process_encoded: _msghandler was NULL" << std::endl;

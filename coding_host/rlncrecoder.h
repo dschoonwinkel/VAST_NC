@@ -22,7 +22,7 @@ public:
     ~RLNCrecoder();
 
     void addRLNCMessage(RLNCMessage msg);
-    RLNCMessage* produceRLNCMessage();
+    std::shared_ptr<RLNCMessage> produceRLNCMessage();
     size_t getPacketPoolSize();
 
 

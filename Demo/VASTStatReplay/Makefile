@@ -5,7 +5,7 @@ read_vaststatlog = ../../bin/read_vaststatlog
 
 # IMPORTANT NOTE: the least dependent library must begin from the rightmost (often vastcommon) 
 LIBS_COMMON = -lvastcommon -lvaststatlog
-LIBS_BOOST = -lboost_system -lboost_thread -lboost_serialization -lboost_filesystem
+LIBS_BOOST = -lboost_system -lboost_thread -lboost_serialization -lboost_filesystem -fsanitize=address
 
 # CFLAGS      = -Wall -static 
 CFLAGS      = -Wall -fPIC -ggdb -std=c++14

@@ -59,9 +59,9 @@ void testEncodedChecksum()
     recoder.addRLNCMessage(message1);
     recoder.addRLNCMessage(message2);
 
-    RLNCMessage *temp_msg = recoder.produceRLNCMessage();
+    std::shared_ptr<RLNCMessage> temp_msg = recoder.produceRLNCMessage();
 
-    if (temp_msg == NULL)
+    if (!temp_msg)
     {
         std::cerr << "Could not produce coded message" << std::endl;
         exit(EXIT_FAILURE);
@@ -72,7 +72,7 @@ void testEncodedChecksum()
     decoder.addRLNCMessage(*temp_msg);
 
     decoder.addRLNCMessage(message1);
-    RLNCMessage *decoded_msg = decoder.produceDecodedRLNCMessage();
+    std::shared_ptr<RLNCMessage> decoded_msg = decoder.produceDecodedRLNCMessage();
 
     if (decoded_msg == NULL)
     {
@@ -143,10 +143,10 @@ void testSameFromIDs()
     recoder.addRLNCMessage(message1);
     recoder.addRLNCMessage(message2);
 
-    RLNCMessage *temp_msg = recoder.produceRLNCMessage();
+    std::shared_ptr<RLNCMessage> temp_msg = recoder.produceRLNCMessage();
 
     //Packets have the same fromID, should not be encoded together
-    assert(temp_msg == NULL);
+    assert(!temp_msg);
 
     std::cout << "Symbol 3:" << message3 << std::endl;
     std::cout << "Adding symbol 3 to rlncrecoder" << std::endl;
@@ -155,7 +155,7 @@ void testSameFromIDs()
 
     temp_msg = recoder.produceRLNCMessage();
 
-    assert(temp_msg != NULL);
+    assert(temp_msg);
 
     assert(temp_msg->getChecksum() == checksum);
 

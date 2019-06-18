@@ -19,24 +19,21 @@ int main()
     msg1.addTarget(14842);
     std::cout << "msg1: " << msg1 << std::endl;
 
-    std::ofstream *ofs = NULL;
-
-
-    ofs = new std::ofstream(filename);
-    if (!ofs->is_open())
+    std::ofstream ofs(filename);
+    if (!ofs.is_open())
     {
-        std::cerr << "vast_capturemsgs::constructor file open : " << (ofs->is_open() ? "true":"false") << std::endl << "EXITING" <<std::endl;
+        std::cerr << "vast_capturemsgs::constructor file open : " << (ofs.is_open() ? "true":"false") << std::endl << "EXITING" <<std::endl;
         exit(EXIT_FAILURE);
     }
 
-    boost::archive::text_oarchive ar(*ofs);
+    boost::archive::text_oarchive ar(ofs);
     msg1.serialize(ar, 0);
-    ofs->flush();
+    ofs.flush();
 
     Vast::Message msg3(123, data, str1.length(), true, 14590678);
     msg3.addTarget(11111);
     msg3.serialize(ar, 0);
-    ofs->flush();
+    ofs.flush();
 
     std::ifstream ifs(filename);
     boost::archive::text_iarchive ar2(ifs);
@@ -49,4 +46,6 @@ int main()
 
     msg2.serialize(ar2, 0);
     std::cout << "msg3 restored " << std::endl << msg2 << std::endl;
+
+    ofs.close();
 }

@@ -86,7 +86,7 @@ void test_process_encoded()
     recoder.addRLNCMessage(msg1);
     recoder.addRLNCMessage(msg2);
 
-    RLNCMessage *temp_msg = recoder.produceRLNCMessage();
+    std::shared_ptr<RLNCMessage> temp_msg = recoder.produceRLNCMessage();
 
     if (!temp_msg)
     {

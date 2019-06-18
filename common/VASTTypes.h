@@ -39,6 +39,7 @@
 #include <string>
 #include <iostream>
 #include "logger.h"
+#include <algorithm>
 
 #include <boost/archive/text_iarchive.hpp>
 #include <boost/archive/text_oarchive.hpp>
@@ -1407,7 +1408,9 @@ public:
         equals = equals && _alloc == other._alloc;
         equals = equals && _free == other._free;
 
-        equals = equals && (strcmp(data, other.data) == 0);
+        size_t smallest_len = std::min(size, other.size);
+
+        equals = equals && (strncmp(data, other.data, smallest_len) == 0);
         equals = equals && (targets == other.targets);
 
         return equals;
@@ -1914,7 +1917,15 @@ public:
         ar >> reserved3;
         std::string temp_string;
         ar >> temp_string;
-        _curr = data = new char[size];
+
+        //delete the previously allocated memory
+        if (_alloc)
+        {
+            delete[] data;
+        }
+        _alloc = true;
+        data = new char[size];
+        _curr = data;
         temp_string.copy(data, size);
         ar >> targets;
     }
