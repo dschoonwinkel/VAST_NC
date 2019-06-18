@@ -21,11 +21,11 @@ using namespace boost::asio;
 using rlnc_decoder = kodo_rlnc::decoder;
 using rlnc_encoder = kodo_rlnc::encoder;
 
-class rlncdecoder
+class customrlncdecoder
 {
 public:
-    rlncdecoder();
-    ~rlncdecoder();
+    customrlncdecoder();
+    ~customrlncdecoder();
 
     void addRLNCMessage(RLNCMessage msg);
     RLNCMessage* produceDecodedRLNCMessage();
@@ -35,6 +35,17 @@ public:
     size_t getPacketPoolSize();
 
 private:
+
+    //produceDecodedRLNCMessage helper functions
+    bool _fetchFromPacketPool(RLNCMessage &active_encoded_packet,
+                              std::map<size_t, RLNCMessage> &available_packets,
+                              size_t &decoded_packet_index);
+
+    bool _putAvailableInDecoder(std::shared_ptr<kodo_rlnc::decoder> decoder,
+                                const std::map<size_t, RLNCMessage> &available_packets,
+                                const RLNCMessage active_encoded_packet,
+                                size_t decoded_packet_index,
+                                uint32_t &total_checksum);
 
     std::map<packetid_t, RLNCMessage> packet_pool;
     std::vector<RLNCMessage> NC_packets;
@@ -58,6 +69,7 @@ private:
     size_t packets_added_packetpool = 0;
     size_t packets_already_decoded = 0;
     size_t packets_missing_undecodable = 0;
+    size_t packet_linearly_dependent = 0;
     size_t packets_checksum_incorrect = 0;
     size_t decodes_attempted = 0;
     size_t max_packetpool_size = 0;
@@ -67,13 +79,7 @@ private:
     std::chrono::microseconds addLockTimer = std::chrono::microseconds::zero();
     std::chrono::high_resolution_clock::time_point t1;
 
-
-    //Decode timing
-    void startDecodeTimer();
-    void stopDecodeTimer();
-    std::chrono::microseconds decodeTimer = std::chrono::microseconds::zero();
-    std::chrono::high_resolution_clock::time_point decode_t1;
-    bool decodeTimerRunning = false;
+    std::chrono::microseconds decoderTimer = std::chrono::microseconds::zero();
 };
 
 #endif // RLNCDECODER_H

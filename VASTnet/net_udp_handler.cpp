@@ -11,7 +11,7 @@ namespace Vast {
 
     net_udp_handler::net_udp_handler(ip::udp::endpoint local_endpoint)
     {
-        _udp = NULL;
+        _udpsocket = NULL;
         _io_service = NULL;
         _iosthread = NULL;
         _local_endpoint = local_endpoint;
@@ -23,7 +23,17 @@ namespace Vast {
     {
         // remove UDP listener, net_udp will delete itself
         CPPDEBUG("~net_udp_handler" << std::endl);
-        _udp = NULL;
+        if (_udpsocket != NULL)
+        {
+            delete _udpsocket;
+            _udpsocket = NULL;
+        }
+
+        if (_iosthread != NULL)
+        {
+            delete _iosthread;
+            _iosthread = NULL;
+        }
     }
 
     int net_udp_handler::open(boost::asio::io_service *io_service, abstract_net_udp *msghandler, bool startthread) {
@@ -33,10 +43,10 @@ namespace Vast {
         _msghandler = msghandler;
 
         //Open the UDP socket for listening
-        if (_udp == NULL) {
-            _udp = new ip::udp::socket(*_io_service);
-            _udp->open(ip::udp::v4());
-            _udp->set_option(ip::udp::socket::reuse_address(true));
+        if (_udpsocket == NULL) {
+            _udpsocket = new ip::udp::socket(*_io_service);
+            _udpsocket->open(ip::udp::v4());
+            _udpsocket->set_option(ip::udp::socket::reuse_address(true));
 
             boost::system::error_code ec;
             uint16_t port = _local_endpoint.port();
@@ -46,7 +56,7 @@ namespace Vast {
                 //Search for an open port to use
                 //Save port number
                 _local_endpoint.port(port);
-                _udp->bind(_local_endpoint, ec);
+                _udpsocket->bind(_local_endpoint, ec);
 
                 CPPDEBUG("net_udp_handler::open " + ec.message() << std::endl);
                 //Try the next port
@@ -61,7 +71,7 @@ namespace Vast {
             //Add async receive to io_service queue
             start_receive();
 
-            CPPDEBUG("net_udp_handler::open _udp->_local_endpoint: " << _udp->local_endpoint() << " _local_endpoint" << _local_endpoint << std::endl);
+            CPPDEBUG("net_udp_handler::open _udp->_local_endpoint: " << _udpsocket->local_endpoint() << " _local_endpoint" << _local_endpoint << std::endl);
 
             if (startthread)
             {
@@ -76,7 +86,7 @@ namespace Vast {
 
     void net_udp_handler::start_receive()
     {
-        _udp->async_receive_from(
+        _udpsocket->async_receive_from(
             boost::asio::buffer(_buf, VAST_BUFSIZ), _remote_endpoint_,
             boost::bind(&net_udp_handler::handle_input, this,
               boost::asio::placeholders::error,
@@ -230,11 +240,9 @@ namespace Vast {
 
 
         if (_io_service != NULL) {
-//            _io_service->reset();
-            if (_udp != NULL && _udp->is_open())
+            if (_udpsocket != NULL && _udpsocket->is_open())
             {
-                _udp->close();
-
+                _udpsocket->close();
                 _io_service->stop();
             }
 
@@ -265,7 +273,7 @@ namespace Vast {
 
     size_t net_udp_handler::send(const char *msg, size_t n, ip::udp::endpoint remote_endpoint) {
 
-        if (_udp == NULL)
+        if (_udpsocket == NULL)
         {
             std::cerr << "net_udp_handler::send trying to send before socket is ready" << std::endl;
             return -1;
@@ -273,7 +281,7 @@ namespace Vast {
         }
 
 //        CPPDEBUG("net_udp_handler::send size of sent packet: " << n << std::endl);
-        return _udp->send_to(buffer(msg, n), remote_endpoint);
+        return _udpsocket->send_to(buffer(msg, n), remote_endpoint);
 
     }
 

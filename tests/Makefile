@@ -49,12 +49,12 @@ test_net_udpnc_mchandler: test_net_udpnc_mchandler.cpp
 	$(CC) $(CFLAGS) $(INC_PATHS) $(LIBS_INCKODO) $(LIB_PATHS) $< $(LIBS) $(LIBS_KODO) \
 	-o $(test_net_udpnc_mchandler)
 
-test_rlncdecoder_repeated: test_rlncdecoder_repeated.cpp ../coding_host/rlncrecoder.cpp
+test_customrlncdecoder_repeated: test_customrlncdecoder_repeated.cpp ../coding_host/rlncrecoder.cpp
 	$(CC) $(CFLAGS) $(INC_PATHS) $(LIBS_INCKODO) $(LIB_PATHS) $^ $(LIBS) $(LIBS_KODO) \
-	-o $(test_rlncdecoder_repeated)
+	-o $(test_customrlncdecoder_repeated)
 
 
 clean:
-	-rm $(vaststatlog_test) $(rlnc_packet_test) $(test_net_udpnc_mchandler) $(rlnc_encoded_packet_test) $(test_rlncdecoder_repeated)
+	-rm $(vaststatlog_test) $(rlnc_packet_test) $(test_net_udpnc_mchandler) $(rlnc_encoded_packet_test) $(test_customrlncdecoder_repeated)
 
 noace:

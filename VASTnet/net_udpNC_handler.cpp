@@ -41,7 +41,7 @@ namespace Vast
 
     size_t net_udpNC_handler::send_helper(const char *msg, size_t n, ip::udp::endpoint remote_endpoint)
     {
-        if (_udp == NULL)
+        if (_udpsocket == NULL)
         {
             std::cerr << "net_udpNC_handler::send_helper trying to send before socket is ready" << std::endl;
             return -1;
@@ -100,14 +100,14 @@ namespace Vast
                                             net_manager::resolveHostID(&_msghandler->getReal_net_udp()->getAddress().publicIP));
 #endif
 
-        return _udp->send_to(buffer(buf, sending_len), remote_endpoint);
+        return _udpsocket->send_to(buffer(buf, sending_len), remote_endpoint);
 
 
     }
 
     void net_udpNC_handler::start_receive()
     {
-        _udp->async_receive_from(
+        _udpsocket->async_receive_from(
             boost::asio::buffer(_buf, VAST_BUFSIZ), _remote_endpoint_,
             boost::bind(&net_udpNC_handler::handle_input, this,
               boost::asio::placeholders::error,
@@ -205,7 +205,7 @@ namespace Vast
 
     net_udpNC_handler::~net_udpNC_handler()
     {
-        if (_udp != NULL)
+        if (_udpsocket != NULL)
             close();
 
         CPPDEBUG("~net_udpNC_handler: total_packets_recvd: " << total_packets_recvd << std::endl);

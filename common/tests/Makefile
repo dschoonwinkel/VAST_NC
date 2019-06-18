@@ -2,6 +2,7 @@ unittest_logger = ./unittest_logger
 unittest_concurrentqueue = ./unittest_concurrentqueue
 unittest_vastmessage = ./unittest_vastmessage
 unittest_messageserialize = ./unittest_messageserialize
+unittest_autodestructortimer = ./unittest_autodestructortimer
 
 CC = g++
 
@@ -21,9 +22,9 @@ LIBS = $(LIBS_COMMON) $(LIBS_BOOST)
 INC_PATHS   = -I../../common
 LIB_PATHS   = -L../../lib
 
-.PHONY: unittest_logger unittest_concurrentqueue unittest_vastmessage make_vastcommon unittest_messageserialize
+.PHONY: unittest_logger unittest_concurrentqueue unittest_vastmessage make_vastcommon unittest_messageserialize unittest_autodestructortimer
 
-all: unittest_logger unittest_concurrentqueue unittest_vastmessage unittest_messageserialize
+all: unittest_logger unittest_concurrentqueue unittest_vastmessage unittest_messageserialize unittest_autodestructortimer
 
 unittest_logger: unittest_logger.cpp
 	$(MAKE) make_vastcommon
@@ -53,8 +54,15 @@ unittest_messageserialize: unittest_messageserialize.cpp
 	echo "Running: unittest_messageserialize"
 	$(unittest_messageserialize)
 
+unittest_autodestructortimer: unittest_autodestructortimer.cpp
+	$(MAKE) make_vastcommon
+	$(CC) $(CFLAGS) $(INC_PATHS) $(LIB_PATHS) $^ $(LIBS) -lpthread \
+	-o $(unittest_autodestructortimer)
+	echo "Running: unittest_autodestructortimer"
+	$(unittest_autodestructortimer)
+
 make_vastcommon:
 	$(MAKE) --directory=../
 
 clean:
-	-rm $(unittest_logger) $(unittest_concurrentqueue) $(unittest_vastmessage) $(unittest_messageserialize)
+	-rm $(unittest_logger) $(unittest_concurrentqueue) $(unittest_vastmessage) $(unittest_messageserialize) $(unittest_autodestructortimer)

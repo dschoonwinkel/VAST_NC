@@ -609,7 +609,7 @@ void testNETIDUNASSIGNED()
 
     assert(recoder.getPacketPoolSize () == 0);
 
-    rlncdecoder decoder;
+    customrlncdecoder decoder;
     decoder.addRLNCMessage (message1);
     assert(decoder.getPacketPoolSize () == 0);
 
@@ -679,7 +679,7 @@ void testThrowPktNotUnique()
 
     message1.putMessage(vast_data1.data (), 100);
 
-    rlncdecoder decoder;
+    customrlncdecoder decoder;
     decoder.addRLNCMessage (message1);
     decoder.addRLNCMessage (message1);
     assert(decoder.getPacketPoolSize () == 0);
@@ -869,13 +869,8 @@ void testRepeated()
         RLNCMessage message2(header2);
 
         //Assure that the messages does not have similar or 0 fromIDs
-        int id1 = rand() % 10 + 1;
-        int id2 = -1;
-        do
-        {
-           id2  = rand() % 10 + 1;
-        }
-        while(id2 == id1);
+        int id1 = i + 1; // ie. 1 - 10000
+        int id2 = i + iterations + 2; // ie. 10002 - 20002, no overlap possible
 
         Vast::IPaddr addr1("127.0.0.1", 1037);
         Vast::IPaddr addr2("127.0.0.2", 1037);

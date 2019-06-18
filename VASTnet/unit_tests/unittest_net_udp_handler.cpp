@@ -63,6 +63,8 @@ void testProcessInput()
     assert(tester.message == std::string(buf1.data, buf1.size));
 
     boost::this_thread::sleep_for (boost::chrono::milliseconds(sleep_time));
+
+    handler.close();
 }
 
 int main()

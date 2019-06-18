@@ -1,4 +1,4 @@
-#include "rlncdecoder.h"
+#include "customrlncdecoder.h"
 #include "rlncrecoder.h"
 #include "rlnc_packet_factory.h"
 
@@ -18,7 +18,7 @@ int main()
     buffer.fill(0);
 
     RLNCrecoder recoder;
-    rlncdecoder decoder;
+    customrlncdecoder decoder;
 
     RLNCHeader_factory factory;
     RLNCHeader header1 = factory.build();

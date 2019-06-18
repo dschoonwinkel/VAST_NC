@@ -1,5 +1,5 @@
 #include "rlncrecoder.h"
-#include "rlncdecoder.h"
+#include "customrlncdecoder.h"
 #include <iostream>
 #include <assert.h>
 
@@ -40,7 +40,7 @@ int main()
         exit(EXIT_FAILURE);
     }
 
-    rlncdecoder decoder;
+    customrlncdecoder decoder;
 
     decoder.addRLNCMessage(*temp_msg);
     decoder.addRLNCMessage(msg179);

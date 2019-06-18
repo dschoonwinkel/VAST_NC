@@ -7,6 +7,8 @@ VASTStatLog/unit_test/unittest_vast_capturemsgs.cpp
 VASTStatLog/vast_capturemsgs.cpp
 VASTStatLog/vast_capturemsgs.h
 VASTnet/abstract_input_processor.h
+VASTnet/customrlncdecoder.cpp
+VASTnet/customrlncdecoder.h
 VASTnet/integration_tests/abstract_sender_impl.h
 VASTnet/integration_tests/differentlen_codingtest.cpp
 VASTnet/integration_tests/hexnumber_conv.cpp
@@ -38,6 +40,8 @@ common/Agent.h
 common/AgentLogic.h
 common/Arbitrator.h
 common/ArbitratorLogic.h
+common/autodestructortimer.cpp
+common/autodestructortimer.h
 common/blockingconcurrentqueue.h
 common/ClusterMovement.h
 common/Compressor.cpp
@@ -63,6 +67,7 @@ common/StdIO_SectionedFile.cpp
 common/Storage.h
 common/StorageLogic.h
 common/tests/Makefile
+common/tests/unittest_autodestructortimer.cpp
 common/tests/unittest_concurrentqueue.cpp
 common/tests/unittest_logger.cpp
 common/tests/unittest_messageserialize.cpp
@@ -206,8 +211,6 @@ VASTnet/net_udpnc_mchandler.h
 VASTnet/rlnc_fieldsize_defs.h
 VASTnet/rlnc_packet_factory.cpp
 VASTnet/rlnc_packet_factory.h
-VASTnet/rlncdecoder.cpp
-VASTnet/rlncdecoder.h
 VASTnet/rlncmessage.cpp
 VASTnet/rlncmessage.h
 VASTnet/udp_header.hpp
@@ -220,7 +223,7 @@ VASTnet/unit_tests/unittest_net_udp_handler.cpp
 VASTnet/unit_tests/unittest_net_udpnc_consumer.cpp
 VASTnet/unit_tests/unittest_net_udpnc_handler.cpp
 VASTnet/unit_tests/unittest_net_udpnc_mchandler.cpp
-VASTnet/unit_tests/unittest_rlncdecoder.cpp
+VASTnet/unit_tests/unittest_customrlncdecoder.cpp
 VASTnet/unit_tests/unittest_rlncmessage.cpp
 VASTnet/integration_tests/Makefile
 VASTnet/VASTnet.cpp

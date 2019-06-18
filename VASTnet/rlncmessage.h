@@ -21,7 +21,7 @@ public:
     //Copy constructor
     RLNCMessage (const RLNCMessage &message);
 
-    const std::vector<packetid_t> getPacketIds();
+    const std::vector<packetid_t> getPacketIds() const;
     const std::vector<Vast::id_t> getFromIds();
     Vast::id_t getFirstFromId();
     const std::vector<Vast::IPaddr> getToAddrs();
@@ -44,8 +44,8 @@ public:
     uint32_t getChecksum();
     void setChecksum(uint32_t checksum);
 
-    size_t sizeOf ();
-    size_t serialize (char *buffer);
+    size_t sizeOf () const;
+    size_t serialize (char *buffer) const;
     //Returns -1 on error
     int deserialize(const char *buffer, size_t size);
 

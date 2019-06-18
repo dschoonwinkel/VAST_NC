@@ -1,4 +1,4 @@
-#include "rlncdecoder.h"
+#include "customrlncdecoder.h"
 #include "rlncrecoder.h"
 #include "rlnc_packet_factory.h"
 
@@ -15,7 +15,7 @@ void testEncodedChecksum()
     char data3[] = {'f', 'e', 'e', 'd'};
 
     RLNCrecoder recoder;
-    rlncdecoder decoder;
+    customrlncdecoder decoder;
 
     RLNCHeader_factory factory;
     RLNCHeader header1 = factory.build();
@@ -74,10 +74,9 @@ void testEncodedChecksum()
     decoder.addRLNCMessage(message1);
     RLNCMessage *decoded_msg = decoder.produceDecodedRLNCMessage();
 
-    if (decoded_msg != NULL)
+    if (decoded_msg == NULL)
     {
-        std::cout << "Decoded Symbol: " << std::endl
-                  << (*decoded_msg) << std::endl;
+        std::cout << "Could not decode symbol " << std::endl;
         exit(EXIT_FAILURE);
     }
 
@@ -121,9 +120,9 @@ void testSameFromIDs()
     message2.putFromId (123);
     message2.putToAddr(addr2);
 
-    message2.putPacketId(789);
-    message2.putFromId (234);
-    message2.putToAddr(addr3);
+    message3.putPacketId(789);
+    message3.putFromId (234);
+    message3.putToAddr(addr3);
 
     message1.putMessage(data1, 4);
     message2.putMessage(data2, 4);

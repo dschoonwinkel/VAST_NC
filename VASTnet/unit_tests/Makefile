@@ -2,7 +2,7 @@ unittest_net_udp_handler = ./unittest_net_udp_handler
 unittest_net_udpnc_handler = ./unittest_net_udpnc_handler
 unittest_rlncmessage = ./unittest_rlncmessage
 unittest_net_udpnc_mchandler = ./unittest_net_udpnc_mchandler
-unittest_rlncdecoder = ./unittest_rlncdecoder
+unittest_customrlncdecoder = ./unittest_customrlncdecoder
 unittest_net_udpnc_consumer = ./unittest_net_udpnc_consumer
 
 CC = g++
@@ -11,7 +11,7 @@ ACE_ROOT = /usr
 
 
 #CFLAGS=-O2 -ftree-vectorize -std=c++14 -Wall -Wextra
-CFLAGS=-ggdb -std=c++14 -Wall -Wextra
+CFLAGS=-ggdb -std=c++14 -Wall -Wextra -fsanitize=address
 
 LIBS_COMMON = -lvastsim -lvast -lvastnet -lvastcommon -lvastreal -lvaststatlog
 #-lz -ldl -lpthread
@@ -30,9 +30,9 @@ ACE_PATH    = /usr
 INC_PATHS   = -I../../common -I../../VASTsim -I$(ACE_PATH)/include -I../../VAST -I../../VASTnet -I../../coding_host
 LIB_PATHS   = -L../../lib -L../../Dependencies/lib/Release -L$(ACE_PATH)/lib
 
-.PHONY: unittest_net_udp_handler unittest_net_udpnc_handler unittest_rlncmessage unittest_net_udpnc_mchandler make_vastnet unittest_rlncdecoder unittest_net_udpnc_consumer
+.PHONY: unittest_net_udp_handler unittest_net_udpnc_handler unittest_rlncmessage unittest_net_udpnc_mchandler make_vastnet unittest_customrlncdecoder unittest_net_udpnc_consumer
 
-all: unittest_rlncmessage unittest_net_udp_handler unittest_net_udpnc_mchandler unittest_rlncdecoder unittest_net_udpnc_handler unittest_net_udpnc_consumer
+all: unittest_rlncmessage unittest_net_udp_handler unittest_net_udpnc_mchandler unittest_customrlncdecoder unittest_net_udpnc_handler unittest_net_udpnc_consumer
 
 unittest_net_udp_handler: unittest_net_udp_handler.cpp
 	$(MAKE) make_vastnet
@@ -63,12 +63,12 @@ unittest_net_udpnc_mchandler: unittest_net_udpnc_mchandler.cpp abstract_rlnc_msg
 	echo "Running: unittest_net_udpnc_mchandler"
 	$(unittest_net_udpnc_mchandler)
 
-unittest_rlncdecoder: unittest_rlncdecoder.cpp ../../coding_host/rlncrecoder.cpp abstract_rlnc_msg_receiver_testimpl.cpp
+unittest_customrlncdecoder: unittest_customrlncdecoder.cpp ../../coding_host/rlncrecoder.cpp abstract_rlnc_msg_receiver_testimpl.cpp
 	$(MAKE) make_vastnet
 	$(CC) $(CFLAGS) $(INC_PATHS) $(LIBS_INCKODO) $(LIB_PATHS) $^ $(LIBS) $(LIBS_KODO) \
-	-o $(unittest_rlncdecoder)
-	echo "Running: unittest_rlncdecoder"
-	$(unittest_rlncdecoder)
+	-o $(unittest_customrlncdecoder)
+	echo "Running: unittest_customrlncdecoder"
+	$(unittest_customrlncdecoder)
 
 unittest_net_udpnc_consumer: unittest_net_udpnc_consumer.cpp abstract_rlnc_msg_receiver_testimpl.cpp
 	$(MAKE) make_vastnet
@@ -81,6 +81,6 @@ make_vastnet:
 	$(MAKE) --directory=../
 
 clean:
-	-rm $(unittest_net_udpnc_handler) $(unittest_rlncmessage) $(unittest_net_udpnc_mchandler) $(unittest_rlncdecoder) $(unittest_net_udpnc_consumer)
+	-rm $(unittest_net_udpnc_handler) $(unittest_rlncmessage) $(unittest_net_udpnc_mchandler) $(unittest_customrlncdecoder) $(unittest_net_udpnc_consumer)
 
 noace:

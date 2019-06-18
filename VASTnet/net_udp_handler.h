@@ -68,7 +68,7 @@ namespace Vast {
 
         bool                        is_open = false;
 
-        ip::udp::socket             *_udp;
+        ip::udp::socket             *_udpsocket;
         ip::udp::endpoint           _remote_endpoint_;
         ip::udp::endpoint           _local_endpoint;
         char                        _buf[VAST_BUFSIZ];

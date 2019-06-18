@@ -16,6 +16,7 @@
 #include <chrono>
 #include "logger.h"
 #include <signal.h>
+#include <cstdlib>
 
 using namespace boost::asio;
 
@@ -181,7 +182,16 @@ void sendMessages()
 //                std::cout << "NCWrapper in msgcap[" << msgcapIDs[msgcap_iter] << std::endl
 //                          << wrapper << std::endl;
 //                handler.send(wrapper._buffer.c_str(), wrapper._buffer.length(), endpoint);
-                handler.process_input(wrapper._buffer.c_str(), wrapper._local_endpoint, wrapper._buffer.length());
+
+//                int rand_num = rand() % 10;
+//                if (rand_num < 1)
+//                {
+//                    CPPDEBUG("Dropping packet" << std::endl);
+//                }
+//                else
+//                {
+                    handler.process_input(wrapper._buffer.c_str(), wrapper._local_endpoint, wrapper._buffer.length());
+//                }
 
                 std::cout << "Sending packet to packet_listener" << std::endl;
                 _packet_listener.process_input(wrapper._buffer.c_str(), wrapper._buffer.length());
@@ -273,6 +283,8 @@ void checkInputEqualOutput()
 int main()
 {
     signal(SIGINT, SIGINT_handler);
+
+    srand(0);
     readIniFile("../../bin/VASTreal.ini");
     initVariables();
     sendMessages();

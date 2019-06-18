@@ -5,7 +5,7 @@
 #include <boost/asio.hpp>
 #include <boost/thread.hpp>
 #include "rlncmessage.h"
-#include "rlncdecoder.h"
+#include "customrlncdecoder.h"
 #include "abstract_rlnc_msg_receiver.h"
 
 using namespace boost::asio;
@@ -62,7 +62,7 @@ namespace Vast
         // the same io_service as net_udp
         io_service                  *_io_service = NULL;
         boost::thread               *_iosthread = NULL;
-        rlncdecoder                 decoder;
+        customrlncdecoder                 decoder;
 
         size_t packets_received = 0;
         size_t toaddrs_pkts_ignored = 0;

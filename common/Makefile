@@ -9,7 +9,7 @@ CC = g++
 ACE_ROOT = /usr
 
 #replace -fPIC with -static for static linking
-CFLAGS = -static -c -Wall -I$(ACE_ROOT)/include -std=c++14
+CFLAGS = -static -c -Wall -I$(ACE_ROOT)/include -std=c++14 -fsanitize=address
 #CFLAGS = -fPIC -c -Wall -I$(ACE_ROOT) 
 #-I../Dependencies/include
 
@@ -20,7 +20,8 @@ sources_o = Compressor.cpp Errout.cpp \
 	    VASTUtil.cpp \
 	    logger.cpp \
 	    ipaddr_warning.cpp \
-	    timeouts.cpp
+	    timeouts.cpp \
+	    autodestructortimer.cpp
             
 sources=$(sources_o)
 

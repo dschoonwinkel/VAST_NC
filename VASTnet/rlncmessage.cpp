@@ -32,7 +32,7 @@ RLNCMessage::RLNCMessage (const RLNCMessage &message):
 //    CPPDEBUG("RLNCMessage copy constructor called" <<std::endl);
 }
 
-const std::vector<packetid_t> RLNCMessage::getPacketIds()
+const std::vector<packetid_t> RLNCMessage::getPacketIds() const
 {
     return pkt_ids;
 }
@@ -120,7 +120,7 @@ void RLNCMessage::setChecksum(uint32_t checksum)
 }
 
 // size of this class, must be implemented
-size_t RLNCMessage::sizeOf ()
+size_t RLNCMessage::sizeOf () const
 {
     size_t size = sizeof(RLNCHeader);
     size += header.enc_packet_count * sizeof(packetid_t);
@@ -137,7 +137,7 @@ size_t RLNCMessage::sizeOf ()
 // store into a buffer (assuming the buffer has enough space)
 // buffer can be NULL (simply to query the total size)
 // returns the total size of the packed class
-size_t RLNCMessage::serialize (char *buffer)
+size_t RLNCMessage::serialize (char *buffer) const
 {
     size_t n = 0;
     if (buffer == NULL)

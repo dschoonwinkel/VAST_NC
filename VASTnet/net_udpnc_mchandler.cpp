@@ -73,6 +73,7 @@ namespace Vast
             process_input(_buf, bytes_transferred);
 
 #pragma message "register thread name here"
+            Logger::registerThreadName(std::this_thread::get_id(), "net_udpnc_mchandler");
 
             //Restart waiting for new packets
             start_receive();
