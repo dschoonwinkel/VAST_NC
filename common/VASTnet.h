@@ -331,6 +331,8 @@ namespace Vast {
         // TODO: remove this so VASTnet's interface is cleaner?
         static id_t resolvePort (id_t host_id);
 
+        static bool getInterfaceAddrFromRemoteAddr(std::array<char, INET_ADDRSTRLEN> &result_IP, char *remote_IP);
+
     protected:
 
         //
@@ -437,7 +439,6 @@ namespace Vast {
     };
 
     bool check_same_subnet(struct in_addr addr1, struct in_addr addr2, struct in_addr netmask);
-    char* getInterfaceAddrFromRemoteAddr(char* remote_IP);
 
 
 } // end namespace Vast

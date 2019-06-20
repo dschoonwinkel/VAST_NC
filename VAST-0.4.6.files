@@ -14,6 +14,7 @@ VASTnet/integration_tests/differentlen_codingtest.cpp
 VASTnet/integration_tests/hexnumber_conv.cpp
 VASTnet/integration_tests/rlncdissector.cpp
 VASTnet/integration_tests/udpnc_integration_test.cpp
+VASTnet/unit_tests/unittest_vastnet.cpp
 bin/Makefile
 bin/VASTreal.ini
 bin/VASTsim.ini

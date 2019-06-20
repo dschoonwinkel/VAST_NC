@@ -124,7 +124,7 @@ namespace Vast
             //NOTE: why does this clear cause such a big improvement in performance?
             //Effects include - packet pool not large enough to be practical for any decoding
             //Am I simply not using multicasts packet?
-            mchandler->clearPacketPool();
+//            mchandler->clearPacketPool();
         }
 
         else if (firstFromID == NET_ID_UNASSIGNED)

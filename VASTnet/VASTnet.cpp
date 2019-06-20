@@ -48,7 +48,17 @@ namespace Vast
             std::cout << "VASTnet::constructor extracted IP_string : " << IP_string << std::endl;
         }
 
-        IP_string = getInterfaceAddrFromRemoteAddr(IP_string);
+        std::array<char, INET_ADDRSTRLEN> result_IP;
+//        IP_string = getInterfaceAddrFromRemoteAddr(IP_string);
+        bool success = getInterfaceAddrFromRemoteAddr(result_IP, IP_string);
+        if (success)
+        {
+            IP_string = result_IP.data();
+        }
+        else
+        {
+            IP_string = NULL;
+        }
 
         std::cout << "Net_Model: " << _model << std::endl;
 
@@ -1277,21 +1287,21 @@ namespace Vast
 
 
     //Note: based on example from http://man7.org/linux/man-pages/man3/getifaddrs.3.html or man getifaddrs
-    char *getInterfaceAddrFromRemoteAddr(char *remote_IP)
+    bool VASTnet::getInterfaceAddrFromRemoteAddr(std::array<char, INET_ADDRSTRLEN> &result_IP, char *remote_IP)
     {
+        result_IP.fill(0);
+
         if (remote_IP == NULL)
         {
             CPPDEBUG("VASTnet::getInterfaceAddrFromRemoteAddr remote_IP was NULL");
-            return NULL;
+            return false;
         }
 
-        struct ifaddrs *ifaddr, *ifa;
-        struct sockaddr_in *ip_addr, *netmask;
+        struct ifaddrs *ifaddr = NULL, *ifa = NULL;
+        struct sockaddr_in *ip_addr = NULL, *netmask = NULL;
         int family, s, n;
 
         struct sockaddr_in remote_addr;
-
-        char *interface_IP_txt = new char[INET_ADDRSTRLEN];
 
         std::cout << "VASTnet::getInterfaceAddrFromRemateAddr:remote_IP = " << remote_IP << std::endl;
 
@@ -1349,8 +1359,8 @@ namespace Vast
                 // printf("\n");
 
                 //Get IP addr in human readable form:
-                inet_ntop(AF_INET, &(ip_addr->sin_addr.s_addr), interface_IP_txt, INET_ADDRSTRLEN);
-                printf("Interface IP: %s\n", interface_IP_txt);
+                inet_ntop(AF_INET, &(ip_addr->sin_addr.s_addr), result_IP.data(), INET_ADDRSTRLEN);
+                printf("Interface IP: %s\n", result_IP.data());
 
                 // printf("IP addr sin_addr.s_addr %x\n", ip_addr->sin_addr.s_addr);
                 // printf("Netmask sin_addr.s_addr %x\n", netmask->sin_addr.s_addr);
@@ -1371,8 +1381,8 @@ namespace Vast
                                         netmask->sin_addr))
                 {
                     //Get IP addr in human readable form:
-                    inet_ntop(AF_INET, &(ip_addr->sin_addr.s_addr), interface_IP_txt, INET_ADDRSTRLEN);
-                    printf("Found correct interface: %s\n", interface_IP_txt);
+                    inet_ntop(AF_INET, &(ip_addr->sin_addr.s_addr), result_IP.data(), INET_ADDRSTRLEN);
+                    printf("Found correct interface: %s\n", result_IP.data());
                     break;
                 }
                 printf("\n");
@@ -1382,7 +1392,13 @@ namespace Vast
 
         }
 
-        return interface_IP_txt;
+
+        if (ifaddr)
+        {
+            free(ifaddr);
+        }
+
+        return true;
 
 
     }
