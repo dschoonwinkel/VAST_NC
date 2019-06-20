@@ -32,7 +32,7 @@ int main()
     recoder.addRLNCMessage(msg634);
     recoder.addRLNCMessage(msg179);
 
-    std::shared_ptr<RLNCMessage> = recoder.produceRLNCMessage();
+    std::shared_ptr<RLNCMessage> temp_msg = recoder.produceRLNCMessage();
 
     if (!temp_msg)
     {

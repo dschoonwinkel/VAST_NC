@@ -29,7 +29,7 @@ void RLNCrecoder::stopEncodeTimer()
 
 void RLNCrecoder::addRLNCMessage(RLNCMessage msg)
 {
-    Logger::debugThread("RLNCrecoder::addRLNCMessage");
+//    Logger::debugThread("RLNCrecoder::addRLNCMessage");
     auto pktids = msg.getPacketIds();
 
     //Ignore all NET_ID_UNASSIGNED
@@ -74,7 +74,7 @@ void RLNCrecoder::addRLNCMessage(RLNCMessage msg)
 std::shared_ptr<RLNCMessage> RLNCrecoder::produceRLNCMessage()
 {
     startEncodeTimer();
-    Logger::debugThread("RLNCrecoder::produceRLNCMessage");
+//    Logger::debugThread("RLNCrecoder::produceRLNCMessage");
     if (packet_pool.size() < 2)
     {
         CPPDEBUG("RLNCrecoder::produceRLNCMessage packet_pool.size() too small" << std::endl);
@@ -144,6 +144,7 @@ std::shared_ptr<RLNCMessage> RLNCrecoder::produceRLNCMessage()
     packet_pool.erase(packet_pool.find(message2->getPacketIds()[0]));
 
     stopEncodeTimer();
+    packets_encoded++;
     return message;
 }
 
@@ -155,5 +156,8 @@ size_t RLNCrecoder::getPacketPoolSize ()
 RLNCrecoder::~RLNCrecoder()
 {
     std::cout << "~RLNCrecoder: Max packet_pool size: " << max_packetpool_size << std::endl;
+    std::cout << "~RLNCrecoder: packets_encoded: " << packets_encoded << std::endl;
     CPPDEBUG("~RLNCrecoder:: time spent encoding: " << encodeTimer.count() / 1000 << " milliseconds " << std::endl);
+    CPPDEBUG("~RLNCrecoder:: time spent encoding per packet: " << encodeTimer.count() / packets_encoded << " microseconds " << std::endl << std::endl);
+
 }

@@ -36,6 +36,9 @@ int g_MS_PER_TIMESTEP;
 
 bool running = true;
 
+std::map<ip::udp::endpoint, size_t> packets_sent_unicast;
+std::map<ip::udp::endpoint, size_t> packets_dropped_unicast;
+
 void SIGINT_handler (int)
 {
     std::cout << "Interrupt received" << std::endl;
@@ -183,17 +186,21 @@ void sendMessages()
 //                          << wrapper << std::endl;
 //                handler.send(wrapper._buffer.c_str(), wrapper._buffer.length(), endpoint);
 
-//                int rand_num = rand() % 10;
-//                if (rand_num < 1)
-//                {
-//                    CPPDEBUG("Dropping packet" << std::endl);
-//                }
-//                else
-//                {
-                    handler.process_input(wrapper._buffer.c_str(), wrapper._local_endpoint, wrapper._buffer.length());
-//                }
+                int LOSS_PERCENTAGE = 20;
+                int rand_num = rand() % 100;
+                if (rand_num < LOSS_PERCENTAGE)
+                {
+                    CPPDEBUG("Dropping packet" << std::endl);
+                    packets_dropped_unicast[wrapper._local_endpoint]++;
 
-                std::cout << "Sending packet to packet_listener" << std::endl;
+                }
+                else
+                {
+                    packets_sent_unicast[wrapper._local_endpoint]++;
+                    handler.process_input(wrapper._buffer.c_str(), wrapper._local_endpoint, wrapper._buffer.length());
+                }
+
+//                std::cout << "Sending packet to packet_listener" << std::endl;
                 _packet_listener.process_input(wrapper._buffer.c_str(), wrapper._buffer.length());
             }
             sending = sending || ready;
@@ -277,6 +284,42 @@ void checkInputEqualOutput()
         std::cout << "Some packets sent & received incorrectly" << std::endl;
     }
 
+    std::cout << "packets_sent_unicast" << std::endl;
+    for (auto it = packets_sent_unicast.begin(); it != packets_sent_unicast.end(); ++it)
+    {
+        std::cout << it->first << ": " << it->second << std::endl;
+    }
+    std::cout << "packets_dropped_unicast" << std::endl;
+    for (auto it = packets_dropped_unicast.begin(); it != packets_dropped_unicast.end(); ++it)
+    {
+        std::cout << it->first << ": " << it->second << std::endl;
+    }
+
+    //Put sent and received messages in a map, to verify if those that were received, were received correctly.
+    std::map<packetid_t, RLNCMessage> saved_sent_messages;
+    std::map<packetid_t, RLNCMessage> recvd_messages;
+    for (auto it = savedRelevantMsgs.begin(); it != savedRelevantMsgs.end(); ++it)
+    {
+        saved_sent_messages[(*it).getPacketIds()[0]] = (*it);
+    }
+
+    for (auto it = RLNCsink.all_recv_msgs.begin(); it != RLNCsink.all_recv_msgs.end(); ++it)
+    {
+        recvd_messages[(*it).getPacketIds()[0]] = (*it);
+    }
+
+    size_t recvd_messages_correct = 0;
+    //Check recvd messages against original saved_sending_messages
+    for (auto it = recvd_messages.begin(); it != recvd_messages.end(); ++it)
+    {
+        if (recvd_messages[it->first].contentEquals(saved_sent_messages[it->first]))
+        {
+            recvd_messages_correct++;
+        }
+    }
+
+    std::cout << "Checking correctly of received packets: " << std::endl <<
+                 recvd_messages_correct << "correct of " << recvd_messages.size() << std::endl;
 
 }
 

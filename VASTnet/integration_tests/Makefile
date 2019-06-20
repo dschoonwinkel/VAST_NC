@@ -35,8 +35,8 @@ udpnc_integration_test: udpnc_integration_test.cpp ../unit_tests/absnet_udp_test
 	$(MAKE) make_vastnet
 	$(CC) $(CFLAGS) $(INC_PATHS) $(LIBS_INCKODO) $(LIB_PATHS) $^ $(LIBS) $(LIBS_KODO) \
 	-o $(udpnc_integration_test)
-	echo "Running: udpnc_integration_test"
-	$(udpnc_integration_test)
+#	echo "Running: udpnc_integration_test"
+#	$(udpnc_integration_test)
 
 rlncdissector: rlncdissector.cpp
 	$(MAKE) make_vastnet

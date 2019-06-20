@@ -92,70 +92,72 @@ bool customrlncdecoder::_fetchFromPacketPool(RLNCMessage &active_encoded_packet,
                                        size_t &decoded_packet_index)
 {
 
-    //Check if we can decode something and then copy out the relevant packets
-    std::unique_lock<std::mutex> fetchPackets_guard(packet_pool_mutex);
+    { //Locked scope
+        //Check if we can decode something and then copy out the relevant packets
+        std::lock_guard<std::mutex> fetchPackets_guard(packet_pool_mutex);
 
-    for (size_t i = 0; i < NC_packets.size(); i++)
-    {
-        auto pktids = NC_packets[i].getPacketIds();
-
-        size_t available_ids = 0;
-        //Check if we have enough pktids to decode this message
-        for (size_t j = 0; j < pktids.size(); j++)
+        for (size_t i = 0; i < NC_packets.size(); i++)
         {
-            if (packet_pool.find(pktids[j]) != packet_pool.end())
-            {
-                available_ids += 1;
-            }
-        }
+            auto pktids = NC_packets[i].getPacketIds();
 
-        //Even if we have all the pktids, this message could be newer than what we have
-        //If we have all the pktids, this message has already been decoded
-        if (available_ids == pktids.size())
-        {
-        }
-
-
-        //If we have all the pktids except 1, this NC message contains a useful message
-        //Copy the available packets to a vector, used for decoding after lock is released
-        else if (available_ids >= pktids.size()-1)
-        {
+            size_t available_ids = 0;
+            //Check if we have enough pktids to decode this message
             for (size_t j = 0; j < pktids.size(); j++)
             {
                 if (packet_pool.find(pktids[j]) != packet_pool.end())
                 {
-                    available_packets[j] = (packet_pool.find (pktids[j])->second);
-                }
-                else
-                {
-                    //Save packet index for later use
-                    decoded_packet_index = j;
+                    available_ids += 1;
                 }
             }
 
-            //Erase the packets we have just used
-            for (size_t j = 0; j < pktids.size (); j++)
+            //Even if we have all the pktids, this message could be newer than what we have
+            //If we have all the pktids, this message has already been decoded
+            if (available_ids == pktids.size())
             {
-                if (packet_pool.find(pktids[j]) != packet_pool.end())
-                {
-                   packet_pool.erase (packet_pool.find (pktids[j]));
-                }
             }
 
 
-            active_encoded_packet = NC_packets[i];
-            //We have found our packet we want to decode, stop looking
-            break;
-        }
+            //If we have all the pktids except 1, this NC message contains a useful message
+            //Copy the available packets to a vector, used for decoding after lock is released
+            else if (available_ids >= pktids.size()-1)
+            {
+                for (size_t j = 0; j < pktids.size(); j++)
+                {
+                    if (packet_pool.find(pktids[j]) != packet_pool.end())
+                    {
+                        available_packets[j] = (packet_pool.find (pktids[j])->second);
+                    }
+                    else
+                    {
+                        //Save packet index for later use
+                        decoded_packet_index = j;
+                    }
+                }
 
-        else {
-            CPPDEBUG("Too many packets missing, erasing and trying next packet" << std::endl);
-            NC_packets.erase (NC_packets.begin() + i);
-            continue;
+                //Erase the packets we have just used
+                for (size_t j = 0; j < pktids.size (); j++)
+                {
+                    if (packet_pool.find(pktids[j]) != packet_pool.end())
+                    {
+                       packet_pool.erase (packet_pool.find (pktids[j]));
+                    }
+                }
+
+
+                active_encoded_packet = NC_packets[i];
+                NC_packets.erase(NC_packets.begin() + i);
+                //We have found our packet we want to decode, stop looking
+                break;
+            }
+
+            else {
+                CPPDEBUG("Too many packets missing, erasing and trying next packet" << std::endl);
+                NC_packets.erase (NC_packets.begin() + i);
+                continue;
+            }
         }
-    }
-    //Shared variable access done
-    fetchPackets_guard.unlock ();
+        //Shared variable access done
+    } //Locked scope done
 
     if (available_packets.size () == active_encoded_packet.getPacketIds().size())
     {
@@ -173,8 +175,8 @@ bool customrlncdecoder::_fetchFromPacketPool(RLNCMessage &active_encoded_packet,
 
 bool customrlncdecoder::_putAvailableInDecoder(std::shared_ptr<kodo_rlnc::decoder> decoder,
                                          const std::map<size_t, RLNCMessage> &available_packets,
-                                         const RLNCMessage active_encoded_packet,
-                                         size_t decoded_packet_index,
+                                         const RLNCMessage &active_encoded_packet,
+                                         const size_t &decoded_packet_index,
                                          uint32_t &total_checksum)
 {
     for (size_t k = 0; k < active_encoded_packet.getPacketIds ().size(); k++)
@@ -326,12 +328,12 @@ customrlncdecoder::~customrlncdecoder ()
     CPPDEBUG("~customrlncdecoder:: packets_already_decoded: " << packets_already_decoded << std::endl);
     CPPDEBUG("~customrlncdecoder:: packets_missing_undecodable: " << packets_missing_undecodable << std::endl);
     CPPDEBUG("~customrlncdecoder:: packets_checksum_incorrect: " << packets_checksum_incorrect << std::endl);
-    CPPDEBUG("~customrlncdecoder::packet_linearly_dependent" << packet_linearly_dependent << std::endl);
+    CPPDEBUG("~customrlncdecoder:: packet_linearly_dependent: " << packet_linearly_dependent << std::endl);
     CPPDEBUG("~customrlncdecoder:: max_packetpool_size: " << max_packetpool_size << std::endl);
     CPPDEBUG("~customrlncdecoder:: max_NC_packets_size: " << max_NC_packets_size << std::endl);
     CPPDEBUG("~customrlncdecoder:: time spent in addLock: " << addLockTimer.count() / 1000 << " milliseconds " << std::endl);
     CPPDEBUG("~customrlncdecoder:: time spent decoding: " << decoderTimer.count() / 1000 << " milliseconds " << std::endl);
     if (decodes_attempted > 0)
-        CPPDEBUG("~customrlncdecoder:: time spent decoding per msg: " << decoderTimer.count() / decodes_attempted << " microseconds " << std::endl);
+        CPPDEBUG("~customrlncdecoder:: time spent decoding per recovered msg: " << decoderTimer.count() / packets_recovered << " microseconds " << std::endl);
 }
 

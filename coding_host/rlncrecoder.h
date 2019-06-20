@@ -38,6 +38,7 @@ private:
     RLNCHeader_factory header_factory;
 
     size_t max_packetpool_size = 0;
+    size_t packets_encoded = 0;
 
     void startEncodeTimer();
     void stopEncodeTimer();

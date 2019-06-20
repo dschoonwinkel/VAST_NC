@@ -43,8 +43,8 @@ private:
 
     bool _putAvailableInDecoder(std::shared_ptr<kodo_rlnc::decoder> decoder,
                                 const std::map<size_t, RLNCMessage> &available_packets,
-                                const RLNCMessage active_encoded_packet,
-                                size_t decoded_packet_index,
+                                const RLNCMessage &active_encoded_packet,
+                                const size_t &decoded_packet_index,
                                 uint32_t &total_checksum);
 
     std::map<packetid_t, RLNCMessage> packet_pool;

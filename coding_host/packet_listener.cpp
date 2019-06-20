@@ -266,6 +266,10 @@ int packet_listener::handle_close ()
         if (_send_udp != NULL && _send_udp->is_open ())
         {
             _send_udp->close ();
+
+            //Work needs to be destroyed before _io_service can properly exit
+            delete _send_io_service_work;
+
             _send_io_service->stop();
         }
 
@@ -288,13 +292,40 @@ int packet_listener::handle_close ()
 
 packet_listener::~packet_listener ()
 {
-    delete _recv_udp;
-    _recv_udp = NULL;
-    delete _send_udp;
-    _send_udp = NULL;
+    if (_recv_udp)
+    {
+        delete _recv_udp;
+        _recv_udp = NULL;
+    }
+    if (_send_udp)
+    {
+        delete _send_udp;
+        _send_udp = NULL;
+    }
 
-    delete _send_io_service;
-    _send_io_service = NULL;
+    if (_iosthread_recv)
+    {
+        delete _iosthread_recv;
+        _iosthread_recv = NULL;
+    }
+
+    if (_send_io_service)
+    {
+        delete _send_io_service;
+        _send_io_service = NULL;
+    }
+
+    if (_iosthread_send_ioservice)
+    {
+        delete _iosthread_send_ioservice;
+        _iosthread_send_ioservice = NULL;
+    }
+
+    if (_iosthread_send_startsend)
+    {
+        delete _iosthread_send_startsend;
+        _iosthread_send_startsend = NULL;
+    }
 
     std::cout << std::endl << "~packet_listener: Recv packet count: " << getRecvMsgsCount () << std::endl;
     std::cout << "~packet_listener: process_msg_count: " << process_msg_count << std::endl;
