@@ -9,7 +9,7 @@ ACE_ROOT = /usr
 
 
 #CFLAGS=-O2 -ftree-vectorize -std=c++14 -Wall -Wextra
-CFLAGS=-ggdb -std=c++14 -Wall -Wextra -fsanitize=address
+CFLAGS=-ggdb -std=c++14 -Wall -Wextra -fsanitize=address -fsanitize=thread
 
 LIBS_COMMON = -lvastsim -lvast -lvastnet -lvastcommon
 #-lz -ldl -lpthread

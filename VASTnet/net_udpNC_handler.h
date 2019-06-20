@@ -18,6 +18,11 @@ namespace Vast
         net_udpNC_handler(ip::udp::endpoint local_endpoint);
         virtual ~net_udpNC_handler();
 
+
+        ///Default open function. Uses test case function with RLNCsink = NULL parameter
+        int open (io_service *io_service, abstract_net_udp *msghandler, bool startthread = true);
+
+        ///Used in test cases where I need a different RLNCsink output
         int open (io_service *io_service, abstract_net_udp *msghandler, AbstractRLNCMsgReceiver *RLNCsink = NULL, bool startthread = true);
         // call net_udp_handler close and mchandler close
         int close (void);

@@ -13,7 +13,7 @@ using namespace boost::filesystem;
 #include <vector>
 #include "ncwrapper.h"
 
-#define NETUDPNC_CAPTUREMSG
+//#define NETUDPNC_CAPTUREMSG
 
 namespace Vast {
 

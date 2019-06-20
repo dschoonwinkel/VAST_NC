@@ -5,10 +5,10 @@ read_vaststatlog = ../../bin/read_vaststatlog
 
 # IMPORTANT NOTE: the least dependent library must begin from the rightmost (often vastcommon) 
 LIBS_COMMON = -lvastcommon -lvaststatlog
-LIBS_BOOST = -lboost_system -lboost_thread -lboost_serialization -lboost_filesystem -fsanitize=address
+LIBS_BOOST = -lboost_system -lboost_thread -lboost_serialization -lboost_filesystem
 
 # CFLAGS      = -Wall -static 
-CFLAGS      = -Wall -fPIC -ggdb -std=c++14
+CFLAGS      = -Wall -fPIC -ggdb -std=c++14 -fsanitize=address -fsanitize=thread
 
 INC_PATHS   = -I../../common -I../../VASTStatLog -I../VASTStatReplayQt
 

@@ -9,7 +9,7 @@ CC = g++
 ACE_ROOT = /usr
 
 #replace -fPIC with -static for static linking
-CFLAGS = -static -c -Wall -I$(ACE_ROOT)/include -std=c++14 -fsanitize=address
+CFLAGS = -static -c -Wall -I$(ACE_ROOT)/include -std=c++14 -fsanitize=address -fsanitize=thread
 #CFLAGS = -fPIC -c -Wall -I$(ACE_ROOT) 
 #-I../Dependencies/include
 

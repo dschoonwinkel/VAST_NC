@@ -68,7 +68,6 @@ namespace Vast
         {
             //Store UDP messages
             packets_received++;
-            CPPDEBUG("net_udpnc_mchandler::handle_input Received " << packets_received << " messages!" << std::endl);
 
             process_input(_buf, bytes_transferred);
 
@@ -109,7 +108,6 @@ namespace Vast
 
     void net_udpNC_MChandler::process_encoded (const char *buf, std::size_t bytes_transferred)
     {
-            CPPDEBUG("net_udpNC_MChandler::process_encoded: processing message" << std::endl);
             RLNCMessage message1;
             message1.deserialize (buf, bytes_transferred);
             if (toAddrForMe (message1))

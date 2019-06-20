@@ -15,7 +15,7 @@ using namespace boost::filesystem;
 #include <vector>
 #include "messagewrapper.h"
 
-#define VAST_CAPTUREMSGS
+//#define VAST_CAPTUREMSGS
 
 namespace Vast {
 

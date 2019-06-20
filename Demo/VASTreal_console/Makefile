@@ -13,7 +13,7 @@ LIBS_BOOST = -lboost_system -lboost_thread -lboost_serialization -lboost_filesys
 ACE_PATH    = /usr
 
 # CFLAGS      = -Wall -static 
-CFLAGS      = -Wall -Wextra -fPIC -ggdb -g3 -std=c++14 -fsanitize=address
+CFLAGS      = -Wall -Wextra -fPIC -ggdb -g3 -std=c++14 -fsanitize=address -fsanitize=thread
 
 LIBS_INCKODO = -I../../kodo-rlnc/resolve_symlinks/boost \
 			-I../../kodo-rlnc/resolve_symlinks/kodo-core/src \

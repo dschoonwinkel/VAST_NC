@@ -387,28 +387,28 @@ namespace Vast
     bool 
     net_udp::msg_received (id_t fromhost, const char *message, size_t size, timestamp_t recvtime, bool in_front)
     {        
-        NetSocketMsg *msg = new NetSocketMsg;
+        NetSocketMsg msg;
 
-        msg->fromhost = fromhost;
-        msg->recvtime = recvtime;
-        msg->size     = size;
+        msg.fromhost = fromhost;
+        msg.recvtime = recvtime;
+        msg.size     = size;
 
         if (size > 0)
         {
-            msg->msg = new char[size];
-            memcpy (msg->msg, message, size);
+            msg.msg = new char[size];
+            memcpy (msg.msg, message, size);
         }
-        msg->size = size;
+        msg.size = size;
 
         if (recvtime == 0)
-            msg->recvtime = this->getTimestamp ();
+            msg.recvtime = this->getTimestamp ();
 
         // we store message according to message priority
         _msg_mutex.lock();
         if (in_front)
-            _recv_queue.insert (_recv_queue.begin(), msg);
+            _recv_queue.insert (_recv_queue.begin(), new NetSocketMsg(msg));
         else
-            _recv_queue.push_back (msg);
+            _recv_queue.push_back (new NetSocketMsg(msg));
         _msg_mutex.unlock();
 
         // update last access time of the connection
@@ -416,12 +416,12 @@ namespace Vast
         std::map<id_t, ConnectInfo>::iterator it = _id2conn.find (fromhost);
         if (it != _id2conn.end ())
         {
-            if (msg->recvtime > it->second.lasttime)
-                it->second.lasttime = msg->recvtime; 
+            if (msg.recvtime > it->second.lasttime)
+                it->second.lasttime = msg.recvtime;
         }
 
         //If I have never heard from this connection before, add it as a new connection
-        if (it == _id2conn.end() && message != NULL && msg->fromhost != NET_ID_UNASSIGNED)
+        if (it == _id2conn.end() && message != NULL && msg.fromhost != NET_ID_UNASSIGNED)
         {
             socket_connected(fromhost, _udphandler, false);
         }

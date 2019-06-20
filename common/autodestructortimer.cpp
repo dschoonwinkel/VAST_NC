@@ -18,5 +18,5 @@ AutoDestructorTimer::~AutoDestructorTimer()
         (*totalTime) += internalTimer;
     }
 
-    CPPDEBUG("~AutoDestructorTimer:" << name << " time spent: " << internalTimer.count() << " microseconds " << std::endl);
+//    CPPDEBUG("~AutoDestructorTimer:" << name << " time spent: " << internalTimer.count() << " microseconds " << std::endl);
 }

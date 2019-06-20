@@ -12,6 +12,11 @@ namespace Vast
 
     }
 
+    int net_udpNC_handler::open(io_service *io_service, abstract_net_udp *msghandler, bool startthread)
+    {
+        return open(io_service, msghandler, NULL, startthread);
+    }
+
     int net_udpNC_handler::open (io_service *io_service, abstract_net_udp *msghandler,
                                  AbstractRLNCMsgReceiver *RLNCsink, bool startthread)
     {

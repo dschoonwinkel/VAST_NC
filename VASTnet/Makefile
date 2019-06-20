@@ -6,7 +6,7 @@ CC = g++
 
 ACE_ROOT = /usr
 
-CFLAGS = -static -c -Wall -Wextra -I../common -I$(ACE_ROOT)/include -I../coding_host -I../VASTStatLog -ggdb -std=c++14 -fsanitize=address
+CFLAGS = -static -c -Wall -Wextra -I../common -I$(ACE_ROOT)/include -I../coding_host -I../VASTStatLog -ggdb -std=c++14 -fsanitize=address -fsanitize=thread
 #CFLAGS = -fPIC -c -Wall -I../common -I$(ACE_ROOT)
 
 LIBS_INCKODO = -I../../kodo-rlnc/resolve_symlinks/kodo-core/src \

@@ -25,7 +25,7 @@ with open("../bin/VASTreal.ini", 'r') as config:
     print (SIMULATION_STEPS)
 
 
-SIMULATION_STEPS = 1000
+# SIMULATION_STEPS = 1000
 TOTAL_SIMULATION_TIME = TIMESTEP_DURATION * SIMULATION_STEPS
 # TOTAL_SIMULATION_TIME = 0
 AUTO = True
@@ -33,10 +33,10 @@ AUTO = True
 
 def myNetwork():
 
-    # loss_perc = 10
-    loss_perc = 0
+    loss_perc = 10
+    # loss_perc = 0
 #    BW = 1000
-    Node_count = 2
+    Node_count = 10
     run_codinghost = True
 
     if (len(sys.argv) > 1):
