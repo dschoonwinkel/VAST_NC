@@ -540,6 +540,7 @@ void testExtraPacket()
     assert(tester.RLNC_msg_received_call_count == 1);
     assert(tester.recv_msg == message2);
 
+    assert(recoder.getPacketPoolSize() == 1);
 
     recoder.addRLNCMessage (message1);
     temp_msg = recoder.produceRLNCMessage();
@@ -553,8 +554,10 @@ void testExtraPacket()
     std::cout << message3 << std::endl << std::endl;
     std::cout << (*temp_msg) << std::endl;
 
+
+
     payload.fill (0);
-    message2.serialize(reinterpret_cast<char*>(payload.data()));
+    message1.serialize(reinterpret_cast<char*>(payload.data()));
     //Equivalent to receive
     mchandler.process_input(reinterpret_cast<char*>(payload.data()), payload.size ());
 
@@ -564,7 +567,7 @@ void testExtraPacket()
     mchandler.process_input (reinterpret_cast<char*>(payload.data()), payload.size ());
 
     assert(tester.RLNC_msg_received_call_count == 2);
-    assert(tester.recv_msg == message1);
+    assert(tester.recv_msg == message3);
 
     mchandler.close();
 //    boost::this_thread::sleep_for (boost::chrono::milliseconds(sleep_time));

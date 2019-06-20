@@ -333,7 +333,7 @@ customrlncdecoder::~customrlncdecoder ()
     CPPDEBUG("~customrlncdecoder:: max_NC_packets_size: " << max_NC_packets_size << std::endl);
     CPPDEBUG("~customrlncdecoder:: time spent in addLock: " << addLockTimer.count() / 1000 << " milliseconds " << std::endl);
     CPPDEBUG("~customrlncdecoder:: time spent decoding: " << decoderTimer.count() / 1000 << " milliseconds " << std::endl);
-    if (decodes_attempted > 0)
+    if (packets_recovered > 0)
         CPPDEBUG("~customrlncdecoder:: time spent decoding per recovered msg: " << decoderTimer.count() / packets_recovered << " microseconds " << std::endl);
 }
 

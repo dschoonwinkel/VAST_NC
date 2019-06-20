@@ -158,6 +158,11 @@ RLNCrecoder::~RLNCrecoder()
     std::cout << "~RLNCrecoder: Max packet_pool size: " << max_packetpool_size << std::endl;
     std::cout << "~RLNCrecoder: packets_encoded: " << packets_encoded << std::endl;
     CPPDEBUG("~RLNCrecoder:: time spent encoding: " << encodeTimer.count() / 1000 << " milliseconds " << std::endl);
-    CPPDEBUG("~RLNCrecoder:: time spent encoding per packet: " << encodeTimer.count() / packets_encoded << " microseconds " << std::endl << std::endl);
+    if (packets_encoded > 0)
+    {
+        CPPDEBUG("~RLNCrecoder:: time spent encoding per packet: "
+                 << encodeTimer.count() / packets_encoded
+                 << " microseconds " << std::endl << std::endl);
+    }
 
 }
