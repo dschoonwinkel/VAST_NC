@@ -1,11 +1,9 @@
 coding_host = ../bin/coding_host
 mc_listener_main = ../bin/mc_listener_main
 
-CC = g++
-
 
 #CFLAGS=-O2 -ftree-vectorize -std=c++14 -Wall -Wextra -Wno-expansion-to-defined
-CFLAGS=-ggdb -std=c++14 -Wall -Wextra -fsanitize=address -fsanitize=thread
+CFLAGS=-ggdb -std=c++14 -Wall -Wextra $(COPTS) 
 
 LIBS_COMMON = -lvastsim -lvast -lvastnet -lvastcommon
 #-lz -ldl -lpthread

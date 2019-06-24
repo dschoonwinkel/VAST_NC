@@ -13,7 +13,7 @@ LIBS_BOOST = -lboost_system -lboost_thread -lboost_serialization -lboost_filesys
 ACE_PATH    = /usr
 
 # CFLAGS      = -Wall -static 
-CFLAGS      = -Wall -Wextra -fPIC -ggdb -g3 -std=c++14 -fsanitize=address -fsanitize=thread
+CFLAGS      = -Wall -Wextra -fPIC -ggdb -g3 -std=c++14 $(COPTS) 
 
 LIBS_INCKODO = -I../../kodo-rlnc/resolve_symlinks/boost \
 			-I../../kodo-rlnc/resolve_symlinks/kodo-core/src \
@@ -30,7 +30,7 @@ LIB_PATHS   = -L../../lib -L../../Dependencies/lib/Release -L$(ACE_PATH)/lib
 LIBS = $(LIBS_COMMON) $(LIBS_ACE) $(LIBS_THREAD) $(LIBS_DL) $(LIBS_BOOST) $(LIBS_INCKODO) $(LIBS_KODO)
 
 all: VASTreal_console.cpp
-	g++ $(CFLAGS) $(INC_PATHS) $(LIB_PATHS) $< $(LIBS) -o $(VASTreal_console)
+	$(CC) $(CFLAGS) $(INC_PATHS) $(LIB_PATHS) $< $(LIBS) -o $(VASTreal_console)
 
 clean:
 	rm -f $(VASTreal_console)

@@ -13,7 +13,7 @@ LIBS_BOOST = -lboost_system -lboost_thread -lboost_serialization
 ACE_PATH    = /usr
 
 # CFLAGS      = -Wall -static 
-CFLAGS      = -Wall -fPIC -g -std=c++14 -fsanitize=address -fsanitize=thread
+CFLAGS      = -Wall -fPIC -g -std=c++14 $(COPTS) 
 
 INC_PATHS   = -I../../common -I../../VASTreal -I$(ACE_PATH)/include -I../../VAST
 
@@ -24,7 +24,7 @@ LIBS = $(LIBS_COMMON) $(LIBS_ACE) $(LIBS_THREAD) $(LIBS_DL) $(LIBS_BOOST)
 all: test_vastreal_initpara
 
 test_vastreal_initpara: test_vastreal_initpara.cpp
-	g++ $(CFLAGS) $(INC_PATHS) $(LIB_PATHS) $< $(LIBS) -o $(test_vastrealinitpara)
+	$(CC) $(CFLAGS) $(INC_PATHS) $(LIB_PATHS) $< $(LIBS) -o $(test_vastrealinitpara)
 
 clean:
 	rm -f $(test_vastrealinitpara)

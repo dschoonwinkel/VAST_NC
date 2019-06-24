@@ -3,13 +3,11 @@ rlnc_packet_test = ./rlnc_packet_test
 rlnc_encoded_packet_test = ./rlnc_encoded_packet_test
 test_net_udpnc_mchandler = ./test_net_udpnc_mchandler
 
-CC = g++
-
 ACE_ROOT = /usr
 
 
 #CFLAGS=-O2 -ftree-vectorize -std=c++14 -Wall -Wextra
-CFLAGS=-ggdb -std=c++14 -Wall -Wextra -fsanitize=address -fsanitize=thread
+CFLAGS=-ggdb -std=c++14 -Wall -Wextra $(COPTS) 
 
 LIBS_COMMON = -lvastsim -lvast -lvastnet -lvastcommon
 #-lz -ldl -lpthread

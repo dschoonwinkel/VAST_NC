@@ -1,13 +1,11 @@
 unittest_vast_capturemsgs = ./unittest_vast_capturemsgs
 unittest_nc_capturemsgs = ./unittest_nc_capturemsgs
 
-CC = g++
-
 LIBS_COMMON = -lvastcommon -lvaststatlog
 LIBS_BOOST = -lboost_system -lboost_thread -lboost_serialization -lboost_filesystem
 
 # CFLAGS      = -Wall -static
-CFLAGS      = -Wall -fPIC -ggdb -std=c++14 -fsanitize=address -fsanitize=thread
+CFLAGS      = -Wall -fPIC -ggdb -std=c++14 $(COPTS) 
 
 INC_PATHS   = -I../../common -I../VASTStatLog -I../
 

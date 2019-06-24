@@ -1,6 +1,7 @@
 #ifndef VASTSTATLOG_ENTRY_H
 #define VASTSTATLOG_ENTRY_H
 #include <map>
+#include <memory>
 #include <VASTTypes.h>
 #include "VoronoiSF.h"
 
@@ -26,15 +27,19 @@ namespace Vast {
     public:
         VASTStatLogEntry(Vast::AbstVASTVerse *world, VAST *client);
         VASTStatLogEntry() {}
+        //Need copy constructor for vector operations, but must override for unique_ptr's sake
+        VASTStatLogEntry(const VASTStatLogEntry &other);
+
         ~VASTStatLogEntry();
 
         void recordStat ();
         void printStat ();
 
-        //Implement the serialize functions
-        size_t sizeOf ();
+//        //Implement the serialize functions
+//        size_t sizeOf ();
 
         bool operator==(const VASTStatLogEntry);
+        VASTStatLogEntry& operator=(const VASTStatLogEntry& other);
 
 
         //Boost Serialization functions
@@ -99,7 +104,7 @@ namespace Vast {
         bool getWorldIsGateway();
         bool getWorldIsMatcher();
 
-        Area* getMatcherAOI();
+        Area getMatcherAOI();
 
 
 
@@ -118,8 +123,8 @@ namespace Vast {
         StatType worldRecvStat;                     // #
         bool worldIsGateway;                        // #
         bool worldIsMatcher;                        // #
-        Area* matcherAOI = NULL;                    // #
-        //Voronoi* matcherVoronoi;                    // #
+        Area matcherAOI;                            // #
+        //Voronoi matcherVoronoi;                   // #
 
 
     private:
@@ -129,12 +134,12 @@ namespace Vast {
 
         //Used for sourcing data points. Not reconstructed in deserialise
         VAST* _client = NULL;                       //
-        AbstVASTVerse* _world;                          //
+        AbstVASTVerse* _world = NULL;                          //
 
         std::string _logfilename_base = "./logs/VASTStat";
         std::string _logfilename = "./logs/VASTStat";
-        std::ofstream *ofs = NULL;
-        boost::archive::text_oarchive *ar = NULL;
+        std::unique_ptr<std::ofstream> pOfs = nullptr;
+        std::unique_ptr<boost::archive::text_oarchive> pAr = nullptr;
 
     };
 }   //end namespace Vast

@@ -117,7 +117,7 @@ namespace Vast {
         return getEntry().getWorldIsMatcher();
     }
 
-    Area* VASTStatLog::getMatcherAOI()
+    Area VASTStatLog::getMatcherAOI()
     {
         return getEntry().getMatcherAOI();
     }

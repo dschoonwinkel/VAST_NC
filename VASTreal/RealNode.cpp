@@ -196,9 +196,9 @@
                     //_self.id = vnode->getSelf ()->id;
                     state = NORMAL;
 
-                    if (statlog == NULL)
+                    if (pStatlog == NULL)
                     {
-                        statlog = new VASTStatLogEntry(_world, vnode);
+                        pStatlog = std::make_unique<VASTStatLogEntry>(_world, vnode);
                     }
                 }
             }
@@ -246,7 +246,7 @@
 
         _steps_recorded++;
 
-        statlog->recordStat();
+        pStatlog->recordStat();
 
         if (_steps_recorded % 100)
         {

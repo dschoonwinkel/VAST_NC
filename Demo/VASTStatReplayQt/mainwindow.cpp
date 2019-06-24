@@ -206,17 +206,17 @@ void MainWindow::paintEvent(QPaintEvent * /*event*/) {
         }
 
         //Draw Matcher & Matcher AOI
-        if (restoredLog.getWorldIsMatcher() && restoredLog.getMatcherAOI() != NULL)
+        if (restoredLog.getWorldIsMatcher())
         {
-//            std::cout << "Plotting matcher: x: " << restoredLog.getMatcherAOI()->center.x <<
-//                            " y: " <<  restoredLog.getMatcherAOI()->center.y <<
-//                            " radius: " << restoredLog.getMatcherAOI()->radius << std::endl;
+//            std::cout << "Plotting matcher: x: " << restoredLog.getMatcherAOI().center.x <<
+//                            " y: " <<  restoredLog.getMatcherAOI().center.y <<
+//                            " radius: " << restoredLog.getMatcherAOI().radius << std::endl;
             painter.setPen(nodeColors[log_iter%nodeColors.size()]);
-            painter.drawRect(restoredLog.getMatcherAOI()->center.x, restoredLog.getMatcherAOI()->center.y, 10, 10);
+            painter.drawRect(restoredLog.getMatcherAOI().center.x, restoredLog.getMatcherAOI().center.y, 10, 10);
 
             painter.setPen(QPen(nodeColors[log_iter%nodeColors.size()], Qt::DashLine));
-            painter.drawEllipse(restoredLog.getMatcherAOI()->center.x, restoredLog.getMatcherAOI()->center.y,
-                                restoredLog.getMatcherAOI()->radius, restoredLog.getMatcherAOI()->radius);
+            painter.drawEllipse(restoredLog.getMatcherAOI().center.x, restoredLog.getMatcherAOI().center.y,
+                                restoredLog.getMatcherAOI().radius, restoredLog.getMatcherAOI().radius);
 
         }
     }

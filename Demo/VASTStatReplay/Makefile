@@ -8,7 +8,7 @@ LIBS_COMMON = -lvastcommon -lvaststatlog
 LIBS_BOOST = -lboost_system -lboost_thread -lboost_serialization -lboost_filesystem
 
 # CFLAGS      = -Wall -static 
-CFLAGS      = -Wall -fPIC -ggdb -std=c++14 -fsanitize=address -fsanitize=thread
+CFLAGS      = -Wall -fPIC -ggdb -std=c++14 $(COPTS)
 
 INC_PATHS   = -I../../common -I../../VASTStatLog -I../VASTStatReplayQt
 
@@ -21,11 +21,13 @@ LIBS = $(LIBS_COMMON) $(LIBS_BOOST)
 all: vaststat_replay
 
 vaststat_replay: vaststat_replay.cpp ../VASTStatReplayQt/replay_functions.cpp
-	g++ $(CFLAGS) $(INC_PATHS) $(LIB_PATHS) $^ $(LIBS) \
+	echo "vaststat_replay Makefile"
+	$(CC) $(CFLAGS) $(INC_PATHS) $(LIB_PATHS) $^ $(LIBS) \
 	-o $(vaststat_replay)
 
+
 read_vaststatlog: read_vaststatlog.cpp ../VASTStatReplayQt/replay_functions.cpp
-	g++ $(CFLAGS) $(INC_PATHS) $(LIB_PATHS) $^ $(LIBS) \
+	$(CC) $(CFLAGS) $(INC_PATHS) $(LIB_PATHS) $^ $(LIBS) \
 	-o $(read_vaststatlog)
 
 

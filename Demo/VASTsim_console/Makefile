@@ -18,7 +18,7 @@ else
 endif
 
 all: VASTsim_console.cpp
-	g++ $(CFLAGS) $< $(LIBS) -o $(VASTsim_console)
+	$(CC) $(CFLAGS) $< $(LIBS) -o $(VASTsim_console)
 
 noace:
 	make TARGET=noace

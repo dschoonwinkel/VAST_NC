@@ -4,11 +4,9 @@ test_uncoded_coded_mixed = ./test_uncoded_coded_mixed
 test_uncoded_coded_mixed2 = ./test_uncoded_coded_mixed2
 unittest_rlncrecoder= ./unittest_rlncrecoder
 
-CC = g++
-
 
 #CFLAGS=-O2 -ftree-vectorize -std=c++14 -Wall -Wextra -Wno-expansion-to-defined
-CFLAGS=-ggdb -std=c++14 -Wall -Wextra -fsanitize=address -fsanitize=thread
+CFLAGS=-ggdb -std=c++14 -Wall -Wextra $(COPTS) 
 
 LIBS_COMMON = -lvastsim -lvast -lvastnet -lvastcommon
 #-lz -ldl -lpthread

@@ -6,13 +6,11 @@ unittest_customrlncdecoder = ./unittest_customrlncdecoder
 unittest_net_udpnc_consumer = ./unittest_net_udpnc_consumer
 unittest_vastnet = ./unittest_vastnet
 
-CC = g++
-
 ACE_ROOT = /usr
 
 
 #CFLAGS=-O2 -ftree-vectorize -std=c++14 -Wall -Wextra
-CFLAGS=-ggdb -std=c++14 -Wall -Wextra -fsanitize=address -fsanitize=thread
+CFLAGS=-ggdb -std=c++14 -Wall -Wextra $(COPTS) 
 
 LIBS_COMMON = -lvastsim -lvast -lvastnet -lvastcommon -lvastreal -lvaststatlog
 #-lz -ldl -lpthread

@@ -36,15 +36,33 @@ namespace Vast {
 
         std::cout << "Logfilename: " << _logfilename << std::endl;
 
-            ofs = new std::ofstream(_logfilename);
-       if (!ofs->is_open())
+            pOfs = std::make_unique<std::ofstream>(_logfilename);
+       if (!pOfs->is_open())
        {
-            std::cerr << "VASTStatLogEntry::constructor file open : " << (ofs->is_open() ? "true":"false") << std::endl << "EXITING" <<std::endl;
+            std::cerr << "VASTStatLogEntry::constructor file open : " << (pOfs->is_open() ? "true":"false") << std::endl << "EXITING" <<std::endl;
             exit(EXIT_FAILURE);
        }
 
-        ar = new boost::archive::text_oarchive(*ofs);
+        pAr = std::make_unique<boost::archive::text_oarchive>(*pOfs);
 
+    }
+
+    //Copy constructor
+    VASTStatLogEntry::VASTStatLogEntry(const VASTStatLogEntry &other)
+    {
+        this->timestamp = other.timestamp;
+        this->clientNode = other.clientNode;
+        this->subID = other.subID;
+        this->clientIsRelay = other.clientIsRelay;
+        this->neighbors_size = other.neighbors_size;
+        this->_neighbors = other._neighbors;
+        this->clientIsJoined = other.clientIsJoined;
+        this->worldConnSize = other.worldConnSize;
+        this->worldSendStat = other.worldSendStat;
+        this->worldRecvStat = other.worldRecvStat;
+        this->worldIsGateway = other.worldIsGateway;
+        this->worldIsMatcher = other.worldIsMatcher;
+        this->matcherAOI = other.matcherAOI;
     }
 
     void VASTStatLogEntry::recordStat()
@@ -97,8 +115,11 @@ namespace Vast {
         worldIsGateway = _world->isGateway();
         worldIsMatcher = _world->isMatcher();
 
-        matcherAOI = _world->getMatcherAOI();
-        //matcherVoronoi = _world->getMatcherVoronoi();
+        if (_world->getMatcherAOI())
+            matcherAOI = (*_world->getMatcherAOI());
+
+//        if (_world->getMatcherVoronoi())
+//        matcherVoronoi = (*_world->getMatcherVoronoi());
 
 
         _steps_recorded++;
@@ -145,10 +166,10 @@ namespace Vast {
         if (worldIsMatcher)
         {
 
-            printf("Matcher AOI x corrd %2.2lf\n", matcherAOI->center.x);
-            printf("Matcher AOI y corrd %2.2lf\n", matcherAOI->center.y);
-            printf("Matcher AOI z corrd %2.2lf\n", matcherAOI->center.z);
-            printf("Matcher AOI %d\n", matcherAOI->radius);
+            printf("Matcher AOI x corrd %2.2lf\n", matcherAOI.center.x);
+            printf("Matcher AOI y corrd %2.2lf\n", matcherAOI.center.y);
+            printf("Matcher AOI z corrd %2.2lf\n", matcherAOI.center.z);
+            printf("Matcher AOI %d\n", matcherAOI.radius);
         }
 
 
@@ -156,53 +177,53 @@ namespace Vast {
         printf("******************************************************\n");
     }
 
-    size_t VASTStatLogEntry::sizeOf ()
-    {
-        size_t total_size = 0;
+//    size_t VASTStatLogEntry::sizeOf ()
+//    {
+//        size_t total_size = 0;
 
-        total_size+= sizeof(timestamp);
-        // CPPDEBUG("sizeof timestamp                      " << sizeof(timestamp) << std::endl);
+//        total_size+= sizeof(timestamp);
+//        // CPPDEBUG("sizeof timestamp                      " << sizeof(timestamp) << std::endl);
 
-        total_size+= clientNode.sizeOf();
-        // CPPDEBUG("clientNode->sizeof                    " << clientNode.sizeOf() << std::endl);
+//        total_size+= clientNode.sizeOf();
+//        // CPPDEBUG("clientNode->sizeof                    " << clientNode.sizeOf() << std::endl);
 
-        total_size+= _neighbors.size()*sizeof(Node);
-        // CPPDEBUG("sizeof neighbor Node list             " << _neighbors.size()*sizeof(Node) << std::endl);
+//        total_size+= _neighbors.size()*sizeof(Node);
+//        // CPPDEBUG("sizeof neighbor Node list             " << _neighbors.size()*sizeof(Node) << std::endl);
 
-        total_size+= sizeof(clientIsRelay);
-        // CPPDEBUG("sizeof clientIsRelay                  " << sizeof(clientIsRelay) << std::endl);
+//        total_size+= sizeof(clientIsRelay);
+//        // CPPDEBUG("sizeof clientIsRelay                  " << sizeof(clientIsRelay) << std::endl);
 
-        total_size+= sizeof(worldConnSize);
-        // CPPDEBUG("sizeof worldConnSize                  " << sizeof(worldConnSize) << std::endl);
+//        total_size+= sizeof(worldConnSize);
+//        // CPPDEBUG("sizeof worldConnSize                  " << sizeof(worldConnSize) << std::endl);
 
-        total_size+= worldSendStat.sizeOf();
-        // CPPDEBUG("sizeof worldSendStat                  " << worldSendStat.sizeOf() << std::endl);
+//        total_size+= worldSendStat.sizeOf();
+//        // CPPDEBUG("sizeof worldSendStat                  " << worldSendStat.sizeOf() << std::endl);
 
-        total_size+= worldRecvStat.sizeOf();
-        // CPPDEBUG("sizeof worldRecvStat                  " << worldRecvStat.sizeOf() << std::endl);
+//        total_size+= worldRecvStat.sizeOf();
+//        // CPPDEBUG("sizeof worldRecvStat                  " << worldRecvStat.sizeOf() << std::endl);
 
-        total_size+= sizeof(worldIsGateway);
-        // CPPDEBUG("sizeof worldIsGateway                 " << sizeof(worldIsGateway) << std::endl);
+//        total_size+= sizeof(worldIsGateway);
+//        // CPPDEBUG("sizeof worldIsGateway                 " << sizeof(worldIsGateway) << std::endl);
 
-        total_size+= sizeof(worldIsMatcher);
-        // CPPDEBUG("sizeof worldIsMatcher                 " << sizeof(worldIsMatcher) << std::endl);
+//        total_size+= sizeof(worldIsMatcher);
+//        // CPPDEBUG("sizeof worldIsMatcher                 " << sizeof(worldIsMatcher) << std::endl);
 
-        // CPPDEBUG("Total size: " << total_size << "\n" << std::endl);
+//        // CPPDEBUG("Total size: " << total_size << "\n" << std::endl);
 
-        /*
-         * if (_world.isMatcher()) {
-         *  total_size+=_world.getMatcherAOI();
-         *  // CPPDEBUG("sizeof _world.getMatcherAOI()" << sizeof(_world.getMatcherAOI()) << std::endl);
-         * }
-        */
+//        /*
+//         * if (_world.isMatcher()) {
+//         *  total_size+=_world.getMatcherAOI();
+//         *  // CPPDEBUG("sizeof _world.getMatcherAOI()" << sizeof(_world.getMatcherAOI()) << std::endl);
+//         * }
+//        */
 
-        return total_size;
-    }
+//        return total_size;
+//    }
 
     void VASTStatLogEntry::saveToLogFile() {
 
-        this->serialize(*ar, 0);
-        ofs->flush();
+        this->serialize(*pAr, 0);
+        pOfs->flush();
 
     }
 
@@ -246,14 +267,23 @@ namespace Vast {
         return equals;
     }
 
-    VASTStatLogEntry::~VASTStatLogEntry()
+    VASTStatLogEntry& VASTStatLogEntry::operator=(const VASTStatLogEntry &other)
     {
-        //Do memory free here....
-        if (ofs != NULL)
-        {
-            ofs->flush();
-            ofs->close();
-        }
+        this->timestamp = other.timestamp;
+        this->clientNode = other.clientNode;
+        this->subID = other.subID;
+        this->clientIsRelay = other.clientIsRelay;
+        this->neighbors_size = other.neighbors_size;
+        this->_neighbors = other._neighbors;
+        this->clientIsJoined = other.clientIsJoined;
+        this->worldConnSize = other.worldConnSize;
+        this->worldSendStat = other.worldSendStat;
+        this->worldRecvStat = other.worldRecvStat;
+        this->worldIsGateway = other.worldIsGateway;
+        this->worldIsMatcher = other.worldIsMatcher;
+        this->matcherAOI = other.matcherAOI;
+
+        return *this;
     }
 
     std::ostream& operator<<(std::ostream& output, Vast::VASTStatLogEntry const& stat )
@@ -392,9 +422,19 @@ namespace Vast {
         return worldIsMatcher;
     }
 
-    Area* VASTStatLogEntry::getMatcherAOI()
+    Area VASTStatLogEntry::getMatcherAOI()
     {
         return matcherAOI;
+    }
+
+    VASTStatLogEntry::~VASTStatLogEntry()
+    {
+        //Do memory free here....
+        if (pOfs != NULL)
+        {
+            pOfs->flush();
+            pOfs->close();
+        }
     }
 
 }

@@ -12,7 +12,7 @@ else
 endif
 
 all: VASTsim_console.cpp
-	g++ -Wall -I../../include -L../../lib -L../../zlib/lib $< $(LIBS) \
+	$(CC) -Wall -I../../include -L../../lib -L../../zlib/lib $< $(LIBS) \
 	-o $(VASTsim_console)
 
 noace:

@@ -2,13 +2,11 @@ udpnc_integration_test = ./udpnc_integration_test
 rlncdissector=./rlncdissector
 differentlen_codingtest = ./differentlen_codingtest
 
-CC = g++
-
 ACE_ROOT = /usr
 
 
 #CFLAGS=-O2 -ftree-vectorize -std=c++14 -Wall -Wextra
-CFLAGS=-ggdb -std=c++14 -Wall -Wextra -fsanitize=address -fsanitize=thread
+CFLAGS=-ggdb -std=c++14 -Wall -Wextra $(COPTS) 
 
 LIBS_COMMON = -lvastsim -lvast -lvastnet -lvastcommon -lvastreal -lvaststatlog
 #-lz -ldl -lpthread

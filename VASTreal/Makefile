@@ -1,7 +1,6 @@
 lib_vastsim = ../lib/libvastreal.a
 AR = ar
-CC = g++
-CFLAGS = -static -c -Wall -I../common -I../VAST -I../VASTStatLog -O -ggdb -g3 -std=c++14 -fsanitize=address -fsanitize=thread
+CFLAGS = -static -c -Wall -I../common -I../VAST -I../VASTStatLog -O -ggdb -g3 -std=c++14 $(COPTS)
 #CFLAGS = -fPIC -c -Wall -I../common
 
 

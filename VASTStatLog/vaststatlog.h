@@ -38,7 +38,7 @@ namespace Vast {
 
         bool getWorldIsGateway();
         bool getWorldIsMatcher();
-        Area* getMatcherAOI();
+        Area getMatcherAOI();
 
         size_t getRecordedSteps();
         size_t getCurrentStep();

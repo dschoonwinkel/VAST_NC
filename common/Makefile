@@ -2,14 +2,13 @@
 resolvehostid = /usr/local/bin/resolvehostid
 lib_vastcommon = ../lib/libvastcommon.a
 AR = ar
-CC = g++
 
 #CFLAGS = -static -c -Wall -I../Dependencies/include/ace -I../Dependencies/include
 
 ACE_ROOT = /usr
 
 #replace -fPIC with -static for static linking
-CFLAGS = -static -c -Wall -I$(ACE_ROOT)/include -std=c++14 -fsanitize=address -fsanitize=thread
+CFLAGS = -static -c -Wall -I$(ACE_ROOT)/include -std=c++14 $(COPTS) 
 #CFLAGS = -fPIC -c -Wall -I$(ACE_ROOT) 
 #-I../Dependencies/include
 

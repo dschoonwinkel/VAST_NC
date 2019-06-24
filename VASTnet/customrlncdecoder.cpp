@@ -114,6 +114,9 @@ bool customrlncdecoder::_fetchFromPacketPool(RLNCMessage &active_encoded_packet,
             //If we have all the pktids, this message has already been decoded
             if (available_ids == pktids.size())
             {
+                NC_packets.erase(NC_packets.begin()+i);
+                packets_already_decoded++;
+                continue;
             }
 
 
@@ -151,8 +154,9 @@ bool customrlncdecoder::_fetchFromPacketPool(RLNCMessage &active_encoded_packet,
             }
 
             else {
-                CPPDEBUG("Too many packets missing, erasing and trying next packet" << std::endl);
+//              CPPDEBUG("Too many packets missing, erasing and trying next packet" << std::endl);
                 NC_packets.erase (NC_packets.begin() + i);
+                packets_missing_undecodable++;
                 continue;
             }
         }
@@ -161,13 +165,11 @@ bool customrlncdecoder::_fetchFromPacketPool(RLNCMessage &active_encoded_packet,
 
     if (available_packets.size () == active_encoded_packet.getPacketIds().size())
     {
-        packets_already_decoded++;
         return false;
     }
     else if (available_packets.size () != (active_encoded_packet.getPacketIds ().size () - 1))
     {
-        CPPDEBUG("customrlncdecoder::produceDecodedRLNCMessage Could not find enough available packets to decode" << std::endl);
-        packets_missing_undecodable++;
+//        CPPDEBUG("customrlncdecoder::produceDecodedRLNCMessage Could not find enough available packets to decode" << std::endl);
         return false;
     }
     return true;

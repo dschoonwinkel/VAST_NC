@@ -32,6 +32,7 @@
 #include "VASTVerse.h"
 #include "VASTreal.h"
 #include "vaststatlog_entry.h"
+#include <memory>
 
 #define LAYER_EVENT     1       // which message layer should events be delivered
 #define LAYER_UPDATE    2
@@ -115,7 +116,7 @@ public:
 
     VAST            *vnode;
     RealNodeState    state;
-    VASTStatLogEntry*   statlog = NULL;
+    std::unique_ptr<VASTStatLogEntry>   pStatlog = nullptr;
 
     //size_t          max_send_persec, max_recv_persec;
 

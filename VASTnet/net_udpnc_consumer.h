@@ -31,17 +31,16 @@ namespace Vast{
         void close();
         void RLNC_msg_received (RLNCMessage msg, IPaddr socket_addr);
 
+    private:
+        void start_consuming();
+        void consume();
+
     protected:
         //General processing, calls filter_input
         void process_input (RLNCMessage input_message, IPaddr socket_addr);
         friend class unittest_net_udpnc_consumer;
 
     private:
-        void start_consuming();
-        void consume();
-
-
-
         //Filters input based on toAddrs, passes to order_input
         void filter_input (RLNCMessage input_message, IPaddr socket_addr);
         //Ensures order of incoming packets remains correct, passes to handoff_input
