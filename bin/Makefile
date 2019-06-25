@@ -1,4 +1,5 @@
 clean:
+	$(MAKE) save_vaststat_replay_data
 	-rm *.log
 	#-rm *.pos
 	-rm *.stat
@@ -47,4 +48,11 @@ restore_results:
 save_plots:
 	echo "Saving plots as: $(foo).png"
 	cp logs/results/active_nodes_topo_cons_.png logs/results/$(foo).png
+
+save_vaststat_replay_data:
+	$(eval date_string := $(shell date +%d_%m_%Y-%H_%M))
+
+	cp logs/results/results1.txt results_summary/results1_$(date_string).txt
+	cp logs/results/individual_drift.txt results_summary/individual_drift_$(date_string).txt
+
 
