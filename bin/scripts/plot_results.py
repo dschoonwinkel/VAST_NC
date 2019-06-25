@@ -1,7 +1,9 @@
+#!/usr/local/bin/python3
 import matplotlib.pyplot as plot
 import numpy as np
 import csv
 import sys
+from os.path import expanduser
 
 TIMESTAMP = 0
 ACTIVE_NODES = 1
@@ -13,12 +15,32 @@ DRIFT_NODES = 6
 WORLDSENDSTAT = 7
 WORLDRECVSTAT = 8
 
-with open("../VASTreal.ini", 'r') as config:
+print("Usage: ./plot_results.py <input_file: default = results1.txt>\n\
+                 <results label = \"NET_MODEL, nodecount, BW, delay, loss%\">")
+
+home_dir = expanduser("~")
+print("Home Dir: ", home_dir)
+
+with open("%s/Development/VAST-0.4.6/bin/VASTreal.ini" % home_dir, 'r') as config:
     data = config.readlines()
     TIMESTEP_DURATION = float(data[-1])
-    print(TIMESTEP_DURATION)
+    print("TIMESTEP_DURATION", TIMESTEP_DURATION, "[ms]")
     SIMULATION_STEPS = (int)(data[data.index('#TIME_STEPS;    // number of steps\n')+1])
-    print (SIMULATION_STEPS)
+    print ("SIMULATION_STEPS", SIMULATION_STEPS)
+    NET_MODEL = (int)(data[data.index('#NET_MODEL;     // 1: Net emulated 2: Net emulated with bandwidth limitation\n')+1])
+    print ("NET_MODEL", NET_MODEL)
+
+
+with open("%s/Development/VAST-0.4.6/bin/Mininet.ini" % home_dir, 'r') as config:
+    data = config.readlines()
+    NODE_COUNT = int(data[data.index('#NODE_COUNT;    // Nodes started in simulation\n')+1])
+    print("NODE_COUNT", NODE_COUNT)
+    BW = (int)(data[data.index('#BW;            // Bandwidth limit [Mbps], 0 if inifinte\n')+1])
+    print ("BW", BW)
+    DELAY = (int)(data[data.index('#DELAY;         // Delay in MS\n')+1])
+    print ("DELAY", DELAY)
+    LOSS_PERC = (int)(data[data.index('#LOSS_PERC;     // Percentages of packets dropped on downstream link. Upstream link unaffected\n')+1])
+    print ("LOSS_PERC", LOSS_PERC)
 
 # x_axis_interval = 20000
 x_axis_interval = TIMESTEP_DURATION * 2000
@@ -28,7 +50,14 @@ MAX_TIMESTAMP = (SIMULATION_STEPS * TIMESTEP_DURATION)
 
 results_text = list()
 
-with open('../logs/results/results1.txt', 'r') as csvfile:
+input_file = '%s/Development/VAST-0.4.6/bin/logs/results/results1.txt' % home_dir
+
+if (len(sys.argv) > 1):
+    input_file = sys.argv[1]
+
+print(input_file)
+
+with open(input_file, 'r') as csvfile:
     spamreader = csv.reader(csvfile, delimiter=",")
     for row in spamreader:
         results_text.append(row)
@@ -122,14 +151,16 @@ plot.legend()
 plot.grid(True)
 plot.xlim(0, MAX_TIMESTAMP)
 
-plot.savefig("../logs/results/active_nodes_topo_cons_.pdf", dpi=300)
-plot.savefig("../logs/results/active_nodes_topo_cons_.png", dpi=300)
+plot.savefig("%s/Development/VAST-0.4.6/bin/logs/results/active_nodes_topo_cons_.pdf" % home_dir, dpi=300)
+plot.savefig("%s/Development/VAST-0.4.6/bin/logs/results/active_nodes_topo_cons_.png" % home_dir, dpi=300)
 
-if (len(sys.argv) > 1):
-	print("Saving test results in results_summary.txt with label " + sys.argv[1])
+if (len(sys.argv) > 2):
+	print("Saving test results in results_summary.txt with label " + sys.argv[2])
 
-	with open('../logs/results/results_summary.txt', 'a') as outfile:
-		outfile.write(("%s, " + sys.argv[1] + ", %f, %f, %f, %f, %f\n") % (first_timestamp, np.max(active_nodes), mean_consistency, mean_drift_distance, np.mean(send_stat), np.mean(recv_stat)))
+	with open('%s/Development/VAST-0.4.6/bin/results_summary/results_summary.txt' % home_dir, 'a') as outfile:
+		outfile.write(("%s, %d, %d, %d, %d, %d, %f, %f, %f, %f, %f %s\n") % 
+            (first_timestamp, NET_MODEL, NODE_COUNT, BW, DELAY, LOSS_PERC, np.max(active_nodes), mean_consistency, 
+                mean_drift_distance, np.mean(send_stat), np.mean(recv_stat), sys.argv[2]))
 
 plot.show()
 

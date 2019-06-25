@@ -1,24 +1,30 @@
+#!/usr/local/bin/python3
 import matplotlib.pyplot as plot
 import numpy as np
 import csv
 import sys
+from os.path import expanduser
 
 FIRST_TIMESTAMP = 0
-NODES_COUNT = 1
-BW_LIMIT = 2
-DELAY_MS = 3
-LOSS_PERC = 4
-ACTIVE_NODES = 5
-AVG_TOPO_CONS = 6
-AVG_DRIFT = 7
-AVG_WORLDSENDSTAT = 8
-AVG_WORLDRECVSTAT = 9
+NETWORK_TYPE = 1
+NODES_COUNT = 2
+BW_LIMIT = 3
+DELAY_MS = 4
+LOSS_PERC = 5
+ACTIVE_NODES = 6
+AVG_TOPO_CONS = 7
+AVG_DRIFT = 8
+AVG_WORLDSENDSTAT = 9
+AVG_WORLDRECVSTAT = 10
 
 x_axis_interval = 2
 
 results_text = list()
 
-with open('../logs/results/results_summary.txt', 'r') as csvfile:
+home_dir = expanduser("~")
+print("Home Dir: ", home_dir)
+
+with open('%s/Development/VAST-0.4.6/bin/results_summary/results_summary.txt' % home_dir, 'r') as csvfile:
     spamreader = csv.reader(csvfile, delimiter=",")
     for row in spamreader:
         results_text.append(row)
@@ -174,8 +180,8 @@ plot.xlabel('Loss [%]')
 plot.ylabel('Recv BW [B]')  
 plot.grid()
 
-plot.savefig("../logs/results/results_summary.pdf", dpi=300)
-plot.savefig("../logs/results/results_summary.png", dpi=300)
+plot.savefig("%s/Development/VAST-0.4.6/bin/results_summary/results_summary.pdf" % home_dir, dpi=300)
+plot.savefig("%s/Development/VAST-0.4.6/bin/results_summary/results_summary.png" % home_dir, dpi=300)
 
 
 plot.show()

@@ -9,20 +9,36 @@ from mininet.cli import CLI
 from mininet.log import setLogLevel, info
 from mininet.link import TCLink, Intf
 from subprocess import call
+from os.path import expanduser
+
 
 import sys
 import os, time
 
 hosts = list()
 
+home_dir = expanduser("~")
+print("Home Dir: ", home_dir)
+
 TIMESTEP_DURATION = 0.1 #seconds
 
-with open("../bin/VASTreal.ini", 'r') as config:
+with open("%s/Development/VAST-0.4.6/bin/VASTreal.ini" % home_dir, 'r') as config:
     data = config.readlines()
     TIMESTEP_DURATION = float(data[-1])/1000
     print(TIMESTEP_DURATION)
     SIMULATION_STEPS = (int)(data[data.index('#TIME_STEPS;    // number of steps\r\n')+1])
     print (SIMULATION_STEPS)
+
+with open("%s/Development/VAST-0.4.6/bin/Mininet.ini" % home_dir, 'r') as config:
+    data = config.readlines()
+    NODE_COUNT = int(data[data.index('#NODE_COUNT;    // Nodes started in simulation\n')+1])
+    print("NODE_COUNT", NODE_COUNT)
+    BW = (int)(data[data.index('#BW;            // Bandwidth limit [Mbps], 0 if inifinte\n')+1])
+    print ("BW", BW)
+    DELAY = (int)(data[data.index('#DELAY;         // Delay in MS\n')+1])
+    print ("DELAY", DELAY)
+    LOSS_PERC = (int)(data[data.index('#LOSS_PERC;     // Percentages of packets dropped on downstream link. Upstream link unaffected\n')+1])
+    print ("LOSS_PERC", LOSS_PERC)
 
 
 # SIMULATION_STEPS = 1000
@@ -33,10 +49,8 @@ AUTO = True
 
 def myNetwork():
 
-    loss_perc = 10
-    # loss_perc = 0
-#    BW = 1000
-    Node_count = 10
+    loss_perc = LOSS_PERC
+    Node_count = NODE_COUNT
     run_codinghost = True
 
     if (len(sys.argv) > 1):
