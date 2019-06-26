@@ -5,6 +5,6 @@ do
 	make
 	sudo ../mininet_topos/Multinode_pox_codinghost.py
 	./vaststat_replay
-	make make backup_results foo=net_udpnc_10perc
+	make backup_results foo=net_udpnc_10perc
 
 done
