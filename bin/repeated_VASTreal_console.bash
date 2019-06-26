@@ -9,6 +9,6 @@ do
 	./vaststat_replay
 	make backup_results foo=$label
 	echo "Run $i completed $HOSTNAME $label"
-	echo "Run $i completed $HOSTNAME $label" | nc horus.local 12345 -q 1
+	echo "Run $i completed $HOSTNAME $label" | nc 10.10.11.237 12345 -q 1
 
 done
