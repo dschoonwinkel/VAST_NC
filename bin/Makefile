@@ -29,13 +29,13 @@ clean_binaries:
 backup_results:
 	$(eval date_string := $(shell date +%d_%m_%Y-%H:%M))
 	mkdir logs/logs_backup/logs_$(foo)_$(date_string)
-	cp logs/*.txt logs/logs_backup/logs_$(foo)_$(date_string)/
+	-cp logs/*.txt logs/logs_backup/logs_$(foo)_$(date_string)/
 	mkdir logs/logs_backup/logs_$(foo)_$(date_string)/results
-	cp logs/results/results1.txt logs/logs_backup/logs_$(foo)_$(date_string)/results/
+	-cp logs/results/results1.txt logs/logs_backup/logs_$(foo)_$(date_string)/results/
 	mkdir logs/logs_backup/logs_$(foo)_$(date_string)/output_dump
-	cp output_dump/*.txt logs/logs_backup/logs_$(foo)_$(date_string)/output_dump/
+	-cp output_dump/*.txt logs/logs_backup/logs_$(foo)_$(date_string)/output_dump/
 	mkdir logs/logs_backup/logs_$(foo)_$(date_string)/msgcap
-	cp msgcap/*.txt logs/logs_backup/logs_$(foo)_$(date_string)/msgcap/
+	-cp msgcap/*.txt logs/logs_backup/logs_$(foo)_$(date_string)/msgcap/
 
 
 restore_results:
