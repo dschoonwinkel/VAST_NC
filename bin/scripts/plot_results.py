@@ -112,6 +112,7 @@ topo_consistency[where_are_NaNs] = 100
 plot.plot(timestamps[where_are_NaNs], topo_consistency[where_are_NaNs], 'r,')
 plot.plot([0,timestamps[-1]], [mean_consistency,mean_consistency], 'r')
 print("Mean consistency:", mean_consistency)
+plot.text(timestamps[-1], mean_consistency, str(mean_consistency)[0:5])
 plot.ylabel("Topo consistency [%]")
 plot.xticks(np.arange(min(timestamps), max(timestamps)+1, x_axis_interval))
 plot.xlim(0, MAX_TIMESTAMP)
@@ -130,6 +131,7 @@ plot.plot(timestamps, normalised_drift_distance)
 plot.plot([0,timestamps[-1]], [mean_drift_distance,mean_drift_distance], 'r')
 print("Mean normalized drift distance:", mean_drift_distance)
 plot.ylabel("Norm drift distance")
+plot.text(timestamps[-1], mean_drift_distance, str(mean_drift_distance)[0:5])
 plot.xticks(np.arange(min(timestamps), max(timestamps)+1, x_axis_interval))
 plot.xlim(0, MAX_TIMESTAMP)
 plot.grid(True)
@@ -138,10 +140,11 @@ plot.subplot(4,1,4)
 # Show results in kBps -> 100 * 10ms per second / 1000 B per kB
 send_stat = (numpy_results[:,7]*100/1000)[:len(timestamps)]
 recv_stat = (numpy_results[:,8]*100/1000)[:len(timestamps)]
-mean_sendstat = np.mean(send_stat)*100/1000
+mean_sendstat = np.mean(send_stat)
 plot.plot(timestamps, send_stat[:len(timestamps)], 'g',label='Send stat')
 plot.plot([0,timestamps[-1]], [mean_sendstat, mean_sendstat], 'r')
 print("Mean send_stat:", mean_sendstat)
+plot.text(timestamps[-1], mean_sendstat, str(mean_sendstat)[0:5])
 # plot.plot(timestamps, recv_stat*100/1000, 'b+', label='Recv stat')
 plot.ylabel("Send/recv stats [kBps]")
 plot.xlabel("Timestamp [ms]")
