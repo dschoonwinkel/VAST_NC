@@ -2,7 +2,7 @@
 for i in {1..5}
 do
 	echo "Run $i"
-	# make
+	make
 	label=$(./generate_label.py)
 	echo $label
 	sudo ../mininet_topos/Multinode_pox_codinghost.py
