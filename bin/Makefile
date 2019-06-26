@@ -1,5 +1,5 @@
 clean:
-	$(MAKE) save_vaststat_replay_data
+	-$(MAKE) save_vaststat_replay_data
 	-rm *.log
 	#-rm *.pos
 	-rm *.stat
