@@ -8,7 +8,7 @@ do
 	sudo ../mininet_topos/Multinode_pox_codinghost.py
 	./vaststat_replay
 	make backup_results foo=$label
-	echo "Run $i completed $(HOSTNAME) $label"
-	echo "Run $i completed $(HOSTNAME) $label" | nc horus.local 12345 -q 1
+	echo "Run $i completed $HOSTNAME $label"
+	echo "Run $i completed $HOSTNAME $label" | nc horus.local 12345 -q 1
 
 done
