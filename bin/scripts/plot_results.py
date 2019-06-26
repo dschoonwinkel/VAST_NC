@@ -1,4 +1,4 @@
-#!/usr/local/bin/python3
+#!python3
 import matplotlib.pyplot as plot
 import numpy as np
 import csv
@@ -154,8 +154,15 @@ plot.legend()
 plot.grid(True)
 plot.xlim(0, MAX_TIMESTAMP)
 
-plot.savefig("%s/Development/VAST-0.4.6/bin/logs/results/active_nodes_topo_cons_.pdf" % home_dir, dpi=300)
-plot.savefig("%s/Development/VAST-0.4.6/bin/logs/results/active_nodes_topo_cons_.png" % home_dir, dpi=300)
+
+
+NET_MODEL_STRINGS = ['net_emu', 'net_ace', 'net_udp', 'net_udpNC']
+label = "%s_%d_%d_%d_loss%d_%s" % \
+            (NET_MODEL_STRINGS[NET_MODEL-1], NODE_COUNT, BW, DELAY, LOSS_PERC, first_timestamp)
+print(label)
+
+plot.savefig("VASTreal_results_%s.pdf" % label, dpi=300)
+plot.savefig("VASTreal_results_%s.png", dpi=300)
 
 if (len(sys.argv) > 2):
 	print("Saving test results in results_summary.txt with label " + sys.argv[2])

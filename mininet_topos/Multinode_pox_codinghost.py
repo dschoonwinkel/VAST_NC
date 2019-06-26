@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!python
 
 from mininet.net import Mininet
 from mininet.node import Controller, RemoteController, OVSController
