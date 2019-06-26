@@ -106,7 +106,7 @@ def myNetwork():
         # coding_host.cmd("xterm -hold -fg black -bg green -geometry 80x10+200+600 -e \"./coding_host \" &")
         coding_host.cmd("./coding_host &> output_dump/codinghost.txt &")
         pass
-    CLI(net)
+    # CLI(net)
 
     for i in range(1,Node_count+1):
         try:
@@ -124,8 +124,8 @@ def myNetwork():
                 print("Sleep interrupted, exiting")
                 break;
 
-    if not AUTO:
-        CLI(net)
+    # if not AUTO:
+        # CLI(net)
 
     for i in range(1, int(TIMESTEP_DURATION * 1000)/10):
             print("Connection wait sleep 10 seconds, %d to go" % (int(TIMESTEP_DURATION * 1000) - i*10))
@@ -176,8 +176,8 @@ def myNetwork():
         
     os.system("killall -s SIGINT VASTreal_console")
 
-    # time.sleep(1)
-    CLI(net)
+    time.sleep(1)
+    # CLI(net)
     net.stop()
 
     os.system("killall -s SIGKILL VASTreal_console")
