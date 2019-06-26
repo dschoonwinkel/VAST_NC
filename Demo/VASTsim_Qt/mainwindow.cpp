@@ -12,7 +12,7 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
-//    QSettings settings("/home/daniel/Development/VAST-0.4.6/Demo/VASTsim_Qt/VASTsim.INI",
+//    QSettings settings("$(HOME)/Development/VAST-0.4.6/Demo/VASTsim_Qt/VASTsim.INI",
 //                       QSettings::IniFormat);
 //    std::cout << "MOVE_MODEL: " << settings.value("MOVE_MODEL").toInt() << std::endl;
 

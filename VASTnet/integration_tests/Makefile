@@ -18,7 +18,7 @@ LIBS_INCKODO = -I../../../kodo-rlnc/resolve_symlinks/kodo-core/src \
 			-I../../../kodo-rlnc/resolve_symlinks/endian/src \
 			-I../../../kodo-rlnc/kodo_build/include
 
-LIBS_KODO = -Wl,-Bstatic -L/home/daniel/Development/kodo-rlnc/kodo_build -lkodo_rlnc -lfifi -lcpuid -Wl,-Bdynamic
+LIBS_KODO = -Wl,-Bstatic -L$(HOME)/Development/kodo-rlnc/kodo_build -lkodo_rlnc -lfifi -lcpuid -Wl,-Bdynamic
 LIBS = $(LIBS_COMMON) $(LIBS_ACE) $(LIBS_THREAD) $(LIBS_DL) $(LIBS_BOOST)
 
 ACE_PATH    = /usr
