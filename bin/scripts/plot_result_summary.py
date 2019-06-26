@@ -1,4 +1,4 @@
-#!/usr/local/bin/python3
+#!/usr/bin/env python3
 import matplotlib.pyplot as plot
 import numpy as np
 import csv
