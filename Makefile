@@ -2,7 +2,8 @@ ARGS=Hello
 export ARGS
 CC=g++
 export CC
-COPTS=-fsanitize=address
+# COPTS=-fsanitize=address
+COPTS=
 export COPTS
 
 VASTnet := VASTnet
