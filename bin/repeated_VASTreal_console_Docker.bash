@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-for i in {1..1}
+for i in {1..2}
 do
 	echo "Run $i"
 	sudo make
@@ -10,6 +10,6 @@ do
 	make backup_results foo=$label
 	echo "Run $i completed $HOSTNAME $label"
 	echo "Run $i completed $HOSTNAME $label" | nc 10.10.11.237 12345 -q 1
-	./run_plotresults.bash $HOME/Development/VAST-0.4.6/bin/logs/results/results1.txt $label
+	./run\_plotresults.bash $HOME/Development/VAST-0.4.6/bin/logs/results/results1.txt $label
 
 done

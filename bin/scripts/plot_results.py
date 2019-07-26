@@ -161,7 +161,7 @@ label = "%s_%d_%d_%d_loss%d_%s" % \
             (NET_MODEL_STRINGS[NET_MODEL-1], NODE_COUNT, BW, DELAY, LOSS_PERC, first_timestamp)
 print(label)
 
-plot.savefig("VASTreal_results_%s.pdf" % label, dpi=300)
+plot.savefig("VASTreal_results_%s.pdf" % input_file, dpi=300)
 # plot.savefig("VASTreal_results_%s.png" % label, dpi=300)
 
 if (len(sys.argv) > 2):
@@ -172,5 +172,5 @@ if (len(sys.argv) > 2):
             (first_timestamp, NET_MODEL, NODE_COUNT, BW, DELAY, LOSS_PERC, np.max(active_nodes), mean_consistency, 
                 mean_drift_distance, np.mean(send_stat), np.mean(recv_stat), sys.argv[2]))
 
-plot.show()
+# plot.show()
 
