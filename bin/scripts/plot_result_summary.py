@@ -6,7 +6,7 @@ import sys
 from os.path import expanduser
 
 FIRST_TIMESTAMP = 0
-NETWORK_TYPE = 1
+NET_MODEL = 1
 NODES_COUNT = 2
 BW_LIMIT = 3
 DELAY_MS = 4
@@ -35,11 +35,12 @@ results_text = results_text[1:]
 
 results = dict()
 loss_percentages_keys = set()
+NET_MODEL_keys = set()
 
 # print(results_text)
 
 for row in results_text:
-    print(row)
+    # print(row)
     current_loss_perc = int(row[LOSS_PERC])
     if current_loss_perc not in loss_percentages_keys:
         loss_percentages_keys.add(current_loss_perc)
@@ -61,127 +62,206 @@ for row in results_text:
 
 # print(results)
 
-print("\n")
+# print("\n")
 
-# print(loss_percentages_keys)
+# # print(loss_percentages_keys)
 
 
-# After reading, the matrixes look a bit different
-NODES_COUNT = 0
-BW_LIMIT = 1
-DELAY_MS = 2
-ACTIVE_NODES = 3
-AVG_TOPO_CONS = 4
-AVG_DRIFT = 5
-AVG_WORLDSENDSTAT = 6
-AVG_WORLDRECVSTAT = 7
+# # After reading, the matrixes look a bit different
+# NODES_COUNT = 0
+# BW_LIMIT = 1
+# DELAY_MS = 2
+# ACTIVE_NODES = 3
+# AVG_TOPO_CONS = 4
+# AVG_DRIFT = 5
+# AVG_WORLDSENDSTAT = 6
+# AVG_WORLDRECVSTAT = 7
 
-# #####
+# # #####
 
+
+# dict_of_numpy_results = dict()
+
+# for key in loss_percentages_keys:
+#     print(results[key])
+#     this_perctage_results = results[key]
+#     dict_of_numpy_results[key] = np.array([this_perctage_results[i] for i in this_perctage_results.keys()])
+
+# print(dict_of_numpy_results)
+
+# # print(results)
+# # print(results.keys())
+# # print(results.values())
+# # numpy_results = np.array([results[i] for i in results.keys()])
+# # print(numpy_results)
+
+# # print(numpy_results[:,2])
+
+# # # print("Timestamps: ", numpy_results[:,0])
+
+# # timestamps = numpy_results[:,0]
+# # first_timestamp = int(results_text[0][0])
+
+# # loss_perctages = numpy_results[:,LOSS_PERC]
+
+# plot.figure(1, figsize=(12, 10), dpi=80)
+
+
+# ######## Topology consistency 
+# plot.subplot(4,1,1)
+
+# topo_consistency = list()
+# keys = list()
+
+# for key in loss_percentages_keys:
+#     this_perctage_results = dict_of_numpy_results[key]
+#     topo_consistency.append(np.array(this_perctage_results[:,AVG_TOPO_CONS], dtype=np.float))
+#     keys.append(key)
+
+# plot.boxplot(topo_consistency, positions=keys) 
+# # plot.xlabel('Loss [%]')
+# plot.ylabel('Topology consistency [%]')  
+# plot.grid()
+
+
+
+
+
+
+# ######## Drift distance
+# plot.subplot(4,1,2)
+
+# drift_distance = list()
+# keys = list()
+
+# for key in loss_percentages_keys:
+#     this_perctage_results = dict_of_numpy_results[key]
+#     drift_distance.append(np.array(this_perctage_results[:,AVG_DRIFT], dtype=np.float))
+#     keys.append(key)
+
+# plot.boxplot(drift_distance, positions=keys) 
+# # plot.xlabel('Loss [%]')
+# plot.ylabel('Drift distance [VE units]')  
+# plot.grid()
+
+
+
+
+
+# ######## Send bandwidth
+# plot.subplot(4,1,3)
+
+# send_bandwidth = list()
+# keys = list()
+
+# for key in loss_percentages_keys:
+#     this_perctage_results = dict_of_numpy_results[key]
+#     send_bandwidth.append(np.array(this_perctage_results[:,AVG_WORLDSENDSTAT], dtype=np.float))
+#     keys.append(key)
+
+# plot.boxplot(send_bandwidth, positions=keys) 
+# # plot.xlabel('Loss [%]')
+# plot.ylabel('Send BW [B]')  
+# plot.grid()
+
+
+# ######## Recv bandwidth
+# plot.subplot(4,1,4)
+
+# recv_bandwidth = list()
+# keys = list()
+
+# for key in loss_percentages_keys:
+#     this_perctage_results = dict_of_numpy_results[key]
+#     recv_bandwidth.append(np.array(this_perctage_results[:,AVG_WORLDRECVSTAT], dtype=np.float))
+#     keys.append(key)
+
+# plot.boxplot(recv_bandwidth, positions=keys) 
+# plot.xlabel('Loss [%]')
+# plot.ylabel('Recv BW [B]')  
+# plot.grid()
+
+# plot.savefig("%s/Development/VAST-0.4.6/bin/results_summary/results_summary.pdf" % home_dir, dpi=300)
+# plot.savefig("%s/Development/VAST-0.4.6/bin/results_summary/results_summary.png" % home_dir, dpi=300)
+
+
+results = dict()
+
+for row in results_text:
+    print(row)
+    current_NETMODEL = int(row[NET_MODEL])
+    if current_NETMODEL not in NET_MODEL_keys:
+        NET_MODEL_keys.add(current_NETMODEL)
+        results[current_NETMODEL] = dict()
+
+    results[current_NETMODEL][row[FIRST_TIMESTAMP]] = [row[NODES_COUNT], 
+        row[BW_LIMIT], 
+        float(row[DELAY_MS]), 
+        float(row[ACTIVE_NODES]), 
+        float(row[AVG_TOPO_CONS]), 
+        float(row[AVG_DRIFT]), 
+        float(row[AVG_WORLDSENDSTAT]),
+        float(row[AVG_WORLDRECVSTAT])]
+
+# print(results)
 
 dict_of_numpy_results = dict()
 
-for key in loss_percentages_keys:
-    print(results[key])
-    this_perctage_results = results[key]
-    dict_of_numpy_results[key] = np.array([this_perctage_results[i] for i in this_perctage_results.keys()])
+for key in NET_MODEL_keys:
+    # print(results[key])
+    this_NETMODEL_results = results[key]
+    dict_of_numpy_results[key] = np.array([this_NETMODEL_results[i] for i in this_NETMODEL_results.keys()])
 
-print(dict_of_numpy_results)
+# print(dict_of_numpy_results)
 
-# print(results)
+# # print(results)
 # print(results.keys())
-# print(results.values())
-# numpy_results = np.array([results[i] for i in results.keys()])
+# # print(results.values())
+numpy_results = np.array([results[i] for i in results.keys()])
 # print(numpy_results)
 
 # print(numpy_results[:,2])
 
-# # print("Timestamps: ", numpy_results[:,0])
+# print("Timestamps: ", numpy_results[:,0])
 
 # timestamps = numpy_results[:,0]
 # first_timestamp = int(results_text[0][0])
 
 # loss_perctages = numpy_results[:,LOSS_PERC]
 
-plot.figure(1, figsize=(12, 10), dpi=80)
+# plot.figure(1, figsize=(12, 10), dpi=80)
 
 
-######## Topology consistency 
-plot.subplot(4,1,1)
+# ######## Topology consistency 
+plot.subplot(2,1,1)
 
-topo_consistency = list()
+NET_MODEL_results = list()
 keys = list()
 
-for key in loss_percentages_keys:
+for key in NET_MODEL_keys:
     this_perctage_results = dict_of_numpy_results[key]
-    topo_consistency.append(np.array(this_perctage_results[:,AVG_TOPO_CONS], dtype=np.float))
+    NET_MODEL_results.append(np.array(this_perctage_results[:,4], dtype=np.float))
     keys.append(key)
 
-plot.boxplot(topo_consistency, positions=keys) 
-# plot.xlabel('Loss [%]')
+plot.boxplot(NET_MODEL_results, positions=keys) 
+plot.xlabel('NETMODEL [2=ace, 3=udp, 4=udpnc]')
 plot.ylabel('Topology consistency [%]')  
 plot.grid()
 
+# ######## Topology consistency 
+plot.subplot(2,1,2)
 
-
-
-
-
-######## Drift distance
-plot.subplot(4,1,2)
-
-drift_distance = list()
+NET_MODEL_results = list()
 keys = list()
 
-for key in loss_percentages_keys:
+for key in NET_MODEL_keys:
     this_perctage_results = dict_of_numpy_results[key]
-    drift_distance.append(np.array(this_perctage_results[:,AVG_DRIFT], dtype=np.float))
+    NET_MODEL_results.append(np.array(this_perctage_results[:,5], dtype=np.float))
     keys.append(key)
 
-plot.boxplot(drift_distance, positions=keys) 
-# plot.xlabel('Loss [%]')
-plot.ylabel('Drift distance [VE units]')  
+plot.boxplot(NET_MODEL_results, positions=keys) 
+plot.xlabel('NETMODEL [2=ace, 3=udp, 4=udpnc]')
+plot.ylabel('Drift distance [units]')  
 plot.grid()
-
-
-
-
-
-######## Send bandwidth
-plot.subplot(4,1,3)
-
-send_bandwidth = list()
-keys = list()
-
-for key in loss_percentages_keys:
-    this_perctage_results = dict_of_numpy_results[key]
-    send_bandwidth.append(np.array(this_perctage_results[:,AVG_WORLDSENDSTAT], dtype=np.float))
-    keys.append(key)
-
-plot.boxplot(send_bandwidth, positions=keys) 
-# plot.xlabel('Loss [%]')
-plot.ylabel('Send BW [B]')  
-plot.grid()
-
-
-######## Recv bandwidth
-plot.subplot(4,1,4)
-
-recv_bandwidth = list()
-keys = list()
-
-for key in loss_percentages_keys:
-    this_perctage_results = dict_of_numpy_results[key]
-    recv_bandwidth.append(np.array(this_perctage_results[:,AVG_WORLDRECVSTAT], dtype=np.float))
-    keys.append(key)
-
-plot.boxplot(recv_bandwidth, positions=keys) 
-plot.xlabel('Loss [%]')
-plot.ylabel('Recv BW [B]')  
-plot.grid()
-
-plot.savefig("%s/Development/VAST-0.4.6/bin/results_summary/results_summary.pdf" % home_dir, dpi=300)
-plot.savefig("%s/Development/VAST-0.4.6/bin/results_summary/results_summary.png" % home_dir, dpi=300)
-
 
 plot.show()

@@ -164,13 +164,16 @@ print(label)
 plot.savefig("VASTreal_results_%s.pdf" % input_file, dpi=300)
 # plot.savefig("VASTreal_results_%s.png" % label, dpi=300)
 
-if (len(sys.argv) > 2):
-	print("Saving test results in results_summary.txt with label " + sys.argv[2])
+# if (len(sys.argv) > 2):
 
-	with open('%s/Development/VAST-0.4.6/bin/results_summary/results_summary.txt' % home_dir, 'a') as outfile:
-		outfile.write(("%s, %d, %d, %d, %d, %d, %f, %f, %f, %f, %f, %s\n") % 
-            (first_timestamp, NET_MODEL, NODE_COUNT, BW, DELAY, LOSS_PERC, np.max(active_nodes), mean_consistency, 
-                mean_drift_distance, np.mean(send_stat), np.mean(recv_stat), sys.argv[2]))
+with open('%s/Development/VAST-0.4.6/bin/results_summary/results_summary.txt' % home_dir, 'a') as outfile:
+	# outfile.write(("%s, %d, %d, %d, %d, %d, %f, %f, %f, %f, %f, %s\n") % 
+          # (first_timestamp, NET_MODEL, NODE_COUNT, BW, DELAY, LOSS_PERC, np.max(active_nodes), mean_consistency, 
+          #     mean_drift_distance, np.mean(send_stat), np.mean(recv_stat), sys.argv[2]))
+        outfile.write("%s, %s, %f, %f, %f, %f, %f\n" 
+            % (first_timestamp, input_file, np.max(active_nodes), mean_consistency, 
+              mean_drift_distance, np.mean(send_stat), np.mean(recv_stat)))
+        print("Saving test results in results_summary.txt with label " + input_file)
 
 # plot.show()
 
