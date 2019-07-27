@@ -189,12 +189,12 @@ results = dict()
 
 for row in results_text:
     print(row)
-    current_NETMODEL = int(row[NET_MODEL])
-    if current_NETMODEL not in NET_MODEL_keys:
-        NET_MODEL_keys.add(current_NETMODEL)
-        results[current_NETMODEL] = dict()
+    current_NET_MODEL = int(row[NET_MODEL])
+    if current_NET_MODEL not in NET_MODEL_keys:
+        NET_MODEL_keys.add(current_NET_MODEL)
+        results[current_NET_MODEL] = dict()
 
-    results[current_NETMODEL][row[FIRST_TIMESTAMP]] = [row[NODES_COUNT], 
+    results[current_NET_MODEL][row[FIRST_TIMESTAMP]] = [row[NODES_COUNT], 
         row[BW_LIMIT], 
         float(row[DELAY_MS]), 
         float(row[ACTIVE_NODES]), 
@@ -209,15 +209,14 @@ dict_of_numpy_results = dict()
 
 for key in NET_MODEL_keys:
     # print(results[key])
-    this_NETMODEL_results = results[key]
-    dict_of_numpy_results[key] = np.array([this_NETMODEL_results[i] for i in this_NETMODEL_results.keys()])
+    this_NET_MODEL_results = results[key]
+    dict_of_numpy_results[key] = np.array([this_NET_MODEL_results[i] for i in this_NET_MODEL_results.keys()])
 
 # print(dict_of_numpy_results)
 
 # # print(results)
 # print(results.keys())
 # # print(results.values())
-numpy_results = np.array([results[i] for i in results.keys()])
 # print(numpy_results)
 
 # print(numpy_results[:,2])
@@ -244,24 +243,43 @@ for key in NET_MODEL_keys:
     keys.append(key)
 
 plot.boxplot(NET_MODEL_results, positions=keys) 
-plot.xlabel('NETMODEL [2=ace, 3=udp, 4=udpnc]')
+plot.xlabel('NET_MODEL [2=ace, 3=udp, 4=udpnc]')
 plot.ylabel('Topology consistency [%]')  
 plot.grid()
 
 # ######## Topology consistency 
 plot.subplot(2,1,2)
 
-NET_MODEL_results = list()
-keys = list()
+# NET_MODEL_results = list()
+# keys = list()
 
-for key in NET_MODEL_keys:
-    this_perctage_results = dict_of_numpy_results[key]
-    NET_MODEL_results.append(np.array(this_perctage_results[:,5], dtype=np.float))
-    keys.append(key)
+# for key in NET_MODEL_keys:
+#     this_perctage_results = dict_of_numpy_results[key]
+#     NET_MODEL_results.append(np.array(this_perctage_results[:,5], dtype=np.float))
+#     keys.append(key)
+
+# plot.boxplot(NET_MODEL_results, positions=keys) 
+# plot.xlabel('NET_MODEL [2=ace, 3=udp, 4=udpnc]')
+# plot.ylabel('Drift distance [units]')  
+# plot.grid()
+
+# print(results_text)
+# print(np.array(results_text, dtype=np.float))
+results_nparray = np.array(results_text, dtype=np.float)
+np.set_printoptions(linewidth=np.inf, formatter={'float': '{: 0.3f}'.format})
+print(results_nparray[np.where(results_nparray[:,NET_MODEL] == 2)])
+net_ace_results = results_nparray[np.where(results_nparray[:,NET_MODEL] == 2)]
+net_udp_results = results_nparray[np.where(results_nparray[:,NET_MODEL] == 3)]
+net_udpnc_results = results_nparray[np.where(results_nparray[:,NET_MODEL] == 4)]
+NET_MODEL_results = [net_ace_results[:,AVG_DRIFT], net_udp_results[:,AVG_DRIFT], net_udpnc_results[:,AVG_DRIFT]]
+print(NET_MODEL_results)
 
 plot.boxplot(NET_MODEL_results, positions=keys) 
-plot.xlabel('NETMODEL [2=ace, 3=udp, 4=udpnc]')
+plot.xlabel('NET_MODEL [2=ace, 3=udp, 4=udpnc]')
 plot.ylabel('Drift distance [units]')  
 plot.grid()
+
+
+
 
 plot.show()

@@ -1,9 +1,16 @@
 #!/usr/bin/env python3
-import matplotlib.pyplot as plot
 import numpy as np
 import csv
 import sys
 from os.path import expanduser
+
+hasMatplotlib = True
+try:
+    import matplotlib.pyplot as plot
+except ImportError, e:
+    print("Matplotlib not available on this console")
+    hasMatplotlib = False
+
 
 TIMESTAMP = 0
 ACTIVE_NODES = 1
