@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-for i in {1..2}
+for i in {1..1}
 do
 	echo "Run $i"
 	sudo make

@@ -9,6 +9,7 @@ def generate_label():
     # print("Home Dir: ", home_dir)
 
     NET_MODEL_STRINGS = ['net_emu', 'net_ace', 'net_udp', 'net_udpNC']
+    PLATFORM_STRINGS = ['Mininet', 'Docker']
 
     with open("%s/Development/VAST-0.4.6/bin/VASTreal.ini" % home_dir, 'r') as config:
         data = config.readlines()
@@ -30,8 +31,10 @@ def generate_label():
         # print ("DELAY", DELAY)
         LOSS_PERC = (int)(data[data.index('#LOSS_PERC;     // Percentages of packets dropped on downstream link. Upstream link unaffected\n')+1])
         # print ("LOSS_PERC", LOSS_PERC)
+        PLATFORM = (int)(data[data.index('#PLATFORM;      //Mininet (1) or Docker (2)\n')+1])
+        # print("PLATFORM: ", PLATFORM_STRINGS[PLATFORM-1])
 
-    return str(NET_MODEL_STRINGS[NET_MODEL-1] + "_NODES" + str(NODE_COUNT) + "_BW" + str(BW) + "_DELAY" + str(DELAY) + "_LOSS_PERC" + str(LOSS_PERC))
+    return str(NET_MODEL_STRINGS[NET_MODEL-1] + "_NODES" + str(NODE_COUNT) + "_BW" + str(BW) + "_DELAY" + str(DELAY) + "_LOSS_PERC" + str(LOSS_PERC)) + "_" + str(PLATFORM_STRINGS[PLATFORM-1])
 
 if __name__ == '__main__':
     print(generate_label())
