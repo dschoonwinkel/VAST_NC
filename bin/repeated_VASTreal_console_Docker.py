@@ -13,7 +13,7 @@ def runOnce():
 		subprocess.call("$HOME/Development/Docker/vastrealconsole_docker/run_multiple.py", 
 		shell=True), "\n")
 	print("VASTStatReplay success:", 
-		subprocess.call("$HOME/Development/Docker/vaststatreplay_docker/run.bash.py", 
+		subprocess.call("$HOME/Development/Docker/vaststatreplay_docker/run.bash", 
 		shell=True), "\n")
 	print("Make backup success:", 
 		subprocess.call("make backup_results foo=%s" % label,
