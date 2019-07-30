@@ -38,22 +38,33 @@ def replace_NODECOUNT(node_count):
 		for line in data:
 			config.write(line)
 
+def main():
+	NODE_COUNT_list = [5, 10, 11, 15]
 
-NODE_COUNT_list = [5, 10, 11, 15]
-iterations = 1
+	with open("Mininet.ini", 'r') as config:
+			data = config.readlines()
 
-#Run over all NODE_COUNT options
-for i in range(len(NODE_COUNT_list)):
-	replace_NODECOUNT(NODE_COUNT_list[i])
-	#Run iterations
-	for j in range(iterations):
-		label = runOnce()
-		print("Run %d completed %s %s" % (j, socket.gethostname(), label))
+	for i in range(len(data)):
+		if data[i].find("ITERATIONS") != -1:
+			ITERATIONS = int(data[i+1])
+			print("ITERATIONS: ", ITERATIONS)
 
-	# subprocess.call("echo \"Runs completed on %s with label %s\" \
-	# 	| mail -s \"Test status\" daniel.schoonwinkel@gmail.com" % 
-	# 	(socket.gethostname(), label),
-	# 		shell=True)
 
-# replace_NODECOUNT(NODE_COUNT_list[0])
-# print(runOnce())
+	#Run over all NODE_COUNT options
+	for i in range(len(NODE_COUNT_list)):
+		replace_NODECOUNT(NODE_COUNT_list[i])
+		#Run ITERATIONS
+		for j in range(ITERATIONS):
+			label = runOnce()
+			print("Run %d completed %s %s" % (j, socket.gethostname(), label))
+
+		# subprocess.call("echo \"Runs completed on %s with label %s\" \
+		# 	| mail -s \"Test status\" daniel.schoonwinkel@gmail.com" % 
+		# 	(socket.gethostname(), label),
+		# 		shell=True)
+
+	# replace_NODECOUNT(NODE_COUNT_list[0])
+	# print(runOnce())
+
+if __name__ == '__main__':
+	main()
