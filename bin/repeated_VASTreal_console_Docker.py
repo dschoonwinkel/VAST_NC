@@ -42,19 +42,18 @@ def replace_NODECOUNT(node_count):
 NODE_COUNT_list = [5, 10, 11, 15]
 iterations = 1
 
-# Run over all NODE_COUNT options
-# for i in range(len(NODE_COUNT_list)):
-# 	replace_NODECOUNT(NODE_COUNT_list[i])
-# 	#Run iterations
-# 	for j in range(iterations):
-# 		# label = runOnce()
-# 		label = "1"
-# 		print("Run %d completed %s %s" % (j, socket.gethostname(), label))
+Run over all NODE_COUNT options
+for i in range(len(NODE_COUNT_list)):
+	replace_NODECOUNT(NODE_COUNT_list[i])
+	#Run iterations
+	for j in range(iterations):
+		label = runOnce()
+		print("Run %d completed %s %s" % (j, socket.gethostname(), label))
 
-# 	subprocess.call("echo \"Runs completed on %s with label %s\" \
-# 		| mail -s \"Test status\" daniel.schoonwinkel@gmail.com" % 
-# 		(socket.gethostname(), label),
-# 			shell=True)
+	subprocess.call("echo \"Runs completed on %s with label %s\" \
+		| mail -s \"Test status\" daniel.schoonwinkel@gmail.com" % 
+		(socket.gethostname(), label),
+			shell=True)
 
-replace_NODECOUNT(NODE_COUNT_list[0])
+# replace_NODECOUNT(NODE_COUNT_list[0])
 # print(runOnce())
