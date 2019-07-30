@@ -10,10 +10,10 @@ def runOnce():
 	label = generate_label()
 	print(label)
 	print("Mininet success:", 
-		subprocess.call("sudo ../mininet_topos/Multinode_pox_codinghost.py", 
+		subprocess.call("$HOME/Development/Docker/vastrealconsole_docker/run_multiple.py", 
 		shell=True), "\n")
 	print("VASTStatReplay success:", 
-		subprocess.call("./vaststat_replay", 
+		subprocess.call("$HOME/Development/Docker/vaststatreplay_docker/run.bash.py", 
 		shell=True), "\n")
 	print("Make backup success:", 
 		subprocess.call("make backup_results foo=%s" % label,
@@ -32,7 +32,7 @@ def replace_NODECOUNT(node_count):
 		if data[i].find("NODE_COUNT") != -1:
 			data[i+1] = "%s\n" % node_count
 		if data[i].find("PLATFORM") != -1:
-			data[i+1] = "1\n" #Set platform to Mininet
+			data[i+1] = "2\n" #Set platform to Docker
 
 	with open("Mininet.ini", 'w') as config:
 		for line in data:

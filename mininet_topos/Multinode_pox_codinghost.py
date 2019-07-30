@@ -116,9 +116,9 @@ def myNetwork():
                 # hosts[i-1].cmd("xterm -hold -fg black -bg green -geometry 80x60+%d+0 -e   \"./VASTreal_console %d 0 1037 10.0.0.1 \" &" % (200+i*40, i-1))    
                 hosts[i-1].cmd("ASAN_OPTIONS=alloc_dealloc_mismatch=0 ./VASTreal_console %d 0 1037 10.0.0.1 &> output_dump/node_10.0.0.%d.txt &" % (i-1, i))
 
-                #DELAY before starting profiling = TIMESTEP_DURATION * (10 STEPS * NODE_COUNT + 100 STEPS) * 1000 ms
-                DELAY = TIMESTEP_DURATION * (10 * Node_count + 100) * 1000
-                # hosts[i-1].cmd("perf record --delay %d --freq 100 --call-graph dwarf -o ./perf/perf%d.data ./VASTreal_console %d 0 1037 10.0.0.1 &> output_dump/node%d.txt &" % (DELAY, i-1, i-1, i-1))
+                #PROFILING_DELAY before starting profiling = TIMESTEP_DURATION * (10 STEPS * NODE_COUNT + 100 STEPS) * 1000 ms
+                PROFILING_DELAY = TIMESTEP_DURATION * (10 * Node_count + 100) * 1000
+                # hosts[i-1].cmd("perf record --delay %d --freq 100 --call-graph dwarf -o ./perf/perf%d.data ./VASTreal_console %d 0 1037 10.0.0.1 &> output_dump/node%d.txt &" % (PROFILING_DELAY, i-1, i-1, i-1))
             time.sleep(1 + TIMESTEP_DURATION * 10)
         except KeyboardInterrupt:
                 print("Sleep interrupted, exiting")
