@@ -8,7 +8,8 @@ do
 # echo $output 
 
 NAME=$output
-NAME2=${NAME:7}
+echo $NAME
+NAME2=${NAME:2}
 NAME3=${NAME2/"results/"/}
 NAME4=${NAME3/'/'/_}
 

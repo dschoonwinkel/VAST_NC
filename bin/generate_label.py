@@ -20,7 +20,6 @@ def generate_label():
         NET_MODEL = (int)(data[data.index('#NET_MODEL;     // 1: Net emulated 2: Net emulated with bandwidth limitation\n')+1])
         # print ("NET_MODEL", NET_MODEL)
 
-
     with open("%s/Development/VAST-0.4.6/bin/Mininet.ini" % home_dir, 'r') as config:
         data = config.readlines()
         NODE_COUNT = int(data[data.index('#NODE_COUNT;    // Nodes started in simulation\n')+1])
@@ -34,7 +33,7 @@ def generate_label():
         PLATFORM = (int)(data[data.index('#PLATFORM;      //Mininet (1) or Docker (2)\n')+1])
         # print("PLATFORM: ", PLATFORM_STRINGS[PLATFORM-1])
 
-    return str(NET_MODEL_STRINGS[NET_MODEL-1] + "_NODES" + str(NODE_COUNT) + "_BW" + str(BW) + "_DELAY" + str(DELAY) + "_LOSS_PERC" + str(LOSS_PERC)) + "_" + str(PLATFORM_STRINGS[PLATFORM-1])
+    return str(NET_MODEL_STRINGS[NET_MODEL-1] + "_NODES" + str(NODE_COUNT) + "_BW" + str(BW) + "_DELAY" + str(DELAY) + "_LOSS" + str(LOSS_PERC)) + "_STEPS" + str(SIMULATION_STEPS) + "_" + str(PLATFORM_STRINGS[PLATFORM-1])
 
 if __name__ == '__main__':
     print(generate_label())

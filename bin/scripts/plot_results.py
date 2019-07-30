@@ -3,6 +3,7 @@ import numpy as np
 import csv
 import sys
 from os.path import expanduser
+import os
 
 hasMatplotlib = False
 try:
@@ -63,6 +64,18 @@ if (len(sys.argv) > 1):
     input_file = sys.argv[1]
 
 print(input_file)
+
+abspath = os.path.abspath(input_file)
+print("Absolute path: ", abspath)
+LABEL_start = str(abspath).find("logs_net")
+LABEL_string = str(abspath)[LABEL_start:]
+LABEL_end = LABEL_string.find("results")
+LABEL_string = LABEL_string[:LABEL_end]
+
+if LABEL_start != -1:
+    print(LABEL_string)
+else:
+    print('LABEL_start not found')
 
 with open(input_file, 'r') as csvfile:
     spamreader = csv.reader(csvfile, delimiter=",")
