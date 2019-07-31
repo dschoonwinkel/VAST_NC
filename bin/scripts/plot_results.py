@@ -83,8 +83,8 @@ LABEL_string = LABEL_string[:LABEL_end]
 
 if LABEL_start != -1:
     # print(LABEL_string)
-    LABEL_list = parseFilenameLabel(LABEL_string)
-    print(LABEL_list)
+    LABEL_list, DATESTAMP_str = parseFilenameLabel(LABEL_string)
+    print(LABEL_list, DATESTAMP_str)
 else:
     print('LABEL_start not found')
 
@@ -163,10 +163,11 @@ if LABEL_list:
     LABEL_list.insert(0, first_timestamp)
     LABEL_list.extend([np.max(active_nodes), mean_consistency, 
                   mean_drift_distance, np.mean(send_stat), np.mean(recv_stat)])
+    LABEL_list.append(DATESTAMP_str)
 
     # print(LABEL_list)
     with open('%s/Development/VAST-0.4.6/bin/results_summary/results_summary.txt' % home_dir, 'a') as outfile:
-        outfile.write(("%s, %d, %d, %d, %d, %d, %d, %d, %f, %f, %f, %f, %f\n") % 
+        outfile.write(("%s, %d, %d, %d, %d, %d, %d, %d, %f, %f, %f, %f, %f, %s\n") % 
               tuple(LABEL_list))
     #         outfile.write("%s, %s, %f, %f, %f, %f, %f\n" 
     #             % (first_timestamp, input_file, np.max(active_nodes), mean_consistency, 

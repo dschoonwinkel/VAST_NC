@@ -33,4 +33,6 @@ def parseFilenameLabel(LABEL_string):
 	PLATFORM = PLATFORM_STRINGS.index(PLATFORM_str)+1
 	# print("PLATFORM:", PLATFORM)
 
-	return [NET_MODEL, int(NODECOUNT), int(BW), int(DELAY), int(LOSS), int(STEPS), PLATFORM]
+	DATESTAMP_str = re.search(r'\d+_\d+_\d+-\d+:\d+', LABEL_string).group(0)
+
+	return [NET_MODEL, int(NODECOUNT), int(BW), int(DELAY), int(LOSS), int(STEPS), PLATFORM], DATESTAMP_str
