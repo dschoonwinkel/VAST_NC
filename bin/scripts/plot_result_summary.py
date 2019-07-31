@@ -207,8 +207,6 @@ loss_percentages_keys = set()
 # plot.savefig("%s/Development/VAST-0.4.6/bin/results_summary/results_summary.png" % home_dir, dpi=300)
 
 
-results = dict()
-
 # for row in results_text:
 #     print(row)
 #     current_NET_MODEL = int(row[NET_MODEL])
@@ -287,9 +285,13 @@ plot.subplot(2,1,2)
 
 # print(results_text)
 # print(np.array(results_text, dtype=np.float))
-results_nparray = np.array(results_text, dtype=np.float)
+results_nparray = np.array(results_text)
+# print(results_nparray)
+results_nparray = results_nparray[:, :-1]
+# print(results_nparray)
+results_nparray = np.array(results_nparray, dtype=np.float)
 np.set_printoptions(linewidth=np.inf, formatter={'float': '{: 0.3f}'.format})
-print(results_nparray)
+# print(results_nparray)
 # print(results_nparray[:,NET_MODEL])
 print(plotByColumn(results_nparray, NODES_COUNT, AVG_DRIFT))
 xColumnList, yColumnList = plotByColumn(results_nparray, NODES_COUNT, AVG_DRIFT)
