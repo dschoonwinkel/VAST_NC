@@ -15,7 +15,7 @@ NAME4=${NAME3/'/'/_}
 
 echo $NAME4
 
-mkdir results_extracted
-cp $NAME results_extracted/$NAME4
+mkdir ../../results_extracted &> /dev/null
+cp $NAME ../../results_extracted/$NAME4
 
 done
