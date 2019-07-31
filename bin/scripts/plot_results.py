@@ -4,6 +4,7 @@ import csv
 import sys
 from os.path import expanduser
 import os
+from plot_result_utils import parseFilenameLabel
 
 hasMatplotlib = False
 try:
@@ -63,19 +64,37 @@ input_file = '%s/Development/VAST-0.4.6/bin/logs/results/results1.txt' % home_di
 if (len(sys.argv) > 1):
     input_file = sys.argv[1]
 
-print(input_file)
 
+
+
+
+
+
+
+# print(input_file)
+
+LABEL_list = None
 abspath = os.path.abspath(input_file)
-print("Absolute path: ", abspath)
+# print("Absolute path: ", abspath)
 LABEL_start = str(abspath).find("logs_net")
 LABEL_string = str(abspath)[LABEL_start:]
 LABEL_end = LABEL_string.find("results")
 LABEL_string = LABEL_string[:LABEL_end]
 
 if LABEL_start != -1:
-    print(LABEL_string)
+    # print(LABEL_string)
+    LABEL_list = parseFilenameLabel(LABEL_string)
+    print(LABEL_list)
 else:
     print('LABEL_start not found')
+
+
+
+
+
+
+
+
 
 with open(input_file, 'r') as csvfile:
     spamreader = csv.reader(csvfile, delimiter=",")
@@ -134,22 +153,49 @@ send_stat = (numpy_results[:,7]*100/1000)[:len(timestamps)]
 recv_stat = (numpy_results[:,8]*100/1000)[:len(timestamps)]
 mean_sendstat = np.mean(send_stat)
 
-
 print("Mean send_stat:", mean_sendstat)
 
-NET_MODEL_STRINGS = ['net_emu', 'net_ace', 'net_udp', 'net_udpNC']
-label = "%s_%d_%d_%d_loss%d_%s" % \
-            (NET_MODEL_STRINGS[NET_MODEL-1], NODE_COUNT, BW, DELAY, LOSS_PERC, first_timestamp)
-print(label)
 
-with open('%s/Development/VAST-0.4.6/bin/results_summary/results_summary.txt' % home_dir, 'a') as outfile:
-    # outfile.write(("%s, %d, %d, %d, %d, %d, %f, %f, %f, %f, %f, %s\n") % 
-          # (first_timestamp, NET_MODEL, NODE_COUNT, BW, DELAY, LOSS_PERC, np.max(active_nodes), mean_consistency, 
-          #     mean_drift_distance, np.mean(send_stat), np.mean(recv_stat), sys.argv[2]))
-        outfile.write("%s, %s, %f, %f, %f, %f, %f\n" 
-            % (first_timestamp, input_file, np.max(active_nodes), mean_consistency, 
-              mean_drift_distance, np.mean(send_stat), np.mean(recv_stat)))
-        print("Saving test results in results_summary.txt with label " + input_file)
+
+
+# Output to results summary, only if we know the LABEL
+if LABEL_list:
+    LABEL_list.insert(0, first_timestamp)
+    LABEL_list.extend([np.max(active_nodes), mean_consistency, 
+                  mean_drift_distance, np.mean(send_stat), np.mean(recv_stat)])
+
+    # print(LABEL_list)
+    with open('%s/Development/VAST-0.4.6/bin/results_summary/results_summary.txt' % home_dir, 'a') as outfile:
+        outfile.write(("%s, %d, %d, %d, %d, %d, %d, %d, %f, %f, %f, %f, %f\n") % 
+              tuple(LABEL_list))
+    #         outfile.write("%s, %s, %f, %f, %f, %f, %f\n" 
+    #             % (first_timestamp, input_file, np.max(active_nodes), mean_consistency, 
+    #               mean_drift_distance, np.mean(send_stat), np.mean(recv_stat)))
+    #         print("Saving test results in results_summary.txt with label " + input_file)
+
+
+# NET_MODEL_STRINGS = ['net_emu', 'net_ace', 'net_udp', 'net_udpNC']
+# label = "%s_%d_%d_%d_loss%d_%s" % \
+#             (NET_MODEL_STRINGS[NET_MODEL-1], NODE_COUNT, BW, DELAY, LOSS_PERC, first_timestamp)
+# print(label)
+
+# with open('%s/Development/VAST-0.4.6/bin/results_summary/results_summary.txt' % home_dir, 'a') as outfile:
+#     # outfile.write(("%s, %d, %d, %d, %d, %d, %f, %f, %f, %f, %f, %s\n") % 
+#           # (first_timestamp, NET_MODEL, NODE_COUNT, BW, DELAY, LOSS_PERC, np.max(active_nodes), mean_consistency, 
+#           #     mean_drift_distance, np.mean(send_stat), np.mean(recv_stat), sys.argv[2]))
+#         outfile.write("%s, %s, %f, %f, %f, %f, %f\n" 
+#             % (first_timestamp, input_file, np.max(active_nodes), mean_consistency, 
+#               mean_drift_distance, np.mean(send_stat), np.mean(recv_stat)))
+#         print("Saving test results in results_summary.txt with label " + input_file)
+
+
+
+
+
+
+
+
+
 
 if (hasMatplotlib):
     plot.figure(1, figsize=(12, 10), dpi=80)

@@ -5,17 +5,34 @@ import csv
 import sys
 from os.path import expanduser
 
+def plotByColumn(results_matrix, xColumnIndex, yColumnIndex):
+    # print(results_matrix[:,xColumnIndex])
+    xColumnList = np.unique(results_matrix[:,xColumnIndex])
+    # print(xColumnList)
+    yColumnList = list()
+    for point in xColumnList:
+        # print(point)
+        # print(results_matrix[np.where(results_matrix[:,NET_MODEL] == point)])
+        # print(results_matrix[np.where(results_matrix[:,NET_MODEL] == point)][:,yColumnIndex])
+        yColumnList.append(results_matrix[np.where(results_matrix[:,xColumnIndex] == point)][:,yColumnIndex])
+
+    return xColumnList, yColumnList
+
+
+
 FIRST_TIMESTAMP = 0
 NET_MODEL = 1
 NODES_COUNT = 2
 BW_LIMIT = 3
 DELAY_MS = 4
 LOSS_PERC = 5
-ACTIVE_NODES = 6
-AVG_TOPO_CONS = 7
-AVG_DRIFT = 8
-AVG_WORLDSENDSTAT = 9
-AVG_WORLDRECVSTAT = 10
+STEPS = 6
+PLATFORM = 7
+ACTIVE_NODES = 8
+AVG_TOPO_CONS = 9
+AVG_DRIFT = 10
+AVG_WORLDSENDSTAT = 11
+AVG_WORLDRECVSTAT = 12
 
 x_axis_interval = 2
 
@@ -23,6 +40,11 @@ results_text = list()
 
 home_dir = expanduser("~")
 print("Home Dir: ", home_dir)
+
+
+#Reset results_summary.py
+# with open('%s/Development/VAST-0.4.6/bin/results_summary/results_summary.txt' % home_dir, 'w') as csvfile:
+#     csvfile.write('timestamp, NET_MODEL, NODECOUNT, BW, DELAY, STEPS, PLATFORM, ACTIVE_NODES, TOPO_CONS, DRIFTDISTANCE, SEND_BW, RECV_BW')
 
 with open('%s/Development/VAST-0.4.6/bin/results_summary/results_summary.txt' % home_dir, 'r') as csvfile:
     spamreader = csv.reader(csvfile, delimiter=",")
@@ -35,25 +57,25 @@ results_text = results_text[1:]
 
 results = dict()
 loss_percentages_keys = set()
-NET_MODEL_keys = set()
+# NET_MODEL_keys = set()
 
 # print(results_text)
 
-for row in results_text:
-    # print(row)
-    current_loss_perc = int(row[LOSS_PERC])
-    if current_loss_perc not in loss_percentages_keys:
-        loss_percentages_keys.add(current_loss_perc)
-        results[int(row[LOSS_PERC])] = dict()
+# for row in results_text:
+#     # print(row)
+#     current_loss_perc = int(row[LOSS_PERC])
+#     if current_loss_perc not in loss_percentages_keys:
+#         loss_percentages_keys.add(current_loss_perc)
+#         results[int(row[LOSS_PERC])] = dict()
 
-    results[current_loss_perc][row[FIRST_TIMESTAMP]] = [row[NODES_COUNT], 
-        row[BW_LIMIT], 
-        float(row[DELAY_MS]), 
-        float(row[ACTIVE_NODES]), 
-        float(row[AVG_TOPO_CONS]), 
-        float(row[AVG_DRIFT]), 
-        float(row[AVG_WORLDSENDSTAT]),
-        float(row[AVG_WORLDRECVSTAT])]
+#     results[current_loss_perc][row[FIRST_TIMESTAMP]] = [row[NODES_COUNT], 
+#         row[BW_LIMIT], 
+#         float(row[DELAY_MS]), 
+#         float(row[ACTIVE_NODES]), 
+#         float(row[AVG_TOPO_CONS]), 
+#         float(row[AVG_DRIFT]), 
+#         float(row[AVG_WORLDSENDSTAT]),
+#         float(row[AVG_WORLDRECVSTAT])]
 
 
 
@@ -187,30 +209,30 @@ for row in results_text:
 
 results = dict()
 
-for row in results_text:
-    print(row)
-    current_NET_MODEL = int(row[NET_MODEL])
-    if current_NET_MODEL not in NET_MODEL_keys:
-        NET_MODEL_keys.add(current_NET_MODEL)
-        results[current_NET_MODEL] = dict()
+# for row in results_text:
+#     print(row)
+#     current_NET_MODEL = int(row[NET_MODEL])
+#     if current_NET_MODEL not in NET_MODEL_keys:
+#         NET_MODEL_keys.add(current_NET_MODEL)
+#         results[current_NET_MODEL] = dict()
 
-    results[current_NET_MODEL][row[FIRST_TIMESTAMP]] = [row[NODES_COUNT], 
-        row[BW_LIMIT], 
-        float(row[DELAY_MS]), 
-        float(row[ACTIVE_NODES]), 
-        float(row[AVG_TOPO_CONS]), 
-        float(row[AVG_DRIFT]), 
-        float(row[AVG_WORLDSENDSTAT]),
-        float(row[AVG_WORLDRECVSTAT])]
+#     results[current_NET_MODEL][row[FIRST_TIMESTAMP]] = [row[NODES_COUNT], 
+#         row[BW_LIMIT], 
+#         float(row[DELAY_MS]), 
+#         float(row[ACTIVE_NODES]), 
+#         float(row[AVG_TOPO_CONS]), 
+#         float(row[AVG_DRIFT]), 
+#         float(row[AVG_WORLDSENDSTAT]),
+#         float(row[AVG_WORLDRECVSTAT])]
 
-# print(results)
+# # print(results)
 
-dict_of_numpy_results = dict()
+# dict_of_numpy_results = dict()
 
-for key in NET_MODEL_keys:
-    # print(results[key])
-    this_NET_MODEL_results = results[key]
-    dict_of_numpy_results[key] = np.array([this_NET_MODEL_results[i] for i in this_NET_MODEL_results.keys()])
+# for key in NET_MODEL_keys:
+#     # print(results[key])
+#     this_NET_MODEL_results = results[key]
+#     dict_of_numpy_results[key] = np.array([this_NET_MODEL_results[i] for i in this_NET_MODEL_results.keys()])
 
 # print(dict_of_numpy_results)
 
@@ -232,20 +254,20 @@ for key in NET_MODEL_keys:
 
 
 # ######## Topology consistency 
-plot.subplot(2,1,1)
+# plot.subplot(2,1,1)
 
-NET_MODEL_results = list()
-keys = list()
+# NET_MODEL_results = list()
+# keys = list()
 
-for key in NET_MODEL_keys:
-    this_perctage_results = dict_of_numpy_results[key]
-    NET_MODEL_results.append(np.array(this_perctage_results[:,4], dtype=np.float))
-    keys.append(key)
+# for key in NET_MODEL_keys:
+#     this_perctage_results = dict_of_numpy_results[key]
+#     NET_MODEL_results.append(np.array(this_perctage_results[:,4], dtype=np.float))
+#     keys.append(key)
 
-plot.boxplot(NET_MODEL_results, positions=keys) 
-plot.xlabel('NET_MODEL [2=ace, 3=udp, 4=udpnc]')
-plot.ylabel('Topology consistency [%]')  
-plot.grid()
+# plot.boxplot(NET_MODEL_results, positions=keys) 
+# plot.xlabel('NET_MODEL [2=ace, 3=udp, 4=udpnc]')
+# plot.ylabel('Topology consistency [%]')  
+# plot.grid()
 
 # ######## Topology consistency 
 plot.subplot(2,1,2)
@@ -267,19 +289,19 @@ plot.subplot(2,1,2)
 # print(np.array(results_text, dtype=np.float))
 results_nparray = np.array(results_text, dtype=np.float)
 np.set_printoptions(linewidth=np.inf, formatter={'float': '{: 0.3f}'.format})
-print(results_nparray[np.where(results_nparray[:,NET_MODEL] == 2)])
-net_ace_results = results_nparray[np.where(results_nparray[:,NET_MODEL] == 2)]
-net_udp_results = results_nparray[np.where(results_nparray[:,NET_MODEL] == 3)]
-net_udpnc_results = results_nparray[np.where(results_nparray[:,NET_MODEL] == 4)]
-NET_MODEL_results = [net_ace_results[:,AVG_DRIFT], net_udp_results[:,AVG_DRIFT], net_udpnc_results[:,AVG_DRIFT]]
-print(NET_MODEL_results)
+print(results_nparray)
+# print(results_nparray[:,NET_MODEL])
+print(plotByColumn(results_nparray, NODES_COUNT, AVG_DRIFT))
+xColumnList, yColumnList = plotByColumn(results_nparray, NODES_COUNT, AVG_DRIFT)
+# print(results_nparray[np.where(results_nparray[:,NET_MODEL] == 3)])
+# net_udp_results = results_nparray[np.where(results_nparray[:,NET_MODEL] == 3)]
+# net_udpnc_results = results_nparray[np.where(results_nparray[:,NET_MODEL] == 4)]
+# NET_MODEL_results = [net_ace_results[:,AVG_DRIFT], net_udp_results[:,AVG_DRIFT], net_udpnc_results[:,AVG_DRIFT]]
+# print(NET_MODEL_results)
 
-plot.boxplot(NET_MODEL_results, positions=keys) 
-plot.xlabel('NET_MODEL [2=ace, 3=udp, 4=udpnc]')
+plot.boxplot(yColumnList, positions=xColumnList) 
+plot.xlabel('NODES_COUNT')
 plot.ylabel('Drift distance [units]')  
 plot.grid()
-
-
-
 
 plot.show()
