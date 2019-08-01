@@ -1433,7 +1433,7 @@ namespace Vast
         else if (n > _overload_limit)
         {
             _VSOpeer->notifyLoading (((float)n / (float)_overload_limit));
-            Logger::debug("VASTMatcher::checkOverload Matcher Overloaded:" + string::to_string(n), true);
+            Logger::debug("VASTMatcher::checkOverload Matcher Overloaded:" + std::to_string(n), true);
         }
         
         // underload
@@ -1442,7 +1442,7 @@ namespace Vast
         else if (n == 0)
         {
             _VSOpeer->notifyLoading ((float)(-1));
-            Logger::debug("VASTMatcher::checkOverload Matcher Underloaded:" + string::to_string(n), true);
+            Logger::debug("VASTMatcher::checkOverload Matcher Underloaded:" + std::to_string(n), true);
         }
         
         // normal loading
