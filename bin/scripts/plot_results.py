@@ -34,23 +34,23 @@ print("Home Dir: ", home_dir)
 with open("%s/Development/VAST-0.4.6/bin/VASTreal.ini" % home_dir, 'r') as config:
     data = config.readlines()
     TIMESTEP_DURATION = float(data[-1])
-    print("TIMESTEP_DURATION", TIMESTEP_DURATION, "[ms]")
+    # print("TIMESTEP_DURATION", TIMESTEP_DURATION, "[ms]")
     SIMULATION_STEPS = (int)(data[data.index('#TIME_STEPS;    // number of steps\n')+1])
-    print ("SIMULATION_STEPS", SIMULATION_STEPS)
+    # print ("SIMULATION_STEPS", SIMULATION_STEPS)
     NET_MODEL = (int)(data[data.index('#NET_MODEL;     // 1: Net emulated 2: Net emulated with bandwidth limitation\n')+1])
-    print ("NET_MODEL", NET_MODEL)
+    # print ("NET_MODEL", NET_MODEL)
 
 
 with open("%s/Development/VAST-0.4.6/bin/Mininet.ini" % home_dir, 'r') as config:
     data = config.readlines()
     NODE_COUNT = int(data[data.index('#NODE_COUNT;    // Nodes started in simulation\n')+1])
-    print("NODE_COUNT", NODE_COUNT)
+    # print("NODE_COUNT", NODE_COUNT)
     BW = (int)(data[data.index('#BW;            // Bandwidth limit [Mbps], 0 if inifinte\n')+1])
-    print ("BW", BW)
+    # print ("BW", BW)
     DELAY = (int)(data[data.index('#DELAY;         // Delay in MS\n')+1])
-    print ("DELAY", DELAY)
+    # print ("DELAY", DELAY)
     LOSS_PERC = (int)(data[data.index('#LOSS_PERC;     // Percentages of packets dropped on downstream link. Upstream link unaffected\n')+1])
-    print ("LOSS_PERC", LOSS_PERC)
+    # print ("LOSS_PERC", LOSS_PERC)
 
 # x_axis_interval = 20000
 x_axis_interval = TIMESTEP_DURATION * 2000
@@ -71,7 +71,6 @@ if (len(sys.argv) > 2):
     print(sys.argv[2])
     print("Plotting")
     plot_yes = True
-
 
 
 # print(input_file)
@@ -131,6 +130,7 @@ if last_relative_timestamp < 0.9 * MAX_TIMESTAMP:
     MAX_TIMESTAMP = last_relative_timestamp
 
 active_nodes = numpy_results[:,ACTIVE_NODES]
+active_matchers = numpy_results[:,ACTIVE_MATCHERS]
 
 topo_consistency = (100* 1.0*numpy_results[:,AN_VISIBLE] / (1.0*numpy_results[:,AN_ACTUAL]))[:len(timestamps)]
 
@@ -163,10 +163,12 @@ print("Mean send_stat:", mean_sendstat)
 
 # Output to results summary, only if we know the LABEL
 if LABEL_list:
+    NODE_COUNT = LABEL_list[1]
     LABEL_list.insert(0, first_timestamp)
     LABEL_list.extend([np.max(active_nodes), mean_consistency, 
                   mean_drift_distance, np.mean(send_stat), np.mean(recv_stat)])
     LABEL_list.append(DATESTAMP_str)
+
 
     # print(LABEL_list)
     with open('%s/Development/VAST-0.4.6/bin/results_summary/results_summary.txt' % home_dir, 'a') as outfile:
@@ -197,17 +199,21 @@ if LABEL_list:
 
 
 
-
-
+TOTAL_SETUPTIME = TIMESTEP_DURATION * 1000 + (1 + TIMESTEP_DURATION * 10)*NODE_COUNT
+print("Total connection setup time: ", TOTAL_SETUPTIME, 'ms')
+print("Total connection setup time: ", TOTAL_SETUPTIME / 1000, 's')
 
 
 if (hasMatplotlib and plot_yes):
     plot.figure(1, figsize=(12, 10), dpi=80)
     plot.subplot(4,1,1)
     plot.plot(timestamps, active_nodes[:len(timestamps)])
-    plot.ylabel("Active nodes")
+    plot.plot(timestamps, active_matchers[:len(timestamps)])
+    plot.plot([TOTAL_SETUPTIME, TOTAL_SETUPTIME],[0, max(active_nodes)+1], 'k')
+    plot.ylabel("# Active")
+    plot.legend(['Nodes', 'Matchers'])
     plot.xticks(np.arange(min(timestamps), max(timestamps)+1, x_axis_interval))
-    plot.yticks(np.arange(min(active_nodes), max(active_nodes)+1, 1))
+    plot.yticks(np.arange(min(active_nodes),max(active_nodes)+1, 1))
     plot.xlim(0, MAX_TIMESTAMP)
     plot.grid(True)
 
@@ -215,6 +221,7 @@ if (hasMatplotlib and plot_yes):
     plot.plot(timestamps, topo_consistency)
     plot.plot(timestamps[where_are_NaNs], topo_consistency[where_are_NaNs], 'r,')
     plot.plot([0,timestamps[-1]], [mean_consistency,mean_consistency], 'r')
+    plot.plot([TOTAL_SETUPTIME, TOTAL_SETUPTIME],[0, 100], 'k')
     plot.text(timestamps[-1], mean_consistency, str(mean_consistency)[0:5])
     plot.ylabel("Topo consistency [%]")
     plot.xticks(np.arange(min(timestamps), max(timestamps)+1, x_axis_interval))
@@ -225,6 +232,7 @@ if (hasMatplotlib and plot_yes):
     plot.subplot(4,1,3)
     plot.plot(timestamps, normalised_drift_distance)
     plot.plot([0,timestamps[-1]], [mean_drift_distance,mean_drift_distance], 'r')
+    plot.plot([TOTAL_SETUPTIME, TOTAL_SETUPTIME],[0, 100], 'k')
     plot.ylabel("Norm drift distance")
     plot.text(timestamps[-1], mean_drift_distance, str(mean_drift_distance)[0:5])
     plot.xticks(np.arange(min(timestamps), max(timestamps)+1, x_axis_interval))
@@ -234,6 +242,7 @@ if (hasMatplotlib and plot_yes):
     plot.subplot(4,1,4)
     plot.plot(timestamps, send_stat[:len(timestamps)], 'g',label='Send stat')
     plot.plot([0,timestamps[-1]], [mean_sendstat, mean_sendstat], 'r')
+    plot.plot([TOTAL_SETUPTIME, TOTAL_SETUPTIME],[0, 100], 'k')
     plot.text(timestamps[-1], mean_sendstat, str(mean_sendstat)[0:5])
     plot.plot(timestamps, recv_stat*100/1000, 'b+', label='Recv stat')
     plot.ylabel("Send/recv stats [kBps]")

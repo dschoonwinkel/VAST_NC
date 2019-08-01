@@ -83,9 +83,10 @@ xColumnList, yColumnList = plotByColumn(results_nparray, NODES_COUNT, AVG_DRIFT)
 
 
 
-
-netUDPsubset = subsetByColumnValue(results_nparray, NET_MODEL, 3)
-ax = plot.subplot(1,2,1)
+DockerSubset = subsetByColumnValue(results_nparray, PLATFORM, DOCKER)
+netUDPsubset = subsetByColumnValue(DockerSubset, NET_MODEL, 3)
+print("netUDPsubsetDocker", len(netUDPsubset))
+ax = plot.subplot(2,2,1)
 xColumnList, yColumnList = plotByColumn(netUDPsubset, NODES_COUNT, AVG_DRIFT)
 plot.boxplot(yColumnList, positions=xColumnList) 
 ax.title.set_text('netUDP Docker')
@@ -94,39 +95,89 @@ plot.ylabel('Drift distance [units]')
 plot.grid()
 
 
-
-netUDPNCsubset = subsetByColumnValue(results_nparray, NET_MODEL, 4)
-ax = plot.subplot(1,2,2)
+DockerSubset = subsetByColumnValue(results_nparray, PLATFORM, DOCKER)
+netUDPNCsubset = subsetByColumnValue(DockerSubset, NET_MODEL, 4)
+print("netUDPNCsubsetDocker", len(netUDPNCsubset))
+ax = plot.subplot(2,2,2)
 xColumnList, yColumnList = plotByColumn(netUDPNCsubset, NODES_COUNT, AVG_DRIFT)
 plot.boxplot(yColumnList, positions=xColumnList) 
 ax.title.set_text('netUDPNC Docker')
 plot.xlabel('NODES_COUNT')
 plot.ylabel('Drift distance [units]')  
 plot.grid()
+
+MininetSubset = subsetByColumnValue(results_nparray, PLATFORM, MININET)
+netUDPsubset = subsetByColumnValue(MininetSubset, NET_MODEL, 3)
+print("netUDPsubsetMininet", len(netUDPNCsubset))
+ax = plot.subplot(2,2,3)
+xColumnList, yColumnList = plotByColumn(netUDPsubset, NODES_COUNT, AVG_DRIFT)
+plot.boxplot(yColumnList, positions=xColumnList) 
+ax.title.set_text('netUDP Mininet')
+plot.xlabel('NODES_COUNT')
+plot.ylabel('Drift distance [units]')  
+plot.grid()
+
+
+MininetSubset = subsetByColumnValue(results_nparray, PLATFORM, MININET)
+netUDPNCsubset = subsetByColumnValue(MininetSubset, NET_MODEL, 4)
+print("netUDPNCsubsetMininet", len(netUDPNCsubset))
+ax = plot.subplot(2,2,4)
+xColumnList, yColumnList = plotByColumn(netUDPNCsubset, NODES_COUNT, AVG_DRIFT)
+plot.boxplot(yColumnList, positions=xColumnList) 
+ax.title.set_text('netUDPNC Mininet')
+plot.xlabel('NODES_COUNT')
+plot.ylabel('Drift distance [units]')  
+plot.grid()
+
+
 
 
 
 plot.figure()
-netUDPsubset = subsetByColumnValue(results_nparray, NET_MODEL, 3)
-ax = plot.subplot(1,2,1)
+DockerSubset = subsetByColumnValue(results_nparray, PLATFORM, DOCKER)
+netUDPsubset = subsetByColumnValue(DockerSubset, NET_MODEL, 3)
+ax = plot.subplot(2,2,1)
 xColumnList, yColumnList = plotByColumn(netUDPsubset, NODES_COUNT, AVG_DRIFT)
 plot.boxplot(yColumnList, positions=xColumnList) 
 ax.title.set_text('netUDP Docker')
 plot.xlabel('NODES_COUNT')
+plot.ylim([1.5, 5])
 plot.ylabel('Drift distance [units]')  
-plot.ylim([1.5, 3])
 plot.grid()
 
 
-
-netUDPNCsubset = subsetByColumnValue(results_nparray, NET_MODEL, 4)
-ax = plot.subplot(1,2,2)
+DockerSubset = subsetByColumnValue(results_nparray, PLATFORM, DOCKER)
+netUDPNCsubset = subsetByColumnValue(DockerSubset, NET_MODEL, 4)
+ax = plot.subplot(2,2,2)
 xColumnList, yColumnList = plotByColumn(netUDPNCsubset, NODES_COUNT, AVG_DRIFT)
 plot.boxplot(yColumnList, positions=xColumnList) 
 ax.title.set_text('netUDPNC Docker')
 plot.xlabel('NODES_COUNT')
+plot.ylim([1.5, 5])
 plot.ylabel('Drift distance [units]')  
-plot.ylim([1.5, 3])
+plot.grid()
+
+MininetSubset = subsetByColumnValue(results_nparray, PLATFORM, MININET)
+netUDPsubset = subsetByColumnValue(MininetSubset, NET_MODEL, 3)
+ax = plot.subplot(2,2,3)
+xColumnList, yColumnList = plotByColumn(netUDPsubset, NODES_COUNT, AVG_DRIFT)
+plot.boxplot(yColumnList, positions=xColumnList) 
+ax.title.set_text('netUDP Mininet')
+plot.xlabel('NODES_COUNT')
+plot.ylim([0.5, 5])
+plot.ylabel('Drift distance [units]')  
+plot.grid()
+
+
+MininetSubset = subsetByColumnValue(results_nparray, PLATFORM, MININET)
+netUDPNCsubset = subsetByColumnValue(MininetSubset, NET_MODEL, 4)
+ax = plot.subplot(2,2,4)
+xColumnList, yColumnList = plotByColumn(netUDPNCsubset, NODES_COUNT, AVG_DRIFT)
+plot.boxplot(yColumnList, positions=xColumnList) 
+ax.title.set_text('netUDPNC Mininet')
+plot.xlabel('NODES_COUNT')
+plot.ylim([0.5, 5])
+plot.ylabel('Drift distance [units]')  
 plot.grid()
 
 plot.show()
