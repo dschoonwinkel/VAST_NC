@@ -28,14 +28,16 @@ clean_binaries:
 
 backup_results:
 	$(eval date_string := $(shell date +%d_%m_%Y-%H:%M))
-	mkdir logs/logs_backup/logs_$(foo)_$(date_string)
-	-cp logs/*.txt logs/logs_backup/logs_$(foo)_$(date_string)/
+	mkdir -p logs/logs_backup/logs_$(foo)_$(date_string)/logs
+	-cp logs/*.txt logs/logs_backup/logs_$(foo)_$(date_string)/logs/
 	mkdir logs/logs_backup/logs_$(foo)_$(date_string)/results
 	-cp logs/results/results1.txt logs/logs_backup/logs_$(foo)_$(date_string)/results/
 	mkdir logs/logs_backup/logs_$(foo)_$(date_string)/output_dump
 	-cp output_dump/*.txt logs/logs_backup/logs_$(foo)_$(date_string)/output_dump/
 	mkdir logs/logs_backup/logs_$(foo)_$(date_string)/msgcap
 	-cp msgcap/*.txt logs/logs_backup/logs_$(foo)_$(date_string)/msgcap/
+	-cp VASTreal.ini logs/logs_backup/logs_$(foo)_$(date_string)/
+	-cp Mininet.ini logs/logs_backup/logs_$(foo)_$(date_string)/
 
 
 restore_results:
