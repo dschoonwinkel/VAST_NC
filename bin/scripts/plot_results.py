@@ -6,7 +6,7 @@ from os.path import expanduser
 import os
 from plot_result_utils import parseFilenameLabel
 
-hasMatplotlib = False
+hasMatplotlib = True
 try:
     import matplotlib.pyplot as plot
 except ImportError:
@@ -16,13 +16,14 @@ except ImportError:
 
 TIMESTAMP = 0
 ACTIVE_NODES = 1
-AN_ACTUAL = 2
-AN_VISIBLE = 3
-TOTAL_DRIFT = 4
-MAX_DRIFT = 5
-DRIFT_NODES = 6
-WORLDSENDSTAT = 7
-WORLDRECVSTAT = 8
+ACTIVE_MATCHERS = 2
+AN_ACTUAL = 3
+AN_VISIBLE = 4
+TOTAL_DRIFT = 5
+MAX_DRIFT = 6
+DRIFT_NODES = 7
+WORLDSENDSTAT = 8
+WORLDRECVSTAT = 9
 
 print("Usage: ./plot_results.py <input_file: default = results1.txt>\n\
                  <results label = \"NET_MODEL, nodecount, BW, delay, loss%\">")
@@ -64,10 +65,12 @@ input_file = '%s/Development/VAST-0.4.6/bin/logs/results/results1.txt' % home_di
 if (len(sys.argv) > 1):
     input_file = sys.argv[1]
 
+plot_yes = False
 
-
-
-
+if (len(sys.argv) > 2):
+    print(sys.argv[2])
+    print("Plotting")
+    plot_yes = True
 
 
 
@@ -109,7 +112,7 @@ results = list()
 
 for row in results_text:
     # print(row)
-    results.append([(int(row[0])-int(results_text[0][0])), int(row[1]), int(row[2]), int(row[3]), int(row[4]), int(row[5]), int(row[6]), int(row[7]), int(row[8])])
+    results.append([(int(row[0])-int(results_text[0][0])), int(row[1]), int(row[2]), int(row[3]), int(row[4]), int(row[5]), int(row[6]), int(row[7]), int(row[8]), int(row[9])])
     # print(results[-1])
     # print(int(row[0])%10000)
 
@@ -127,9 +130,9 @@ if last_relative_timestamp < 0.9 * MAX_TIMESTAMP:
     x_axis_interval = x_axis_interval * last_relative_timestamp / MAX_TIMESTAMP
     MAX_TIMESTAMP = last_relative_timestamp
 
-active_nodes = numpy_results[:,1]
+active_nodes = numpy_results[:,ACTIVE_NODES]
 
-topo_consistency = (100* 1.0*numpy_results[:,3] / (1.0*numpy_results[:,2]))[:len(timestamps)]
+topo_consistency = (100* 1.0*numpy_results[:,AN_VISIBLE] / (1.0*numpy_results[:,AN_ACTUAL]))[:len(timestamps)]
 
 where_is_finite = np.isfinite(topo_consistency)
 print(len(where_is_finite))
@@ -149,8 +152,8 @@ mean_drift_distance = np.mean(normalised_drift_distance[where_is_finite])
 print("Mean normalized drift distance:", mean_drift_distance)
 
 # Show results in kBps -> 100 * 10ms per second / 1000 B per kB
-send_stat = (numpy_results[:,7]*100/1000)[:len(timestamps)]
-recv_stat = (numpy_results[:,8]*100/1000)[:len(timestamps)]
+send_stat = (numpy_results[:,WORLDSENDSTAT]*100/1000)[:len(timestamps)]
+recv_stat = (numpy_results[:,WORLDRECVSTAT]*100/1000)[:len(timestamps)]
 mean_sendstat = np.mean(send_stat)
 
 print("Mean send_stat:", mean_sendstat)
@@ -198,7 +201,7 @@ if LABEL_list:
 
 
 
-if (hasMatplotlib):
+if (hasMatplotlib and plot_yes):
     plot.figure(1, figsize=(12, 10), dpi=80)
     plot.subplot(4,1,1)
     plot.plot(timestamps, active_nodes[:len(timestamps)])

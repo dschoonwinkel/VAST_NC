@@ -28,6 +28,7 @@ std::ofstream drift_distances_file(individual_drift);
 
 //Variables needed for calc_consistency
 size_t total_AN_actual =0, total_AN_visible =0, total_drift =0, max_drift =0, drift_nodes =0, total_active_nodes =0;
+size_t total_active_matchers =0;
 long worldSendStat =0, worldRecvStat = 0;
 long prevWorldSendStat = 0, prevWorldRecvStat = 0;
 
@@ -149,7 +150,7 @@ void initVariables()
 
     }
 
-    ofs << "timestamp," << "active_nodes," << "AN_actual," << "AN_visible,"
+    ofs << "timestamp," << "active_nodes," << "active_matchers," << "AN_actual," << "AN_visible,"
         << "Total drift," << "Max drift," << "drift nodes," << "worldSendStat," << "worldRecvStat," << std::endl;
 
     for (size_t log_iter = 0; log_iter < logIDs.size(); log_iter++)
@@ -170,6 +171,7 @@ void calculateUpdate()
     size_t tempWorldSendStat = 0, tempWorldRecvStat = 0;
 
     total_active_nodes =0;
+    total_active_matchers =0;
 
 
     //VASTStatLog approach - instead of working with vectors of entries
@@ -205,6 +207,10 @@ void calculateUpdate()
 
             //Count the number of active nodes at the moment
             total_active_nodes++;
+            if (restoredLog.getWorldIsMatcher())
+            {
+                total_active_matchers++;
+            }
         }
 
 
@@ -301,7 +307,7 @@ size_t calc_consistency (const Vast::VASTStatLog &restoredLog, size_t &total_AN_
 
 void outputResults() {
 
-    ofs << latest_timestamp << "," << total_active_nodes << "," << total_AN_actual <<
+    ofs << latest_timestamp << "," << total_active_nodes << "," << total_active_matchers << "," << total_AN_actual <<
            "," << total_AN_visible << "," << total_drift << "," << max_drift << ","
         << drift_nodes << "," << worldSendStat << "," << worldRecvStat << std::endl;
 

@@ -1431,13 +1431,19 @@ namespace Vast
 
         // if # of subscriptions exceed limit, notify for overload
         else if (n > _overload_limit)
+        {
             _VSOpeer->notifyLoading (((float)n / (float)_overload_limit));
+            Logger::debug("VASTMatcher::checkOverload Matcher Overloaded:" + string::to_string(n), true);
+        }
         
         // underload
         // TODO: if UNDERLOAD threshold is not 0,
         // then we need proper mechanism to transfer subscription out before matcher departs
         else if (n == 0)
+        {
             _VSOpeer->notifyLoading ((float)(-1));
+            Logger::debug("VASTMatcher::checkOverload Matcher Underloaded:" + string::to_string(n), true);
+        }
         
         // normal loading
         else
