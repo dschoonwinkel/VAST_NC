@@ -1,9 +1,15 @@
 #!/usr/bin/env python3
-import matplotlib.pyplot as plot
 import numpy as np
 import csv
 import sys
 from os.path import expanduser
+
+hasMatplotlib = True
+try:
+    import matplotlib.pyplot as plot
+except ImportError:
+    print("Matplotlib not available on this console")
+    hasMatplotlib = False
 
 def plotByColumn(results_matrix, xColumnIndex, yColumnIndex):
     # print(results_matrix[:,xColumnIndex])
@@ -51,10 +57,6 @@ home_dir = expanduser("~")
 print("Home Dir: ", home_dir)
 
 
-# Reset results_summary.py
-# with open('%s/Development/VAST-0.4.6/bin/results_summary/results_summary.txt' % home_dir, 'w') as csvfile:
-#     csvfile.write('timestamp, NET_MODEL, NODECOUNT, BW, DELAY, LOSS, STEPS, PLATFORM, ACTIVE_NODES, TOPO_CONS, DRIFTDISTANCE, SEND_BW, RECV_BW\n')
-
 with open('%s/Development/VAST-0.4.6/bin/results_summary/results_summary.txt' % home_dir, 'r') as csvfile:
     spamreader = csv.reader(csvfile, delimiter=",")
     for row in spamreader:
@@ -86,98 +88,114 @@ xColumnList, yColumnList = plotByColumn(results_nparray, NODES_COUNT, AVG_DRIFT)
 DockerSubset = subsetByColumnValue(results_nparray, PLATFORM, DOCKER)
 netUDPsubset = subsetByColumnValue(DockerSubset, NET_MODEL, 3)
 print("netUDPsubsetDocker", len(netUDPsubset))
-ax = plot.subplot(2,2,1)
-xColumnList, yColumnList = plotByColumn(netUDPsubset, NODES_COUNT, AVG_DRIFT)
-plot.boxplot(yColumnList, positions=xColumnList) 
-ax.title.set_text('netUDP Docker')
-plot.xlabel('NODES_COUNT')
-plot.ylabel('Drift distance [units]')  
-plot.grid()
+
+if hasMatplotlib:
+    font = {'family' : 'sans',
+            'weight' : 'normal', 
+            'size'   : 5}
+    plot.rc('font', **font)
+    ax = plot.subplot(2,2,1)
+    xColumnList, yColumnList = plotByColumn(netUDPsubset, NODES_COUNT, AVG_DRIFT)
+    plot.boxplot(yColumnList, positions=xColumnList) 
+    ax.title.set_text('netUDP Docker')
+    plot.xlabel('NODES_COUNT')
+    plot.ylabel('Drift distance [units]')  
+    plot.grid()
 
 
 DockerSubset = subsetByColumnValue(results_nparray, PLATFORM, DOCKER)
 netUDPNCsubset = subsetByColumnValue(DockerSubset, NET_MODEL, 4)
 print("netUDPNCsubsetDocker", len(netUDPNCsubset))
-ax = plot.subplot(2,2,2)
-xColumnList, yColumnList = plotByColumn(netUDPNCsubset, NODES_COUNT, AVG_DRIFT)
-plot.boxplot(yColumnList, positions=xColumnList) 
-ax.title.set_text('netUDPNC Docker')
-plot.xlabel('NODES_COUNT')
-plot.ylabel('Drift distance [units]')  
-plot.grid()
+if hasMatplotlib:
+    ax = plot.subplot(2,2,2)
+    xColumnList, yColumnList = plotByColumn(netUDPNCsubset, NODES_COUNT, AVG_DRIFT)
+    plot.boxplot(yColumnList, positions=xColumnList) 
+    ax.title.set_text('netUDPNC Docker')
+    plot.xlabel('NODES_COUNT')
+    plot.ylabel('Drift distance [units]')  
+    plot.grid()
 
 MininetSubset = subsetByColumnValue(results_nparray, PLATFORM, MININET)
 netUDPsubset = subsetByColumnValue(MininetSubset, NET_MODEL, 3)
 print("netUDPsubsetMininet", len(netUDPNCsubset))
-ax = plot.subplot(2,2,3)
-xColumnList, yColumnList = plotByColumn(netUDPsubset, NODES_COUNT, AVG_DRIFT)
-plot.boxplot(yColumnList, positions=xColumnList) 
-ax.title.set_text('netUDP Mininet')
-plot.xlabel('NODES_COUNT')
-plot.ylabel('Drift distance [units]')  
-plot.grid()
+if hasMatplotlib:
+    ax = plot.subplot(2,2,3)
+    xColumnList, yColumnList = plotByColumn(netUDPsubset, NODES_COUNT, AVG_DRIFT)
+    plot.boxplot(yColumnList, positions=xColumnList) 
+    ax.title.set_text('netUDP Mininet')
+    plot.xlabel('NODES_COUNT')
+    plot.ylabel('Drift distance [units]')  
+    plot.grid()
 
 
 MininetSubset = subsetByColumnValue(results_nparray, PLATFORM, MININET)
 netUDPNCsubset = subsetByColumnValue(MininetSubset, NET_MODEL, 4)
 print("netUDPNCsubsetMininet", len(netUDPNCsubset))
-ax = plot.subplot(2,2,4)
-xColumnList, yColumnList = plotByColumn(netUDPNCsubset, NODES_COUNT, AVG_DRIFT)
-plot.boxplot(yColumnList, positions=xColumnList) 
-ax.title.set_text('netUDPNC Mininet')
-plot.xlabel('NODES_COUNT')
-plot.ylabel('Drift distance [units]')  
-plot.grid()
+if hasMatplotlib:
+    ax = plot.subplot(2,2,4)
+    xColumnList, yColumnList = plotByColumn(netUDPNCsubset, NODES_COUNT, AVG_DRIFT)
+    plot.boxplot(yColumnList, positions=xColumnList) 
+    ax.title.set_text('netUDPNC Mininet')
+    plot.xlabel('NODES_COUNT')
+    plot.ylabel('Drift distance [units]')  
+    plot.grid()
+    plot.savefig("%s/Development/VAST-0.4.6/bin/results_summary/results_summary.pdf" % home_dir, dpi=1200)
 
 
 
 
 
-plot.figure()
+
 DockerSubset = subsetByColumnValue(results_nparray, PLATFORM, DOCKER)
 netUDPsubset = subsetByColumnValue(DockerSubset, NET_MODEL, 3)
-ax = plot.subplot(2,2,1)
-xColumnList, yColumnList = plotByColumn(netUDPsubset, NODES_COUNT, AVG_DRIFT)
-plot.boxplot(yColumnList, positions=xColumnList) 
-ax.title.set_text('netUDP Docker')
-plot.xlabel('NODES_COUNT')
-plot.ylim([1.5, 5])
-plot.ylabel('Drift distance [units]')  
-plot.grid()
+
+if hasMatplotlib:
+    plot.figure()
+    ax = plot.subplot(2,2,1)
+    xColumnList, yColumnList = plotByColumn(netUDPsubset, NODES_COUNT, AVG_DRIFT)
+    plot.boxplot(yColumnList, positions=xColumnList) 
+    ax.title.set_text('netUDP Docker')
+    plot.xlabel('NODES_COUNT')
+    plot.ylim([1.5, 5])
+    plot.ylabel('Drift distance [units]')  
+    plot.grid()
 
 
 DockerSubset = subsetByColumnValue(results_nparray, PLATFORM, DOCKER)
 netUDPNCsubset = subsetByColumnValue(DockerSubset, NET_MODEL, 4)
-ax = plot.subplot(2,2,2)
-xColumnList, yColumnList = plotByColumn(netUDPNCsubset, NODES_COUNT, AVG_DRIFT)
-plot.boxplot(yColumnList, positions=xColumnList) 
-ax.title.set_text('netUDPNC Docker')
-plot.xlabel('NODES_COUNT')
-plot.ylim([1.5, 5])
-plot.ylabel('Drift distance [units]')  
-plot.grid()
+if hasMatplotlib:
+    ax = plot.subplot(2,2,2)
+    xColumnList, yColumnList = plotByColumn(netUDPNCsubset, NODES_COUNT, AVG_DRIFT)
+    plot.boxplot(yColumnList, positions=xColumnList) 
+    ax.title.set_text('netUDPNC Docker')
+    plot.xlabel('NODES_COUNT')
+    plot.ylim([1.5, 5])
+    plot.ylabel('Drift distance [units]')  
+    plot.grid()
 
 MininetSubset = subsetByColumnValue(results_nparray, PLATFORM, MININET)
 netUDPsubset = subsetByColumnValue(MininetSubset, NET_MODEL, 3)
-ax = plot.subplot(2,2,3)
-xColumnList, yColumnList = plotByColumn(netUDPsubset, NODES_COUNT, AVG_DRIFT)
-plot.boxplot(yColumnList, positions=xColumnList) 
-ax.title.set_text('netUDP Mininet')
-plot.xlabel('NODES_COUNT')
-plot.ylim([0.5, 5])
-plot.ylabel('Drift distance [units]')  
-plot.grid()
+if hasMatplotlib:
+    ax = plot.subplot(2,2,3)
+    xColumnList, yColumnList = plotByColumn(netUDPsubset, NODES_COUNT, AVG_DRIFT)
+    plot.boxplot(yColumnList, positions=xColumnList) 
+    ax.title.set_text('netUDP Mininet')
+    plot.xlabel('NODES_COUNT')
+    plot.ylim([0.5, 5])
+    plot.ylabel('Drift distance [units]')  
+    plot.grid()
 
 
 MininetSubset = subsetByColumnValue(results_nparray, PLATFORM, MININET)
 netUDPNCsubset = subsetByColumnValue(MininetSubset, NET_MODEL, 4)
-ax = plot.subplot(2,2,4)
-xColumnList, yColumnList = plotByColumn(netUDPNCsubset, NODES_COUNT, AVG_DRIFT)
-plot.boxplot(yColumnList, positions=xColumnList) 
-ax.title.set_text('netUDPNC Mininet')
-plot.xlabel('NODES_COUNT')
-plot.ylim([0.5, 5])
-plot.ylabel('Drift distance [units]')  
-plot.grid()
-
-plot.show()
+if hasMatplotlib:
+    ax = plot.subplot(2,2,4)
+    xColumnList, yColumnList = plotByColumn(netUDPNCsubset, NODES_COUNT, AVG_DRIFT)
+    plot.boxplot(yColumnList, positions=xColumnList) 
+    ax.title.set_text('netUDPNC Mininet')
+    plot.xlabel('NODES_COUNT')
+    plot.ylim([0.5, 5])
+    plot.ylabel('Drift distance [units]')  
+    plot.grid()
+    plot.savefig("%s/Development/VAST-0.4.6/bin/results_summary/results_summary_zoomedin.pdf" % home_dir, dpi=1200)
+    plot.show()
