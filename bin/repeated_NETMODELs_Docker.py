@@ -32,6 +32,8 @@ def replace_NETMODEL(NET_MODEL):
 
 	with open("Mininet.ini", 'r') as config:
 		data = config.readlines()
+
+	for i in range(len(data)):
 		if data[i].find("PLATFORM") != -1:
 			data[i+1] = "2\n" #Set platform to Docker
 
