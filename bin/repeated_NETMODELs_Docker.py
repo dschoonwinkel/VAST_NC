@@ -12,7 +12,7 @@ NET_MODEL_UDPNC = 4
 def runOnce():
 	print("Make success: ", subprocess.call("make"), "\n")
 	print("Run sucess:", 
-		subprocess.call("$HOME/Development/VAST-0.4.6/repeated_VASTreal_console_Docker.py", 
+		subprocess.call("$HOME/Development/VAST-0.4.6/bin/repeated_VASTreal_console_Docker.py", 
 		shell=True), "\n")
 
 
