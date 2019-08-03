@@ -6,13 +6,6 @@ from os.path import expanduser
 import os
 from plot_result_utils import parseFilenameLabel
 
-hasMatplotlib = True
-try:
-    import matplotlib.pyplot as plot
-except ImportError:
-    print("Matplotlib not available on this console")
-    hasMatplotlib = False
-
 
 TIMESTAMP = 0
 ACTIVE_NODES = 1
@@ -25,11 +18,7 @@ DRIFT_NODES = 7
 WORLDSENDSTAT = 8
 WORLDRECVSTAT = 9
 
-print("Usage: ./plot_results.py <input_file: default = results1.txt>\n\
-                 <results label = \"NET_MODEL, nodecount, BW, delay, loss%\">")
-
 home_dir = expanduser("~")
-print("Home Dir: ", home_dir)
 
 with open("%s/Development/VAST-0.4.6/bin/VASTreal.ini" % home_dir, 'r') as config:
     data = config.readlines()
@@ -65,16 +54,6 @@ input_file = '%s/Development/VAST-0.4.6/bin/logs/results/results1.txt' % home_di
 if (len(sys.argv) > 1):
     input_file = sys.argv[1]
 
-plot_yes = False
-
-if (len(sys.argv) > 2):
-    print(sys.argv[2])
-    print("Plotting")
-    plot_yes = True
-
-
-# print(input_file)
-
 LABEL_list = None
 abspath = os.path.abspath(input_file)
 # print("Absolute path: ", abspath)
@@ -90,7 +69,16 @@ if LABEL_start != -1:
 else:
     print('LABEL_start not found')
 
+#Check if the result is already in summary
+in_result_summary = False
+with open('%s/Development/VAST-0.4.6/bin/results_summary/results_summary.txt' % home_dir, 'r') as symmary_file:
+    data = symmary_file.readlines()
 
+    for line in data:
+        if line.find(DATESTAMP_str) != -1:
+            in_result_summary = True
+            print("Result already in summmary: ", line)
+            exit(0)
 
 
 
@@ -102,7 +90,6 @@ with open(input_file, 'r') as csvfile:
     spamreader = csv.reader(csvfile, delimiter=",")
     for row in spamreader:
         results_text.append(row)
-        # print(",".join(row))
 
 header = results_text[0]
 results_text = results_text[1:]
@@ -110,14 +97,9 @@ results_text = results_text[1:]
 results = list()
 
 for row in results_text:
-    # print(row)
     results.append([(int(row[0])-int(results_text[0][0])), int(row[1]), int(row[2]), int(row[3]), int(row[4]), int(row[5]), int(row[6]), int(row[7]), int(row[8]), int(row[9])])
-    # print(results[-1])
-    # print(int(row[0])%10000)
 
 numpy_results = np.array(results)
-
-# print("Timestamps: ", numpy_results[:,0])
 
 timestamps = numpy_results[:,0]
 timestamps = timestamps[np.where(timestamps < MAX_TIMESTAMP)]
@@ -169,43 +151,12 @@ if LABEL_list:
                   mean_drift_distance, np.mean(send_stat), np.mean(recv_stat)])
     LABEL_list.append(DATESTAMP_str)
 
-    #Check if the result is already in summary
-    in_result_summary = False
-    with open('%s/Development/VAST-0.4.6/bin/results_summary/results_summary.txt' % home_dir, 'r') as symmary_file:
-        data = symmary_file.readlines()
-
-        for line in data:
-            if line.find(DATESTAMP_str) != -1:
-                in_result_summary = True
-                print("Result already in summmary: ", line)
-
 
     # print(LABEL_list)
-    if not plot_yes and not in_result_summary:
+    if not in_result_summary:
         with open('%s/Development/VAST-0.4.6/bin/results_summary/results_summary.txt' % home_dir, 'a') as outfile:
             outfile.write(("%s, %d, %d, %d, %d, %d, %d, %d, %f, %f, %f, %f, %f, %s\n") % 
                   tuple(LABEL_list))
-        #         outfile.write("%s, %s, %f, %f, %f, %f, %f\n" 
-    #             % (first_timestamp, input_file, np.max(active_nodes), mean_consistency, 
-    #               mean_drift_distance, np.mean(send_stat), np.mean(recv_stat)))
-    #         print("Saving test results in results_summary.txt with label " + input_file)
-
-
-# NET_MODEL_STRINGS = ['net_emu', 'net_ace', 'net_udp', 'net_udpNC']
-# label = "%s_%d_%d_%d_loss%d_%s" % \
-#             (NET_MODEL_STRINGS[NET_MODEL-1], NODE_COUNT, BW, DELAY, LOSS_PERC, first_timestamp)
-# print(label)
-
-# with open('%s/Development/VAST-0.4.6/bin/results_summary/results_summary.txt' % home_dir, 'a') as outfile:
-#     # outfile.write(("%s, %d, %d, %d, %d, %d, %f, %f, %f, %f, %f, %s\n") % 
-#           # (first_timestamp, NET_MODEL, NODE_COUNT, BW, DELAY, LOSS_PERC, np.max(active_nodes), mean_consistency, 
-#           #     mean_drift_distance, np.mean(send_stat), np.mean(recv_stat), sys.argv[2]))
-#         outfile.write("%s, %s, %f, %f, %f, %f, %f\n" 
-#             % (first_timestamp, input_file, np.max(active_nodes), mean_consistency, 
-#               mean_drift_distance, np.mean(send_stat), np.mean(recv_stat)))
-#         print("Saving test results in results_summary.txt with label " + input_file)
-
-
 
 
 
@@ -213,58 +164,3 @@ if LABEL_list:
 TOTAL_SETUPTIME = TIMESTEP_DURATION * 1000 + (1 + TIMESTEP_DURATION * 10)*NODE_COUNT
 print("Total connection setup time: ", TOTAL_SETUPTIME, 'ms')
 print("Total connection setup time: ", TOTAL_SETUPTIME / 1000, 's')
-
-
-if (hasMatplotlib and plot_yes):
-    plot.figure(1, figsize=(12, 10), dpi=80)
-    plot.subplot(4,1,1)
-    plot.plot(timestamps, active_nodes[:len(timestamps)])
-    plot.plot(timestamps, active_matchers[:len(timestamps)])
-    plot.plot([TOTAL_SETUPTIME, TOTAL_SETUPTIME],[0, max(active_nodes)+1], 'k')
-    plot.ylabel("# Active")
-    plot.legend(['Nodes', 'Matchers'])
-    plot.xticks(np.arange(min(timestamps), max(timestamps)+1, x_axis_interval))
-    plot.yticks(np.arange(min(active_nodes),max(active_nodes)+1, 1))
-    plot.xlim(0, MAX_TIMESTAMP)
-    plot.grid(True)
-
-    plot.subplot(4,1,2)
-    plot.plot(timestamps, topo_consistency)
-    plot.plot(timestamps[where_are_NaNs], topo_consistency[where_are_NaNs], 'r,')
-    plot.plot([0,timestamps[-1]], [mean_consistency,mean_consistency], 'r')
-    plot.plot([TOTAL_SETUPTIME, TOTAL_SETUPTIME],[0, 100], 'k')
-    plot.text(timestamps[-1], mean_consistency, str(mean_consistency)[0:5])
-    plot.ylabel("Topo consistency [%]")
-    plot.xticks(np.arange(min(timestamps), max(timestamps)+1, x_axis_interval))
-    plot.xlim(0, MAX_TIMESTAMP)
-    plot.ylim(0, 110)
-    plot.grid(True)
-    
-    plot.subplot(4,1,3)
-    plot.plot(timestamps, normalised_drift_distance)
-    plot.plot([0,timestamps[-1]], [mean_drift_distance,mean_drift_distance], 'r')
-    plot.plot([TOTAL_SETUPTIME, TOTAL_SETUPTIME],[0, 100], 'k')
-    plot.ylabel("Norm drift distance")
-    plot.text(timestamps[-1], mean_drift_distance, str(mean_drift_distance)[0:5])
-    plot.xticks(np.arange(min(timestamps), max(timestamps)+1, x_axis_interval))
-    plot.xlim(0, MAX_TIMESTAMP)
-    plot.grid(True)
-    
-    plot.subplot(4,1,4)
-    plot.plot(timestamps, send_stat[:len(timestamps)], 'g',label='Send stat')
-    plot.plot([0,timestamps[-1]], [mean_sendstat, mean_sendstat], 'r')
-    plot.plot([TOTAL_SETUPTIME, TOTAL_SETUPTIME],[0, 100], 'k')
-    plot.text(timestamps[-1], mean_sendstat, str(mean_sendstat)[0:5])
-    plot.plot(timestamps, recv_stat*100/1000, 'b+', label='Recv stat')
-    plot.ylabel("Send/recv stats [kBps]")
-    plot.xlabel("Timestamp [ms]")
-    plot.xticks(np.arange(min(timestamps), max(timestamps)+1, x_axis_interval))
-    plot.xticks(np.arange(min(timestamps), max(timestamps)+1, x_axis_interval))
-    plot.legend()
-    plot.grid(True)
-    plot.xlim(0, MAX_TIMESTAMP)
-    
-    # plot.savefig("VASTreal_results_%s.pdf" % input_file, dpi=300)
-    # plot.savefig("VASTreal_results_%s.png" % label, dpi=300)
-    
-    plot.show()
