@@ -5,6 +5,7 @@ import sys
 from os.path import expanduser
 import os
 from plot_result_utils import parseFilenameLabel
+import re
 
 hasMatplotlib = True
 try:
@@ -205,6 +206,38 @@ if LABEL_list:
 #               mean_drift_distance, np.mean(send_stat), np.mean(recv_stat)))
 #         print("Saving test results in results_summary.txt with label " + input_file)
 
+resources_filename = re.sub(r"\.txt", "_resources.txt", input_file)
+resources_fileexist = False
+if (os.path.isfile(resources_filename)):
+    resources_fileexist = True
+    print("Resource file found")
+    resources_text = list()
+    with open(resources_filename, 'r') as csvfile:
+        spamreader = csv.reader(csvfile, delimiter=",")
+        for row in spamreader:
+            resources_text.append(row)
+            # print(",".join(row))
+
+    header = resources_text[0]
+    resources_text = resources_text[1:]
+
+    resources = list()
+
+    for row in resources_text:
+        # print(row)
+        resources.append([(int(row[0])*1000-first_timestamp), float(row[1]), float(row[2]), int(row[3])])
+        # print(results[-1])
+        # print(int(row[0])%10000)
+
+    numpy_resources = np.array(resources)
+    mean_CPU = np.mean(numpy_resources[:,1])
+    mean_MemMB = np.mean(numpy_resources[:,2])
+    mean_Nodes = np.mean(numpy_resources[:,3])
+
+    print("Mean CPU: %5.2f %%" % mean_CPU)
+    print("Mean Mem %5.2f MiB" % mean_MemMB)
+    print("Mean Nodes %5.2f " % mean_Nodes)
+
 
 
 
@@ -217,7 +250,7 @@ print("Total connection setup time: ", TOTAL_SETUPTIME / 1000, 's')
 
 if (hasMatplotlib and plot_yes):
     plot.figure(1, figsize=(12, 10), dpi=80)
-    plot.subplot(4,1,1)
+    plot.subplot(5,1,1)
     plot.plot(timestamps, active_nodes[:len(timestamps)])
     plot.plot(timestamps, active_matchers[:len(timestamps)])
     plot.plot([TOTAL_SETUPTIME, TOTAL_SETUPTIME],[0, max(active_nodes)+1], 'k')
@@ -228,7 +261,7 @@ if (hasMatplotlib and plot_yes):
     plot.xlim(0, MAX_TIMESTAMP)
     plot.grid(True)
 
-    plot.subplot(4,1,2)
+    plot.subplot(5,1,2)
     plot.plot(timestamps, topo_consistency)
     plot.plot(timestamps[where_are_NaNs], topo_consistency[where_are_NaNs], 'r,')
     plot.plot([0,timestamps[-1]], [mean_consistency,mean_consistency], 'r')
@@ -240,7 +273,7 @@ if (hasMatplotlib and plot_yes):
     plot.ylim(0, 110)
     plot.grid(True)
     
-    plot.subplot(4,1,3)
+    plot.subplot(5,1,3)
     plot.plot(timestamps, normalised_drift_distance)
     plot.plot([0,timestamps[-1]], [mean_drift_distance,mean_drift_distance], 'r')
     plot.plot([TOTAL_SETUPTIME, TOTAL_SETUPTIME],[0, 100], 'k')
@@ -250,7 +283,7 @@ if (hasMatplotlib and plot_yes):
     plot.xlim(0, MAX_TIMESTAMP)
     plot.grid(True)
     
-    plot.subplot(4,1,4)
+    plot.subplot(5,1,4)
     plot.plot(timestamps, send_stat[:len(timestamps)], 'g',label='Send stat')
     plot.plot([0,timestamps[-1]], [mean_sendstat, mean_sendstat], 'r')
     plot.plot([TOTAL_SETUPTIME, TOTAL_SETUPTIME],[0, 100], 'k')
@@ -263,6 +296,25 @@ if (hasMatplotlib and plot_yes):
     plot.legend()
     plot.grid(True)
     plot.xlim(0, MAX_TIMESTAMP)
+
+
+    if resources_fileexist:
+        ax1 = plot.subplot(5,1,5)
+        ax1.plot(numpy_resources[:,0], numpy_resources[:,1], 'b',label='CPU %')
+        ax1.plot([TOTAL_SETUPTIME, TOTAL_SETUPTIME],[0, 100], 'k')
+        ax1.text(timestamps[-1], mean_CPU, str(mean_sendstat))
+        color = 'tab:blue'
+        ax1.set_ylabel("CPU % ", color=color)
+
+        ax2 = ax1.twinx()
+        ax2.plot(numpy_resources[:,0], numpy_resources[:,2], 'r',label='Mem')
+        ax2.text(timestamps[-1], mean_MemMB, str(mean_MemMB))
+        color = 'tab:red'
+        ax2.set_ylabel("Mem [MB]", color=color)
+        plot.xlabel("Timestamp [ms]")
+        plot.xticks(np.arange(min(timestamps), max(timestamps)+1, x_axis_interval))
+        plot.grid(True)
+        plot.xlim(0, MAX_TIMESTAMP)
     
     # plot.savefig("VASTreal_results_%s.pdf" % input_file, dpi=300)
     # plot.savefig("VASTreal_results_%s.png" % label, dpi=300)
