@@ -26,7 +26,7 @@ with open("%s/Development/VAST-0.4.6/bin/VASTreal.ini" % home_dir, 'r') as confi
     data = config.readlines()
     TIMESTEP_DURATION = float(data[-1])/1000
     print(TIMESTEP_DURATION)
-    SIMULATION_STEPS = (int)(data[data.index('#TIME_STEPS;    // number of steps\r\n')+1])
+    SIMULATION_STEPS = (int)(data[data.index('#TIME_STEPS;    // number of steps\n')+1])
     print (SIMULATION_STEPS)
 
 with open("%s/Development/VAST-0.4.6/bin/Mininet.ini" % home_dir, 'r') as config:
