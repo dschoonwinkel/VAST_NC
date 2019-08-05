@@ -43,6 +43,12 @@ void Logger::debug (std::string logmessage, bool timestamp)
         ss << std::put_time(std::localtime(&in_time_t), "%T");
         ss << "." << std::setw(6) << std::to_string(value.count() % 1000000) << ": ";
         logmessage = ss.str() + logmessage;
+
+        //Timestamp in milliseconds since epoch
+        std::stringstream ss1;
+        value = std::chrono::duration_cast<std::chrono::milliseconds>(epoch);
+        ss1 << std::to_string(value.count());
+        logmessage = ss1.str() + "=" + logmessage;
     }
 
     CPPDEBUG(logmessage << std::endl);

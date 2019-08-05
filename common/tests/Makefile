@@ -1,3 +1,4 @@
+CC=g++
 unittest_logger = ./unittest_logger
 unittest_concurrentqueue = ./unittest_concurrentqueue
 unittest_vastmessage = ./unittest_vastmessage

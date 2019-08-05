@@ -583,7 +583,8 @@ namespace Vast
                 Addr new_matcher;
                 in_msg.extract (new_matcher);
                
-                LogManager::instance ()->writeLogFile ("VASTClient NOTIFY_MATCHER new [%lu] current [%lu]\n", new_matcher.host_id, _matcher_id);
+//                LogManager::instance ()->writeLogFile ("VASTClient NOTIFY_MATCHER new [%lu] current [%lu]\n", new_matcher.host_id, _matcher_id);
+                Logger::debug("VASTClient NOTIFY_MATCHER new [" + std::to_string(new_matcher.host_id) + "] current [" + std::to_string(_matcher_id) + "]");
 
                 // accept transfer only if new matcher differs from known one
                 if (new_matcher.host_id != _matcher_id)

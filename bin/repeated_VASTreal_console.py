@@ -39,7 +39,7 @@ def replace_NODECOUNT(node_count):
 			config.write(line)
 
 def main():
-	NODE_COUNT_list = [5, 10, 11, 15]
+	NODE_COUNT_list = [10, 11, 15, 20]
 	# NODE_COUNT_list = [15]
 
 	with open("Mininet.ini", 'r') as config:

@@ -763,7 +763,9 @@ namespace Vast
     void 
     VSOPeer::claimOwnership (id_t obj_id, VSOSharedObject &so)
     {
-        printf ("[%lu] VSOPeer::claimOwnership () for object [%lu]\n", _self.id, obj_id);
+//        printf ("[%lu] VSOPeer::claimOwnership () for object [%lu]\n", _self.id, obj_id);
+        Logger::debug("[" + std::to_string(_self.id) + "]" +  " VSOPeer::claimOwnership () for object ["
+                     + std::to_string(obj_id) + "]\n");
 
         so.is_owner = true;
         so.in_transit = 0;

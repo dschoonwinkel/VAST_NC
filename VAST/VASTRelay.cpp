@@ -1150,7 +1150,9 @@ namespace Vast
                 rit++;
             }
 
-            printf ("[%lu] VASTRelay::cleanupRelays () remove %lu relays\n", _self.id, remove_list.size ());
+//            printf ("[%lu] VASTRelay::cleanupRelays () remove %lu relays\n", _self.id, remove_list.size ());
+            Logger::debug("[" + std::to_string(_self.id) + "]" + " VASTRelay::cleanupRelays () remove "
+                         + std::to_string(remove_list.size ()) + " relays\n", true);
             for (size_t i=0; i < remove_list.size (); i++)  
                 removeRelay (remove_list[i]);
         }
