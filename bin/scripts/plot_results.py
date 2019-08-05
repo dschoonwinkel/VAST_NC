@@ -290,7 +290,6 @@ if (hasMatplotlib and plot_yes):
     plot.text(timestamps[-1], mean_sendstat, str(mean_sendstat)[0:5])
     plot.plot(timestamps, recv_stat*100/1000, 'b+', label='Recv stat')
     plot.ylabel("Send/recv stats [kBps]")
-    plot.xlabel("Timestamp [ms]")
     plot.xticks(np.arange(min(timestamps), max(timestamps)+1, x_axis_interval))
     plot.xticks(np.arange(min(timestamps), max(timestamps)+1, x_axis_interval))
     plot.legend()
@@ -318,5 +317,7 @@ if (hasMatplotlib and plot_yes):
     
     # plot.savefig("VASTreal_results_%s.pdf" % input_file, dpi=300)
     # plot.savefig("VASTreal_results_%s.png" % label, dpi=300)
+
+    plot.xlabel("Timestamp [ms]")
     
     plot.show()
