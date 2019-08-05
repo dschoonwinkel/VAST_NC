@@ -249,6 +249,9 @@ print("Total connection setup time: ", TOTAL_SETUPTIME / 1000, 's')
 
 
 if (hasMatplotlib and plot_yes):
+    if (LABEL_list):
+        plot.title(str(LABEL_list))
+
     plot.figure(1, figsize=(12, 10), dpi=80)
     plot.subplot(5,1,1)
     plot.plot(timestamps, active_nodes[:len(timestamps)])
