@@ -27,7 +27,7 @@ clean_binaries:
 
 
 backup_results:
-	$(eval date_string := $(shell date +%d_%m_%Y-%H:%M))
+	$(eval date_string := $(shell date +%d_%m_%Y-%H_%M))
 	mkdir -p logs/logs_backup/logs_$(foo)_$(date_string)/logs
 	-cp logs/*.txt logs/logs_backup/logs_$(foo)_$(date_string)/logs/
 	mkdir logs/logs_backup/logs_$(foo)_$(date_string)/results
