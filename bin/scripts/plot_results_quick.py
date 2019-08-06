@@ -66,19 +66,20 @@ if LABEL_start != -1:
     # print(LABEL_string)
     LABEL_list, DATESTAMP_str = parseFilenameLabel(LABEL_string)
     print(LABEL_list, DATESTAMP_str)
+
+    #Check if the result is already in summary
+    in_result_summary = False
+    with open('%s/Development/VAST-0.4.6/bin/results_summary/results_summary.txt' % home_dir, 'r') as symmary_file:
+        data = symmary_file.readlines()
+
+        for line in data:
+            if line.find(DATESTAMP_str) != -1:
+                in_result_summary = True
+                print("Result already in summmary: ", line)
+                exit(0)
+
 else:
     print('LABEL_start not found')
-
-#Check if the result is already in summary
-in_result_summary = False
-with open('%s/Development/VAST-0.4.6/bin/results_summary/results_summary.txt' % home_dir, 'r') as symmary_file:
-    data = symmary_file.readlines()
-
-    for line in data:
-        if line.find(DATESTAMP_str) != -1:
-            in_result_summary = True
-            print("Result already in summmary: ", line)
-            exit(0)
 
 
 
