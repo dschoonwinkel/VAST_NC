@@ -10,5 +10,6 @@ cp ../../../VASTreal.ini ./
 cp ../../../Mininet.ini ./
 vaststat_replay
 cp logs/results/results1.txt ./results/
+rm logs/results/results1.txt
 cd ..
 done
