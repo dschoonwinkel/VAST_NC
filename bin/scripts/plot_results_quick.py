@@ -69,14 +69,16 @@ if LABEL_start != -1:
 
     #Check if the result is already in summary
     in_result_summary = False
-    with open('%s/Development/VAST-0.4.6/bin/results_summary/results_summary.txt' % home_dir, 'r') as symmary_file:
-        data = symmary_file.readlines()
+    results_summary_filename = '%s/Development/VAST-0.4.6/bin/results_summary/results_summary.txt' % home_dir
+    if (os.path.isfile(results_summary_filename)):
+        with open(results_summary_filename, 'r') as summary_file:
+            data = summary_file.readlines()
 
-        for line in data:
-            if line.find(DATESTAMP_str) != -1:
-                in_result_summary = True
-                print("Result already in summmary: ", line)
-                exit(0)
+            for line in data:
+                if line.find(DATESTAMP_str) != -1:
+                    in_result_summary = True
+                    print("Result already in summmary: ", line)
+                    exit(0)
 
 else:
     print('LABEL_start not found')
