@@ -99,7 +99,7 @@ namespace Vast
         _timeout_subscribe = 0;
          
         _state = ABSENT;
-        Logger::debug("VASTClient::leave _state ABSENT isJoined == false");
+        Logger::debug("VASTClient::leave _state ABSENT isJoined == false", true);
     }
     
 	// specify a subscription area for point or area publications 
@@ -953,7 +953,9 @@ namespace Vast
     void 
     VASTClient::handleMatcherDisconnect ()
     {
-        printf ("VASTClient::handleMatcherDisconnect () switching from [%lu] to [%lu]\n", _matcher_id, _closest_id);
+        Logger::debug("VASTClient::handleMatcherDisconnect () switching from "
+                      + std::to_string(_matcher_id) + " to " + std::to_string(_closest_id) + "\n",
+                      true);
 
         _matcher_id = _closest_id;
         _closest_id = 0;
@@ -994,7 +996,11 @@ namespace Vast
             // need to re-connect to matcher
             if (remove_list[i] == _sub.id)
             {
-                printf ("VASTClient::removeGhosts () no updates received for myself for over %d seconds\n", _TIMEOUT_REMOVE_GHOST_);
+//                printf ("VASTClient::removeGhosts () no updates received for myself for over %d seconds\n", _TIMEOUT_REMOVE_GHOST_);
+                Logger::debugPeriodic(std::string("VASTClient::removeGhosts () no updates received ") +
+                                      "for me  for over "
+                                      + std::to_string((now - _last_update[remove_list[i]] >= timeout)/1000.0)
+                                      + " seconds\n", 1, 1000, true);
                 handleMatcherDisconnect ();
             }
             else
@@ -1003,7 +1009,7 @@ namespace Vast
                 Logger::debugPeriodic(std::string("VASTClient::removeGhosts () no updates received ") +
                                       "for " + std::to_string(remove_list[i]) + " for over "
                                       + std::to_string((now - _last_update[remove_list[i]] >= timeout)/1000.0)
-                                      + " seconds\n");
+                                      + " seconds\n", 1, 1000, true);
             }
         }
     }

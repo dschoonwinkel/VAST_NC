@@ -274,5 +274,5 @@ if hasMatplotlib:
     plot.ylim([0.5, 5])
     plot.ylabel('Drift distance [units]')  
     plot.grid()
-    plot.savefig("%s/Development/VAST-0.4.6/bin/results_summary/results_summary_Mininet.pdf" % home_dir, dpi=1200)
+    plot.savefig("%s/Development/VAST-0.4.6/bin/results_summary/results_summary_Mininet_zoomedin.pdf" % home_dir, dpi=1200)
     plot.show()

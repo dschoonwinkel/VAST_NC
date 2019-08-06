@@ -54,7 +54,7 @@ with open("%s/Development/VAST-0.4.6/bin/Mininet.ini" % home_dir, 'r') as config
     # print ("LOSS_PERC", LOSS_PERC)
 
 # x_axis_interval = 20000
-x_axis_interval = TIMESTEP_DURATION * 2000
+x_axis_interval = TIMESTEP_DURATION * 1000
 # MAX_TIMESTAMP = 130000
 # Keep all except the last bit, where gateway has probably disconnected and other nodes do not know what's going on
 MAX_TIMESTAMP = (SIMULATION_STEPS * TIMESTEP_DURATION)
@@ -233,9 +233,13 @@ if (os.path.isfile(resources_filename)):
     mean_CPU = np.mean(numpy_resources[:,1])
     mean_MemMB = np.mean(numpy_resources[:,2])
     mean_Nodes = np.mean(numpy_resources[:,3])
+    median_CPU = np.median(numpy_resources[:,1])
+    median_MemMB = np.median(numpy_resources[:,2])
 
     print("Mean CPU: %5.2f %%" % mean_CPU)
+    print("Median CPU: %5.2f %%" % median_CPU)
     print("Mean Mem %5.2f MiB" % mean_MemMB)
+    print("Median Mem %5.2f MiB" % median_MemMB)
     print("Mean Nodes %5.2f " % mean_Nodes)
 
 
@@ -249,52 +253,55 @@ print("Total connection setup time: ", TOTAL_SETUPTIME / 1000, 's')
 
 
 if (hasMatplotlib and plot_yes):
+
+    plot.figure(1, figsize=(12, 10), dpi=80)
     if (LABEL_list):
         plot.title(str(LABEL_list))
 
-    plot.figure(1, figsize=(12, 10), dpi=80)
-    plot.subplot(5,1,1)
+    ax1 = plot.subplot(5,1,1)
     plot.plot(timestamps, active_nodes[:len(timestamps)])
     plot.plot(timestamps, active_matchers[:len(timestamps)])
     plot.plot([TOTAL_SETUPTIME, TOTAL_SETUPTIME],[0, max(active_nodes)+1], 'k')
     plot.ylabel("# Active")
     plot.legend(['Nodes', 'Matchers'])
-    plot.xticks(np.arange(min(timestamps), max(timestamps)+1, x_axis_interval))
+    ax1.get_xaxis().set_visible(False)
     plot.yticks(np.arange(min(active_nodes),max(active_nodes)+1, 1))
     plot.xlim(0, MAX_TIMESTAMP)
     plot.grid(True)
 
-    plot.subplot(5,1,2)
+    ax2 = plot.subplot(5,1,2)
     plot.plot(timestamps, topo_consistency)
     plot.plot(timestamps[where_are_NaNs], topo_consistency[where_are_NaNs], 'r,')
     plot.plot([0,timestamps[-1]], [mean_consistency,mean_consistency], 'r')
     plot.plot([TOTAL_SETUPTIME, TOTAL_SETUPTIME],[0, 100], 'k')
     plot.text(timestamps[-1], mean_consistency, str(mean_consistency)[0:5])
     plot.ylabel("Topo consistency [%]")
-    plot.xticks(np.arange(min(timestamps), max(timestamps)+1, x_axis_interval))
+    ax2.get_xaxis().set_visible(False)
     plot.xlim(0, MAX_TIMESTAMP)
     plot.ylim(0, 110)
     plot.grid(True)
     
-    plot.subplot(5,1,3)
+    ax3 = plot.subplot(5,1,3)
     plot.plot(timestamps, normalised_drift_distance)
     plot.plot([0,timestamps[-1]], [mean_drift_distance,mean_drift_distance], 'r')
-    plot.plot([TOTAL_SETUPTIME, TOTAL_SETUPTIME],[0, 100], 'k')
+    plot.plot([TOTAL_SETUPTIME, TOTAL_SETUPTIME],[0, np.max(normalised_drift_distance[where_is_finite])], 'k')
     plot.ylabel("Norm drift distance")
     plot.text(timestamps[-1], mean_drift_distance, str(mean_drift_distance)[0:5])
-    plot.xticks(np.arange(min(timestamps), max(timestamps)+1, x_axis_interval))
     plot.xlim(0, MAX_TIMESTAMP)
+    ax3.get_xaxis().set_visible(False)
     plot.grid(True)
     
-    plot.subplot(5,1,4)
+    ax4 = plot.subplot(5,1,4)
     plot.plot(timestamps, send_stat[:len(timestamps)], 'g',label='Send stat')
     plot.plot([0,timestamps[-1]], [mean_sendstat, mean_sendstat], 'r')
     plot.plot([TOTAL_SETUPTIME, TOTAL_SETUPTIME],[0, 100], 'k')
     plot.text(timestamps[-1], mean_sendstat, str(mean_sendstat)[0:5])
     plot.plot(timestamps, recv_stat*100/1000, 'b+', label='Recv stat')
     plot.ylabel("Send/recv stats [kBps]")
-    plot.xticks(np.arange(min(timestamps), max(timestamps)+1, x_axis_interval))
-    plot.xticks(np.arange(min(timestamps), max(timestamps)+1, x_axis_interval))
+    if not resources_fileexist:
+        plot.xticks(np.arange(min(timestamps), max(timestamps)+1, x_axis_interval))
+    else:
+        ax4.get_xaxis().set_visible(False)
     plot.legend()
     plot.grid(True)
     plot.xlim(0, MAX_TIMESTAMP)
@@ -303,14 +310,14 @@ if (hasMatplotlib and plot_yes):
     if resources_fileexist:
         ax1 = plot.subplot(5,1,5)
         ax1.plot(numpy_resources[:,0], numpy_resources[:,1], 'b',label='CPU %')
-        ax1.plot([TOTAL_SETUPTIME, TOTAL_SETUPTIME],[0, 100], 'k')
-        ax1.text(timestamps[-1], mean_CPU, str(mean_sendstat))
+        ax1.plot([TOTAL_SETUPTIME, TOTAL_SETUPTIME],[0, np.max(numpy_resources[:,1])], 'k')
+        ax1.text(timestamps[-1000], mean_CPU, "%3.2f" % mean_CPU, color='b')
         color = 'tab:blue'
         ax1.set_ylabel("CPU % ", color=color)
 
         ax2 = ax1.twinx()
         ax2.plot(numpy_resources[:,0], numpy_resources[:,2], 'r',label='Mem')
-        ax2.text(timestamps[-1], mean_MemMB, str(mean_MemMB))
+        ax2.text(timestamps[-1000], median_MemMB, "%3.2f" % median_MemMB, color='r')
         color = 'tab:red'
         ax2.set_ylabel("Mem [MB]", color=color)
         plot.xlabel("Timestamp [ms]")
@@ -318,7 +325,7 @@ if (hasMatplotlib and plot_yes):
         plot.grid(True)
         plot.xlim(0, MAX_TIMESTAMP)
     
-    # plot.savefig("VASTreal_results_%s.pdf" % input_file, dpi=300)
+    plot.savefig("VASTreal_results_%s.pdf" % input_file, dpi=300)
     # plot.savefig("VASTreal_results_%s.png" % label, dpi=300)
 
     plot.xlabel("Timestamp [ms]")
