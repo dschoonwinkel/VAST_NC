@@ -8,6 +8,8 @@
 #include "customrlncdecoder.h"
 #include "abstract_rlnc_msg_receiver.h"
 #include "vastnetstatlog_entry.h"
+#include <memory>
+#include "abstract_net_udp.h"
 
 using namespace boost::asio;
 
@@ -21,7 +23,7 @@ namespace Vast
         virtual ~net_udpNC_MChandler();
 
         //MChandler will run its own io_service
-        int open (AbstractRLNCMsgReceiver *msghandler, bool startthread = true, id_t HostID = 0);
+        int open (AbstractRLNCMsgReceiver *msghandler, abstract_net_udp *udp_manager, bool startthread = true);
 
         // close connection & unregister from io_service
         int close (void);
@@ -60,6 +62,7 @@ namespace Vast
         ip::udp::endpoint           MC_address;
         char                        _buf[VAST_BUFSIZ];
         AbstractRLNCMsgReceiver     *_msghandler = NULL;
+        abstract_net_udp            *_udp_manager = NULL;
 
 
         // the same io_service as net_udp
@@ -75,7 +78,7 @@ namespace Vast
         size_t used_interval_MCrecv_bytes = 0;
         StatType raw_MCRecvBytes;
         StatType used_MCRecvBytes;
-        std::unique_ptr<VASTNetStatLogEntry>   pNetStatlog = nullptr;
+        std::unique_ptr<VASTNetStatLogEntry> pNetStatlog = nullptr;
     };
 
 }

@@ -23,16 +23,10 @@ namespace Vast
         if (RLNCsink == NULL)
             RLNCsink = this;
 
-        id_t HostID = 0;
-        if (msghandler->getReal_net_udp() != NULL)
-        {
-            HostID = msghandler->getReal_net_udp()->getID();
-        }
-
         CPPDEBUG("net_udpNC_handler::open" << std::endl);
         _timeout_keepalive = msghandler->getTimestamp();
         net_udp_handler::open(io_service, msghandler, startthread);
-        mchandler.open (&consumer, startthread, HostID);
+        mchandler.open (&consumer, msghandler, startthread);
         consumer.open (RLNCsink, msghandler, &mchandler, startthread);
 
         return 0;

@@ -69,8 +69,7 @@ namespace Vast
 
         timestamp_t         _timeout_keepalive;      // timeout for re-attempt to join
 
-        size_t interval_MCrecv_bytes = 0;
-        StatType MCRecvBytes;
+
     };
 
 

@@ -14,13 +14,16 @@ namespace Vast
         _local_endpoint = local_endpoint;
     }
 
-    int net_udpNC_MChandler::open(AbstractRLNCMsgReceiver *msghandler, bool startthread, id_t HostID) {
+    int net_udpNC_MChandler::open(AbstractRLNCMsgReceiver *msghandler, abstract_net_udp *udp_manager,
+                                  bool startthread) {
         CPPDEBUG("net_udpNC_MChandler::open" << std::endl);
         _msghandler = msghandler;
+        _udp_manager = udp_manager;
 
-        if (HostID != 0) {
-            pNetStatlog = std::make_unique<VASTNetStatLogEntry>(HostID);
-        }
+        std::cout << "net_udpNC_MChandler::open: _local_endpoint: " << _local_endpoint << std::endl;
+        IPaddr host_addr(_local_endpoint.address().to_v4().to_ulong(), _local_endpoint.port ());
+        id_t HostID = net_manager::resolveHostID(&host_addr);
+        pNetStatlog = std::make_unique<VASTNetStatLogEntry>(HostID);
 
         if (_udp == NULL) {
             _udp = new ip::udp::socket(*_io_service);
@@ -226,8 +229,10 @@ namespace Vast
     {
         //Record stats
         //Do stats recording here
+
         raw_MCRecvBytes.addRecord (raw_interval_MCrecv_bytes);
         used_MCRecvBytes.addRecord (raw_interval_MCrecv_bytes);
+        pNetStatlog->recordMCStat(_udp_manager->getTimestamp(), raw_MCRecvBytes, used_MCRecvBytes);
 
 
         raw_interval_MCrecv_bytes = 0;
