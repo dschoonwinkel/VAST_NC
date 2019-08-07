@@ -7,6 +7,7 @@
 #include "rlncmessage.h"
 #include "customrlncdecoder.h"
 #include "abstract_rlnc_msg_receiver.h"
+#include "vastnetstatlog_entry.h"
 
 using namespace boost::asio;
 
@@ -20,7 +21,7 @@ namespace Vast
         virtual ~net_udpNC_MChandler();
 
         //MChandler will run its own io_service
-        int open (AbstractRLNCMsgReceiver *msghandler, bool startthread = true, id_t HostID);
+        int open (AbstractRLNCMsgReceiver *msghandler, bool startthread = true, id_t HostID = 0);
 
         // close connection & unregister from io_service
         int close (void);
@@ -74,7 +75,7 @@ namespace Vast
         size_t used_interval_MCrecv_bytes = 0;
         StatType raw_MCRecvBytes;
         StatType used_MCRecvBytes;
-        std::unique_ptr<VASTStatLogEntry>   pNetStatlog = nullptr;
+        std::unique_ptr<VASTNetStatLogEntry>   pNetStatlog = nullptr;
     };
 
 }
