@@ -487,6 +487,8 @@ namespace Vast
                 _manager->msg_received (curr_msg->fromhost, (curr_msg->msg + size_toadd), curr_msg->size - size_toadd, curr_msg->recvtime, true);
         }
 
+        _manager->tick();
+
         return msg_processed;
     }
 

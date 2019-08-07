@@ -3,6 +3,7 @@ import numpy as np
 import csv
 import sys
 from os.path import expanduser
+from plot_result_utils import NET_MODEL_STRINGS
 
 hasMatplotlib = True
 try:
@@ -34,6 +35,20 @@ def subsetByColumnValue(results_matrix, xColumnIndex, value):
 
     return subset
 
+def boxPlotHelper(subplotLayout, xColumnList, yColumnList, color, xlabel, ylabel):
+    ax = plot.subplot(subplotLayout)
+    if (len(xColumnList) > 0):
+        
+        box = plot.boxplot(yColumnList, positions=xColumnList) 
+        plot.setp(box['boxes'], color=color)
+        plot.xlabel(xlabel)
+        plot.ylabel(ylabel)  
+        plot.grid(True, alpha=0.5)
+
+    else:
+        print("No data")
+
+    return ax
 
 
 FIRST_TIMESTAMP = 0
@@ -60,8 +75,12 @@ results_text = list()
 home_dir = expanduser("~")
 print("Home Dir: ", home_dir)
 
+input_file = '%s/Development/VAST-0.4.6/bin/results_summary/results_summary.txt' % home_dir
 
-with open('%s/Development/VAST-0.4.6/bin/results_summary/results_summary.txt' % home_dir, 'r') as csvfile:
+if len(sys.argv) > 1:
+    input_file = sys.argv[1]
+
+with open(input_file, 'r') as csvfile:
     spamreader = csv.reader(csvfile, delimiter=",")
     for row in spamreader:
         results_text.append(row)
@@ -86,6 +105,28 @@ np.set_printoptions(linewidth=np.inf, formatter={'float': '{: 0.3f}'.format})
 # print(results_nparray[:,NET_MODEL])
 # print(seperateByColumn(results_nparray, NODES_COUNT, AVG_DRIFT))
 # xColumnList, yColumnList = seperateByColumn(results_nparray, NODES_COUNT, AVG_DRIFT)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -204,11 +245,102 @@ np.set_printoptions(linewidth=np.inf, formatter={'float': '{: 0.3f}'.format})
 #     plot.savefig("%s/Development/VAST-0.4.6/bin/results_summary/results_summary_zoomedin.pdf" % home_dir, dpi=1200)
 
 
+# Only Mininet results
+print("*******************\nMininet LOSS_PERC plot 20 NODES")
+MininetSubset = subsetByColumnValue(results_nparray, PLATFORM, MININET)
+colors = ['blue', 'red', 'green']
+if hasMatplotlib:
+    plot.figure()
+
+for i in range(NET_MODEL_STRINGS.index('net_ace'),NET_MODEL_STRINGS.index('net_udpNC') + 1):
+
+    print(i)
+    print(NET_MODEL_STRINGS[i])
+    netUDPsubset = subsetByColumnValue(MininetSubset, NET_MODEL, i)
+    netUDPsubset_10NODES = subsetByColumnValue(netUDPsubset, NODES_COUNT, 20)
+    xColumnList, yColumnList = seperateByColumn(netUDPsubset_10NODES, LOSS_PERC, AVG_TOPO_CONS)
+    print(xColumnList)
+    print(len(xColumnList))
+    if hasMatplotlib and len(xColumnList) > 0:
+        ax = boxPlotHelper(411, xColumnList+0.5*(i-2), yColumnList, colors[i-2], 'LOSS_PERC', 'Topo Cons[%]')
+        ax.title.set_text("TCP vs UDP vs UDPNC. 20 NODES")
+        plot.xlim([np.min(xColumnList)-0.5, np.max(xColumnList)+0.5*(i-2)+0.5])
+        ax.get_xaxis().set_visible(False)
+
+    xColumnList, yColumnList = seperateByColumn(netUDPsubset_10NODES, LOSS_PERC, AVG_DRIFT)
+    if hasMatplotlib and len(xColumnList) > 0:
+        ax = boxPlotHelper(412, xColumnList+0.5*(i-2), yColumnList, colors[i-2], 'LOSS_PERC', 'Drift dist [units]')
+        plot.xlim([np.min(xColumnList)-0.5, np.max(xColumnList)+0.5*(i-2)+0.5])
+        ax.get_xaxis().set_visible(False)
+
+
+    xColumnList, yColumnList = seperateByColumn(netUDPsubset_10NODES, LOSS_PERC, AVG_WORLDSENDSTAT)
+    if hasMatplotlib and len(xColumnList) > 0:
+        ax = boxPlotHelper(413, xColumnList+0.5*(i-2), yColumnList, colors[i-2], 'LOSS_PERC', 'Send [kBps]')
+        plot.xlim([np.min(xColumnList)-0.5, np.max(xColumnList)+0.5*(i-2)+0.5])
+        ax.get_xaxis().set_visible(False)
+
+    xColumnList, yColumnList = seperateByColumn(netUDPsubset_10NODES, LOSS_PERC, AVG_WORLDRECVSTAT)
+    if hasMatplotlib and len(xColumnList) > 0:
+        ax = boxPlotHelper(414, xColumnList+0.5*(i-2), yColumnList, colors[i-2], 'LOSS_PERC', 'Recv [kBps]')
+        plot.xlim([np.min(xColumnList)-0.5, np.max(xColumnList)+0.5*(i-2)+0.5])
+        ax.set_xticks(xColumnList)
+        ax.set_xticklabels(xColumnList)
+
+if hasMatplotlib:
+    plot.savefig("%s/Development/VAST-0.4.6/bin/results_summary/results_summary_Mininet_allResults.pdf" % home_dir, dpi=1200)
 
 
 
 
 
+
+
+# 50 NODES
+# Only Mininet results
+print("*******************\nMininet LOSS_PERC plot 50 NODES")
+MininetSubset = subsetByColumnValue(results_nparray, PLATFORM, MININET)
+colors = ['blue', 'red', 'green']
+if hasMatplotlib:
+    plot.figure()
+
+for i in range(NET_MODEL_STRINGS.index('net_ace'),NET_MODEL_STRINGS.index('net_udpNC') + 1):
+
+    print(i)
+    print(NET_MODEL_STRINGS[i])
+    netUDPsubset = subsetByColumnValue(MininetSubset, NET_MODEL, i)
+    netUDPsubset_50NODES = subsetByColumnValue(netUDPsubset, NODES_COUNT, 50)
+    xColumnList, yColumnList = seperateByColumn(netUDPsubset_50NODES, LOSS_PERC, AVG_TOPO_CONS)
+    print(xColumnList)
+    print(len(xColumnList))
+    if hasMatplotlib and len(xColumnList) > 0:
+        ax = boxPlotHelper(411, xColumnList+0.5*(i-2), yColumnList, colors[i-2], 'LOSS_PERC', 'Topo Cons[%]')
+        ax.title.set_text("TCP vs UDP vs UDPNC. 50 NODES")
+        plot.xlim([np.min(xColumnList)-0.5, np.max(xColumnList)+0.5*(i-2)+0.5])
+        ax.get_xaxis().set_visible(False)
+
+    xColumnList, yColumnList = seperateByColumn(netUDPsubset_50NODES, LOSS_PERC, AVG_DRIFT)
+    if hasMatplotlib and len(xColumnList) > 0:
+        ax = boxPlotHelper(412, xColumnList+0.5*(i-2), yColumnList, colors[i-2], 'LOSS_PERC', 'Drift dist [units]')
+        plot.xlim([np.min(xColumnList)-0.5, np.max(xColumnList)+0.5*(i-2)+0.5])
+        ax.get_xaxis().set_visible(False)
+
+
+    xColumnList, yColumnList = seperateByColumn(netUDPsubset_50NODES, LOSS_PERC, AVG_WORLDSENDSTAT)
+    if hasMatplotlib and len(xColumnList) > 0:
+        ax = boxPlotHelper(413, xColumnList+0.5*(i-2), yColumnList, colors[i-2], 'LOSS_PERC', 'Send [kBps]')
+        plot.xlim([np.min(xColumnList)-0.5, np.max(xColumnList)+0.5*(i-2)+0.5])
+        ax.get_xaxis().set_visible(False)
+
+    xColumnList, yColumnList = seperateByColumn(netUDPsubset_50NODES, LOSS_PERC, AVG_WORLDRECVSTAT)
+    if hasMatplotlib and len(xColumnList) > 0:
+        ax = boxPlotHelper(414, xColumnList+0.5*(i-2), yColumnList, colors[i-2], 'LOSS_PERC', 'Recv [kBps]')
+        plot.xlim([np.min(xColumnList)-0.5, np.max(xColumnList)+0.5*(i-2)+0.5])
+        ax.set_xticks(xColumnList)
+        ax.set_xticklabels(xColumnList)
+
+if hasMatplotlib:
+    plot.savefig("%s/Development/VAST-0.4.6/bin/results_summary/results_summary_Mininet_allResults_50NODES.pdf" % home_dir, dpi=1200)
 
 
 
@@ -216,7 +348,7 @@ np.set_printoptions(linewidth=np.inf, formatter={'float': '{: 0.3f}'.format})
 
 
 # Only Mininet results
-print("Mininet UDP Subset")
+print("*******************\nMininet UDP Subset")
 MininetSubset = subsetByColumnValue(results_nparray, PLATFORM, MININET)
 netUDPsubset = subsetByColumnValue(MininetSubset, NET_MODEL, 3)
 xColumnList, yColumnList = seperateByColumn(netUDPsubset, NODES_COUNT, AVG_DRIFT)
@@ -231,7 +363,7 @@ if hasMatplotlib:
     plot.grid()
 
 
-print("Mininet UDPNC Subset")
+print("*******************\nMininet UDPNC Subset")
 MininetSubset = subsetByColumnValue(results_nparray, PLATFORM, MININET)
 netUDPNCsubset = subsetByColumnValue(MininetSubset, NET_MODEL, 4)
 xColumnList, yColumnList = seperateByColumn(netUDPNCsubset, NODES_COUNT, AVG_DRIFT)
@@ -246,7 +378,7 @@ if hasMatplotlib:
     plot.savefig("%s/Development/VAST-0.4.6/bin/results_summary/results_summary_Mininet.pdf" % home_dir, dpi=1200)
 
 # Only Mininet results
-print("Mininet UDP Subset zoomed in")
+print("*******************\nMininet UDP Subset zoomed in")
 MininetSubset = subsetByColumnValue(results_nparray, PLATFORM, MININET)
 netUDPsubset = subsetByColumnValue(MininetSubset, NET_MODEL, 3)
 xColumnList, yColumnList = seperateByColumn(netUDPsubset, NODES_COUNT, AVG_DRIFT)
@@ -261,7 +393,7 @@ if hasMatplotlib:
     plot.grid()
 
 
-print("Mininet UDPNC Subset zoomed in")
+print("*******************\nMininet UDPNC Subset zoomed in")
 MininetSubset = subsetByColumnValue(results_nparray, PLATFORM, MININET)
 netUDPNCsubset = subsetByColumnValue(MininetSubset, NET_MODEL, 4)
 xColumnList, yColumnList = seperateByColumn(netUDPNCsubset, NODES_COUNT, AVG_DRIFT)
@@ -274,4 +406,83 @@ if hasMatplotlib:
     plot.ylabel('Drift distance [units]')  
     plot.grid()
     plot.savefig("%s/Development/VAST-0.4.6/bin/results_summary/results_summary_Mininet_zoomedin.pdf" % home_dir, dpi=1200)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# Only Docker results
+print("*******************\nDocker UDP Subset")
+MininetSubset = subsetByColumnValue(results_nparray, PLATFORM, DOCKER)
+netUDPsubset = subsetByColumnValue(MininetSubset, NET_MODEL, 3)
+xColumnList, yColumnList = seperateByColumn(netUDPsubset, NODES_COUNT, AVG_DRIFT)
+if hasMatplotlib:
+    plot.figure()
+    ax = plot.subplot(1,2,1)
+    plot.boxplot(yColumnList, positions=xColumnList) 
+    ax.title.set_text('netUDP Docker')
+    plot.xlabel('NODES_COUNT')
+    plot.ylim([0.5, 35])
+    plot.ylabel('Drift distance [units]')  
+    plot.grid()
+
+
+print("*******************\nDocker UDPNC Subset")
+DockerSubset = subsetByColumnValue(results_nparray, PLATFORM, DOCKER)
+netUDPNCsubset = subsetByColumnValue(DockerSubset, NET_MODEL, 4)
+xColumnList, yColumnList = seperateByColumn(netUDPNCsubset, NODES_COUNT, AVG_DRIFT)
+if hasMatplotlib:
+    ax = plot.subplot(1,2,2)
+    plot.boxplot(yColumnList, positions=xColumnList) 
+    ax.title.set_text('netUDPNC Docker')
+    plot.xlabel('NODES_COUNT')
+    plot.ylim([0.5, 35])
+    plot.ylabel('Drift distance [units]')  
+    plot.grid()
+    plot.savefig("%s/Development/VAST-0.4.6/bin/results_summary/results_summary_Docker.pdf" % home_dir, dpi=1200)
+
+# Only Docker results
+print("*******************\nDocker UDP Subset zoomed in")
+DockerSubset = subsetByColumnValue(results_nparray, PLATFORM, DOCKER)
+netUDPsubset = subsetByColumnValue(DockerSubset, NET_MODEL, 3)
+xColumnList, yColumnList = seperateByColumn(netUDPsubset, NODES_COUNT, AVG_DRIFT)
+if hasMatplotlib:
+    plot.figure()
+    ax = plot.subplot(1,2,1)
+    plot.boxplot(yColumnList, positions=xColumnList) 
+    ax.title.set_text('netUDP Docker')
+    plot.xlabel('NODES_COUNT')
+    plot.ylim([0.5, 5])
+    plot.ylabel('Drift distance [units]')  
+    plot.grid()
+
+
+print("*******************\nDocker UDPNC Subset zoomed in")
+DockerSubset = subsetByColumnValue(results_nparray, PLATFORM, DOCKER)
+netUDPNCsubset = subsetByColumnValue(DockerSubset, NET_MODEL, 4)
+xColumnList, yColumnList = seperateByColumn(netUDPNCsubset, NODES_COUNT, AVG_DRIFT)
+if hasMatplotlib:
+    ax = plot.subplot(1,2,2)
+    plot.boxplot(yColumnList, positions=xColumnList) 
+    ax.title.set_text('netUDPNC Docker')
+    plot.xlabel('NODES_COUNT')
+    plot.ylim([0.5, 5])
+    plot.ylabel('Drift distance [units]')  
+    plot.grid()
     plot.show()

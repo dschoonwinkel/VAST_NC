@@ -23,10 +23,16 @@ namespace Vast
         if (RLNCsink == NULL)
             RLNCsink = this;
 
+        id_t HostID = 0;
+        if (msghandler->getReal_net_udp() != NULL)
+        {
+            HostID = msghandler->getReal_net_udp()->getID();
+        }
+
         CPPDEBUG("net_udpNC_handler::open" << std::endl);
         _timeout_keepalive = msghandler->getTimestamp();
         net_udp_handler::open(io_service, msghandler, startthread);
-        mchandler.open (&consumer, startthread);
+        mchandler.open (&consumer, startthread, HostID);
         consumer.open (RLNCsink, msghandler, &mchandler, startthread);
 
         return 0;
@@ -196,6 +202,11 @@ namespace Vast
 
         //MC message are not associated with a specific endpoint
         handoff_input (input_message, socket_addr);
+    }
+
+    void net_udpNC_handler::tick()
+    {
+        mchandler.tick();
     }
 
     int net_udpNC_handler::close ()

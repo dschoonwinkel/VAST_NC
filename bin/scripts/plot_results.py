@@ -4,7 +4,7 @@ import csv
 import sys
 from os.path import expanduser
 import os
-from plot_result_utils import parseFilenameLabel
+from plot_result_utils import parseFilenameLabel, NET_MODEL_STRINGS
 import re
 
 hasMatplotlib = True
@@ -131,7 +131,9 @@ if last_relative_timestamp < 0.9 * MAX_TIMESTAMP:
     MAX_TIMESTAMP = last_relative_timestamp
 
 active_nodes = numpy_results[:,ACTIVE_NODES]
+max_nodes = np.max(active_nodes)
 active_matchers = numpy_results[:,ACTIVE_MATCHERS]
+max_matchers = np.max(active_matchers)
 
 topo_consistency = (100* 1.0*numpy_results[:,AN_VISIBLE] / (1.0*numpy_results[:,AN_ACTUAL]))[:len(timestamps)]
 
@@ -262,6 +264,8 @@ if (hasMatplotlib and plot_yes):
     plot.plot(timestamps, active_nodes[:len(timestamps)])
     plot.plot(timestamps, active_matchers[:len(timestamps)])
     plot.plot([TOTAL_SETUPTIME, TOTAL_SETUPTIME],[0, max(active_nodes)+1], 'k')
+    plot.text(timestamps[-1], max_nodes, str(max_nodes))
+    plot.text(timestamps[-1], max_matchers, str(max_matchers))
     plot.ylabel("# Active")
     plot.legend(['Nodes', 'Matchers'])
     ax1.get_xaxis().set_visible(False)

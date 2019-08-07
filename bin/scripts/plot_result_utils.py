@@ -1,6 +1,6 @@
 import re
 
-NET_MODEL_STRINGS = ['net_emu', 'net_ace', 'net_udp', 'net_udpNC']
+NET_MODEL_STRINGS = ['', 'net_emu', 'net_ace', 'net_udp', 'net_udpNC']
 PLATFORM_STRINGS = ['Mininet', 'Docker']
 
 def parseFilenameLabel(LABEL_string):

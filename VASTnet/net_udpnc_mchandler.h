@@ -20,7 +20,7 @@ namespace Vast
         virtual ~net_udpNC_MChandler();
 
         //MChandler will run its own io_service
-        int open (AbstractRLNCMsgReceiver *msghandler, bool startthread = true);
+        int open (AbstractRLNCMsgReceiver *msghandler, bool startthread = true, id_t HostID);
 
         // close connection & unregister from io_service
         int close (void);
@@ -34,6 +34,8 @@ namespace Vast
         size_t getPacketPoolSize();
 
         bool toAddrForMe(RLNCMessage msg);
+
+        void tick();
 
     protected:
 
@@ -66,6 +68,13 @@ namespace Vast
 
         size_t packets_received = 0;
         size_t toaddrs_pkts_ignored = 0;
+
+        //Multicast recv stats recording
+        size_t raw_interval_MCrecv_bytes = 0;
+        size_t used_interval_MCrecv_bytes = 0;
+        StatType raw_MCRecvBytes;
+        StatType used_MCRecvBytes;
+        std::unique_ptr<VASTStatLogEntry>   pNetStatlog = nullptr;
     };
 
 }

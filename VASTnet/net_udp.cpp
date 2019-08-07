@@ -547,6 +547,11 @@ namespace Vast
         return this;
     }
 
+    void net_udp::tick()
+    {
+        _udphandler->tick();
+    }
+
     //Calculate the UDP timeouts here
     void net_udp::tickLogicalClock ()
     {

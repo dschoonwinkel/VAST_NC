@@ -67,6 +67,11 @@ namespace Vast
         }
     }
 
+    void net_manager::tick()
+    {
+        //Normally do nothing, but in net_udpNC we will store MC results
+    }
+
     // see if the network interface is active
     bool 
     net_manager::isActive ()

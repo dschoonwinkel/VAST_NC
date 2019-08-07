@@ -246,4 +246,8 @@ VASTStatLog/vaststatlog.cpp
 VASTStatLog/vaststatlog.h
 VASTStatLog/vaststatlog_entry.cpp
 VASTStatLog/vaststatlog_entry.h
+VASTStatLog/vastnetstatlog.cpp
+VASTStatLog/vastnetstatlog.h
+VASTStatLog/vastnetstatlog_entry.cpp
+VASTStatLog/vastnetstatlog_entry.h
 VASTStatLog/unit_test/Makefile

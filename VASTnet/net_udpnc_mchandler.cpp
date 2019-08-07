@@ -2,6 +2,7 @@
 #include "net_udp.h"
 #include "rlncmessage.h"
 #include "VASTnet.h"
+#include "vastnetstatlog_entry.h"
 
 
 namespace Vast
@@ -13,9 +14,13 @@ namespace Vast
         _local_endpoint = local_endpoint;
     }
 
-    int net_udpNC_MChandler::open(AbstractRLNCMsgReceiver *msghandler, bool startthread) {
+    int net_udpNC_MChandler::open(AbstractRLNCMsgReceiver *msghandler, bool startthread, id_t HostID) {
         CPPDEBUG("net_udpNC_MChandler::open" << std::endl);
         _msghandler = msghandler;
+
+        if (HostID != 0) {
+            pNetStatlog = std::make_unique<VASTNetStatLogEntry>(HostID);
+        }
 
         if (_udp == NULL) {
             _udp = new ip::udp::socket(*_io_service);
@@ -110,8 +115,11 @@ namespace Vast
     {
             RLNCMessage message1;
             message1.deserialize (buf, bytes_transferred);
+            raw_interval_MCrecv_bytes+= bytes_transferred;
+
             if (toAddrForMe (message1))
             {
+                used_interval_MCrecv_bytes+= bytes_transferred;
                 putOtherRLNCMessage (message1);
                 std::shared_ptr<RLNCMessage> decoded_msg = decoder.produceDecodedRLNCMessage();
 
@@ -212,6 +220,18 @@ namespace Vast
         }
 
         return false;
+    }
+
+    void net_udpNC_MChandler::tick()
+    {
+        //Record stats
+        //Do stats recording here
+        raw_MCRecvBytes.addRecord (raw_interval_MCrecv_bytes);
+        used_MCRecvBytes.addRecord (raw_interval_MCrecv_bytes);
+
+
+        raw_interval_MCrecv_bytes = 0;
+        used_interval_MCrecv_bytes = 0;
     }
 
     int net_udpNC_MChandler::close() {

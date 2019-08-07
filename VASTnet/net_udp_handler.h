@@ -52,6 +52,9 @@ namespace Vast {
 
         bool isOpen();
 
+        //Do nothing here, for now
+        virtual void tick() {}
+
     protected:
 
         //Start the receiving loop

@@ -6,7 +6,7 @@ ACE_ROOT = /usr
 CFLAGS = -static -c -Wall -Wextra -I../common -ggdb -std=c++14 $(COPTS) 
 #CFLAGS = -fPIC -c -Wall -I../common -I../VASTnet  -I$(ACE_ROOT)
 
-sources = vaststatlog_entry.cpp vaststatlog.cpp vast_capturemsgs.cpp netudpnc_capturemsgs.cpp
+sources = vaststatlog_entry.cpp vaststatlog.cpp vastnetstatlog_entry.cpp vastnetstatlog.cpp vast_capturemsgs.cpp netudpnc_capturemsgs.cpp
  
 objects = $(subst .cpp,.o,$(sources))
 

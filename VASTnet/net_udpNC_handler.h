@@ -43,6 +43,9 @@ namespace Vast
 
         void RLNC_msg_received(RLNCMessage input_message, IPaddr socket_addr);
 
+        //Do nothing here, for now
+        void tick();
+
     protected:
         //Start the receiving loop
         void start_receive ();
@@ -65,6 +68,9 @@ namespace Vast
         std::map<id_t, uint8_t> send_ordering;
 
         timestamp_t         _timeout_keepalive;      // timeout for re-attempt to join
+
+        size_t interval_MCrecv_bytes = 0;
+        StatType MCRecvBytes;
     };
 
 
