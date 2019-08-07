@@ -64,6 +64,8 @@ namespace Vast {
         // change the ID for a remote host
         bool switchID (id_t prevID, id_t newID);
 
+        void tick();
+
         // perform a tick of the logical clock 
         void tickLogicalClock ();
 
