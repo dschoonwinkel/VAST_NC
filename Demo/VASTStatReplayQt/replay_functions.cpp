@@ -141,12 +141,6 @@ void initVariables()
 
         VASTStatLog restoredLog(filename);
 
-        //Cut off .txt
-        std::string id_string = filename.substr(0, filename.find(".txt"));
-        //Extract id_t
-        id_string = id_string.substr(id_string.find("N") + 1);
-
-//        Vast::id_t restoredLogID = stoll(id_string);
         allRestoredLogs[filename] = restoredLog;
         logIDs.push_back(filename);
 
@@ -157,7 +151,7 @@ void initVariables()
           CPPDEBUG("Starting timestamp: " << allRestoredLogs[logIDs[log_iter]].getTimestamp() << std::endl);
           if (allRestoredLogs[logIDs[log_iter]].getTimestamp() < latest_timestamp)
           {
-
+              latest_timestamp = allRestoredLogs[logIDs[log_iter]].getTimestamp();
           }
 
 
@@ -191,12 +185,6 @@ void initVariables()
 
         VASTNetStatLog restoredLog(filename);
 
-        //Cut off .txt
-        std::string id_string = filename.substr(0, filename.find(".txt"));
-        //Extract id_t
-        id_string = id_string.substr(id_string.find("N") + 1);
-
-//        Vast::id_t restoredLogID = stoll(id_string);
         allRestoredNetStatLogs[filename] = restoredLog;
         NetStatLogIDs.push_back(filename);
 
@@ -296,53 +284,53 @@ void calculateUpdate()
 
 
 
-//    for (size_t log_iter = 0; log_iter < NetStatLogIDs.size(); log_iter++) {
+    for (size_t log_iter = 0; log_iter < NetStatLogIDs.size(); log_iter++) {
 
-//        VASTNetStatLog &restoredLog = allRestoredNetStatLogs[NetStatLogIDs[log_iter]];
+        VASTNetStatLog &restoredLog = allRestoredNetStatLogs[NetStatLogIDs[log_iter]];
 
-//        //If the log entries are finished, skip
-//        if (restoredLog.finished())
-//        {
-//            continue;
-//        }
+        //If the log entries are finished, skip
+        if (restoredLog.finished())
+        {
+            continue;
+        }
 
-//        //Allow each log to catch up to the current timestamp
-//        while (restoredLog.getTimestamp() < latest_timestamp && !restoredLog.finished())
-//        {
-//            restoredLog.nextStep();
-//        }
+        //Allow each log to catch up to the current timestamp
+        while (restoredLog.getTimestamp() < latest_timestamp && !restoredLog.finished())
+        {
+            restoredLog.nextStep();
+        }
 
-//        if (restoredLog.isJoinedAt(latest_timestamp))
-//        {
-//            tempRawMCRecvBytes += restoredLog.getRawMCRecvStat().total;
-//            tempUsedMCRecvBytes += restoredLog.getUsedMCRecvStat().total;
-//        }
-//    }
+        if (restoredLog.isJoinedAt(latest_timestamp))
+        {
+            tempRawMCRecvBytes += restoredLog.getRawMCRecvStat().total;
+            tempUsedMCRecvBytes += restoredLog.getUsedMCRecvStat().total;
+        }
+    }
 
-//    if (tempRawMCRecvBytes > prevRawMCRecvBytes)
-//    {
-//        RawMCRecvBytes = tempRawMCRecvBytes - prevRawMCRecvBytes;
-//        UsedMCRecvBytes = tempUsedMCRecvBytes - prevUsedMCRecvBytes;
-//    }
+    if (tempRawMCRecvBytes > prevRawMCRecvBytes)
+    {
+        RawMCRecvBytes = tempRawMCRecvBytes - prevRawMCRecvBytes;
+        UsedMCRecvBytes = tempUsedMCRecvBytes - prevUsedMCRecvBytes;
+    }
 
-//    if (RawMCRecvBytes > 100000 )
-//    {
-//        std::cout << "RawMCRecvBytes stat is very large" << std::endl;
-//        std::cout << "RawMCRecvBytes " << RawMCRecvBytes << std::endl;
-//        std::cout << "tempRawMCRecvBytes " << tempRawMCRecvBytes << std::endl;
-//        std::cout << "prevRawMCRecvBytes " << prevRawMCRecvBytes << std::endl;
-//    }
+    if (RawMCRecvBytes > 100000 )
+    {
+        std::cout << "\nRawMCRecvBytes stat is very large" << std::endl;
+        std::cout << "RawMCRecvBytes " << RawMCRecvBytes << std::endl;
+        std::cout << "tempRawMCRecvBytes " << tempRawMCRecvBytes << std::endl;
+        std::cout << "prevRawMCRecvBytes " << prevRawMCRecvBytes << std::endl;
+    }
 
-//    if (UsedMCRecvBytes > 100000)
-//    {
-//        std::cout << "UsedMCRecvBytes stat is very large" << std::endl;
-//        std::cout << "UsedMCRecvBytes " << UsedMCRecvBytes << std::endl;
-//        std::cout << "tempUsedMCRecvBytes " << tempUsedMCRecvBytes << std::endl;
-//        std::cout << "prevUsedMCRecvBytes " << prevUsedMCRecvBytes << std::endl;
+    if (UsedMCRecvBytes > 100000)
+    {
+        std::cout << "\nUsedMCRecvBytes stat is very large" << std::endl;
+        std::cout << "UsedMCRecvBytes " << UsedMCRecvBytes << std::endl;
+        std::cout << "tempUsedMCRecvBytes " << tempUsedMCRecvBytes << std::endl;
+        std::cout << "prevUsedMCRecvBytes " << prevUsedMCRecvBytes << std::endl;
 
-//    }
-//    prevRawMCRecvBytes = RawMCRecvBytes;
-//    prevUsedMCRecvBytes = UsedMCRecvBytes;
+    }
+    prevRawMCRecvBytes = tempRawMCRecvBytes;
+    prevUsedMCRecvBytes = tempUsedMCRecvBytes;
 
 
     latest_timestamp += simpara.TIMESTEP_DURATION;
