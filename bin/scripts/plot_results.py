@@ -25,6 +25,8 @@ MAX_DRIFT = 6
 DRIFT_NODES = 7
 WORLDSENDSTAT = 8
 WORLDRECVSTAT = 9
+RAW_MCRECVBYTES = 10
+USED_MCRECVBYTES = 11
 
 print("Usage: ./plot_results.py <input_file: default = results1.txt>\n\
                  <results label = \"NET_MODEL, nodecount, BW, delay, loss%\">")
@@ -112,7 +114,8 @@ results = list()
 
 for row in results_text:
     # print(row)
-    results.append([(int(row[0])-int(results_text[0][0])), int(row[1]), int(row[2]), int(row[3]), int(row[4]), int(row[5]), int(row[6]), int(row[7]), int(row[8]), int(row[9])])
+    results.append([(int(row[0])-int(results_text[0][0])), int(row[1]), int(row[2]), int(row[3]),
+     int(row[4]), int(row[5]), int(row[6]), int(row[7]), int(row[8]), int(row[9]), int(row[10]), int(row[11])])
     # print(results[-1])
     # print(int(row[0])%10000)
 
@@ -154,12 +157,25 @@ mean_drift_distance = np.mean(normalised_drift_distance[where_is_finite])
 
 print("Mean normalized drift distance:", mean_drift_distance)
 
-# Show results in kBps -> 100 * 10ms per second / 1000 B per kB
-send_stat = (numpy_results[:,WORLDSENDSTAT]*100/1000)[:len(timestamps)]
-recv_stat = (numpy_results[:,WORLDRECVSTAT]*100/1000)[:len(timestamps)]
+# Show results in kBps -> 10 ticks per second (1000ms / 100ms per tick) / 1000 B per kB
+CONVERSION_FACTOR = (1000 / TIMESTEP_DURATION) / 1000
+
+
+send_stat = (numpy_results[:,WORLDSENDSTAT]*CONVERSION_FACTOR)[:len(timestamps)]
+recv_stat = (numpy_results[:,WORLDRECVSTAT]*CONVERSION_FACTOR)[:len(timestamps)]
 mean_sendstat = np.mean(send_stat)
+mean_recvstat = np.mean(recv_stat)
 
 print("Mean send_stat:", mean_sendstat)
+print("Mean send_recv:", mean_recvstat)
+
+raw_mcrecvbytes = (numpy_results[:,RAW_MCRECVBYTES]*CONVERSION_FACTOR)[:len(timestamps)]
+used_mcrecvbytes = (numpy_results[:,USED_MCRECVBYTES]*CONVERSION_FACTOR)[:len(timestamps)]
+mean_rawmcrecv_stat = np.mean(raw_mcrecvbytes)
+mean_usedmcrecv_stat = np.mean(used_mcrecvbytes)
+
+print("Mean raw_mcrecvbytes:", mean_rawmcrecv_stat)
+print("Mean used_mcrecvbytes:", mean_usedmcrecv_stat)
 
 
 
@@ -169,7 +185,8 @@ if LABEL_list:
     NODE_COUNT = LABEL_list[1]
     LABEL_list.insert(0, first_timestamp)
     LABEL_list.extend([np.max(active_nodes), mean_consistency, 
-                  mean_drift_distance, np.mean(send_stat), np.mean(recv_stat)])
+                  mean_drift_distance, mean_sendstat, mean_recvstat, 
+                  mean_rawmcrecv_stat, mean_usedmcrecv_stat])
     LABEL_list.append(DATESTAMP_str)
 
     #Check if the result is already in summary
@@ -186,7 +203,7 @@ if LABEL_list:
     # print(LABEL_list)
     if not plot_yes and not in_result_summary:
         with open('%s/Development/VAST-0.4.6/bin/results_summary/results_summary.txt' % home_dir, 'a') as outfile:
-            outfile.write(("%s, %d, %d, %d, %d, %d, %d, %d, %f, %f, %f, %f, %f, %s\n") % 
+            outfile.write(("%s, %d, %d, %d, %d, %d, %d, %d, %f, %f, %f, %f, %f, %f, %f, %s\n") % 
                   tuple(LABEL_list))
         #         outfile.write("%s, %s, %f, %f, %f, %f, %f\n" 
     #             % (first_timestamp, input_file, np.max(active_nodes), mean_consistency, 
@@ -260,7 +277,7 @@ if (hasMatplotlib and plot_yes):
     if (LABEL_list):
         plot.title(str(LABEL_list))
 
-    ax1 = plot.subplot(5,1,1)
+    ax1 = plot.subplot(6,1,1)
     plot.plot(timestamps, active_nodes[:len(timestamps)])
     plot.plot(timestamps, active_matchers[:len(timestamps)])
     plot.plot([TOTAL_SETUPTIME, TOTAL_SETUPTIME],[0, max(active_nodes)+1], 'k')
@@ -269,60 +286,76 @@ if (hasMatplotlib and plot_yes):
     plot.ylabel("# Active")
     plot.legend(['Nodes', 'Matchers'])
     ax1.get_xaxis().set_visible(False)
-    plot.yticks(np.arange(min(active_nodes),max(active_nodes)+1, 1))
+    plot.yticks(np.arange(min(active_nodes),max(active_nodes)+1, max(active_nodes)/5))
     plot.xlim(0, MAX_TIMESTAMP)
     plot.grid(True)
 
-    ax2 = plot.subplot(5,1,2)
+    ax2 = plot.subplot(6,1,2)
     plot.plot(timestamps, topo_consistency)
     plot.plot(timestamps[where_are_NaNs], topo_consistency[where_are_NaNs], 'r,')
     plot.plot([0,timestamps[-1]], [mean_consistency,mean_consistency], 'r')
     plot.plot([TOTAL_SETUPTIME, TOTAL_SETUPTIME],[0, 100], 'k')
-    plot.text(timestamps[-1], mean_consistency, str(mean_consistency)[0:5])
-    plot.ylabel("Topo consistency [%]")
+    plot.text(timestamps[-1], mean_consistency, "%5.2f" % mean_consistency)
+    plot.ylabel("Topo consistency\n[%]")
     ax2.get_xaxis().set_visible(False)
     plot.xlim(0, MAX_TIMESTAMP)
     plot.ylim(0, 110)
     plot.grid(True)
     
-    ax3 = plot.subplot(5,1,3)
+    ax3 = plot.subplot(6,1,3)
     plot.plot(timestamps, normalised_drift_distance)
     plot.plot([0,timestamps[-1]], [mean_drift_distance,mean_drift_distance], 'r')
     plot.plot([TOTAL_SETUPTIME, TOTAL_SETUPTIME],[0, np.max(normalised_drift_distance[where_is_finite])], 'k')
-    plot.ylabel("Norm drift distance")
-    plot.text(timestamps[-1], mean_drift_distance, str(mean_drift_distance)[0:5])
+    plot.ylabel("Norm drift\ndist[VE units]")
+    plot.text(timestamps[-1], mean_drift_distance, "%5.2f" % mean_drift_distance)
     plot.xlim(0, MAX_TIMESTAMP)
     ax3.get_xaxis().set_visible(False)
     plot.grid(True)
     
-    ax4 = plot.subplot(5,1,4)
-    plot.plot(timestamps, send_stat[:len(timestamps)], 'g',label='Send stat')
-    plot.plot([0,timestamps[-1]], [mean_sendstat, mean_sendstat], 'r')
-    plot.plot([TOTAL_SETUPTIME, TOTAL_SETUPTIME],[0, 100], 'k')
-    plot.text(timestamps[-1], mean_sendstat, str(mean_sendstat)[0:5])
-    plot.plot(timestamps, recv_stat*100/1000, 'b+', label='Recv stat')
-    plot.ylabel("Send/recv stats [kBps]")
-    if not resources_fileexist:
-        plot.xticks(np.arange(min(timestamps), max(timestamps)+1, x_axis_interval))
-    else:
-        ax4.get_xaxis().set_visible(False)
+    ax4 = plot.subplot(6,1,4)
+    plot.plot(timestamps, send_stat, 'g',label='Send stat')
+    plot.plot(timestamps, recv_stat, 'b', label='Recv stat')
+    plot.plot([0,timestamps[-1]], [mean_sendstat, mean_sendstat], 'g')
+    plot.plot([0,timestamps[-1]], [mean_recvstat, mean_recvstat], 'b')
+    plot.text(timestamps[-1], mean_sendstat*1.1, "%5.2f" % (mean_sendstat), color='g')
+    plot.text(timestamps[-1], mean_recvstat*0.9, "%5.2f" % (mean_recvstat), color='b')
+    plot.plot([TOTAL_SETUPTIME, TOTAL_SETUPTIME],[0, np.max(send_stat)], 'k')
+    plot.ylabel("Send/recv\nUnicast [kBps]")
+    ax4.get_xaxis().set_visible(False)
     plot.legend()
     plot.grid(True)
     plot.xlim(0, MAX_TIMESTAMP)
 
+    ax5 = plot.subplot(6,1,5)
+    plot.plot(timestamps, raw_mcrecvbytes, 'r',label='Raw MC Recv')
+    plot.plot(timestamps, used_mcrecvbytes, 'm', label='Used MC Recv')
+    plot.plot([0,timestamps[-1]], [mean_rawmcrecv_stat, mean_rawmcrecv_stat], 'r')
+    plot.plot([0,timestamps[-1]], [mean_usedmcrecv_stat, mean_usedmcrecv_stat], 'm')
+    plot.plot([TOTAL_SETUPTIME, TOTAL_SETUPTIME],[0, np.max(raw_mcrecvbytes)], 'k')
+    plot.text(timestamps[-1], mean_rawmcrecv_stat, "%5.2f" % (mean_rawmcrecv_stat), color='r')
+    plot.text(timestamps[-1], mean_usedmcrecv_stat, "%5.2f" % (mean_usedmcrecv_stat), color='m')
+    
+    plot.ylabel("Raw/Used\nMC [kBps]")
+    if not resources_fileexist:
+        plot.xticks(np.arange(min(timestamps), max(timestamps)+1, x_axis_interval))
+    else:
+        ax5.get_xaxis().set_visible(False)
+    plot.legend()
+    plot.grid(True)
+    plot.xlim(0, MAX_TIMESTAMP)
 
     if resources_fileexist:
-        ax1 = plot.subplot(5,1,5)
-        ax1.plot(numpy_resources[:,0], numpy_resources[:,1], 'b',label='CPU %')
+        ax1 = plot.subplot(6,1,6)
+        ax1.plot(numpy_resources[:,0], numpy_resources[:,1], 'r',label='CPU %')
         ax1.plot([TOTAL_SETUPTIME, TOTAL_SETUPTIME],[0, np.max(numpy_resources[:,1])], 'k')
-        ax1.text(timestamps[-1000], mean_CPU, "%3.2f" % mean_CPU, color='b')
-        color = 'tab:blue'
+        ax1.text(timestamps[-1000], mean_CPU, "%3.2f" % mean_CPU, color='r')
+        color = 'tab:red'
         ax1.set_ylabel("CPU % ", color=color)
 
         ax2 = ax1.twinx()
-        ax2.plot(numpy_resources[:,0], numpy_resources[:,2], 'r',label='Mem')
-        ax2.text(timestamps[-1000], median_MemMB, "%3.2f" % median_MemMB, color='r')
-        color = 'tab:red'
+        ax2.plot(numpy_resources[:,0], numpy_resources[:,2], 'b',label='Mem')
+        ax2.text(timestamps[-1000], median_MemMB, "%3.2f" % median_MemMB, color='b')
+        color = 'tab:blue'
         ax2.set_ylabel("Mem [MB]", color=color)
         plot.xlabel("Timestamp [ms]")
         plot.xticks(np.arange(min(timestamps), max(timestamps)+1, x_axis_interval))

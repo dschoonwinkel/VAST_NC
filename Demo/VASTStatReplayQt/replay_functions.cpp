@@ -313,7 +313,7 @@ void calculateUpdate()
         UsedMCRecvBytes = tempUsedMCRecvBytes - prevUsedMCRecvBytes;
     }
 
-    if (RawMCRecvBytes > 100000 )
+    if (RawMCRecvBytes > 1000000 )
     {
         std::cout << "\nRawMCRecvBytes stat is very large" << std::endl;
         std::cout << "RawMCRecvBytes " << RawMCRecvBytes << std::endl;
