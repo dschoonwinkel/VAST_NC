@@ -4,6 +4,7 @@ VASTStatLog/netudpnc_capturemsgs.cpp
 VASTStatLog/netudpnc_capturemsgs.h
 VASTStatLog/unit_test/unittest_nc_capturemsgs.cpp
 VASTStatLog/unit_test/unittest_vast_capturemsgs.cpp
+VASTStatLog/unit_test/unittest_vastnetstatlog.cpp
 VASTStatLog/vast_capturemsgs.cpp
 VASTStatLog/vast_capturemsgs.h
 VASTnet/abstract_input_processor.h
