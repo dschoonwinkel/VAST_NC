@@ -231,9 +231,8 @@ namespace Vast
         //Do stats recording here
 
         raw_MCRecvBytes.addRecord (raw_interval_MCrecv_bytes);
-        used_MCRecvBytes.addRecord (raw_interval_MCrecv_bytes);
+        used_MCRecvBytes.addRecord (used_interval_MCrecv_bytes);
         pNetStatlog->recordMCStat(_udp_manager->getTimestamp(), raw_MCRecvBytes, used_MCRecvBytes);
-
 
         raw_interval_MCrecv_bytes = 0;
         used_interval_MCrecv_bytes = 0;
