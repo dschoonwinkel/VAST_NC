@@ -41,7 +41,7 @@ unittest_vastnetstatlog: unittest_vastnetstatlog.cpp
 	$(CC) $(CFLAGS) $(INC_PATHS) $(LIBS_INCKODO) $(LIB_PATHS) $^ $(LIBS) $(LIBS_KODO) \
 	-o $(unittest_vastnetstatlog)
 	echo "Running: unittest_vastnetstatlog"
-	$(unittest_vastnetstatlog)
+	-$(unittest_vastnetstatlog)
 
 make_vaststatlog:
 	$(MAKE) --directory=../

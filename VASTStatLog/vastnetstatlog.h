@@ -1,5 +1,5 @@
-#ifndef VASTSTATLOG_H
-#define VASTSTATLOG_H
+#ifndef VASTNETSTATLOG_H
+#define VASTNETSTATLOG_H
 
 #include "vastnetstatlog_entry.h"
 #include <vector>
@@ -17,6 +17,7 @@ namespace Vast {
 
         timestamp_t getTimestamp() const;
         timestamp_t getFirstTimestamp() const;
+        bool isJoinedAt(timestamp_t timestamp) const;
         VASTNetStatLogEntry getEntry() const;
 
         size_t getRecordedSteps();
@@ -38,4 +39,4 @@ namespace Vast {
 
 } //end namespace Vast
 
-#endif // VASTSTATLOG_H
+#endif // VASTNETSTATLOG_H

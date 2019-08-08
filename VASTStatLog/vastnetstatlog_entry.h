@@ -1,5 +1,5 @@
-#ifndef VASTSTATLOG_ENTRY_H
-#define VASTSTATLOG_ENTRY_H
+#ifndef VASTNETSTATLOG_ENTRY_H
+#define VASTNETSTATLOG_ENTRY_H
 #include <map>
 #include <memory>
 #include <VASTTypes.h>
@@ -79,4 +79,4 @@ namespace Vast {
     };
 }   //end namespace Vast
 
-#endif // VASTSTATLOG_ENTRY_H
+#endif // VASTNETSTATLOG_ENTRY_H

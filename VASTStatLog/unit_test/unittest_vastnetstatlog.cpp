@@ -4,9 +4,20 @@
 
 int main()
 {
-    Vast::VASTNetStatLog restoredLog("./logs/VASTNetStat_N720575944742207489_0.txt");
+    std::string filename = "./logs/VASTNetStat_N720575944742207489_0.txt";
 
+    ifstream f(filename);
+    if (f.good())
+    {
+        std::cout << filename << " found" << std::endl;
+    }
+    else
+    {
+        std::cout << filename << " not found" << std::endl;
+        exit(1);
+    }
 
+    Vast::VASTNetStatLog restoredLog(filename);
     std::cout << restoredLog.getCurrentStep() << std::endl;
     std::cout << restoredLog.getRecordedSteps() << std::endl;
 

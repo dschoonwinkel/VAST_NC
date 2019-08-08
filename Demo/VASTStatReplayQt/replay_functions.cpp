@@ -3,6 +3,7 @@
 
 #include "VASTVerse.h"
 #include "vaststatlog.h"
+#include "vastnetstatlog.h"
 
 #include <climits>
 
@@ -12,11 +13,11 @@ using namespace boost::filesystem;
 using namespace Vast;
 
 SimPara simpara;
-VASTPara_Net netpara(VAST_NET_EMULATED);
-map <int, vector<Node *> *> nodes;
 
 std::map<std::string, VASTStatLog> allRestoredLogs;
+std::map<std::string, VASTNetStatLog> allRestoredNetStatLogs;
 std::vector<std::string> logIDs;
+std::vector<std::string> NetStatLogIDs;
 timestamp_t latest_timestamp;
 
 std::string results_file = "./logs/results/results1.txt";
@@ -31,6 +32,13 @@ size_t total_AN_actual =0, total_AN_visible =0, total_drift =0, max_drift =0, dr
 size_t total_active_matchers =0;
 long worldSendStat =0, worldRecvStat = 0;
 long prevWorldSendStat = 0, prevWorldRecvStat = 0;
+
+
+//NetStat variables
+bool hasNetStat = false;
+long RawMCRecvBytes = 0, UsedMCRecvBytes = 0;
+long prevRawMCRecvBytes = 0, prevUsedMCRecvBytes = 0;
+
 
 map <int, size_t> drift_distances;
 int g_MS_PER_TIMESTEP;
@@ -109,6 +117,8 @@ void initVariables()
     path dir_path("./logs");
     directory_iterator end_itr;
 
+    //VASTStatLog_id.txt
+    CPPDEBUG("Processing normal VASTStatLog" << std::endl);
     for (directory_iterator itr(dir_path); itr != end_itr; ++itr) {
 
         //Skip subfolders
@@ -122,8 +132,13 @@ void initVariables()
             CPPDEBUG("Skipping " << filename << std::endl);
             continue;
         }
-//        std::vector<Vast::VASTStatLogEntry> restoredLogs = Vast::VASTStatLogEntry::restoreAllFromLogFile(filename);
-//        VASTStatLog restoredLog(restoredLogs);
+
+        else if (filename.find("Net") != string::npos)
+        {
+            CPPDEBUG("NetStat file, skipping " << filename << std::endl);
+            continue;
+        }
+
         VASTStatLog restoredLog(filename);
 
         //Cut off .txt
@@ -142,7 +157,7 @@ void initVariables()
           CPPDEBUG("Starting timestamp: " << allRestoredLogs[logIDs[log_iter]].getTimestamp() << std::endl);
           if (allRestoredLogs[logIDs[log_iter]].getTimestamp() < latest_timestamp)
           {
-              latest_timestamp = allRestoredLogs[logIDs[log_iter]].getTimestamp();
+
           }
 
 
@@ -150,8 +165,46 @@ void initVariables()
 
     }
 
+    std::cout << std::endl;
+
+    //VASTNetStatLog_id.txt
+    CPPDEBUG("Processing VASTNetStatLog" << std::endl);
+    for (directory_iterator itr(dir_path); itr != end_itr; ++itr) {
+
+        //Skip subfolders
+        if (is_directory(itr->path())) continue;
+
+        CPPDEBUG(itr->path() << std::endl);
+        std::string filename = itr->path().string();
+        //If this is not a TXT file, it is probably not a VASTNetStatLog file
+        if (filename.find(".txt") == string::npos)
+        {
+            CPPDEBUG("Skipping " << filename << std::endl);
+            continue;
+        }
+
+        else if (filename.find("Net") == string::npos)
+        {
+            CPPDEBUG("normal Stat file, skipping " << filename << std::endl);
+            continue;
+        }
+
+        VASTNetStatLog restoredLog(filename);
+
+        //Cut off .txt
+        std::string id_string = filename.substr(0, filename.find(".txt"));
+        //Extract id_t
+        id_string = id_string.substr(id_string.find("N") + 1);
+
+//        Vast::id_t restoredLogID = stoll(id_string);
+        allRestoredNetStatLogs[filename] = restoredLog;
+        NetStatLogIDs.push_back(filename);
+
+    }
+
     ofs << "timestamp," << "active_nodes," << "active_matchers," << "AN_actual," << "AN_visible,"
-        << "Total drift," << "Max drift," << "drift nodes," << "worldSendStat," << "worldRecvStat," << std::endl;
+        << "Total drift," << "Max drift," << "drift nodes," << "worldSendStat," << "worldRecvStat,"
+        << "rawMCRecvBytes," << "usedMCRecvBytes" << std::endl;
 
     for (size_t log_iter = 0; log_iter < logIDs.size(); log_iter++)
     {
@@ -168,7 +221,8 @@ void calculateUpdate()
     total_AN_actual =0, total_AN_visible =0, total_drift =0, max_drift =0, drift_nodes =0;
     worldSendStat = 0, worldRecvStat = 0;
 
-    size_t tempWorldSendStat = 0, tempWorldRecvStat = 0;
+    long tempWorldSendStat = 0, tempWorldRecvStat = 0;
+    long tempRawMCRecvBytes = 0, tempUsedMCRecvBytes = 0;
 
     total_active_nodes =0;
     total_active_matchers =0;
@@ -213,8 +267,6 @@ void calculateUpdate()
             }
         }
 
-
-
     }
 
     if (tempWorldSendStat > prevWorldSendStat)
@@ -222,12 +274,6 @@ void calculateUpdate()
         worldSendStat = tempWorldSendStat - prevWorldSendStat;
         worldRecvStat = tempWorldRecvStat - prevWorldRecvStat;
     }
-//    else //Handle the cases where a node leaves / stats are reset / other calculation errors occur
-//    {
-//        //Throw away anomolous statistic
-//        worldSendStat = 0;
-//        worldRecvStat = 0;
-//    }
 
     if (worldSendStat > 100000 )
     {
@@ -245,10 +291,59 @@ void calculateUpdate()
         std::cout << "prevWorldSendStat" << prevWorldSendStat << std::endl;
 
     }
-
-
     prevWorldSendStat = tempWorldSendStat;
     prevWorldRecvStat = tempWorldRecvStat;
+
+
+
+//    for (size_t log_iter = 0; log_iter < NetStatLogIDs.size(); log_iter++) {
+
+//        VASTNetStatLog &restoredLog = allRestoredNetStatLogs[NetStatLogIDs[log_iter]];
+
+//        //If the log entries are finished, skip
+//        if (restoredLog.finished())
+//        {
+//            continue;
+//        }
+
+//        //Allow each log to catch up to the current timestamp
+//        while (restoredLog.getTimestamp() < latest_timestamp && !restoredLog.finished())
+//        {
+//            restoredLog.nextStep();
+//        }
+
+//        if (restoredLog.isJoinedAt(latest_timestamp))
+//        {
+//            tempRawMCRecvBytes += restoredLog.getRawMCRecvStat().total;
+//            tempUsedMCRecvBytes += restoredLog.getUsedMCRecvStat().total;
+//        }
+//    }
+
+//    if (tempRawMCRecvBytes > prevRawMCRecvBytes)
+//    {
+//        RawMCRecvBytes = tempRawMCRecvBytes - prevRawMCRecvBytes;
+//        UsedMCRecvBytes = tempUsedMCRecvBytes - prevUsedMCRecvBytes;
+//    }
+
+//    if (RawMCRecvBytes > 100000 )
+//    {
+//        std::cout << "RawMCRecvBytes stat is very large" << std::endl;
+//        std::cout << "RawMCRecvBytes " << RawMCRecvBytes << std::endl;
+//        std::cout << "tempRawMCRecvBytes " << tempRawMCRecvBytes << std::endl;
+//        std::cout << "prevRawMCRecvBytes " << prevRawMCRecvBytes << std::endl;
+//    }
+
+//    if (UsedMCRecvBytes > 100000)
+//    {
+//        std::cout << "UsedMCRecvBytes stat is very large" << std::endl;
+//        std::cout << "UsedMCRecvBytes " << UsedMCRecvBytes << std::endl;
+//        std::cout << "tempUsedMCRecvBytes " << tempUsedMCRecvBytes << std::endl;
+//        std::cout << "prevUsedMCRecvBytes " << prevUsedMCRecvBytes << std::endl;
+
+//    }
+//    prevRawMCRecvBytes = RawMCRecvBytes;
+//    prevUsedMCRecvBytes = UsedMCRecvBytes;
+
 
     latest_timestamp += simpara.TIMESTEP_DURATION;
 
@@ -309,7 +404,8 @@ void outputResults() {
 
     ofs << latest_timestamp << "," << total_active_nodes << "," << total_active_matchers << "," << total_AN_actual <<
            "," << total_AN_visible << "," << total_drift << "," << max_drift << ","
-        << drift_nodes << "," << worldSendStat << "," << worldRecvStat << std::endl;
+        << drift_nodes << "," << worldSendStat << "," << worldRecvStat << ","
+        << RawMCRecvBytes << "," << UsedMCRecvBytes << std::endl;
 
     //Save the individual drift distances seperately
     drift_distances_file << latest_timestamp << ",";

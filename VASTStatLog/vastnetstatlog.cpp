@@ -40,6 +40,11 @@ namespace Vast {
         return _restoredLogs[0].getTimestamp();
     }
 
+    bool VASTNetStatLog::isJoinedAt(timestamp_t timestamp) const
+    {
+        return (getFirstTimestamp() <= timestamp);
+    }
+
     size_t VASTNetStatLog::getRecordedSteps()
     {
         return recorded_steps;
