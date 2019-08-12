@@ -104,7 +104,7 @@ namespace Vast {
         if (!error)
         {
             //Check if there is another packet waiting
-            if (_udpsocket.available() > 0)
+            if (_udpsocket->available() > 0)
                 stacked_packets_received++;
 
             IPaddr remote_addr(_remote_endpoint_.address().to_v4().to_ulong(), _remote_endpoint_.port());
