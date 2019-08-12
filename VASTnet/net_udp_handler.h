@@ -96,6 +96,9 @@ namespace Vast {
 
         // generic buffer
 //        VASTBuffer       _buf;
+
+        size_t packets_received = 0;
+        size_t stacked_packets_received = 0;
     };
 
 } // end namespace Vast

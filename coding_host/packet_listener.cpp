@@ -180,6 +180,7 @@ void packet_listener::start_send()
             msgs.clear ();
             _send_udp->cancel ();
             msgs_mutex.unlock();
+            total_msgstoolong_cleared++;
             continue;
         }
 
@@ -331,6 +332,7 @@ packet_listener::~packet_listener ()
     std::cout << "~packet_listener: process_msg_count: " << process_msg_count << std::endl;
     std::cout << "~packet_listener: total_coded_msgs_sent: " << total_coded_msgs_sent << std::endl;
     std::cout << "~packet_listener: Total resets: " << total_resets << std::endl << std::endl;
+    std::cout << "~packet_listener: Total msgs deque too long: " << total_msgstoolong_cleared << std::endl << std::endl;
 
 }
 

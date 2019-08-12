@@ -34,6 +34,9 @@ namespace Vast {
             delete _iosthread;
             _iosthread = NULL;
         }
+
+        CPPDEBUG("~net_udpNC_handler: total_packets_recvd: " << packets_received << std::endl);
+        CPPDEBUG("~net_udpNC_handler: stacked_packets_received: " << stacked_packets_received << std::endl);
     }
 
     int net_udp_handler::open(boost::asio::io_service *io_service, abstract_net_udp *msghandler, bool startthread) {
@@ -100,6 +103,10 @@ namespace Vast {
 
         if (!error)
         {
+            //Check if there is another packet waiting
+            if (_udpsocket.available() > 0)
+                stacked_packets_received++;
+
             IPaddr remote_addr(_remote_endpoint_.address().to_v4().to_ulong(), _remote_endpoint_.port());
             id_t fromhost = net_manager::resolveHostID(&remote_addr);
             process_input(_buf, bytes_transferred, remote_addr, fromhost);
