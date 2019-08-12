@@ -1,9 +1,10 @@
-#!/usr/bin/env zsh
+#!/usr/bin/env bash
 for folder in $(ls)
 do
 echo $folder
 if [ -d $folder ];
 then
+:
 else
     echo "$folder is not a directory"
     continue
