@@ -5,7 +5,7 @@ PLATFORM_STRINGS = ['Mininet', 'Docker']
 
 def parseFilenameLabel(LABEL_string):
 	NET_MODEL_str = re.search(r'net_[a-zA-Z]+', LABEL_string).group(0)
-	NET_MODEL = NET_MODEL_STRINGS.index(NET_MODEL_str)+1
+	NET_MODEL = NET_MODEL_STRINGS.index(NET_MODEL_str)
 	# print("NET_MODEL:", NET_MODEL)
 
 	NODECOUNT_str = re.search(r'NODES\d+', LABEL_string).group(0)
