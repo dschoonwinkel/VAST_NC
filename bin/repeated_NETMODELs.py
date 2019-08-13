@@ -18,7 +18,7 @@ def runOnce():
 
 def replace_NETMODEL(NET_MODEL):
 
-	with open("VASTreal.ini", 'r') as config:
+	with open("VASTreal_original.ini", 'r') as config:
 		data = config.readlines()
 
 	for i in range(len(data)):
@@ -30,7 +30,7 @@ def replace_NETMODEL(NET_MODEL):
 			config.write(line)
 
 
-	with open("Mininet.ini", 'r') as config:
+	with open("Mininet_original.ini", 'r') as config:
 		data = config.readlines()
 
 	for i in range(len(data)):
