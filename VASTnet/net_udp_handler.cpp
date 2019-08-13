@@ -35,8 +35,8 @@ namespace Vast {
             _iosthread = NULL;
         }
 
-        CPPDEBUG("~net_udpNC_handler: total_packets_recvd: " << packets_received << std::endl);
-        CPPDEBUG("~net_udpNC_handler: stacked_packets_received: " << stacked_packets_received << std::endl);
+        CPPDEBUG("~net_udp_handler: total_packets_recvd: " << packets_received << std::endl);
+        CPPDEBUG("~net_udp_handler: stacked_packets_received: " << stacked_packets_received << std::endl);
     }
 
     int net_udp_handler::open(boost::asio::io_service *io_service, abstract_net_udp *msghandler, bool startthread) {
@@ -103,6 +103,7 @@ namespace Vast {
 
         if (!error)
         {
+            packets_received++;
             //Check if there is another packet waiting
             if (_udpsocket->available() > 0)
                 stacked_packets_received++;
