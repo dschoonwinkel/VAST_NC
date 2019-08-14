@@ -927,7 +927,7 @@ namespace Vast
             //       otherwise the query may be thrown in circles
 
             double dist = it->second->aoi.center.distance (pos);
-            Logger::debug("VASTRelay::closestRelay: distance to relay [" +std::to_string (it->second->id) + "]" + (it->second->id == _self.id ? "(me)" : "") + ": " + std::to_string (dist));
+//            Logger::debug("VASTRelay::closestRelay: distance to relay [" +std::to_string (it->second->id) + "]" + (it->second->id == _self.id ? "(me)" : "") + ": " + std::to_string (dist));
             if (dist < min_dist || 
                 ((dist - min_dist < EQUAL_DISTANCE) && (it->second->id < closest->id)))
             {
