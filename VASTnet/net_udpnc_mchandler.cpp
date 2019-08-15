@@ -286,13 +286,13 @@ namespace Vast
             _iosthread = NULL;
         }
 
-        CPPDEBUG("\n~net_udpNC_MChandler packets_recvd: " << packets_received << std::endl);
-        CPPDEBUG("~net_udpNC_MChandler stacked_packets_received: " << stacked_packets_received << std::endl);
+        std::cout << "\n~net_udpNC_MChandler packets_recvd: " << packets_received << std::endl;
+        std::cout << "~net_udpNC_MChandler stacked_packets_received: " << stacked_packets_received << std::endl;
         if (packets_received > 0)
         {
-            CPPDEBUG("~net_udpNC_MChandler stacked_packets_perc: " << (float)(stacked_packets_received) / packets_received * 100 << std::endl);
+            std::cout << "~net_udpNC_MChandler stacked_packets_perc: " << (float)(stacked_packets_received) / packets_received * 100 << std::endl;
         }
 
-        CPPDEBUG("~net_udpNC_MChandler toaddrs_pkts_ignored: " << toaddrs_pkts_ignored << std::endl);
+        std::cout << "~net_udpNC_MChandler toaddrs_pkts_ignored: " << toaddrs_pkts_ignored << std::endl;
     }
 }

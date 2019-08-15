@@ -18,6 +18,6 @@ namespace Vast
 
     AbstractRNLCMsgReceiverTestImpl::~AbstractRNLCMsgReceiverTestImpl()
     {
-        CPPDEBUG("~AbstractRNLCMsgReceiverTestImpl: all_recv_msgs.size() " << all_recv_msgs.size() << std::endl);
+        std::cout << "~AbstractRNLCMsgReceiverTestImpl: all_recv_msgs.size() " << all_recv_msgs.size() << std::endl;
     }
 }
