@@ -2,6 +2,7 @@
 #include <iostream>
 #include "rlnc_packet_factory.h"
 #include "VASTnet.h"
+#include "logger.h"
 
 packet_listener::packet_listener (ip::udp::endpoint local_endpoint):
     _MC_address(ip::address::from_string("239.255.0.1"), 1037)
@@ -112,7 +113,7 @@ void packet_listener::process_input (const char *buf,
     //Check if it is really a VAST message: Start and end bytes of header should be correct
     if (!RLNCHeader_factory::isRLNCHeader(header))
     {
-        CPPDEBUG("packet_listener::handle_input Non-RLNC message received on UDP socket" << std::endl);
+        Logger::debugPeriodic("packet_listener::handle_input Non-RLNC message received on UDP socket", 1000, 1e6);
         return;
     }
     else if (header.enc_packet_count > 1)
