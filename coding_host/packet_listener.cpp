@@ -227,7 +227,7 @@ void packet_listener::handle_send_to(const boost::system::error_code& errcode, s
 
         if (total_coded_msgs_sent % 100 == 0)
         {
-          Logger.debugPeriodic(std::to_string(total_coded_msgs_sent) + " packets sent async", 1000, 1e6);
+          Logger::debugPeriodic(std::to_string(total_coded_msgs_sent) + " packets sent async", 1000, 1e6);
         }
     }
     else if (errcode == boost::asio::error::operation_aborted)
