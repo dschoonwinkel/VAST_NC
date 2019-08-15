@@ -222,11 +222,11 @@ namespace Vast
         if (_udpsocket != NULL)
             close();
 
-        CPPDEBUG("~net_udpNC_handler: total_packets_recvd: " << packets_received << std::endl);
-        CPPDEBUG("~net_udpNC_handler: stacked_packets_recvd: " << stacked_packets_received << std::endl);
+        std::cout << "~net_udpNC_handler: total_packets_recvd: " << packets_received << std::endl;
+        std::cout << "~net_udpNC_handler: stacked_packets_recvd: " << stacked_packets_received << std::endl;
         if (packets_received > 0)
         {
-            CPPDEBUG("~net_udpNC_handler stacked_packets_perc: " << (float)(stacked_packets_received) / packets_received * 100 << std::endl);
+            std::cout << "~net_udpNC_handler stacked_packets_perc: " << (float)(stacked_packets_received) / packets_received * 100 << std::endl;
         }
     }
 

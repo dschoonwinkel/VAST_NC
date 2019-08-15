@@ -427,7 +427,7 @@ namespace Vast {
     net_udp_handler::~net_udp_handler()
     {
         // remove UDP listener, net_udp will delete itself
-        CPPDEBUG("~net_udp_handler" << std::endl);
+        std::cout << "~net_udp_handler" << std::endl;
         if (_udpsocket != NULL)
         {
             delete _udpsocket;
@@ -440,11 +440,11 @@ namespace Vast {
             _iosthread = NULL;
         }
 
-        CPPDEBUG("~net_udp_handler: total_packets_recvd: " << packets_received << std::endl);
-        CPPDEBUG("~net_udp_handler: stacked_packets_received: " << stacked_packets_received << std::endl);
+        std::cout << "~net_udp_handler: total_packets_recvd: " << packets_received << std::endl;
+        std::cout << "~net_udp_handler: stacked_packets_received: " << stacked_packets_received << std::endl;
         if (packets_received > 0)
         {
-            CPPDEBUG("~net_udp_handler stacked_packets_perc: " << (float)(stacked_packets_received) / packets_received * 100 << std::endl);
+            std::cout << "~net_udp_handler stacked_packets_perc: " << (float)(stacked_packets_received) / packets_received * 100 << std::endl;
         }
     }
 

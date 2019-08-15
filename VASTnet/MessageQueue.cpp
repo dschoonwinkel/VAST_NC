@@ -103,9 +103,10 @@ namespace Vast
                     CPPDEBUG("MessageQueue::sendMessage incrementing defaultHostCounter" << std::endl);
                 }
                 prevDefaultHostMsg = msg;
-                if (defaultHostCounter == 10)
+                if (defaultHostCounter >= 10)
                 {
                     CPPDEBUG("MessageQueue::sendMessage discarding packet to [" << target << "] after 10 retries" << std::endl);
+                    defaultHostCounter = 0;
                     return 0;
                 }
 
@@ -210,7 +211,6 @@ namespace Vast
     int 
     MessageQueue::processMessages ()
     {
-//        CPPDEBUG("MessageQueue::processMessages: " << std::endl);
         int num_msg = 0;
 
         Message     *recvmsg;               // pointer to message received
@@ -280,16 +280,16 @@ namespace Vast
                                  << fromhost << ":" << recvmsg->from << std::endl);
                     }
 
-                    CPPDEBUG("MessageQueue::processMessage: Changing _id2host" << std::endl);
-                    for (auto iter = _id2host.begin(); iter != _id2host.end(); ++iter)
-                    {
+//                    CPPDEBUG("MessageQueue::processMessage: Changing _id2host" << std::endl);
+//                    for (auto iter = _id2host.begin(); iter != _id2host.end(); ++iter)
+//                    {
 
-                            CPPDEBUG(iter->first << ": " << iter->second << std::endl);
-                        if (iter->first != iter->second)
-                        {
-                            CPPDEBUG("Equal: " << (iter->first == iter->second) << std::endl);
-                        }
-                    }
+//                            CPPDEBUG(iter->first << ": " << iter->second << std::endl);
+//                        if (iter->first != iter->second)
+//                        {
+//                            CPPDEBUG("Equal: " << (iter->first == iter->second) << std::endl);
+//                        }
+//                    }
                 }
 
                 

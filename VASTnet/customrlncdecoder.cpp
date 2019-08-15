@@ -324,18 +324,18 @@ std::shared_ptr<RLNCMessage> customrlncdecoder::produceDecodedRLNCMessage()
 
 customrlncdecoder::~customrlncdecoder ()
 {
-    CPPDEBUG("\n~customrlncdecoder:: packets added to packet pool: " << packets_added_packetpool << std::endl);
-    CPPDEBUG("~customrlncdecoder:: decodes_attempted: " << decodes_attempted << std::endl);
-    CPPDEBUG("~customrlncdecoder:: packet_recovered: " << packets_recovered << std::endl);
-    CPPDEBUG("~customrlncdecoder:: packets_already_decoded: " << packets_already_decoded << std::endl);
-    CPPDEBUG("~customrlncdecoder:: packets_missing_undecodable: " << packets_missing_undecodable << std::endl);
-    CPPDEBUG("~customrlncdecoder:: packets_checksum_incorrect: " << packets_checksum_incorrect << std::endl);
-    CPPDEBUG("~customrlncdecoder:: packet_linearly_dependent: " << packet_linearly_dependent << std::endl);
-    CPPDEBUG("~customrlncdecoder:: max_packetpool_size: " << max_packetpool_size << std::endl);
-    CPPDEBUG("~customrlncdecoder:: max_NC_packets_size: " << max_NC_packets_size << std::endl);
-    CPPDEBUG("~customrlncdecoder:: time spent in addLock: " << addLockTimer.count() / 1000 << " milliseconds " << std::endl);
-    CPPDEBUG("~customrlncdecoder:: time spent decoding: " << decoderTimer.count() / 1000 << " milliseconds " << std::endl);
+    std::cout << "\n~customrlncdecoder:: packets added to packet pool: " << packets_added_packetpool << std::endl;
+    std::cout << "~customrlncdecoder:: decodes_attempted: " << decodes_attempted << std::endl;
+    std::cout << "~customrlncdecoder:: packet_recovered: " << packets_recovered << std::endl;
+    std::cout << "~customrlncdecoder:: packets_already_decoded: " << packets_already_decoded << std::endl;
+    std::cout << "~customrlncdecoder:: packets_missing_undecodable: " << packets_missing_undecodable << std::endl;
+    std::cout << "~customrlncdecoder:: packets_checksum_incorrect: " << packets_checksum_incorrect << std::endl;
+    std::cout << "~customrlncdecoder:: packet_linearly_dependent: " << packet_linearly_dependent << std::endl;
+    std::cout << "~customrlncdecoder:: max_packetpool_size: " << max_packetpool_size << std::endl;
+    std::cout << "~customrlncdecoder:: max_NC_packets_size: " << max_NC_packets_size << std::endl;
+    std::cout << "~customrlncdecoder:: time spent in addLock: " << addLockTimer.count() / 1000 << " milliseconds " << std::endl;
+    std::cout << "~customrlncdecoder:: time spent decoding: " << decoderTimer.count() / 1000 << " milliseconds " << std::endl;
     if (packets_recovered > 0)
-        CPPDEBUG("~customrlncdecoder:: time spent decoding per recovered msg: " << decoderTimer.count() / packets_recovered << " microseconds " << std::endl);
+        std::cout << "~customrlncdecoder:: time spent decoding per recovered msg: " << decoderTimer.count() / packets_recovered << " microseconds " << std::endl;
 }
 

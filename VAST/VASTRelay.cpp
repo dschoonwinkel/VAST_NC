@@ -166,11 +166,11 @@ namespace Vast
     VASTRelay::isJoined ()
     {
         if (getPhysicalCoordinate () == NULL && _curr_relay == NULL)
-            Logger::debugPeriodic ("VASTRelay::isJoined getPhysicalCoordinate and _curr_relay both NULL", std::chrono::milliseconds(g_MS_PER_TIMESTEP*10), 10);
+            Logger::debugPeriodic ("VASTRelay::isJoined getPhysicalCoordinate and _curr_relay both NULL", std::chrono::milliseconds(g_MS_PER_TIMESTEP*10), 50);
         else if (_curr_relay == NULL)
-            Logger::debugPeriodic ("VASTRelay::isJoined _curr_relay was NULL", std::chrono::milliseconds(g_MS_PER_TIMESTEP*10), 10);
+            Logger::debugPeriodic ("VASTRelay::isJoined _curr_relay was NULL", std::chrono::milliseconds(g_MS_PER_TIMESTEP*10), 50);
         else if (getPhysicalCoordinate () == NULL)
-            Logger::debugPeriodic ("VASTRelay::isJoined getPhysicalCoordinate () was NULL", std::chrono::milliseconds(g_MS_PER_TIMESTEP*10), 10);
+            Logger::debugPeriodic ("VASTRelay::isJoined getPhysicalCoordinate () was NULL", std::chrono::milliseconds(g_MS_PER_TIMESTEP*10), 50);
 
 
         if (getPhysicalCoordinate () == NULL || _curr_relay == NULL)
