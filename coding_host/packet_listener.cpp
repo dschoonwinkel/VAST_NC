@@ -134,7 +134,7 @@ void packet_listener::process_input (const char *buf,
         //Do not code empty RLNCMessage packets, used as synchronise packets, only unicast
         if (message.getMessageSize() == 0)
         {
-            CPPDEBUG("packet_listener::process_input Empty RLNC Keep alive packet found " << std::endl);
+//            CPPDEBUG("packet_listener::process_input Empty RLNC Keep alive packet found " << std::endl);
             return;
         }
 
@@ -147,7 +147,7 @@ void packet_listener::process_input (const char *buf,
         if (temp_msg)
         {
             msgs.push_back(RLNCMessage(*temp_msg));
-            CPPDEBUG("packet_listener::handle_input: Adding RLNCmessage to queue" << std::endl);
+//            CPPDEBUG("packet_listener::handle_input: Adding RLNCmessage to queue" << std::endl);
         }
 
         msgs_mutex.unlock();
@@ -164,14 +164,14 @@ void packet_listener::start_send()
         _sender = this;
     }
 
-    std::cout << "packet_listener::start_sending Starting" << std::endl;
+    CPPDEBUG("packet_listener::start_sending Starting" << std::endl);
 
     while(running)
     {
         if (msgs.size() < 1)
             continue;
 
-        std::cout << "packet_listener::start_send Msgs size: " << msgs.size () << std::endl;
+//        CPPDEBUG("packet_listener::start_send Msgs size: " << msgs.size () << std::endl);
         msgs_mutex.lock();
 
 
@@ -227,13 +227,12 @@ void packet_listener::handle_send_to(const boost::system::error_code& errcode, s
 
         if (total_coded_msgs_sent % 100 == 0)
         {
-          CPPDEBUG(total_coded_msgs_sent << " packets sent async " << std::endl);
+          Logger.debugPeriodic(std::to_string(total_coded_msgs_sent) + " packets sent async", 1000, 1e6);
         }
     }
     else if (errcode == boost::asio::error::operation_aborted)
     {
         total_resets++;
-        std::cout << "Total resets: " << total_resets << std::endl;
     }
 }
 
