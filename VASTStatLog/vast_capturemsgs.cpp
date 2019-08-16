@@ -173,8 +173,8 @@ namespace Vast
         }
 
 
-        CPPDEBUG("~vast_capturemsgs:: time spent in msgcapTimer: " << msgcapTimer.count() / 1000 << " milliseconds " << std::endl);
-        CPPDEBUG("~vast_capturemsgs:: msgcapCount " << msgcapCount << std::endl);
+        std::cout << "~vast_capturemsgs:: time spent in msgcapTimer: " << msgcapTimer.count() / 1000 << " milliseconds " << std::endl;
+        std::cout << "~vast_capturemsgs:: msgcapCount " << msgcapCount << std::endl;
 
     }
 }

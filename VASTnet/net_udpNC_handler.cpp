@@ -123,10 +123,14 @@ namespace Vast
     int net_udpNC_handler::handle_input (const boost::system::error_code& error,
           std::size_t bytes_transferred)
     {
-        total_packets_recvd++;
+        packets_received++;
 
         if (!error)
         {
+            //Check if there is another packet waiting
+            if (_udpsocket->available() > 0)
+                stacked_packets_received++;
+
             //Store UDP messages
     //        CPPDEBUG("net_udpNC_handler::handle_input Received a message!" << std::endl);
             process_input(_buf, _remote_endpoint_, bytes_transferred);
@@ -154,7 +158,7 @@ namespace Vast
         else if (RLNCHeader_factory::isRLNCHeader (header) && header.enc_packet_count > 1)
         {
 //            throw std::logic_error("net_udpNC_handler::handle_input: Encoded packet received in unicast handler\n");
-            CPPDEBUG("net_udpNC_handler::handle_input: Encoded packet received in unicast handler\n");
+//            CPPDEBUG("net_udpNC_handler::handle_input: Encoded packet received in unicast handler\n");
             process_encoded(buf, bytes_transferred);
 
         }
@@ -218,7 +222,12 @@ namespace Vast
         if (_udpsocket != NULL)
             close();
 
-        CPPDEBUG("~net_udpNC_handler: total_packets_recvd: " << total_packets_recvd << std::endl);
+        std::cout << "~net_udpNC_handler: total_packets_recvd: " << packets_received << std::endl;
+        std::cout << "~net_udpNC_handler: stacked_packets_recvd: " << stacked_packets_received << std::endl;
+        if (packets_received > 0)
+        {
+            std::cout << "~net_udpNC_handler stacked_packets_perc: " << (float)(stacked_packets_received) / packets_received * 100 << std::endl;
+        }
     }
 
 }

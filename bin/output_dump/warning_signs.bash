@@ -17,3 +17,6 @@ grep -r "meant for" *.txt | wc
 grep -r "discarding packet to " *.txt
 # grep -r "Empty RLNC" *.txt | sort | uniq -c
 grep -r "removeExpiredMatchers" *.txt
+
+grep -r -B 1 "stacked_packets_received" *.txt
+grep -r "stacked_packets_perc" *.txt

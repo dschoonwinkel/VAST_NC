@@ -6,6 +6,7 @@ from os.path import expanduser
 import os
 from plot_result_utils import parseFilenameLabel, NET_MODEL_STRINGS
 import re
+import glob
 
 hasMatplotlib = True
 try:
@@ -263,6 +264,37 @@ if (os.path.isfile(resources_filename)):
 
 
 
+events_fileexist = False
+# events_filename = re.sub(r"\.txt", "_events.txt", input_file)
+# if (os.path.isfile(events_filename)):
+#     events_fileexist = True
+#     print("Events file found")
+#     events_text = list()
+#     with open(events_filename, 'r') as csvfile:
+#         spamreader = csv.reader(csvfile, delimiter=",")
+#         for row in spamreader:
+#             events_text.append(row)
+#             # print(",".join(row))
+
+#     header = events_text[0]
+#     events_text = events_text[1:]
+
+#     events = list()
+
+#     for row in events_text:
+#         # print(row)
+#         events.append([float(row[0]), row[1], row[2]])
+#         # print(results[-1])
+#         # print(int(row[0])%10000)
+
+#     events_np = np.array(events)
+#     unique_messages = np.unique(events_np[:,2])
+#     for i in range(len(unique_messages)):
+#         print(i, ": ", unique_messages[i])
+
+
+
+
 
 
 
@@ -361,6 +393,19 @@ if (hasMatplotlib and plot_yes):
         plot.xticks(np.arange(min(timestamps), max(timestamps)+1, x_axis_interval))
         plot.grid(True)
         plot.xlim(0, MAX_TIMESTAMP)
+
+    if events_fileexist:
+        ax1 = plot.subplot(6,1,3)
+        for event in events:
+            # print(event)
+            # print(np.where(unique_messages==event[2])[0][0])
+            plot.plot([event[0], event[0]], [0, np.max(normalised_drift_distance[where_is_finite])]) 
+            plot.text(event[0], np.max(normalised_drift_distance[where_is_finite]), 
+                str(np.where(unique_messages==event[2])[0][0]), rotation=90)
+            # plot.xlim(0, MAX_TIMESTAMP)
+            # plot.ylim(0, 100)
+
+        
     
     plot.savefig("VASTreal_results_%s.pdf" % input_file, dpi=300)
     # plot.savefig("VASTreal_results_%s.png" % label, dpi=300)

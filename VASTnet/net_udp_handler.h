@@ -77,6 +77,9 @@ namespace Vast {
         char                        _buf[VAST_BUFSIZ];
         abstract_net_udp            *_msghandler;
 
+        size_t packets_received = 0;
+        size_t stacked_packets_received = 0;
+
     private:
 
 

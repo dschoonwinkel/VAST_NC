@@ -448,6 +448,7 @@ namespace Vast
                         info.state = ORIGIN;
                         info.world_id = world_id;
                         LogManager::instance ()->writeLogFile ("MATCHER_ALIVE: matcher [%lu] promoted as origin for world [%u]\n", matcher_id, world_id);
+                        Logger::debug("MATCHER_ALIVE: matcher ["+ std::to_string(matcher_id) + "] promoted as origin for world " + std::to_string(world_id), true);
                     }
                     // case 2: an unresponding origin matcher responds again
                     //         (equivalent to a regular matcher thinking that it's the origin
@@ -513,6 +514,7 @@ namespace Vast
                     {
                         info.state = ACTIVE;
                         LogManager::instance ()->writeLogFile ("MATCHER_ALIVE: matcher '%lu' now promoted as regular matcher for world [%u]\n", matcher_id, world_id);
+                        Logger::debug("MATCHER_ALIVE: matcher ["+ std::to_string(matcher_id) + "] now promoted as regular matcher for world " + std::to_string(world_id), true);
                     }
                 }
             }

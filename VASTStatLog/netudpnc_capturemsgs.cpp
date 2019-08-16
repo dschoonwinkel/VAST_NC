@@ -142,8 +142,8 @@ namespace Vast {
     {
         if (aro)
         {
-            CPPDEBUG("~netudpnc_capturemsgs:: time spent in msgcapTimer: " << msgcapTimer.count() / 1000 << " milliseconds " << std::endl);
-            CPPDEBUG("~netudpnc_capturemsgs:: msgcapCount " << msgcapCount << std::endl);
+            std::cout << "~netudpnc_capturemsgs:: time spent in msgcapTimer: " << msgcapTimer.count() / 1000 << " milliseconds " << std::endl;
+            std::cout << "~netudpnc_capturemsgs:: msgcapCount " << msgcapCount << std::endl;
         }
 
         //Do memory free here....

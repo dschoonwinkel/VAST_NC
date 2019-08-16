@@ -2,6 +2,7 @@
 #include <iostream>
 #include "rlnc_packet_factory.h"
 #include "VASTnet.h"
+#include "logger.h"
 
 packet_listener::packet_listener (ip::udp::endpoint local_endpoint):
     _MC_address(ip::address::from_string("239.255.0.1"), 1037)
@@ -112,7 +113,7 @@ void packet_listener::process_input (const char *buf,
     //Check if it is really a VAST message: Start and end bytes of header should be correct
     if (!RLNCHeader_factory::isRLNCHeader(header))
     {
-        CPPDEBUG("packet_listener::handle_input Non-RLNC message received on UDP socket" << std::endl);
+        Logger::debugPeriodic("packet_listener::handle_input Non-RLNC message received on UDP socket", 1000, 1e6);
         return;
     }
     else if (header.enc_packet_count > 1)
@@ -133,7 +134,7 @@ void packet_listener::process_input (const char *buf,
         //Do not code empty RLNCMessage packets, used as synchronise packets, only unicast
         if (message.getMessageSize() == 0)
         {
-            CPPDEBUG("packet_listener::process_input Empty RLNC Keep alive packet found " << std::endl);
+//            CPPDEBUG("packet_listener::process_input Empty RLNC Keep alive packet found " << std::endl);
             return;
         }
 
@@ -146,7 +147,7 @@ void packet_listener::process_input (const char *buf,
         if (temp_msg)
         {
             msgs.push_back(RLNCMessage(*temp_msg));
-            CPPDEBUG("packet_listener::handle_input: Adding RLNCmessage to queue" << std::endl);
+//            CPPDEBUG("packet_listener::handle_input: Adding RLNCmessage to queue" << std::endl);
         }
 
         msgs_mutex.unlock();
@@ -163,14 +164,14 @@ void packet_listener::start_send()
         _sender = this;
     }
 
-    std::cout << "packet_listener::start_sending Starting" << std::endl;
+    CPPDEBUG("packet_listener::start_sending Starting" << std::endl);
 
     while(running)
     {
         if (msgs.size() < 1)
             continue;
 
-        std::cout << "packet_listener::start_send Msgs size: " << msgs.size () << std::endl;
+//        CPPDEBUG("packet_listener::start_send Msgs size: " << msgs.size () << std::endl);
         msgs_mutex.lock();
 
 
@@ -180,6 +181,7 @@ void packet_listener::start_send()
             msgs.clear ();
             _send_udp->cancel ();
             msgs_mutex.unlock();
+            total_msgstoolong_cleared++;
             continue;
         }
 
@@ -225,13 +227,12 @@ void packet_listener::handle_send_to(const boost::system::error_code& errcode, s
 
         if (total_coded_msgs_sent % 100 == 0)
         {
-          CPPDEBUG(total_coded_msgs_sent << " packets sent async " << std::endl);
+          Logger::debugPeriodic(std::to_string(total_coded_msgs_sent) + " packets sent async", 1000, 1e6);
         }
     }
     else if (errcode == boost::asio::error::operation_aborted)
     {
         total_resets++;
-        std::cout << "Total resets: " << total_resets << std::endl;
     }
 }
 
@@ -331,6 +332,7 @@ packet_listener::~packet_listener ()
     std::cout << "~packet_listener: process_msg_count: " << process_msg_count << std::endl;
     std::cout << "~packet_listener: total_coded_msgs_sent: " << total_coded_msgs_sent << std::endl;
     std::cout << "~packet_listener: Total resets: " << total_resets << std::endl << std::endl;
+    std::cout << "~packet_listener: Total msgs deque too long: " << total_msgstoolong_cleared << std::endl << std::endl;
 
 }
 
