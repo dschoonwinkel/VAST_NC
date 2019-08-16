@@ -264,34 +264,33 @@ if (os.path.isfile(resources_filename)):
 
 
 
-
-events_filename = re.sub(r"\.txt", "_events.txt", input_file)
 events_fileexist = False
-if (os.path.isfile(events_filename)):
-    events_fileexist = True
-    print("Events file found")
-    events_text = list()
-    with open(events_filename, 'r') as csvfile:
-        spamreader = csv.reader(csvfile, delimiter=",")
-        for row in spamreader:
-            events_text.append(row)
-            # print(",".join(row))
+# events_filename = re.sub(r"\.txt", "_events.txt", input_file)
+# if (os.path.isfile(events_filename)):
+#     events_fileexist = True
+#     print("Events file found")
+#     events_text = list()
+#     with open(events_filename, 'r') as csvfile:
+#         spamreader = csv.reader(csvfile, delimiter=",")
+#         for row in spamreader:
+#             events_text.append(row)
+#             # print(",".join(row))
 
-    header = events_text[0]
-    events_text = events_text[1:]
+#     header = events_text[0]
+#     events_text = events_text[1:]
 
-    events = list()
+#     events = list()
 
-    for row in events_text:
-        # print(row)
-        events.append([float(row[0])-first_timestamp, row[1], row[2]])
-        # print(results[-1])
-        # print(int(row[0])%10000)
+#     for row in events_text:
+#         # print(row)
+#         events.append([float(row[0]), row[1], row[2]])
+#         # print(results[-1])
+#         # print(int(row[0])%10000)
 
-    events_np = np.array(events)
-    unique_messages = np.unique(events_np[:,2])
-    for i in range(len(unique_messages)):
-        print(i, ": ", unique_messages[i])
+#     events_np = np.array(events)
+#     unique_messages = np.unique(events_np[:,2])
+#     for i in range(len(unique_messages)):
+#         print(i, ": ", unique_messages[i])
 
 
 

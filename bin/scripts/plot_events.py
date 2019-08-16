@@ -6,6 +6,7 @@ import os
 import re
 import csv
 from tabulate import tabulate
+import numpy as np
 
 
 print("Usage: ./plot_events.py <results_file.txt>")
@@ -75,8 +76,10 @@ if output_dump_file_exist:
                     # print(node_label, ": ", line)
                     timestamp = int(re.search(r'\d{16}', line)[0]) / 1000
                     message = re.search(r'\d{16}=.+?\s.*', line)[0][34:]
-                    print(timestamp, node_label, message)
-                    events.append([timestamp, node_label, message])
+                    # print(timestamp, node_label, message)
+                    events.append([timestamp-first_timestamp, node_label, message])
+
+    events.sort(key=lambda x: x[0])
 
     output_filename = re.sub('results1.txt', 'results1_events.txt', input_file)
     print(output_filename)
