@@ -189,10 +189,10 @@ namespace Vast
     {
         delete _consumerthread;
 
-        CPPDEBUG("\n~net_udpNC_consumer: total_packets_processed: " << total_packets_processed << std::endl);
-        CPPDEBUG("~net_udpNC_consumer: total_not_meantforme_unicast: " << total_not_meantforme_unicast <<  std::endl);
-        CPPDEBUG("~net_udpNC_consumer: total_not_meantforme_multicast: " << total_not_meantforme_multicast <<  std::endl);
-        CPPDEBUG("~net_udpNC_consumer: total_toolate_packets: " << total_toolate_packets <<  std::endl);
-        CPPDEBUG("~net_udpNC_consumer: total used packets: " << total_usedpackets <<  std::endl);
+        std::cout << "\n~net_udpNC_consumer: total_packets_processed: " << total_packets_processed << std::endl;
+        std::cout << "~net_udpNC_consumer: total_not_meantforme_unicast: " << total_not_meantforme_unicast <<  std::endl;
+        std::cout << "~net_udpNC_consumer: total_not_meantforme_multicast: " << total_not_meantforme_multicast <<  std::endl;
+        std::cout << "~net_udpNC_consumer: total_toolate_packets: " << total_toolate_packets <<  std::endl;
+        std::cout << "~net_udpNC_consumer: total used packets: " << total_usedpackets <<  std::endl;
     }
 }

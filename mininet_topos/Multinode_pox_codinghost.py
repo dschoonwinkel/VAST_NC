@@ -114,7 +114,7 @@ def myNetwork():
             hosts[i-1].cmd("route add 239.255.0.1 h%d-eth0" % i)
             if AUTO:
                 # hosts[i-1].cmd("xterm -hold -fg black -bg green -geometry 80x60+%d+0 -e   \"./VASTreal_console %d 0 1037 10.0.0.1 \" &" % (200+i*40, i-1))    
-                hosts[i-1].cmd("ASAN_OPTIONS=alloc_dealloc_mismatch=0 ./VASTreal_console %d 0 1037 10.0.0.1 &> output_dump/node_10.0.0.%d.txt &" % (i-1, i))
+                hosts[i-1].cmd("ASAN_OPTIONS=alloc_dealloc_mismatch=0 ./VASTreal_console %d 0 1037 10.0.0.1 > output_dump/node_10.0.0.%d.txt 2> output_dump/node_10.0.0.%d_err.txt &" % (i-1, i, i))
 
                 #PROFILING_DELAY before starting profiling = TIMESTEP_DURATION * (10 STEPS * NODE_COUNT + 100 STEPS) * 1000 ms
                 PROFILING_DELAY = TIMESTEP_DURATION * (10 * Node_count + 100) * 1000
@@ -175,6 +175,7 @@ def myNetwork():
                 break;
         
     os.system("killall -s SIGINT VASTreal_console")
+    os.system("killall -s SIGINT coding_host")
 
     time.sleep(1)
     # CLI(net)

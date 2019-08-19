@@ -25,17 +25,17 @@ namespace Vast
         id_t HostID = net_manager::resolveHostID(&host_addr);
         pNetStatlog = std::make_unique<VASTNetStatLogEntry>(HostID);
 
-        if (_udp == NULL) {
-            _udp = new ip::udp::socket(*_io_service);
-            _udp->open(ip::udp::v4());
-            _udp->set_option(ip::udp::socket::reuse_address(true));
-            _udp->set_option(ip::multicast::join_group(MC_address.address ()));
+        if (_udpsocket == NULL) {
+            _udpsocket = new ip::udp::socket(*_io_service);
+            _udpsocket->open(ip::udp::v4());
+            _udpsocket->set_option(ip::udp::socket::reuse_address(true));
+            _udpsocket->set_option(ip::multicast::join_group(MC_address.address ()));
 
             boost::system::error_code ec;
             uint16_t port = _local_endpoint.port();
 
             MC_address.port(port);
-            _udp->bind(MC_address, ec);
+            _udpsocket->bind(MC_address, ec);
 
             std::cout << "net_udpnc_mchandler::open " + ec.message() << std::endl;
 
@@ -47,7 +47,7 @@ namespace Vast
             //Add async receive to io_service queue
             start_receive();
 
-            std::cout << "net_udpnc_mchandler::open _udp->_local_endpoint: " << _udp->local_endpoint() << " _local_endpoint" << _local_endpoint << std::endl;
+            std::cout << "net_udpnc_mchandler::open _udp->_local_endpoint: " << _udpsocket->local_endpoint() << " _local_endpoint" << _local_endpoint << std::endl;
 
             if (startthread)
             {
@@ -61,7 +61,7 @@ namespace Vast
 
     void net_udpNC_MChandler::start_receive()
     {
-        _udp->async_receive_from(
+        _udpsocket->async_receive_from(
             boost::asio::buffer(_buf, VAST_BUFSIZ), _remote_endpoint_,
             boost::bind(&net_udpNC_MChandler::handle_input, this,
               boost::asio::placeholders::error,
@@ -74,6 +74,10 @@ namespace Vast
     {
         if (!error)
         {
+            //Check if there is another packet waiting
+            if (_udpsocket->available() > 0)
+                stacked_packets_received++;
+
             //Store UDP messages
             packets_received++;
 
@@ -245,9 +249,9 @@ namespace Vast
 
     int net_udpNC_MChandler::handle_close()
     {
-        if (_udp != NULL && _udp->is_open())
+        if (_udpsocket != NULL && _udpsocket->is_open())
         {
-            _udp->close();
+            _udpsocket->close();
         }
 
         if (_io_service != NULL)
@@ -265,10 +269,10 @@ namespace Vast
 
     net_udpNC_MChandler::~net_udpNC_MChandler()
     {
-        if (_udp != NULL)
+        if (_udpsocket != NULL)
         {
-            delete _udp;
-            _udp = NULL;
+            delete _udpsocket;
+            _udpsocket = NULL;
         }
         if (_io_service != NULL)
         {
@@ -282,7 +286,13 @@ namespace Vast
             _iosthread = NULL;
         }
 
-        CPPDEBUG("\n~net_udpNC_MChandler packets_recvd: " << packets_received << std::endl);
-        CPPDEBUG("~net_udpNC_MChandler toaddrs_pkts_ignored: " << toaddrs_pkts_ignored << std::endl);
+        std::cout << "\n~net_udpNC_MChandler packets_recvd: " << packets_received << std::endl;
+        std::cout << "~net_udpNC_MChandler stacked_packets_received: " << stacked_packets_received << std::endl;
+        if (packets_received > 0)
+        {
+            std::cout << "~net_udpNC_MChandler stacked_packets_perc: " << (float)(stacked_packets_received) / packets_received * 100 << std::endl;
+        }
+
+        std::cout << "~net_udpNC_MChandler toaddrs_pkts_ignored: " << toaddrs_pkts_ignored << std::endl;
     }
 }

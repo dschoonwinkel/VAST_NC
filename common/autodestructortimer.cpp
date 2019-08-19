@@ -3,7 +3,7 @@
 AutoDestructorTimer::AutoDestructorTimer(std::string name, std::chrono::microseconds *totalTime)
     : name(name)
 {
-//    CPPDEBUG("Starting AutoDestructorTimer:" << name << std::endl);
+//    std::cout << "Starting AutoDestructorTimer:" << name << std::endl;
     t1 = std::chrono::high_resolution_clock::now();
     this->totalTime = totalTime;
 }
@@ -18,5 +18,5 @@ AutoDestructorTimer::~AutoDestructorTimer()
         (*totalTime) += internalTimer;
     }
 
-//    CPPDEBUG("~AutoDestructorTimer:" << name << " time spent: " << internalTimer.count() << " microseconds " << std::endl);
+//    std::cout << "~AutoDestructorTimer:" << name << " time spent: " << internalTimer.count() << " microseconds " << std::endl;
 }

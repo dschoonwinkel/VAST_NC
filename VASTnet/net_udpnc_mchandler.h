@@ -56,7 +56,7 @@ namespace Vast
         int handle_close ();
 
     private:
-        ip::udp::socket             *_udp = NULL;
+        ip::udp::socket             *_udpsocket = NULL;
         ip::udp::endpoint           _remote_endpoint_;
         ip::udp::endpoint           _local_endpoint;
         ip::udp::endpoint           MC_address;
@@ -71,6 +71,7 @@ namespace Vast
         customrlncdecoder                 decoder;
 
         size_t packets_received = 0;
+        size_t stacked_packets_received = 0;
         size_t toaddrs_pkts_ignored = 0;
 
         //Multicast recv stats recording
@@ -79,6 +80,7 @@ namespace Vast
         StatType raw_MCRecvBytes;
         StatType used_MCRecvBytes;
         std::unique_ptr<VASTNetStatLogEntry> pNetStatlog = nullptr;
+
     };
 
 }

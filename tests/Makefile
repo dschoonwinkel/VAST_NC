@@ -1,7 +1,10 @@
+CC=g++
+
 vaststatlog_test = ./vaststatlog_test
 rlnc_packet_test = ./rlnc_packet_test
 rlnc_encoded_packet_test = ./rlnc_encoded_packet_test
 test_net_udpnc_mchandler = ./test_net_udpnc_mchandler
+udp_buffertest = ./udp_buffertest
 
 ACE_ROOT = /usr
 
@@ -50,6 +53,10 @@ test_net_udpnc_mchandler: test_net_udpnc_mchandler.cpp
 test_customrlncdecoder_repeated: test_customrlncdecoder_repeated.cpp ../coding_host/rlncrecoder.cpp
 	$(CC) $(CFLAGS) $(INC_PATHS) $(LIBS_INCKODO) $(LIB_PATHS) $^ $(LIBS) $(LIBS_KODO) \
 	-o $(test_customrlncdecoder_repeated)
+
+udp_buffertest: udp_buffertest.cpp
+	$(CC) $(CFLAGS) $^ $(LIBS_BOOST) \
+	-o $(udp_buffertest)
 
 
 clean:

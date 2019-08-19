@@ -19,23 +19,6 @@ namespace Vast {
         _remote_ids.push_back(0);
     }
 
-    net_udp_handler::~net_udp_handler()
-    {
-        // remove UDP listener, net_udp will delete itself
-        CPPDEBUG("~net_udp_handler" << std::endl);
-        if (_udpsocket != NULL)
-        {
-            delete _udpsocket;
-            _udpsocket = NULL;
-        }
-
-        if (_iosthread != NULL)
-        {
-            delete _iosthread;
-            _iosthread = NULL;
-        }
-    }
-
     int net_udp_handler::open(boost::asio::io_service *io_service, abstract_net_udp *msghandler, bool startthread) {
         CPPDEBUG("net_udp_handler::open " << std::endl);
         is_open = true;
@@ -100,6 +83,11 @@ namespace Vast {
 
         if (!error)
         {
+            packets_received++;
+            //Check if there is another packet waiting
+            if (_udpsocket->available() > 0)
+                stacked_packets_received++;
+
             IPaddr remote_addr(_remote_endpoint_.address().to_v4().to_ulong(), _remote_endpoint_.port());
             id_t fromhost = net_manager::resolveHostID(&remote_addr);
             process_input(_buf, bytes_transferred, remote_addr, fromhost);
@@ -217,57 +205,6 @@ namespace Vast {
             //Next message
             p += header.msg_size;
             n -= header.msg_size;
-        }
-    }
-
-    int net_udp_handler::close() {
-        CPPDEBUG("net_udp_handler::close()" << std::endl);
-        return this->handle_close();
-    }
-
-    int net_udp_handler::handle_close()
-    {
-        //Unregister from message handler, do this first to avoid sending messages
-        //on a closed socket
-        CPPDEBUG("net_udp_handler::handle_close() - _remote_ids.size(): " << _remote_ids.size() << std::endl;);
-//        for (id_t remote_id : _remote_ids)
-//        {
-//            CPPDEBUG("net_udp_handler::handle_close() - remote id" << remote_id << std::endl;);
-//            if (_msghandler == NULL)
-//                CPPDEBUG("net_udp_handler::handle_close() _msghandler was null");
-//            _msghandler->socket_disconnected(remote_id);
-//        }
-
-
-        if (_io_service != NULL) {
-            if (_udpsocket != NULL && _udpsocket->is_open())
-            {
-                _udpsocket->close();
-                _io_service->stop();
-            }
-
-            if (_iosthread != NULL)
-            {
-                _iosthread->join();
-            }
-        }
-	
-		is_open = false;
-
-        return 0;
-    }
-
-    void net_udp_handler::handle_disconnect (IPaddr ip_addr)
-    {
-
-        char ip_addr_str[22] = "";
-        ip_addr.getString(ip_addr_str);
-        CPPDEBUG("net_udp_handler::handle_disconnect: Incoming addr to disconnect" << std::string(ip_addr_str) << std::endl);
-        id_t remote_disconnected_id = getRemoteIDByIP(ip_addr);
-        if (remote_disconnected_id != NET_ID_UNASSIGNED)
-        {
-            CPPDEBUG("net_udp_handler::handle_disconnect. Disconnecting ID " << remote_disconnected_id << std::endl);
-            _msghandler->socket_disconnected(remote_disconnected_id);
         }
     }
 
@@ -434,6 +371,81 @@ namespace Vast {
     bool net_udp_handler::isOpen()
     {
         return is_open;
+    }
+
+    void net_udp_handler::handle_disconnect (IPaddr ip_addr)
+    {
+
+        char ip_addr_str[22] = "";
+        ip_addr.getString(ip_addr_str);
+        CPPDEBUG("net_udp_handler::handle_disconnect: Incoming addr to disconnect" << std::string(ip_addr_str) << std::endl);
+        id_t remote_disconnected_id = getRemoteIDByIP(ip_addr);
+        if (remote_disconnected_id != NET_ID_UNASSIGNED)
+        {
+            CPPDEBUG("net_udp_handler::handle_disconnect. Disconnecting ID " << remote_disconnected_id << std::endl);
+            _msghandler->socket_disconnected(remote_disconnected_id);
+        }
+    }
+
+    int net_udp_handler::close() {
+        CPPDEBUG("net_udp_handler::close()" << std::endl);
+        return this->handle_close();
+    }
+
+    int net_udp_handler::handle_close()
+    {
+        //Unregister from message handler, do this first to avoid sending messages
+        //on a closed socket
+        CPPDEBUG("net_udp_handler::handle_close() - _remote_ids.size(): " << _remote_ids.size() << std::endl;);
+//        for (id_t remote_id : _remote_ids)
+//        {
+//            CPPDEBUG("net_udp_handler::handle_close() - remote id" << remote_id << std::endl;);
+//            if (_msghandler == NULL)
+//                CPPDEBUG("net_udp_handler::handle_close() _msghandler was null");
+//            _msghandler->socket_disconnected(remote_id);
+//        }
+
+
+        if (_io_service != NULL) {
+            if (_udpsocket != NULL && _udpsocket->is_open())
+            {
+                _udpsocket->close();
+                _io_service->stop();
+            }
+
+            if (_iosthread != NULL)
+            {
+                _iosthread->join();
+            }
+        }
+
+		is_open = false;
+
+        return 0;
+    }
+
+    net_udp_handler::~net_udp_handler()
+    {
+        // remove UDP listener, net_udp will delete itself
+        std::cout << "~net_udp_handler" << std::endl;
+        if (_udpsocket != NULL)
+        {
+            delete _udpsocket;
+            _udpsocket = NULL;
+        }
+
+        if (_iosthread != NULL)
+        {
+            delete _iosthread;
+            _iosthread = NULL;
+        }
+
+        std::cout << "~net_udp_handler: total_packets_recvd: " << packets_received << std::endl;
+        std::cout << "~net_udp_handler: stacked_packets_received: " << stacked_packets_received << std::endl;
+        if (packets_received > 0)
+        {
+            std::cout << "~net_udp_handler stacked_packets_perc: " << (float)(stacked_packets_received) / packets_received * 100 << std::endl;
+        }
     }
 
 }

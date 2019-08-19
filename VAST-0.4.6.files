@@ -156,6 +156,7 @@ tests/Makefile
 tests/rlnc_encoded_packet_test.cpp
 tests/rlnc_packet_test.cpp
 tests/test_net_udpnc_mchandler.cpp
+tests/udp_buffertest.cpp
 tests/vaststatlog_test.cpp
 VAST/Makefile
 VAST/VASTClient.cpp

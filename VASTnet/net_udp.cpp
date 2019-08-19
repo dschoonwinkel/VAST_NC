@@ -83,7 +83,7 @@ namespace Vast
         delete _io_service;
         _io_service = NULL;
 
-        CPPDEBUG("~net_udp() " << std::endl);
+        std::cout << "~net_udp() " << std::endl;
         if (_udphandler)
         {
             delete _udphandler;

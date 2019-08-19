@@ -63,8 +63,6 @@ namespace Vast
         net_udpNC_MChandler mchandler;
         net_udpNC_consumer consumer;
 
-        size_t total_packets_recvd = 0;
-
         std::map<id_t, uint8_t> send_ordering;
 
         timestamp_t         _timeout_keepalive;      // timeout for re-attempt to join
