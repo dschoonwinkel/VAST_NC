@@ -185,7 +185,7 @@ print("Mean used_mcrecvbytes:", mean_usedmcrecv_stat)
 if LABEL_list:
     NODE_COUNT = LABEL_list[1]
     LABEL_list.insert(0, first_timestamp)
-    LABEL_list.extend([np.max(active_nodes), mean_consistency, 
+    LABEL_list.extend([np.max(active_nodes), np.max(active_matchers), mean_consistency, 
                   mean_drift_distance, mean_sendstat, mean_recvstat, 
                   mean_rawmcrecv_stat, mean_usedmcrecv_stat])
     LABEL_list.append(DATESTAMP_str)

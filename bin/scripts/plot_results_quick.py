@@ -17,6 +17,8 @@ MAX_DRIFT = 6
 DRIFT_NODES = 7
 WORLDSENDSTAT = 8
 WORLDRECVSTAT = 9
+RAW_MCRECVBYTES = 10
+USED_MCRECVBYTES = 11
 
 home_dir = expanduser("~")
 
@@ -42,7 +44,7 @@ with open("%s/Development/VAST-0.4.6/bin/Mininet.ini" % home_dir, 'r') as config
     # print ("LOSS_PERC", LOSS_PERC)
 
 # x_axis_interval = 20000
-x_axis_interval = TIMESTEP_DURATION * 2000
+x_axis_interval = TIMESTEP_DURATION * 1000
 # MAX_TIMESTAMP = 130000
 # Keep all except the last bit, where gateway has probably disconnected and other nodes do not know what's going on
 MAX_TIMESTAMP = (SIMULATION_STEPS * TIMESTEP_DURATION)
@@ -100,7 +102,8 @@ results_text = results_text[1:]
 results = list()
 
 for row in results_text:
-    results.append([(int(row[0])-int(results_text[0][0])), int(row[1]), int(row[2]), int(row[3]), int(row[4]), int(row[5]), int(row[6]), int(row[7]), int(row[8]), int(row[9])])
+    results.append([(int(row[0])-int(results_text[0][0])), int(row[1]), int(row[2]), int(row[3]),
+     int(row[4]), int(row[5]), int(row[6]), int(row[7]), int(row[8]), int(row[9]), int(row[10]), int(row[11])])
 
 numpy_results = np.array(results)
 
@@ -115,7 +118,9 @@ if last_relative_timestamp < 0.9 * MAX_TIMESTAMP:
     MAX_TIMESTAMP = last_relative_timestamp
 
 active_nodes = numpy_results[:,ACTIVE_NODES]
+max_nodes = np.max(active_nodes)
 active_matchers = numpy_results[:,ACTIVE_MATCHERS]
+max_matchers = np.max(active_matchers)
 
 topo_consistency = (100* 1.0*numpy_results[:,AN_VISIBLE] / (1.0*numpy_results[:,AN_ACTUAL]))[:len(timestamps)]
 
@@ -136,12 +141,25 @@ mean_drift_distance = np.mean(normalised_drift_distance[where_is_finite])
 
 print("Mean normalized drift distance:", mean_drift_distance)
 
-# Show results in kBps -> 100 * 10ms per second / 1000 B per kB
-send_stat = (numpy_results[:,WORLDSENDSTAT]*100/1000)[:len(timestamps)]
-recv_stat = (numpy_results[:,WORLDRECVSTAT]*100/1000)[:len(timestamps)]
+# Show results in kBps -> 10 ticks per second (1000ms / 100ms per tick) / 1000 B per kB
+CONVERSION_FACTOR = (1000 / TIMESTEP_DURATION) / 1000
+
+
+send_stat = (numpy_results[:,WORLDSENDSTAT]*CONVERSION_FACTOR)[:len(timestamps)]
+recv_stat = (numpy_results[:,WORLDRECVSTAT]*CONVERSION_FACTOR)[:len(timestamps)]
 mean_sendstat = np.mean(send_stat)
+mean_recvstat = np.mean(recv_stat)
 
 print("Mean send_stat:", mean_sendstat)
+print("Mean send_recv:", mean_recvstat)
+
+raw_mcrecvbytes = (numpy_results[:,RAW_MCRECVBYTES]*CONVERSION_FACTOR)[:len(timestamps)]
+used_mcrecvbytes = (numpy_results[:,USED_MCRECVBYTES]*CONVERSION_FACTOR)[:len(timestamps)]
+mean_rawmcrecv_stat = np.mean(raw_mcrecvbytes)
+mean_usedmcrecv_stat = np.mean(used_mcrecvbytes)
+
+print("Mean raw_mcrecvbytes:", mean_rawmcrecv_stat)
+print("Mean used_mcrecvbytes:", mean_usedmcrecv_stat)
 
 
 
@@ -150,15 +168,16 @@ print("Mean send_stat:", mean_sendstat)
 if LABEL_list:
     NODE_COUNT = LABEL_list[1]
     LABEL_list.insert(0, first_timestamp)
-    LABEL_list.extend([np.max(active_nodes), mean_consistency, 
-                  mean_drift_distance, np.mean(send_stat), np.mean(recv_stat)])
+    LABEL_list.extend([np.max(active_nodes), np.max(active_matchers), mean_consistency, 
+                  mean_drift_distance, mean_sendstat, mean_recvstat, 
+                  mean_rawmcrecv_stat, mean_usedmcrecv_stat])
     LABEL_list.append(DATESTAMP_str)
 
 
     # print(LABEL_list)
     if not in_result_summary:
         with open('%s/Development/VAST-0.4.6/bin/results_summary/results_summary.txt' % home_dir, 'a') as outfile:
-            outfile.write(("%s, %d, %d, %d, %d, %d, %d, %d, %f, %f, %f, %f, %f, %s\n") % 
+            outfile.write(("%s, %d, %d, %d, %d, %d, %d, %d, %f, %f, %f, %f, %f, %f, %f, %s\n") % 
                   tuple(LABEL_list))
 
 
