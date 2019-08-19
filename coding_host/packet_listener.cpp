@@ -190,16 +190,9 @@ void packet_listener::start_send()
         msgs_mutex.unlock();
 
         size_t sendlen = message.serialize(_sendbuf);
-//        _sender->send(_sendbuf, sendlen,
-//                      ip::udp::endpoint(ip::address::from_string("239.255.0.1"), 1037));
-
-
-        //Send to each recipient seperately
         _sender->send(_sendbuf, sendlen,
-                      ip::udp::endpoint(ip::address::from_string(message.getToAddrs()[0].getString()), 1037));
-        _sender->send(_sendbuf, sendlen,
-                      ip::udp::endpoint(ip::address::from_string(message.getToAddrs()[1].getString()), 1037));
-        total_coded_msgs_sent+= 2;
+                      ip::udp::endpoint(ip::address::from_string("239.255.0.1"), 1037));
+        total_coded_msgs_sent++;
 
     }
 
