@@ -296,7 +296,7 @@ namespace Vast
         }
 
         std::cout << "~net_udpNC_MChandler toaddrs_pkts_ignored: " << toaddrs_pkts_ignored << std::endl;
-        std::cout << "\n~net_udpNC_MChandler packets_processed: " << packets_processed << std::endl;
-        std::cout << "\n~net_udpNC_MChandler unicastpackets_processed: " << unicastpackets_processed << std::endl;
+        std::cout << "~net_udpNC_MChandler packets_processed: " << packets_processed << std::endl;
+        std::cout << "~net_udpNC_MChandler unicastpackets_processed: " << unicastpackets_processed << std::endl;
     }
 }
