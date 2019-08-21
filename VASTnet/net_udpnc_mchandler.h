@@ -72,6 +72,8 @@ namespace Vast
 
         size_t packets_received = 0;
         size_t stacked_packets_received = 0;
+        size_t packets_processed = 0;
+        size_t unicastpackets_processed = 0;
         size_t toaddrs_pkts_ignored = 0;
 
         //Multicast recv stats recording

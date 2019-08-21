@@ -160,7 +160,7 @@ namespace Vast
 //            throw std::logic_error("net_udpNC_handler::handle_input: Encoded packet received in unicast handler\n");
 //            CPPDEBUG("net_udpNC_handler::handle_input: Encoded packet received in unicast handler\n");
             process_encoded(buf, bytes_transferred);
-
+            packets_MChandler_handover++;
         }
         else {
 //                    CPPDEBUG("net_udpNC_handler::handle_input RLNC message received" << std::endl);
@@ -228,6 +228,7 @@ namespace Vast
         {
             std::cout << "~net_udpNC_handler stacked_packets_perc: " << (float)(stacked_packets_received) / packets_received * 100 << std::endl;
         }
+        std::cout << "~net_udpNC_handler: packets_MChandler_handover: " << packets_MChandler_handover << std::endl;
     }
 
 }

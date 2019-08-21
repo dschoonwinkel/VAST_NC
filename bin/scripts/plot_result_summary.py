@@ -146,14 +146,14 @@ for SUBSETNODE_COUNT in [10, 20, 30, 40, 50]:
     LOSS10Subset = subsetByColumnValue(NODES20Subset, LOSS_PERC, 10)
 
     avg_topo_str_matrix = list()
-    avg_topo_str_matrix.append(['NET_MODEL:', 'ace', 'udp', 'udpNC'])
+    avg_topo_str_matrix.append(['NET_MODEL:', 'TCP', 'UDP', 'UDPNC'])
     avg_topo_str_matrix.append(tabulateByNETMODEL(LOSS5Subset, AVG_TOPO_CONS, "5%"))
     avg_topo_str_matrix.append(tabulateByNETMODEL(LOSS10Subset, AVG_TOPO_CONS, "10%"))
     # print(avg_topo_str_matrix)
 
 
     avg_drift_str_matrix = list()
-    avg_drift_str_matrix.append(['NET_MODEL:', 'ace', 'udp', 'udpNC'])
+    avg_drift_str_matrix.append(['NET_MODEL:', 'TCP', 'UDP', 'UDPNC'])
     avg_drift_str_matrix.append(tabulateByNETMODEL(LOSS5Subset, AVG_DRIFT, "5%"))
     avg_drift_str_matrix.append(tabulateByNETMODEL(LOSS10Subset, AVG_DRIFT, "10%"))
     # print(avg_drift_str_matrix)
@@ -305,7 +305,7 @@ for SUBSETNODE_COUNT in [10, 20, 30, 40, 50]:
 # # Only Mininet results
 print("*******************\nMininet LOSS_PERC plot 10 NODES")
 MininetSubset = subsetByColumnValue(results_nparray, PLATFORM, MININET)
-MininetSubset = subsetByColumnValue(results_nparray, ACTIVE_MATCHERS, 1)
+# MininetSubset = subsetByColumnValue(results_nparray, ACTIVE_MATCHERS, 1)
 colors = ['blue', 'red', 'green']
 if hasMatplotlib:
     plot.figure()
@@ -353,7 +353,7 @@ if hasMatplotlib:
 # # Only Mininet results
 print("*******************\nMininet LOSS_PERC plot 10 NODES Zoomed in")
 MininetSubset = subsetByColumnValue(results_nparray, PLATFORM, MININET)
-MininetSubset = subsetByColumnValue(results_nparray, ACTIVE_MATCHERS, 1)
+# MininetSubset = subsetByColumnValue(results_nparray, ACTIVE_MATCHERS, 1)
 colors = ['blue', 'red', 'green']
 if hasMatplotlib:
     plot.figure()
@@ -665,7 +665,7 @@ if hasMatplotlib:
 print("*******************\nMininet Multiple Matchers test")
 MininetSubset = subsetByColumnValue(results_nparray, PLATFORM, MININET)
 MininetSubset = subsetByColumnValue(MininetSubset, LOSS_PERC, 10)
-MininetSubset = subsetByColumnValue(MininetSubset, NODES_COUNT, 30)
+MininetSubset = subsetByColumnValue(MininetSubset, NODES_COUNT, 20)
 colors = ['blue', 'red', 'green']
 if hasMatplotlib:
     plot.figure()

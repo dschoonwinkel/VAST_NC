@@ -67,6 +67,8 @@ namespace Vast
 
         timestamp_t         _timeout_keepalive;      // timeout for re-attempt to join
 
+        size_t packets_MChandler_handover = 0;
+
 
     };
 

@@ -345,18 +345,25 @@ if (hasMatplotlib and plot_yes):
     plot.grid(True)
     
     ax4 = plot.subplot(6,1,4)
-    plot.plot(timestamps, send_stat, 'g',label='Send stat')
-    plot.plot(timestamps, recv_stat, 'b', label='Recv stat')
-    plot.plot([0,timestamps[-1]], [mean_sendstat, mean_sendstat], 'g')
-    plot.plot([0,timestamps[-1]], [mean_recvstat, mean_recvstat], 'b')
-    plot.text(timestamps[-1], mean_sendstat*1.1, "%5.2f" % (mean_sendstat), color='g')
-    plot.text(timestamps[-1], mean_recvstat*0.9, "%5.2f" % (mean_recvstat), color='b')
-    plot.plot([TOTAL_SETUPTIME, TOTAL_SETUPTIME],[0, np.max(send_stat)], 'k')
-    plot.ylabel("Send/recv\nUnicast [kBps]")
+    ax4.plot(timestamps, send_stat, 'g',label='Send stat')
+    ax4.plot(timestamps, recv_stat, 'b', label='Recv stat')
+    ax4.plot([0,timestamps[-1]], [mean_sendstat, mean_sendstat], 'g')
+    ax4.text(timestamps[0], mean_sendstat*1.1, "%5.2f" % (mean_sendstat), color='g')
+    ax4.set_ylabel("Send\nUnicast [kBps]", color='g')
+    ax4.plot([TOTAL_SETUPTIME, TOTAL_SETUPTIME],[0, np.max(send_stat)], 'k')
     ax4.get_xaxis().set_visible(False)
-    plot.legend()
-    plot.grid(True)
+    ylim = ax4.get_ylim()
     plot.xlim(0, MAX_TIMESTAMP)
+    ax4.grid(True)
+
+    ax4_b = ax4.twinx()    
+    ax4_b.plot([0,timestamps[-1]], [mean_recvstat, mean_recvstat], 'b')
+    ax4_b.set_ylabel("Recv\nUnicast [kBps]", color='b')
+    ax4.text(timestamps[-1]*0.95, mean_recvstat*0.6, "%5.2f" % (mean_recvstat), color='b')
+    ax4_b.set_ylim(ylim)
+    
+    
+    
 
     ax5 = plot.subplot(6,1,5)
     plot.plot(timestamps, raw_mcrecvbytes, 'r',label='Raw MC Recv')

@@ -115,6 +115,7 @@ namespace Vast
                 RLNCMessage other;
                 other.deserialize (buf, bytes_transferred);
                 putOtherRLNCMessage (other);
+                unicastpackets_processed++;
             }
     }
 
@@ -123,6 +124,7 @@ namespace Vast
             RLNCMessage message1;
             message1.deserialize (buf, bytes_transferred);
             raw_interval_MCrecv_bytes+= bytes_transferred;
+            packets_processed++;
 
             if (toAddrForMe (message1))
             {
@@ -294,5 +296,7 @@ namespace Vast
         }
 
         std::cout << "~net_udpNC_MChandler toaddrs_pkts_ignored: " << toaddrs_pkts_ignored << std::endl;
+        std::cout << "\n~net_udpNC_MChandler packets_processed: " << packets_processed << std::endl;
+        std::cout << "\n~net_udpNC_MChandler unicastpackets_processed: " << unicastpackets_processed << std::endl;
     }
 }
