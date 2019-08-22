@@ -61,6 +61,8 @@ x_axis_interval = TIMESTEP_DURATION * 1000
 # MAX_TIMESTAMP = 130000
 # Keep all except the last bit, where gateway has probably disconnected and other nodes do not know what's going on
 MAX_TIMESTAMP = (SIMULATION_STEPS * TIMESTEP_DURATION)
+# Use this to see what happens past node 1 leave
+# MAX_TIMESTAMP = (SIMULATION_STEPS * TIMESTEP_DURATION * 2)
 
 results_text = list()
 
