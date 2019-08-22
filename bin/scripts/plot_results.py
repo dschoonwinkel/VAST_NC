@@ -237,7 +237,11 @@ if (os.path.isfile(resources_filename)):
         for row in spamreader:
             resources_text.append(row)
             # print(",".join(row))
+    if len(resources_text) <= 1:
+        resources_fileexist = False;
 
+
+if resources_fileexist:
     header = resources_text[0]
     resources_text = resources_text[1:]
 
