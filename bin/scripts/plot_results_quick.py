@@ -177,7 +177,7 @@ if LABEL_list:
     # print(LABEL_list)
     if not in_result_summary:
         with open('%s/Development/VAST-0.4.6/bin/results_summary/results_summary.txt' % home_dir, 'a') as outfile:
-            outfile.write(("%s, %d, %d, %d, %d, %d, %d, %d, %f, %f, %f, %f, %f, %f, %f, %s\n") % 
+            outfile.write(("%s, %d, %d, %d, %d, %d, %d, %d, %3.2f, %3.2f, %f, %f, %f, %f, %f, %f, %s\n") % 
                   tuple(LABEL_list))
 
 
