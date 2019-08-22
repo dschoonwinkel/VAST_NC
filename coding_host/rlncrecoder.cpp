@@ -43,14 +43,14 @@ void RLNCrecoder::addRLNCMessage(RLNCMessage msg)
     {
         if (packet_pool.find(pktids.front()) != packet_pool.end())
         {
-            std::cout << "Replacing packet " << pktids.front() << std::endl;
+            CPPDEBUG("Replacing packet " << pktids.front() << std::endl);
         }
         //print threadid
         packet_pool[pktids.front()] = msg;
 
     }
     else if (msg.getMessageSize() > MAX_PACKET_SIZE)
-        std::cerr << "rlncrecoder::addRLNCMessage: Could not add packet, size too large" << std::endl;
+        CPPDEBUG("rlncrecoder::addRLNCMessage: Could not add packet, size too large" << std::endl);
     else
     {
         CPPDEBUG("rlncrecoder::addRLNCMessage: could not add packet, because reasons..." << std::endl);

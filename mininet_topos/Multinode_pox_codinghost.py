@@ -175,6 +175,7 @@ def myNetwork():
                 break;
         
     os.system("killall -s SIGINT VASTreal_console")
+    os.system("killall -s SIGINT coding_host")
 
     time.sleep(1)
     # CLI(net)

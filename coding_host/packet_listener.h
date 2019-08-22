@@ -84,6 +84,7 @@ protected:
     size_t recv_msgs_count = 0;
     size_t process_msg_count = 0;
     size_t total_msgstoolong_cleared = 0;
+    std::map<Vast::id_t, size_t> recvfrommap_count;
 
 };
 

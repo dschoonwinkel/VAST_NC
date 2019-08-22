@@ -1,6 +1,7 @@
 #/bin/bash
 
 grep -r "AddressSanitizer" *.txt | uniq -c
+grep -r -B 3 "what()" *.txt
 
 grep -r "Subsc" *.txt | uniq -c
 grep -r "Subsc" *.txt | sort | uniq | wc

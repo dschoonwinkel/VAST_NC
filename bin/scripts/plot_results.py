@@ -185,7 +185,7 @@ print("Mean used_mcrecvbytes:", mean_usedmcrecv_stat)
 if LABEL_list:
     NODE_COUNT = LABEL_list[1]
     LABEL_list.insert(0, first_timestamp)
-    LABEL_list.extend([np.max(active_nodes), mean_consistency, 
+    LABEL_list.extend([np.max(active_nodes), np.max(active_matchers), mean_consistency, 
                   mean_drift_distance, mean_sendstat, mean_recvstat, 
                   mean_rawmcrecv_stat, mean_usedmcrecv_stat])
     LABEL_list.append(DATESTAMP_str)
@@ -204,7 +204,7 @@ if LABEL_list:
     # print(LABEL_list)
     if not plot_yes and not in_result_summary:
         with open('%s/Development/VAST-0.4.6/bin/results_summary/results_summary.txt' % home_dir, 'a') as outfile:
-            outfile.write(("%s, %d, %d, %d, %d, %d, %d, %d, %f, %f, %f, %f, %f, %f, %f, %s\n") % 
+            outfile.write(("%s, %d, %d, %d, %d, %d, %d, %d, %3.2f, %3.2f, %f, %f, %f, %f, %f, %f, %s\n") % 
                   tuple(LABEL_list))
         #         outfile.write("%s, %s, %f, %f, %f, %f, %f\n" 
     #             % (first_timestamp, input_file, np.max(active_nodes), mean_consistency, 
@@ -237,7 +237,11 @@ if (os.path.isfile(resources_filename)):
         for row in spamreader:
             resources_text.append(row)
             # print(",".join(row))
+    if len(resources_text) <= 1:
+        resources_fileexist = False;
 
+
+if resources_fileexist:
     header = resources_text[0]
     resources_text = resources_text[1:]
 
@@ -264,34 +268,33 @@ if (os.path.isfile(resources_filename)):
 
 
 
-
-events_filename = re.sub(r"\.txt", "_events.txt", input_file)
 events_fileexist = False
-if (os.path.isfile(events_filename)):
-    events_fileexist = True
-    print("Events file found")
-    events_text = list()
-    with open(events_filename, 'r') as csvfile:
-        spamreader = csv.reader(csvfile, delimiter=",")
-        for row in spamreader:
-            events_text.append(row)
-            # print(",".join(row))
+# events_filename = re.sub(r"\.txt", "_events.txt", input_file)
+# if (os.path.isfile(events_filename)):
+#     events_fileexist = True
+#     print("Events file found")
+#     events_text = list()
+#     with open(events_filename, 'r') as csvfile:
+#         spamreader = csv.reader(csvfile, delimiter=",")
+#         for row in spamreader:
+#             events_text.append(row)
+#             # print(",".join(row))
 
-    header = events_text[0]
-    events_text = events_text[1:]
+#     header = events_text[0]
+#     events_text = events_text[1:]
 
-    events = list()
+#     events = list()
 
-    for row in events_text:
-        # print(row)
-        events.append([float(row[0])-first_timestamp, row[1], row[2]])
-        # print(results[-1])
-        # print(int(row[0])%10000)
+#     for row in events_text:
+#         # print(row)
+#         events.append([float(row[0]), row[1], row[2]])
+#         # print(results[-1])
+#         # print(int(row[0])%10000)
 
-    events_np = np.array(events)
-    unique_messages = np.unique(events_np[:,2])
-    for i in range(len(unique_messages)):
-        print(i, ": ", unique_messages[i])
+#     events_np = np.array(events)
+#     unique_messages = np.unique(events_np[:,2])
+#     for i in range(len(unique_messages)):
+#         print(i, ": ", unique_messages[i])
 
 
 
@@ -346,18 +349,25 @@ if (hasMatplotlib and plot_yes):
     plot.grid(True)
     
     ax4 = plot.subplot(6,1,4)
-    plot.plot(timestamps, send_stat, 'g',label='Send stat')
-    plot.plot(timestamps, recv_stat, 'b', label='Recv stat')
-    plot.plot([0,timestamps[-1]], [mean_sendstat, mean_sendstat], 'g')
-    plot.plot([0,timestamps[-1]], [mean_recvstat, mean_recvstat], 'b')
-    plot.text(timestamps[-1], mean_sendstat*1.1, "%5.2f" % (mean_sendstat), color='g')
-    plot.text(timestamps[-1], mean_recvstat*0.9, "%5.2f" % (mean_recvstat), color='b')
-    plot.plot([TOTAL_SETUPTIME, TOTAL_SETUPTIME],[0, np.max(send_stat)], 'k')
-    plot.ylabel("Send/recv\nUnicast [kBps]")
+    ax4.plot(timestamps, send_stat, 'g',label='Send stat')
+    ax4.plot(timestamps, recv_stat, 'b', label='Recv stat')
+    ax4.plot([0,timestamps[-1]], [mean_sendstat, mean_sendstat], 'g')
+    ax4.text(timestamps[0], mean_sendstat*1.1, "%5.2f" % (mean_sendstat), color='g')
+    ax4.set_ylabel("Send\nUnicast [kBps]", color='g')
+    ax4.plot([TOTAL_SETUPTIME, TOTAL_SETUPTIME],[0, np.max(send_stat)], 'k')
     ax4.get_xaxis().set_visible(False)
-    plot.legend()
-    plot.grid(True)
+    ylim = ax4.get_ylim()
     plot.xlim(0, MAX_TIMESTAMP)
+    ax4.grid(True)
+
+    ax4_b = ax4.twinx()    
+    ax4_b.plot([0,timestamps[-1]], [mean_recvstat, mean_recvstat], 'b')
+    ax4_b.set_ylabel("Recv\nUnicast [kBps]", color='b')
+    ax4.text(timestamps[-1]*0.95, mean_recvstat*0.6, "%5.2f" % (mean_recvstat), color='b')
+    ax4_b.set_ylim(ylim)
+    
+    
+    
 
     ax5 = plot.subplot(6,1,5)
     plot.plot(timestamps, raw_mcrecvbytes, 'r',label='Raw MC Recv')
