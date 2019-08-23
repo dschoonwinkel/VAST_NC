@@ -455,7 +455,7 @@ for i in range(NET_MODEL_STRINGS.index('net_ace'),NET_MODEL_STRINGS.index('net_u
         ax.set_xticklabels(xColumnList)
 
 if hasMatplotlib:
-    plot.savefig("%s/Development/VAST-0.4.6/bin/results_summary/results_summary_Mininet_allResults.pdf" % home_dir, dpi=1200)
+    plot.savefig("%s/Development/VAST-0.4.6/bin/results_summary/results_summary_Mininet_20NODES.pdf" % home_dir, dpi=1200)
     # plot.show()
 
 
@@ -508,7 +508,7 @@ for i in range(NET_MODEL_STRINGS.index('net_ace'),NET_MODEL_STRINGS.index('net_u
         ax.set_xticklabels(xColumnList)
 
 if hasMatplotlib:
-    plot.savefig("%s/Development/VAST-0.4.6/bin/results_summary/results_summary_Mininet_allResults_50NODES.pdf" % home_dir, dpi=1200)
+    plot.savefig("%s/Development/VAST-0.4.6/bin/results_summary/results_summary_Mininet_50NODES.pdf" % home_dir, dpi=1200)
     # plot.show()
 
 
