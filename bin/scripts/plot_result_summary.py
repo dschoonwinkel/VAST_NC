@@ -142,11 +142,13 @@ for SUBSETNODE_COUNT in [10, 20, 30, 40, 50]:
     NODES20Subset = subsetByColumnValue(MininetSubset, NODES_COUNT, SUBSETNODE_COUNT)
 
 
+    LOSS2Subset = subsetByColumnValue(NODES20Subset, LOSS_PERC, 2)
     LOSS5Subset = subsetByColumnValue(NODES20Subset, LOSS_PERC, 5)
     LOSS10Subset = subsetByColumnValue(NODES20Subset, LOSS_PERC, 10)
 
     avg_topo_str_matrix = list()
     avg_topo_str_matrix.append(['NET_MODEL:', 'TCP', 'UDP', 'UDPNC'])
+    avg_topo_str_matrix.append(tabulateByNETMODEL(LOSS2Subset, AVG_TOPO_CONS, "2%"))
     avg_topo_str_matrix.append(tabulateByNETMODEL(LOSS5Subset, AVG_TOPO_CONS, "5%"))
     avg_topo_str_matrix.append(tabulateByNETMODEL(LOSS10Subset, AVG_TOPO_CONS, "10%"))
     # print(avg_topo_str_matrix)
@@ -154,6 +156,7 @@ for SUBSETNODE_COUNT in [10, 20, 30, 40, 50]:
 
     avg_drift_str_matrix = list()
     avg_drift_str_matrix.append(['NET_MODEL:', 'TCP', 'UDP', 'UDPNC'])
+    avg_drift_str_matrix.append(tabulateByNETMODEL(LOSS2Subset, AVG_DRIFT, "2%"))
     avg_drift_str_matrix.append(tabulateByNETMODEL(LOSS5Subset, AVG_DRIFT, "5%"))
     avg_drift_str_matrix.append(tabulateByNETMODEL(LOSS10Subset, AVG_DRIFT, "10%"))
     # print(avg_drift_str_matrix)
