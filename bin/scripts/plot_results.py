@@ -61,6 +61,8 @@ x_axis_interval = TIMESTEP_DURATION * 1000
 # MAX_TIMESTAMP = 130000
 # Keep all except the last bit, where gateway has probably disconnected and other nodes do not know what's going on
 MAX_TIMESTAMP = (SIMULATION_STEPS * TIMESTEP_DURATION)
+# Use this to see what happens past node 1 leave
+# MAX_TIMESTAMP = (SIMULATION_STEPS * TIMESTEP_DURATION * 2)
 
 results_text = list()
 
@@ -185,7 +187,7 @@ print("Mean used_mcrecvbytes:", mean_usedmcrecv_stat)
 if LABEL_list:
     NODE_COUNT = LABEL_list[1]
     LABEL_list.insert(0, first_timestamp)
-    LABEL_list.extend([np.max(active_nodes), mean_consistency, 
+    LABEL_list.extend([np.max(active_nodes), np.max(active_matchers), mean_consistency, 
                   mean_drift_distance, mean_sendstat, mean_recvstat, 
                   mean_rawmcrecv_stat, mean_usedmcrecv_stat])
     LABEL_list.append(DATESTAMP_str)
@@ -204,7 +206,7 @@ if LABEL_list:
     # print(LABEL_list)
     if not plot_yes and not in_result_summary:
         with open('%s/Development/VAST-0.4.6/bin/results_summary/results_summary.txt' % home_dir, 'a') as outfile:
-            outfile.write(("%s, %d, %d, %d, %d, %d, %d, %d, %f, %f, %f, %f, %f, %f, %f, %s\n") % 
+            outfile.write(("%s, %d, %d, %d, %d, %d, %d, %d, %3.2f, %3.2f, %f, %f, %f, %f, %f, %f, %s\n") % 
                   tuple(LABEL_list))
         #         outfile.write("%s, %s, %f, %f, %f, %f, %f\n" 
     #             % (first_timestamp, input_file, np.max(active_nodes), mean_consistency, 
@@ -237,7 +239,11 @@ if (os.path.isfile(resources_filename)):
         for row in spamreader:
             resources_text.append(row)
             # print(",".join(row))
+    if len(resources_text) <= 1:
+        resources_fileexist = False;
 
+
+if resources_fileexist:
     header = resources_text[0]
     resources_text = resources_text[1:]
 
@@ -345,18 +351,25 @@ if (hasMatplotlib and plot_yes):
     plot.grid(True)
     
     ax4 = plot.subplot(6,1,4)
-    plot.plot(timestamps, send_stat, 'g',label='Send stat')
-    plot.plot(timestamps, recv_stat, 'b', label='Recv stat')
-    plot.plot([0,timestamps[-1]], [mean_sendstat, mean_sendstat], 'g')
-    plot.plot([0,timestamps[-1]], [mean_recvstat, mean_recvstat], 'b')
-    plot.text(timestamps[-1], mean_sendstat*1.1, "%5.2f" % (mean_sendstat), color='g')
-    plot.text(timestamps[-1], mean_recvstat*0.9, "%5.2f" % (mean_recvstat), color='b')
-    plot.plot([TOTAL_SETUPTIME, TOTAL_SETUPTIME],[0, np.max(send_stat)], 'k')
-    plot.ylabel("Send/recv\nUnicast [kBps]")
+    ax4.plot(timestamps, send_stat, 'g',label='Send stat')
+    ax4.plot(timestamps, recv_stat, 'b', label='Recv stat')
+    ax4.plot([0,timestamps[-1]], [mean_sendstat, mean_sendstat], 'g')
+    ax4.text(timestamps[0], mean_sendstat*1.1, "%5.2f" % (mean_sendstat), color='g')
+    ax4.set_ylabel("Send\nUnicast [kBps]", color='g')
+    ax4.plot([TOTAL_SETUPTIME, TOTAL_SETUPTIME],[0, np.max(send_stat)], 'k')
     ax4.get_xaxis().set_visible(False)
-    plot.legend()
-    plot.grid(True)
+    ylim = ax4.get_ylim()
     plot.xlim(0, MAX_TIMESTAMP)
+    ax4.grid(True)
+
+    ax4_b = ax4.twinx()    
+    ax4_b.plot([0,timestamps[-1]], [mean_recvstat, mean_recvstat], 'b')
+    ax4_b.set_ylabel("Recv\nUnicast [kBps]", color='b')
+    ax4.text(timestamps[-1]*0.95, mean_recvstat*0.6, "%5.2f" % (mean_recvstat), color='b')
+    ax4_b.set_ylim(ylim)
+    
+    
+    
 
     ax5 = plot.subplot(6,1,5)
     plot.plot(timestamps, raw_mcrecvbytes, 'r',label='Raw MC Recv')

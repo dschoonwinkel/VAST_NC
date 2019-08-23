@@ -440,7 +440,7 @@ namespace Vast {
             _iosthread = NULL;
         }
 
-        std::cout << "~net_udp_handler: total_packets_recvd: " << packets_received << std::endl;
+        std::cout << "\n~net_udp_handler: total_packets_recvd: " << packets_received << std::endl;
         std::cout << "~net_udp_handler: stacked_packets_received: " << stacked_packets_received << std::endl;
         if (packets_received > 0)
         {

@@ -138,6 +138,8 @@ void packet_listener::process_input (const char *buf,
             return;
         }
 
+        recvfrommap_count[message.getFirstFromId()]++;
+
         recoder.addRLNCMessage(message);
 
         msgs_mutex.lock();
@@ -190,9 +192,16 @@ void packet_listener::start_send()
         msgs_mutex.unlock();
 
         size_t sendlen = message.serialize(_sendbuf);
+//        _sender->send(_sendbuf, sendlen,
+//                      ip::udp::endpoint(ip::address::from_string("239.255.0.1"), 1037));
+
+
+        //Send to each recipient seperately
         _sender->send(_sendbuf, sendlen,
-                      ip::udp::endpoint(ip::address::from_string("239.255.0.1"), 1037));
-        total_coded_msgs_sent++;
+                      ip::udp::endpoint(ip::address_v4(message.getToAddrs()[0].host), message.getToAddrs()[0].port));
+        _sender->send(_sendbuf, sendlen,
+                      ip::udp::endpoint(ip::address_v4(message.getToAddrs()[1].host), message.getToAddrs()[0].port));
+        total_coded_msgs_sent+= 2;
 
     }
 
@@ -333,6 +342,11 @@ packet_listener::~packet_listener ()
     std::cout << "~packet_listener: total_coded_msgs_sent: " << total_coded_msgs_sent << std::endl;
     std::cout << "~packet_listener: Total resets: " << total_resets << std::endl << std::endl;
     std::cout << "~packet_listener: Total msgs deque too long: " << total_msgstoolong_cleared << std::endl << std::endl;
+
+    for (auto it = recvfrommap_count.begin(); it != recvfrommap_count.end(); it++)
+    {
+        std::cout << "~packet_listener: " << it->first << ":" << it->second << std::endl;
+    }
 
 }
 
