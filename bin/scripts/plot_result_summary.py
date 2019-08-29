@@ -56,6 +56,12 @@ def subsetByColumnValue(results_matrix, xColumnIndex, value):
 
     return subset
 
+def subsetLessThanByColumnValue(results_matrix, xColumnIndex, value):
+    subset = results_matrix[np.where(results_matrix[:,xColumnIndex] < value)]
+    # print(subset)
+
+    return subset
+
 def boxPlotHelper(subplotLayout, xColumnList, yColumnList, color, xlabel, ylabel, width=0.5):
     ax = plot.subplot(subplotLayout)
     if (len(xColumnList) > 0):
@@ -422,6 +428,8 @@ if hasMatplotlib:
 # Only Mininet results
 print("*******************\nMininet LOSS_PERC plot 50 NODES")
 MininetSubset = subsetByColumnValue(results_nparray, PLATFORM, MININET)
+#Only plot values less than 20% loss, otherwise difficult to see
+MininetSubset = subsetLessThanByColumnValue(MininetSubset, LOSS_PERC, 15)
 colors = ['blue', 'red', 'green']
 if hasMatplotlib:
     plot.figure()
@@ -443,13 +451,18 @@ for i in range(NET_MODEL_STRINGS.index('net_ace'),NET_MODEL_STRINGS.index('net_u
         # print("Medians:", medians)
         ax = boxPlotHelper(411, xColumnList+0.3*(i-2), yColumnList, colors[i-2], 'LOSS_PERC', 'Topo Cons\n[%]', width=0.3)
         ax.title.set_text("TCP vs UDP vs UDPNC. 50 NODES")
-        ax.plot(xColumnList, medians, color=colors[i-2], linestyle='--')
+        ax.plot(xColumnList+0.3*(i-2), medians, color=colors[i-2], linestyle='--', linewidth=0.5)
         plot.xlim([np.min(xColumnList)-0.3, np.max(xColumnList)+0.3*(i-2)+0.3])
         ax.get_xaxis().set_visible(False)
 
     xColumnList, yColumnList = seperateByColumn(netUDPsubset_50NODES, LOSS_PERC, AVG_DRIFT, "50nodes, Mininet")
     if hasMatplotlib and len(xColumnList) > 0:
+        #Calculate the medians:
+        medians = list()
+        for arr in yColumnList:
+            medians.append(np.median(arr))
         ax = boxPlotHelper(412, xColumnList+0.3*(i-2), yColumnList, colors[i-2], 'LOSS_PERC', 'Drift dist\n[units]', width=0.3)
+        ax.plot(xColumnList+0.3*(i-2), medians, color=colors[i-2], linestyle='--', linewidth=0.5)
         plot.xlim([np.min(xColumnList)-0.3, np.max(xColumnList)+0.3*(i-2)+0.3])
         ax.get_xaxis().set_visible(False)
 
