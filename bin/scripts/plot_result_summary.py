@@ -135,55 +135,6 @@ np.set_printoptions(linewidth=np.inf, formatter={'float': '{: 0.3f}'.format})
 # xColumnList, yColumnList = seperateByColumn(results_nparray, NODES_COUNT, AVG_DRIFT, "differentNodeCounts")
 
 
-for SUBSETNODE_COUNT in [10, 20, 30, 40, 50]:
-# SUBSETNODE_COUNT = 20
-    print("\nSUBSETNODE\_COUNT: ", SUBSETNODE_COUNT, "\linebreak")
-    MininetSubset = subsetByColumnValue(results_nparray, PLATFORM, MININET)
-    NODES20Subset = subsetByColumnValue(MininetSubset, NODES_COUNT, SUBSETNODE_COUNT)
-
-
-    LOSS2Subset = subsetByColumnValue(NODES20Subset, LOSS_PERC, 2)
-    LOSS5Subset = subsetByColumnValue(NODES20Subset, LOSS_PERC, 5)
-    LOSS10Subset = subsetByColumnValue(NODES20Subset, LOSS_PERC, 10)
-
-    avg_topo_str_matrix = list()
-    avg_topo_str_matrix.append(['NET_MODEL:', 'TCP', 'UDP', 'UDPNC'])
-    avg_topo_str_matrix.append(tabulateByNETMODEL(LOSS2Subset, AVG_TOPO_CONS, "2%"))
-    avg_topo_str_matrix.append(tabulateByNETMODEL(LOSS5Subset, AVG_TOPO_CONS, "5%"))
-    avg_topo_str_matrix.append(tabulateByNETMODEL(LOSS10Subset, AVG_TOPO_CONS, "10%"))
-    # print(avg_topo_str_matrix)
-
-
-    avg_drift_str_matrix = list()
-    avg_drift_str_matrix.append(['NET_MODEL:', 'TCP', 'UDP', 'UDPNC'])
-    avg_drift_str_matrix.append(tabulateByNETMODEL(LOSS2Subset, AVG_DRIFT, "2%"))
-    avg_drift_str_matrix.append(tabulateByNETMODEL(LOSS5Subset, AVG_DRIFT, "5%"))
-    avg_drift_str_matrix.append(tabulateByNETMODEL(LOSS10Subset, AVG_DRIFT, "10%"))
-    # print(avg_drift_str_matrix)
-
-
-    try:
-        from tabulate import tabulate
-        print("AVG\_TOPO\_CONS\linebreak")
-        print(tabulate(avg_topo_str_matrix, tablefmt='latex'))
-        print("\nAVG\_DRIFT\linebreak")
-        print(tabulate(avg_drift_str_matrix, tablefmt='latex'))
-
-    except ImportError:
-        print("tabulate not available on this console")
-    
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -485,28 +436,34 @@ for i in range(NET_MODEL_STRINGS.index('net_ace'),NET_MODEL_STRINGS.index('net_u
     print(xColumnList)
     print(len(xColumnList))
     if hasMatplotlib and len(xColumnList) > 0:
-        ax = boxPlotHelper(411, xColumnList+0.5*(i-2), yColumnList, colors[i-2], 'LOSS_PERC', 'Topo Cons\n[%]')
+        #Calculate the medians:
+        medians = list()
+        for arr in yColumnList:
+            medians.append(np.median(arr))
+        # print("Medians:", medians)
+        ax = boxPlotHelper(411, xColumnList+0.3*(i-2), yColumnList, colors[i-2], 'LOSS_PERC', 'Topo Cons\n[%]', width=0.3)
         ax.title.set_text("TCP vs UDP vs UDPNC. 50 NODES")
-        plot.xlim([np.min(xColumnList)-0.5, np.max(xColumnList)+0.5*(i-2)+0.5])
+        ax.plot(xColumnList, medians, color=colors[i-2], linestyle='--')
+        plot.xlim([np.min(xColumnList)-0.3, np.max(xColumnList)+0.3*(i-2)+0.3])
         ax.get_xaxis().set_visible(False)
 
     xColumnList, yColumnList = seperateByColumn(netUDPsubset_50NODES, LOSS_PERC, AVG_DRIFT, "50nodes, Mininet")
     if hasMatplotlib and len(xColumnList) > 0:
-        ax = boxPlotHelper(412, xColumnList+0.5*(i-2), yColumnList, colors[i-2], 'LOSS_PERC', 'Drift dist\n[units]')
-        plot.xlim([np.min(xColumnList)-0.5, np.max(xColumnList)+0.5*(i-2)+0.5])
+        ax = boxPlotHelper(412, xColumnList+0.3*(i-2), yColumnList, colors[i-2], 'LOSS_PERC', 'Drift dist\n[units]', width=0.3)
+        plot.xlim([np.min(xColumnList)-0.3, np.max(xColumnList)+0.3*(i-2)+0.3])
         ax.get_xaxis().set_visible(False)
 
 
     xColumnList, yColumnList = seperateByColumn(netUDPsubset_50NODES, LOSS_PERC, AVG_WORLDSENDSTAT, "50nodes, Mininet")
     if hasMatplotlib and len(xColumnList) > 0:
-        ax = boxPlotHelper(413, xColumnList+0.5*(i-2), yColumnList, colors[i-2], 'LOSS_PERC', 'Send\n[kBps]')
-        plot.xlim([np.min(xColumnList)-0.5, np.max(xColumnList)+0.5*(i-2)+0.5])
+        ax = boxPlotHelper(413, xColumnList+0.3*(i-2), yColumnList, colors[i-2], 'LOSS_PERC', 'Send\n[kBps]', width=0.3)
+        plot.xlim([np.min(xColumnList)-0.3, np.max(xColumnList)+0.3*(i-2)+0.3])
         ax.get_xaxis().set_visible(False)
 
     xColumnList, yColumnList = seperateByColumn(netUDPsubset_50NODES, LOSS_PERC, AVG_WORLDRECVSTAT, "50nodes, Mininet")
     if hasMatplotlib and len(xColumnList) > 0:
-        ax = boxPlotHelper(414, xColumnList+0.5*(i-2), yColumnList, colors[i-2], 'LOSS_PERC', 'Recv\n[kBps]')
-        plot.xlim([np.min(xColumnList)-0.5, np.max(xColumnList)+0.5*(i-2)+0.5])
+        ax = boxPlotHelper(414, xColumnList+0.3*(i-2), yColumnList, colors[i-2], 'LOSS_PERC', 'Recv\n[kBps]', width=0.3)
+        plot.xlim([np.min(xColumnList)-0.3, np.max(xColumnList)+0.3*(i-2)+0.3])
         ax.set_xticks(xColumnList)
         ax.set_xticklabels(xColumnList)
 
@@ -715,7 +672,70 @@ for current_NODE_COUNT in iterator_NODECOUNTS:
     #         ax.set_xticks(xColumnList)
     #         ax.set_xticklabels(xColumnList)
 
+for SUBSETNODE_COUNT in [10, 20, 30, 40, 50]:
+# SUBSETNODE_COUNT = 20
+    print("\nSUBSETNODE\_COUNT: ", SUBSETNODE_COUNT, "\linebreak")
+    MininetSubset = subsetByColumnValue(results_nparray, PLATFORM, MININET)
+    NODES20Subset = subsetByColumnValue(MininetSubset, NODES_COUNT, SUBSETNODE_COUNT)
+
+
+    LOSS2Subset = subsetByColumnValue(NODES20Subset, LOSS_PERC, 2)
+    LOSS5Subset = subsetByColumnValue(NODES20Subset, LOSS_PERC, 5)
+    LOSS10Subset = subsetByColumnValue(NODES20Subset, LOSS_PERC, 10)
+    LOSS15Subset = subsetByColumnValue(NODES20Subset, LOSS_PERC, 15)
+    LOSS20Subset = subsetByColumnValue(NODES20Subset, LOSS_PERC, 20)
+    LOSS30Subset = subsetByColumnValue(NODES20Subset, LOSS_PERC, 30)
+    LOSS40Subset = subsetByColumnValue(NODES20Subset, LOSS_PERC, 40)
+
+    avg_topo_str_matrix = list()
+    avg_topo_str_matrix.append(['NET_MODEL:', 'TCP', 'UDP', 'UDPNC'])
+    avg_topo_str_matrix.append(tabulateByNETMODEL(LOSS2Subset, AVG_TOPO_CONS, "2%"))
+    avg_topo_str_matrix.append(tabulateByNETMODEL(LOSS5Subset, AVG_TOPO_CONS, "5%"))
+    avg_topo_str_matrix.append(tabulateByNETMODEL(LOSS10Subset, AVG_TOPO_CONS, "10%"))
+    avg_topo_str_matrix.append(tabulateByNETMODEL(LOSS15Subset, AVG_TOPO_CONS, "15%"))
+    avg_topo_str_matrix.append(tabulateByNETMODEL(LOSS20Subset, AVG_TOPO_CONS, "20%"))
+    avg_topo_str_matrix.append(tabulateByNETMODEL(LOSS30Subset, AVG_TOPO_CONS, "30%"))
+    avg_topo_str_matrix.append(tabulateByNETMODEL(LOSS40Subset, AVG_TOPO_CONS, "40%"))
+
+
+    avg_drift_str_matrix = list()
+    avg_drift_str_matrix.append(['NET_MODEL:', 'TCP', 'UDP', 'UDPNC'])
+    avg_drift_str_matrix.append(tabulateByNETMODEL(LOSS2Subset, AVG_DRIFT, "2%"))
+    avg_drift_str_matrix.append(tabulateByNETMODEL(LOSS5Subset, AVG_DRIFT, "5%"))
+    avg_drift_str_matrix.append(tabulateByNETMODEL(LOSS10Subset, AVG_DRIFT, "10%"))
+    avg_drift_str_matrix.append(tabulateByNETMODEL(LOSS15Subset, AVG_DRIFT, "15%"))
+    avg_drift_str_matrix.append(tabulateByNETMODEL(LOSS20Subset, AVG_DRIFT, "20%"))
+    avg_drift_str_matrix.append(tabulateByNETMODEL(LOSS30Subset, AVG_DRIFT, "30%"))
+    avg_drift_str_matrix.append(tabulateByNETMODEL(LOSS40Subset, AVG_DRIFT, "40%"))
+    # print(avg_drift_str_matrix)
+
+
+    try:
+        from tabulate import tabulate
+        print("AVG\_TOPO\_CONS\linebreak")
+        print(tabulate(avg_topo_str_matrix, tablefmt='latex'))
+        print("\nAVG\_DRIFT\linebreak")
+        print(tabulate(avg_drift_str_matrix, tablefmt='latex'))
+
+    except ImportError:
+        print("tabulate not available on this console")
+
 if hasMatplotlib:
     plot.savefig("%s/Development/VAST-0.4.6/bin/results_summary/results_summary_Mininet_multipleMatchers.pdf" % home_dir, dpi=1200)
     plot.show()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
