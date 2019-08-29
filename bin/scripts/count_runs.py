@@ -6,13 +6,6 @@ import sys
 from os.path import expanduser
 from plot_result_utils import NET_MODEL_STRINGS
 
-hasMatplotlib = True
-try:
-    import matplotlib.pyplot as plot
-except ImportError:
-    print("Matplotlib not available on this console")
-    hasMatplotlib = False
-
 # def seperateByColumn(results_matrix, xColumnIndex, yColumnIndex):
 #     # print(results_matrix[:,xColumnIndex])
 #     xColumnList = np.unique(results_matrix[:,xColumnIndex])
@@ -118,11 +111,15 @@ np.set_printoptions(linewidth=np.inf, formatter={'float': '{: 0.3f}'.format})
 
 
 MininetSubset = subsetByColumnValue(results_nparray, PLATFORM, MININET)
-
 # Table1: net_udp
 netUDPsubset = subsetByColumnValue(MininetSubset, NET_MODEL, 3)
 
 countByColumn(netUDPsubset, NODES_COUNT, LOSS_PERC)
 
+for i in range(NET_MODEL_STRINGS.index('net_ace'),NET_MODEL_STRINGS.index('net_udpNC') + 1):
 
+    print(i)
+    print(NET_MODEL_STRINGS[i])
+    subset = subsetByColumnValue(MininetSubset, NET_MODEL, i)
+    countByColumn(subset, NODES_COUNT, LOSS_PERC)
 
