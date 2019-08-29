@@ -111,8 +111,7 @@ np.set_printoptions(linewidth=np.inf, formatter={'float': '{: 0.3f}'.format})
 
 
 MininetSubset = subsetByColumnValue(results_nparray, PLATFORM, MININET)
-# Table1: net_udp
-netUDPsubset = subsetByColumnValue(MininetSubset, NET_MODEL, 3)
+MininetSubset = subsetByColumnValue(MininetSubset, STEPS, 5000)
 
 countByColumn(netUDPsubset, NODES_COUNT, LOSS_PERC)
 
