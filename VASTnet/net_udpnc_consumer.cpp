@@ -49,15 +49,10 @@ namespace Vast
         while(running)
         {
 
-
-            //If there are no messages to process, go around again
-            if (_msg_queue.size () == 0)
-                continue;
-
-            bool pop_success = _msg_queue.pop (msg);
+            _msg_queue.pop (msg);
 
             //Check if we are still running, or just been cancelled
-            if (running && pop_success)
+            if (running)
             {
 //                CPPDEBUG("net_udpNC_consumer::consume\n" << msg << std::endl);
                 process_input(msg, msg.socket_addr);

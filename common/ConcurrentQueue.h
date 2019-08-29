@@ -19,35 +19,19 @@ class ConcurrentQueue
 {
  public:
 
-//  T pop()
-//  {
-//    if (!active)
-//    {
-//        std::cout << "Returning an empty item" << std::endl;
-//        return T();
-//    }
-
-//    std::lock_guard<std::mutex> mlock(mutex_);
-//    auto val = queue_.front();
-//    queue_.pop();
-//    std::cout << "Returning an item" << std::endl;
-//    return val;
-//  }
-
-  //Return true if item was popped successfully
-  bool pop(T& item)
+  void pop(T& item)
   {
+    std::unique_lock<std::mutex> mlock(mutex_);
+    while (queue_.empty() && active)
+    {
+      cond_.wait(mlock);
+    }
+
     if (!active)
-        return false;
+        return;
 
-
-    if (queue_.size() <= 0)
-        return false;
-
-    std::lock_guard<std::mutex> mlock(mutex_);
     item = queue_.front();
     queue_.pop();
-    return true;
   }
 
   void push(const T& item)
@@ -55,8 +39,10 @@ class ConcurrentQueue
     if (!active)
         return;
 
-    std::lock_guard<std::mutex> mlock(mutex_);
+    std::unique_lock<std::mutex> mlock(mutex_);
     queue_.push(item);
+    mlock.unlock();
+    cond_.notify_one();
   }
 
   ConcurrentQueue()=default;
@@ -73,11 +59,13 @@ class ConcurrentQueue
   void close()
   {
     active = false;
+    cond_.notify_all ();
   }
   
  private:
   std::queue<T> queue_;
   std::mutex mutex_;
+  std::condition_variable cond_;
   bool active = true;
 };
 
