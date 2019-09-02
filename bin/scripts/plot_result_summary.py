@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 import numpy as np
+import scipy.stats as st
 import csv
 import sys
 from os.path import expanduser
 from plot_result_utils import NET_MODEL_STRINGS
+import re
 
 FIRST_TIMESTAMP = 0
 NET_MODEL = 1
@@ -62,6 +64,12 @@ def subsetLessThanByColumnValue(results_matrix, xColumnIndex, value):
 
     return subset
 
+def excludeByColumnValue(results_matrix, xColumnIndex, value):
+    subset = results_matrix[np.where(results_matrix[:,xColumnIndex] != value)]
+    # print(subset)
+
+    return subset
+
 def boxPlotHelper(subplotLayout, xColumnList, yColumnList, color, xlabel, ylabel, width=0.5):
     ax = plot.subplot(subplotLayout)
     if (len(xColumnList) > 0):
@@ -93,7 +101,17 @@ def tabulateByNETMODEL(results_matrix, yColumnIndex, tag):
         xSubset = results_matrix[np.where(results_matrix[:,NET_MODEL] == xColumnList[j])]
         # print(xSubset[:,i])
         # print(("%3.2f" % np.mean(xSubset[:,yColumnIndex]))[0:5], end="\t")
-        line_list.append(("%3.2f" % np.median(xSubset[:,yColumnIndex]))[0:5])
+
+        samples = xSubset[:,yColumnIndex]
+        mean = np.mean(samples)
+        median = np.median(samples)
+        conf_req = 0.90
+        t_value = st.t.ppf(1 - conf_req/2, len(samples)-1)
+        std_err = np.std(samples)/np.sqrt(len(samples))
+        margin = t_value * std_err
+        # conf_int = st.t.interval(0.95, len(xSubset[:,yColumnIndex])-1, loc=np.median(xSubset[:,yColumnIndex]), scale=st.sem(xSubset[:,yColumnIndex]))
+
+        line_list.append("%3.2f pm %3.2f" % (median, margin))
 #         ySubset = xSubset[np.where(xSubset[:,yColumnIndex] == yColumnList[j])]
 #         # print(ySubset)
 #         # print(len(ySubset))
@@ -306,7 +324,7 @@ for i in range(NET_MODEL_STRINGS.index('net_ace'),NET_MODEL_STRINGS.index('net_u
         ax.set_xticklabels(xColumnList)
 
 if hasMatplotlib:
-    plot.savefig("%s/Development/VAST-0.4.6/bin/results_summary/results_summary_Mininet_10NODES.pdf" % home_dir, dpi=1200)
+    plot.savefig("results_summary_Mininet_10NODES.pdf", dpi=1200)
     # plot.show()
 
 
@@ -356,7 +374,7 @@ for i in range(NET_MODEL_STRINGS.index('net_ace'),NET_MODEL_STRINGS.index('net_u
         ax.set_xticklabels(xColumnList)
 
 if hasMatplotlib:
-    plot.savefig("%s/Development/VAST-0.4.6/bin/results_summary/results_summary_Mininet_10NODES_zoomedin.pdf" % home_dir, dpi=1200)
+    plot.savefig("results_summary_Mininet_10NODES_zoomedin.pdf", dpi=1200)
     # plot.show()
 
 
@@ -415,7 +433,7 @@ for i in range(NET_MODEL_STRINGS.index('net_ace'),NET_MODEL_STRINGS.index('net_u
         ax.set_xticklabels(xColumnList)
 
 if hasMatplotlib:
-    plot.savefig("%s/Development/VAST-0.4.6/bin/results_summary/results_summary_Mininet_20NODES.pdf" % home_dir, dpi=1200)
+    plot.savefig("results_summary_Mininet_20NODES.pdf", dpi=1200)
     # plot.show()
 
 
@@ -430,6 +448,7 @@ print("*******************\nMininet LOSS_PERC plot 50 NODES")
 MininetSubset = subsetByColumnValue(results_nparray, PLATFORM, MININET)
 #Only plot values less than 20% loss, otherwise difficult to see
 MininetSubset = subsetLessThanByColumnValue(MininetSubset, LOSS_PERC, 15)
+MininetSubset = excludeByColumnValue(MininetSubset, LOSS_PERC, 1)
 colors = ['blue', 'red', 'green']
 if hasMatplotlib:
     plot.figure()
@@ -448,7 +467,7 @@ for i in range(NET_MODEL_STRINGS.index('net_ace'),NET_MODEL_STRINGS.index('net_u
         medians = list()
         for arr in yColumnList:
             medians.append(np.median(arr))
-        # print("Medians:", medians)
+
         ax = boxPlotHelper(411, xColumnList+0.3*(i-2), yColumnList, colors[i-2], 'LOSS_PERC', 'Topo Cons\n[%]', width=0.3)
         ax.title.set_text("TCP vs UDP vs UDPNC. 50 NODES")
         ax.plot(xColumnList+0.3*(i-2), medians, color=colors[i-2], linestyle='--', linewidth=0.5)
@@ -469,19 +488,29 @@ for i in range(NET_MODEL_STRINGS.index('net_ace'),NET_MODEL_STRINGS.index('net_u
 
     xColumnList, yColumnList = seperateByColumn(netUDPsubset_50NODES, LOSS_PERC, AVG_WORLDSENDSTAT, "50nodes, Mininet")
     if hasMatplotlib and len(xColumnList) > 0:
+        #Calculate the medians:
+        medians = list()
+        for arr in yColumnList:
+            medians.append(np.median(arr))
         ax = boxPlotHelper(413, xColumnList+0.3*(i-2), yColumnList, colors[i-2], 'LOSS_PERC', 'Send\n[kBps]', width=0.3)
         plot.xlim([np.min(xColumnList)-0.3, np.max(xColumnList)+0.3*(i-2)+0.3])
+        ax.plot(xColumnList+0.3*(i-2), medians, color=colors[i-2], linestyle='--', linewidth=0.5)
         ax.get_xaxis().set_visible(False)
 
     xColumnList, yColumnList = seperateByColumn(netUDPsubset_50NODES, LOSS_PERC, AVG_WORLDRECVSTAT, "50nodes, Mininet")
     if hasMatplotlib and len(xColumnList) > 0:
+        #Calculate the medians:
+        medians = list()
+        for arr in yColumnList:
+            medians.append(np.median(arr))
         ax = boxPlotHelper(414, xColumnList+0.3*(i-2), yColumnList, colors[i-2], 'LOSS_PERC', 'Recv\n[kBps]', width=0.3)
         plot.xlim([np.min(xColumnList)-0.3, np.max(xColumnList)+0.3*(i-2)+0.3])
+        ax.plot(xColumnList+0.3*(i-2), medians, color=colors[i-2], linestyle='--', linewidth=0.5)
         ax.set_xticks(xColumnList)
         ax.set_xticklabels(xColumnList)
 
 if hasMatplotlib:
-    plot.savefig("%s/Development/VAST-0.4.6/bin/results_summary/results_summary_Mininet_50NODES.pdf" % home_dir, dpi=10000)
+    plot.savefig("results_summary_Mininet_50NODES.pdf", dpi=1200)
     # plot.show()
 
 
@@ -691,8 +720,8 @@ for SUBSETNODE_COUNT in [10, 20, 30, 40, 50]:
     MininetSubset = subsetByColumnValue(results_nparray, PLATFORM, MININET)
     NODES20Subset = subsetByColumnValue(MininetSubset, NODES_COUNT, SUBSETNODE_COUNT)
 
-
     LOSS0Subset = subsetByColumnValue(NODES20Subset, LOSS_PERC, 0)
+    LOSS1Subset = subsetByColumnValue(NODES20Subset, LOSS_PERC, 1)
     LOSS2Subset = subsetByColumnValue(NODES20Subset, LOSS_PERC, 2)
     LOSS5Subset = subsetByColumnValue(NODES20Subset, LOSS_PERC, 5)
     LOSS10Subset = subsetByColumnValue(NODES20Subset, LOSS_PERC, 10)
@@ -703,7 +732,8 @@ for SUBSETNODE_COUNT in [10, 20, 30, 40, 50]:
 
     avg_topo_str_matrix = list()
     avg_topo_str_matrix.append(['NET_MODEL:', 'TCP', 'UDP', 'UDPNC'])
-    avg_topo_str_matrix.append(tabulateByNETMODEL(LOSS2Subset, AVG_TOPO_CONS, "0%"))
+    avg_topo_str_matrix.append(tabulateByNETMODEL(LOSS0Subset, AVG_TOPO_CONS, "0%"))
+    avg_topo_str_matrix.append(tabulateByNETMODEL(LOSS1Subset, AVG_TOPO_CONS, "1%"))
     avg_topo_str_matrix.append(tabulateByNETMODEL(LOSS2Subset, AVG_TOPO_CONS, "2%"))
     avg_topo_str_matrix.append(tabulateByNETMODEL(LOSS5Subset, AVG_TOPO_CONS, "5%"))
     avg_topo_str_matrix.append(tabulateByNETMODEL(LOSS10Subset, AVG_TOPO_CONS, "10%"))
@@ -715,7 +745,8 @@ for SUBSETNODE_COUNT in [10, 20, 30, 40, 50]:
 
     avg_drift_str_matrix = list()
     avg_drift_str_matrix.append(['NET_MODEL:', 'TCP', 'UDP', 'UDPNC'])
-    avg_drift_str_matrix.append(tabulateByNETMODEL(LOSS2Subset, AVG_DRIFT, "0%"))
+    avg_drift_str_matrix.append(tabulateByNETMODEL(LOSS0Subset, AVG_DRIFT, "0%"))
+    avg_drift_str_matrix.append(tabulateByNETMODEL(LOSS1Subset, AVG_DRIFT, "1%"))
     avg_drift_str_matrix.append(tabulateByNETMODEL(LOSS2Subset, AVG_DRIFT, "2%"))
     avg_drift_str_matrix.append(tabulateByNETMODEL(LOSS5Subset, AVG_DRIFT, "5%"))
     avg_drift_str_matrix.append(tabulateByNETMODEL(LOSS10Subset, AVG_DRIFT, "10%"))
@@ -729,15 +760,18 @@ for SUBSETNODE_COUNT in [10, 20, 30, 40, 50]:
     try:
         from tabulate import tabulate
         print("AVG\_TOPO\_CONS\linebreak")
-        print(tabulate(avg_topo_str_matrix, tablefmt='latex'))
+
+        # print(tabulate(avg_topo_str_matrix, tablefmt='latex'))
+        print(re.sub('pm', r'$\\pm$', tabulate(avg_topo_str_matrix, tablefmt='latex')))
         print("\nAVG\_DRIFT\linebreak")
-        print(tabulate(avg_drift_str_matrix, tablefmt='latex'))
+        # print(tabulate(avg_drift_str_matrix, tablefmt='latex'))
+        print(re.sub('pm', r'$\\pm$', tabulate(avg_drift_str_matrix, tablefmt='latex')))
 
     except ImportError:
         print("tabulate not available on this console")
 
 if hasMatplotlib:
-    plot.savefig("%s/Development/VAST-0.4.6/bin/results_summary/results_summary_Mininet_multipleMatchers.pdf" % home_dir, dpi=1200)
+    plot.savefig("results_summary_Mininet_multipleMatchers.pdf", dpi=1200)
     plot.show()
 
 

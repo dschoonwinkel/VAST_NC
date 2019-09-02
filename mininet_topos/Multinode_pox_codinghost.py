@@ -112,6 +112,7 @@ def myNetwork():
         try:
             print("Setting up node %d" % i)
             hosts[i-1].cmd("route add 239.255.0.1 h%d-eth0" % i)
+            hosts[i-1].cmd("tshark -T fields -e frame.number -e frame.time -e frame.len -e ip.src -e ip.dst -e ip.proto -E separator=, -E quote=d > pcaps/h%d_pcapout.csv &" % i)
             if AUTO:
                 # hosts[i-1].cmd("xterm -hold -fg black -bg green -geometry 80x60+%d+0 -e   \"./VASTreal_console %d 0 1037 10.0.0.1 \" &" % (200+i*40, i-1))    
                 hosts[i-1].cmd("ASAN_OPTIONS=alloc_dealloc_mismatch=0 ./VASTreal_console %d 0 1037 10.0.0.1 > output_dump/node_10.0.0.%d.txt 2> output_dump/node_10.0.0.%d_err.txt &" % (i-1, i, i))
@@ -176,6 +177,7 @@ def myNetwork():
         
     os.system("killall -s SIGINT VASTreal_console")
     os.system("killall -s SIGINT coding_host")
+    os.system("killall -s SIGINT tshark")
 
     time.sleep(1)
     # CLI(net)
@@ -185,6 +187,7 @@ def myNetwork():
     os.system("killall xterm")
     os.system("killall -s SIGKILL coding_host")
     os.system("killall -s SIGKILL tcpdump")
+    os.system("killall -s SIGKILL tshark")
 
 if __name__ == '__main__':
     setLogLevel( 'info' )

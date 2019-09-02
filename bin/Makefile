@@ -9,6 +9,7 @@ clean:
 	-rm output_dump/*.txt
 	-rm perf/*.data
 	-rm pcaps/*.pcap
+	-rm pcaps/*.csv
 
 clean_binaries:
 	-rm demo_chatva_Qt
@@ -36,6 +37,8 @@ backup_results:
 	-cp output_dump/*.txt logs/logs_backup/logs_$(foo)_$(date_string)/output_dump/
 	mkdir -p logs/logs_backup/logs_$(foo)_$(date_string)/msgcap
 	-cp msgcap/*.txt logs/logs_backup/logs_$(foo)_$(date_string)/msgcap/
+	mkdir -p logs/logs_backup/logs_$(foo)_$(date_string)/pcaps
+	-cp pcaps/*.csv logs/logs_backup/logs_$(foo)_$(date_string)/pcaps/
 	-cp VASTreal.ini logs/logs_backup/logs_$(foo)_$(date_string)/
 	-cp Mininet.ini logs/logs_backup/logs_$(foo)_$(date_string)/
 
