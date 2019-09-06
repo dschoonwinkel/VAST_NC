@@ -28,6 +28,8 @@ WORLDSENDSTAT = 8
 WORLDRECVSTAT = 9
 RAW_MCRECVBYTES = 10
 USED_MCRECVBYTES = 11
+NIC_SEND_BYTES = 12
+NIC_RECV_BYTES = 13
 
 print("Usage: ./plot_results.py <input_file: default = results1.txt>\n\
                  <results label = \"NET_MODEL, nodecount, BW, delay, loss%\">")
@@ -117,8 +119,15 @@ results = list()
 
 for row in results_text:
     # print(row)
-    results.append([(int(row[0])-int(results_text[0][0])), int(row[1]), int(row[2]), int(row[3]),
-     int(row[4]), int(row[5]), int(row[6]), int(row[7]), int(row[8]), int(row[9]), int(row[10]), int(row[11])])
+
+    if len(row) > NIC_RECV_BYTES:
+        results.append([(int(row[0])-int(results_text[0][0])), int(row[1]), int(row[2]), int(row[3]),
+            int(row[4]), int(row[5]), int(row[6]), int(row[7]), int(row[8]), int(row[9]), int(row[10]), 
+            int(row[11]), int(row[12]), int(row[13])])
+
+    else:
+        results.append([(int(row[0])-int(results_text[0][0])), int(row[1]), int(row[2]), int(row[3]),
+            int(row[4]), int(row[5]), int(row[6]), int(row[7]), int(row[8]), int(row[9]), int(row[10]), int(row[11])])
     # print(results[-1])
     # print(int(row[0])%10000)
 
@@ -167,10 +176,16 @@ CONVERSION_FACTOR = (1000 / TIMESTEP_DURATION) / 1000
 send_stat = (numpy_results[:,WORLDSENDSTAT]*CONVERSION_FACTOR)[:len(timestamps)]
 recv_stat = (numpy_results[:,WORLDRECVSTAT]*CONVERSION_FACTOR)[:len(timestamps)]
 mean_sendstat = np.mean(send_stat)
-mean_recvstat = np.mean(recv_stat)
+mean_recvstat = np.mean(recv_stat)  
 
 print("Mean send_stat:", mean_sendstat)
 print("Mean send_recv:", mean_recvstat)
+
+if (numpy_results.shape[1] > NIC_RECV_BYTES):
+    nic_sendbytes = (numpy_results[:,NIC_SEND_BYTES]*CONVERSION_FACTOR)[:len(timestamps)]
+    nic_recvbytes = (numpy_results[:,NIC_RECV_BYTES]*CONVERSION_FACTOR)[:len(timestamps)]
+    mean_nicsendbytes = np.mean(nic_sendbytes)
+    mean_nicrecvbytes = np.mean(nic_recvbytes) 
 
 raw_mcrecvbytes = (numpy_results[:,RAW_MCRECVBYTES]*CONVERSION_FACTOR)[:len(timestamps)]
 used_mcrecvbytes = (numpy_results[:,USED_MCRECVBYTES]*CONVERSION_FACTOR)[:len(timestamps)]
@@ -352,32 +367,39 @@ if (hasMatplotlib and plot_yes):
     
     ax4 = plot.subplot(6,1,4)
     ax4.plot(timestamps, send_stat, 'g',label='Send stat')
-    ax4.plot(timestamps, recv_stat, 'b', label='Recv stat')
+    # ax4.plot(timestamps, recv_stat, 'b', label='Recv stat')
     ax4.plot([0,timestamps[-1]], [mean_sendstat, mean_sendstat], 'g')
     ax4.text(timestamps[0], mean_sendstat*1.1, "%5.2f" % (mean_sendstat), color='g')
-    ax4.set_ylabel("Send\nUnicast [kBps]", color='g')
+    # ax4.plot([0,timestamps[-1]], [mean_recvstat, mean_recvstat], 'b')
+    # ax4.text(timestamps[-1]*0.95, mean_recvstat*0.6, "%5.2f" % (mean_recvstat), color='b')
+    ax4.set_ylabel("VAST Send\nUnicast [kBps]")
     ax4.plot([TOTAL_SETUPTIME, TOTAL_SETUPTIME],[0, np.max(send_stat)], 'k')
     ax4.get_xaxis().set_visible(False)
-    ylim = ax4.get_ylim()
     plot.xlim(0, MAX_TIMESTAMP)
     ax4.grid(True)
 
-    ax4_b = ax4.twinx()    
-    ax4_b.plot([0,timestamps[-1]], [mean_recvstat, mean_recvstat], 'b')
-    ax4_b.set_ylabel("Recv\nUnicast [kBps]", color='b')
-    ax4.text(timestamps[-1]*0.95, mean_recvstat*0.6, "%5.2f" % (mean_recvstat), color='b')
-    ax4_b.set_ylim(ylim)
-    
+    ax4_b = ax4.twinx()
+    if (numpy_results.shape[1]>NIC_RECV_BYTES):
+        ax4_b.plot(timestamps, nic_sendbytes, 'b')
+        ax4_b.plot([0,timestamps[-1]], [mean_nicsendbytes, mean_nicsendbytes], 'b')
+        ax4_b.text(timestamps[-1]*0.95, mean_nicsendbytes*0.6, "%5.2f" % (mean_nicsendbytes), color='b')
+        ax4_b.plot(timestamps, nic_recvbytes, 'r')    
+        ax4_b.plot([0,timestamps[-1]], [mean_nicrecvbytes, mean_nicrecvbytes], 'r')
+        ax4_b.text(timestamps[-1]*0.95, mean_nicrecvbytes*1.7, "%5.2f" % (mean_nicrecvbytes), color='r')
+        ax4_b.set_ylabel("NIC Send\nRecv Unicast [kBps]")
+        ylim = ax4_b.get_ylim()
+        ax4.set_ylim(ylim)
+        
     
     
 
     ax5 = plot.subplot(6,1,5)
-    plot.plot(timestamps, raw_mcrecvbytes, 'r',label='Raw MC Recv')
+    # plot.plot(timestamps, raw_mcrecvbytes, 'r',label='Raw MC Recv')
     plot.plot(timestamps, used_mcrecvbytes, 'm', label='Used MC Recv')
-    plot.plot([0,timestamps[-1]], [mean_rawmcrecv_stat, mean_rawmcrecv_stat], 'r')
+    # plot.plot([0,timestamps[-1]], [mean_rawmcrecv_stat, mean_rawmcrecv_stat], 'r')
     plot.plot([0,timestamps[-1]], [mean_usedmcrecv_stat, mean_usedmcrecv_stat], 'm')
-    plot.plot([TOTAL_SETUPTIME, TOTAL_SETUPTIME],[0, np.max(raw_mcrecvbytes)], 'k')
-    plot.text(timestamps[-1], mean_rawmcrecv_stat, "%5.2f" % (mean_rawmcrecv_stat), color='r')
+    # plot.plot([TOTAL_SETUPTIME, TOTAL_SETUPTIME],[0, np.max(raw_mcrecvbytes)], 'k')
+    # plot.text(timestamps[-1], mean_rawmcrecv_stat, "%5.2f" % (mean_rawmcrecv_stat), color='r')
     plot.text(timestamps[-1], mean_usedmcrecv_stat, "%5.2f" % (mean_usedmcrecv_stat), color='m')
     
     plot.ylabel("Raw/Used\nMC [kBps]")
