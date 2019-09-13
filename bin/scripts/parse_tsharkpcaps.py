@@ -20,7 +20,17 @@ RECV_BYTES = 13
 
 
 tsharkpcaps_files = glob.glob("*pcapout.csv")
-results_file = glob.glob("../results/results1.txt")[0]
+results_file = "../results/results1.txt"
+timestamped_tshark_filename = "../results/timestamped_tshark_summary.txt"
+
+if not os.path.isfile(results_file):
+    print("Results file does not exist, exiting")
+    exit(0)
+
+if os.path.isfile(timestamped_tshark_filename):
+    print("Timestamped Tshark file already exists, exiting")
+    exit(0)
+
 
 print(tsharkpcaps_files)
 print(results_file)
@@ -107,6 +117,8 @@ for filename in tsharkpcaps_files:
     tshark_results_indexes[filename] = 0 
 
 
+timestamped_tshark_list = list()
+timestamped_tshark_header = ['timestamp', 'NIC send', 'NIC recv']
 
 #Interlace tshark files in results
 for result in results:
@@ -141,6 +153,8 @@ for result in results:
 
     result[SEND_BYTES] += send_bytes
     result[RECV_BYTES] += recv_bytes
+    timestamped_tshark_list.append([result[TIMESTAMP], send_bytes, recv_bytes])
+
     # print("send_bytes", send_bytes)
     # print("recv_bytes", recv_bytes)
 
@@ -149,9 +163,15 @@ for result in results:
 # for result in results:
 #     print(result)
 
-with open(results_file, 'w') as csvfile:
+# with open(results_file, 'w') as csvfile:
+#     spamwriter = csv.writer(csvfile, delimiter=",")
+#     spamwriter.writerow(header)
+#     for result in results:
+#         spamwriter.writerow(result)
+
+with open(timestamped_tshark_filename, 'w') as csvfile:
     spamwriter = csv.writer(csvfile, delimiter=",")
-    spamwriter.writerow(header)
-    for result in results:
-        spamwriter.writerow(result)
+    spamwriter.writerow(timestamped_tshark_header)
+    for line in timestamped_tshark_list:
+        spamwriter.writerow(line)
 
