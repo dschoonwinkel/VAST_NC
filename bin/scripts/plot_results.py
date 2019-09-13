@@ -368,11 +368,12 @@ if (hasMatplotlib and plot_yes):
     ax4 = plot.subplot(6,1,4)
     ax4.plot(timestamps, send_stat, 'g',label='Send stat')
     # ax4.plot(timestamps, recv_stat, 'b', label='Recv stat')
-    ax4.plot([0,timestamps[-1]], [mean_sendstat, mean_sendstat], 'g')
-    ax4.text(timestamps[0], mean_sendstat*1.1, "%5.2f" % (mean_sendstat), color='g')
+    ax4.plot([0,timestamps[-1]], [mean_sendstat, mean_sendstat], 'g--')
+    # Text added later
+    # ax4.text(timestamps[0], mean_sendstat*0.9, "%5.2f" % (mean_sendstat), color='g', bbox=dict(facecolor='white', alpha=1))
     # ax4.plot([0,timestamps[-1]], [mean_recvstat, mean_recvstat], 'b')
     # ax4.text(timestamps[-1]*0.95, mean_recvstat*0.6, "%5.2f" % (mean_recvstat), color='b')
-    ax4.set_ylabel("VAST Send\nUnicast [kBps]")
+    ax4.set_ylabel("VAST Send\nUnicast [kBps]", color='g')
     ax4.plot([TOTAL_SETUPTIME, TOTAL_SETUPTIME],[0, np.max(send_stat)], 'k')
     ax4.get_xaxis().set_visible(False)
     plot.xlim(0, MAX_TIMESTAMP)
@@ -381,11 +382,21 @@ if (hasMatplotlib and plot_yes):
     ax4_b = ax4.twinx()
     if (numpy_results.shape[1]>NIC_RECV_BYTES):
         ax4_b.plot(timestamps, nic_sendbytes, 'b')
-        ax4_b.plot([0,timestamps[-1]], [mean_nicsendbytes, mean_nicsendbytes], 'b')
-        ax4_b.text(timestamps[-1]*0.95, mean_nicsendbytes*0.6, "%5.2f" % (mean_nicsendbytes), color='b')
+        ax4_b.plot([0,timestamps[-1]], [mean_nicsendbytes, mean_nicsendbytes], 'b--')
+        ax4_b.text(timestamps[-1]*0.95, mean_nicsendbytes*1.5, "%5.2f" % (mean_nicsendbytes), color='b', bbox=dict(facecolor='white', alpha=1))
         ax4_b.plot(timestamps, nic_recvbytes, 'r')    
-        ax4_b.plot([0,timestamps[-1]], [mean_nicrecvbytes, mean_nicrecvbytes], 'r')
-        ax4_b.text(timestamps[-1]*0.95, mean_nicrecvbytes*1.7, "%5.2f" % (mean_nicrecvbytes), color='r')
+        ax4_b.plot([0,timestamps[-1]], [mean_nicrecvbytes, mean_nicrecvbytes], 'r--')
+        ax4_b.text(timestamps[-1]*0.95, mean_nicrecvbytes*0.6, "%5.2f" % (mean_nicrecvbytes), color='r', bbox=dict(facecolor='white', alpha=1))
+        # Redraw text so that its on top
+        ax4_b.text(timestamps[0], mean_sendstat*0.7, "%5.2f" % (mean_sendstat), color='g', bbox=dict(facecolor='white', alpha=1))
+        from matplotlib.lines import Line2D
+        custom_lines = [Line2D([0], [0], color='g', lw=1),
+                        Line2D([0], [0], color='b', lw=1),
+                        Line2D([0], [0], color='r', lw=1)]
+        ax4_b.legend(custom_lines, ['Send VAST', 'Send NIC', 'Recv NIC'], loc='lower center')
+
+
+        # ax4_b.legend(['Send NIC', 'Recv NIC'])
         ax4_b.set_ylabel("NIC Send\nRecv Unicast [kBps]")
         ylim = ax4_b.get_ylim()
         ax4.set_ylim(ylim)

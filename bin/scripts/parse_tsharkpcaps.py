@@ -99,8 +99,8 @@ for filename in tsharkpcaps_files:
         tshark_results.append(line)
 
     for line in tshark_results:
-        #Check if there is anything other than UDP
-        if line[TYPE] != '17':
+        #Check if there is anything other than UDP or TCP
+        if not (line[TYPE] == '17' or line[TYPE] == '6'):
             print(filename, line)
 
     tsharkdata_dict[filename] = tshark_results
