@@ -128,7 +128,7 @@ def myNetwork():
     # if not AUTO:
         # CLI(net)
 
-    for i in range(1, int(TIMESTEP_DURATION * 1000)/10):
+    for i in range(0, int(TIMESTEP_DURATION * 1000)/10):
             print("Connection wait sleep 10 seconds, %d to go" % (int(TIMESTEP_DURATION * 1000) - i*10))
             try:
                 time.sleep(10)
