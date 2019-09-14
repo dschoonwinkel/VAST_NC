@@ -28,8 +28,6 @@ WORLDSENDSTAT = 8
 WORLDRECVSTAT = 9
 RAW_MCRECVBYTES = 10
 USED_MCRECVBYTES = 11
-NIC_SEND_BYTES = 12
-NIC_RECV_BYTES = 13
 
 print("Usage: ./plot_results.py <input_file: default = results1.txt>\n\
                  <results label = \"NET_MODEL, nodecount, BW, delay, loss%\">")
@@ -119,14 +117,7 @@ results = list()
 
 for row in results_text:
     # print(row)
-
-    if len(row) > NIC_RECV_BYTES:
-        results.append([(int(row[0])-int(results_text[0][0])), int(row[1]), int(row[2]), int(row[3]),
-            int(row[4]), int(row[5]), int(row[6]), int(row[7]), int(row[8]), int(row[9]), int(row[10]), 
-            int(row[11]), int(row[12]), int(row[13])])
-
-    else:
-        results.append([(int(row[0])-int(results_text[0][0])), int(row[1]), int(row[2]), int(row[3]),
+    results.append([(int(row[0])-int(results_text[0][0])), int(row[1]), int(row[2]), int(row[3]),
             int(row[4]), int(row[5]), int(row[6]), int(row[7]), int(row[8]), int(row[9]), int(row[10]), int(row[11])])
     # print(results[-1])
     # print(int(row[0])%10000)
@@ -179,13 +170,7 @@ mean_sendstat = np.mean(send_stat)
 mean_recvstat = np.mean(recv_stat)  
 
 print("Mean send_stat:", mean_sendstat)
-print("Mean send_recv:", mean_recvstat)
-
-if (numpy_results.shape[1] > NIC_RECV_BYTES):
-    nic_sendbytes = (numpy_results[:,NIC_SEND_BYTES]*CONVERSION_FACTOR)[:len(timestamps)]
-    nic_recvbytes = (numpy_results[:,NIC_RECV_BYTES]*CONVERSION_FACTOR)[:len(timestamps)]
-    mean_nicsendbytes = np.mean(nic_sendbytes)
-    mean_nicrecvbytes = np.mean(nic_recvbytes) 
+print("Mean send_recv:", mean_recvstat) 
 
 raw_mcrecvbytes = (numpy_results[:,RAW_MCRECVBYTES]*CONVERSION_FACTOR)[:len(timestamps)]
 used_mcrecvbytes = (numpy_results[:,USED_MCRECVBYTES]*CONVERSION_FACTOR)[:len(timestamps)]
@@ -285,7 +270,7 @@ if resources_fileexist:
 
 
 
-events_fileexist = False
+# events_fileexist = False
 # events_filename = re.sub(r"\.txt", "_events.txt", input_file)
 # if (os.path.isfile(events_filename)):
 #     events_fileexist = True
@@ -314,12 +299,52 @@ events_fileexist = False
 #         print(i, ": ", unique_messages[i])
 
 
+tsharksummary_filename = re.sub(r"\.txt", "_tshark_summary.txt", input_file)
+tsharksummary_fileexists = False
+if (os.path.isfile(tsharksummary_filename)):
+    tsharksummary_fileexists = True
+    print("Tshark summary file found")
+    tsharksummary_text = list()
+    with open(tsharksummary_filename, 'r') as csvfile:
+        spamreader = csv.reader(csvfile, delimiter=",")
+        for row in spamreader:
+            tsharksummary_text.append(row)
+            # print(",".join(row))
+    if len(tsharksummary_text) <= 1:
+        tsharksummary_fileexists = False;
 
 
+if tsharksummary_fileexists:
+    header = tsharksummary_text[0]
+    tsharksummary_text = tsharksummary_text[1:]
+
+    tsharksummary = list()
+
+    for row in tsharksummary_text:
+        # print(row)
+        tsharksummary.append([(int(row[0])-first_timestamp), int(row[1]), int(row[2])])
+        # print(results[-1])
+        # print(int(row[0])%10000)
+
+    numpy_tsharksummary = np.array(tsharksummary)
+
+    NIC_SEND_BYTES = 1
+    NIC_RECV_BYTES = 2
+
+    nic_sendbytes = (numpy_tsharksummary[:,NIC_SEND_BYTES]*CONVERSION_FACTOR)[:len(timestamps)]
+    nic_recvbytes = (numpy_tsharksummary[:,NIC_RECV_BYTES]*CONVERSION_FACTOR)[:len(timestamps)]
+    mean_nicsendbytes = np.mean(nic_sendbytes)
+    mean_nicrecvbytes = np.mean(nic_recvbytes)
+
+    print("Mean NIC send bytes", mean_nicsendbytes)
+    print("Mean NIC recv bytes", mean_nicrecvbytes)
 
 
-
-TOTAL_SETUPTIME = TIMESTEP_DURATION * 1000 + (1 + TIMESTEP_DURATION * 10)*NODE_COUNT
+TIMESTEP_DURATION_S = TIMESTEP_DURATION / 1000.0
+print("TIMESTEP_DURATION_S", TIMESTEP_DURATION_S)
+print("NODE_COUNT", NODE_COUNT)
+TOTAL_SETUPTIME_S = ((1 + TIMESTEP_DURATION_S * 10)*NODE_COUNT + TIMESTEP_DURATION_S * 1000)
+TOTAL_SETUPTIME = TOTAL_SETUPTIME_S * 1000
 print("Total connection setup time: ", TOTAL_SETUPTIME, 'ms')
 print("Total connection setup time: ", TOTAL_SETUPTIME / 1000, 's')
 
@@ -330,7 +355,7 @@ if (hasMatplotlib and plot_yes):
     if (LABEL_list):
         plot.title(str(LABEL_list))
 
-    ax1 = plot.subplot(6,1,1)
+    ax1 = plot.subplot(5,1,1)
     plot.plot(timestamps, active_nodes[:len(timestamps)])
     plot.plot(timestamps, active_matchers[:len(timestamps)])
     plot.plot([TOTAL_SETUPTIME, TOTAL_SETUPTIME],[0, max(active_nodes)+1], 'k')
@@ -343,7 +368,7 @@ if (hasMatplotlib and plot_yes):
     plot.xlim(0, MAX_TIMESTAMP)
     plot.grid(True)
 
-    ax2 = plot.subplot(6,1,2)
+    ax2 = plot.subplot(5,1,2)
     plot.plot(timestamps, topo_consistency)
     plot.plot(timestamps[where_are_NaNs], topo_consistency[where_are_NaNs], 'r,')
     plot.plot([0,timestamps[-1]], [mean_consistency,mean_consistency], 'r')
@@ -355,7 +380,7 @@ if (hasMatplotlib and plot_yes):
     plot.ylim(0, 110)
     plot.grid(True)
     
-    ax3 = plot.subplot(6,1,3)
+    ax3 = plot.subplot(5,1,3)
     plot.plot(timestamps, normalised_drift_distance)
     plot.plot([0,timestamps[-1]], [mean_drift_distance,mean_drift_distance], 'r')
     plot.plot([TOTAL_SETUPTIME, TOTAL_SETUPTIME],[0, np.max(normalised_drift_distance[where_is_finite])], 'k')
@@ -365,7 +390,7 @@ if (hasMatplotlib and plot_yes):
     ax3.get_xaxis().set_visible(False)
     plot.grid(True)
     
-    ax4 = plot.subplot(6,1,4)
+    ax4 = plot.subplot(5,1,4)
     ax4.plot(timestamps, send_stat, 'g',label='Send stat')
     # ax4.plot(timestamps, recv_stat, 'b', label='Recv stat')
     ax4.plot([0,timestamps[-1]], [mean_sendstat, mean_sendstat], 'g--')
@@ -380,7 +405,7 @@ if (hasMatplotlib and plot_yes):
     ax4.grid(True)
 
     ax4_b = ax4.twinx()
-    if (numpy_results.shape[1]>NIC_RECV_BYTES):
+    if (tsharksummary_fileexists):
         ax4_b.plot(timestamps, nic_sendbytes, 'b')
         ax4_b.plot([0,timestamps[-1]], [mean_nicsendbytes, mean_nicsendbytes], 'b--')
         ax4_b.text(timestamps[-1]*0.95, mean_nicsendbytes*1.5, "%5.2f" % (mean_nicsendbytes), color='b', bbox=dict(facecolor='white', alpha=1))
@@ -404,7 +429,7 @@ if (hasMatplotlib and plot_yes):
     
     
 
-    ax5 = plot.subplot(6,1,5)
+    ax5 = plot.subplot(5,1,5)
     # plot.plot(timestamps, raw_mcrecvbytes, 'r',label='Raw MC Recv')
     plot.plot(timestamps, used_mcrecvbytes, 'm', label='Used MC Recv')
     # plot.plot([0,timestamps[-1]], [mean_rawmcrecv_stat, mean_rawmcrecv_stat], 'r')
@@ -422,34 +447,34 @@ if (hasMatplotlib and plot_yes):
     plot.grid(True)
     plot.xlim(0, MAX_TIMESTAMP)
 
-    if resources_fileexist:
-        ax1 = plot.subplot(6,1,6)
-        ax1.plot(numpy_resources[:,0], numpy_resources[:,1], 'r',label='CPU %')
-        ax1.plot([TOTAL_SETUPTIME, TOTAL_SETUPTIME],[0, np.max(numpy_resources[:,1])], 'k')
-        ax1.text(timestamps[-1000], mean_CPU, "%3.2f" % mean_CPU, color='r')
-        color = 'tab:red'
-        ax1.set_ylabel("CPU % ", color=color)
+    # if resources_fileexist:
+    #     ax1 = plot.subplot(6,1,6)
+    #     ax1.plot(numpy_resources[:,0], numpy_resources[:,1], 'r',label='CPU %')
+    #     ax1.plot([TOTAL_SETUPTIME, TOTAL_SETUPTIME],[0, np.max(numpy_resources[:,1])], 'k')
+    #     ax1.text(timestamps[-1000], mean_CPU, "%3.2f" % mean_CPU, color='r')
+    #     color = 'tab:red'
+    #     ax1.set_ylabel("CPU % ", color=color)
 
-        ax2 = ax1.twinx()
-        ax2.plot(numpy_resources[:,0], numpy_resources[:,2], 'b',label='Mem')
-        ax2.text(timestamps[-1000], median_MemMB, "%3.2f" % median_MemMB, color='b')
-        color = 'tab:blue'
-        ax2.set_ylabel("Mem [MB]", color=color)
-        plot.xlabel("Timestamp [ms]")
-        plot.xticks(np.arange(min(timestamps), max(timestamps)+1, x_axis_interval))
-        plot.grid(True)
-        plot.xlim(0, MAX_TIMESTAMP)
+    #     ax2 = ax1.twinx()
+    #     ax2.plot(numpy_resources[:,0], numpy_resources[:,2], 'b',label='Mem')
+    #     ax2.text(timestamps[-1000], median_MemMB, "%3.2f" % median_MemMB, color='b')
+    #     color = 'tab:blue'
+    #     ax2.set_ylabel("Mem [MB]", color=color)
+    #     plot.xlabel("Timestamp [ms]")
+    #     plot.xticks(np.arange(min(timestamps), max(timestamps)+1, x_axis_interval))
+    #     plot.grid(True)
+    #     plot.xlim(0, MAX_TIMESTAMP)
 
-    if events_fileexist:
-        ax1 = plot.subplot(6,1,3)
-        for event in events:
-            # print(event)
-            # print(np.where(unique_messages==event[2])[0][0])
-            plot.plot([event[0], event[0]], [0, np.max(normalised_drift_distance[where_is_finite])]) 
-            plot.text(event[0], np.max(normalised_drift_distance[where_is_finite]), 
-                str(np.where(unique_messages==event[2])[0][0]), rotation=90)
-            # plot.xlim(0, MAX_TIMESTAMP)
-            # plot.ylim(0, 100)
+    # if events_fileexist:
+    #     ax1 = plot.subplot(6,1,3)
+    #     for event in events:
+    #         # print(event)
+    #         # print(np.where(unique_messages==event[2])[0][0])
+    #         plot.plot([event[0], event[0]], [0, np.max(normalised_drift_distance[where_is_finite])]) 
+    #         plot.text(event[0], np.max(normalised_drift_distance[where_is_finite]), 
+    #             str(np.where(unique_messages==event[2])[0][0]), rotation=90)
+    #         # plot.xlim(0, MAX_TIMESTAMP)
+    #         # plot.ylim(0, 100)
 
         
     

@@ -21,7 +21,8 @@ RECV_BYTES = 13
 
 tsharkpcaps_files = glob.glob("*pcapout.csv")
 results_file = "../results/results1.txt"
-timestamped_tshark_filename = "../results/timestamped_tshark_summary.txt"
+# timestamped_tshark_filename = "../results/results1_tshark_summary.txt"
+timestamped_tshark_filename = re.sub(r"\.txt", "_tshark_summary.txt", results_file)
 
 if not os.path.isfile(results_file):
     print("Results file does not exist, exiting")

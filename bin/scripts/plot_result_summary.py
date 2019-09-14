@@ -450,6 +450,7 @@ MininetSubset = subsetByColumnValue(results_nparray, PLATFORM, MININET)
 MininetSubset = subsetLessThanByColumnValue(MininetSubset, LOSS_PERC, 15)
 MininetSubset = excludeByColumnValue(MininetSubset, LOSS_PERC, 1)
 colors = ['blue', 'red', 'green']
+linestyles = [':', '-.', '--']
 if hasMatplotlib:
     plot.figure()
 
@@ -470,7 +471,7 @@ for i in range(NET_MODEL_STRINGS.index('net_ace'),NET_MODEL_STRINGS.index('net_u
 
         ax = boxPlotHelper(411, xColumnList+0.3*(i-2), yColumnList, colors[i-2], '', 'Topo Cons\n[%]', width=0.3)
         ax.title.set_text("TCP vs UDP vs UDPNC. 50 NODES")
-        ax.plot(xColumnList+0.3*(i-2), medians, color=colors[i-2], linestyle='--', linewidth=0.5)
+        ax.plot(xColumnList+0.3*(i-2), medians, color=colors[i-2], linestyle=linestyles[i-2], linewidth=1)
         plot.xlim([np.min(xColumnList)-0.3, np.max(xColumnList)+0.3*(i-2)+0.3])
         ax.set_xticks(xColumnList)
         ax.tick_params(labelbottom=False)
@@ -482,7 +483,7 @@ for i in range(NET_MODEL_STRINGS.index('net_ace'),NET_MODEL_STRINGS.index('net_u
         for arr in yColumnList:
             medians.append(np.median(arr))
         ax = boxPlotHelper(412, xColumnList+0.3*(i-2), yColumnList, colors[i-2], '', 'Drift dist\n[units]', width=0.3)
-        ax.plot(xColumnList+0.3*(i-2), medians, color=colors[i-2], linestyle='--', linewidth=0.5)
+        ax.plot(xColumnList+0.3*(i-2), medians, color=colors[i-2], linestyle=linestyles[i-2], linewidth=1)
         plot.xlim([np.min(xColumnList)-0.3, np.max(xColumnList)+0.3*(i-2)+0.3])
         ax.set_xticks(xColumnList)
         ax.tick_params(labelbottom=False)
@@ -496,7 +497,7 @@ for i in range(NET_MODEL_STRINGS.index('net_ace'),NET_MODEL_STRINGS.index('net_u
             medians.append(np.median(arr))
         ax = boxPlotHelper(413, xColumnList+0.3*(i-2), yColumnList, colors[i-2], '', 'Send\n[kBps]', width=0.3)
         plot.xlim([np.min(xColumnList)-0.3, np.max(xColumnList)+0.3*(i-2)+0.3])
-        ax.plot(xColumnList+0.3*(i-2), medians, color=colors[i-2], linestyle='--', linewidth=0.5)
+        ax.plot(xColumnList+0.3*(i-2), medians, color=colors[i-2], linestyle=linestyles[i-2], linewidth=1)
         ax.set_xticks(xColumnList)
         ax.tick_params(labelbottom=False)
 
@@ -508,7 +509,7 @@ for i in range(NET_MODEL_STRINGS.index('net_ace'),NET_MODEL_STRINGS.index('net_u
             medians.append(np.median(arr))
         ax = boxPlotHelper(414, xColumnList+0.3*(i-2), yColumnList, colors[i-2], 'LOSS_PERC', 'Recv\n[kBps]', width=0.3)
         plot.xlim([np.min(xColumnList)-0.3, np.max(xColumnList)+0.3*(i-2)+0.3])
-        ax.plot(xColumnList+0.3*(i-2), medians, color=colors[i-2], linestyle='--', linewidth=0.5)
+        ax.plot(xColumnList+0.3*(i-2), medians, color=colors[i-2], linestyle=linestyles[i-2], linewidth=1)
         ax.set_xticks(xColumnList)
         ax.set_xticklabels(xColumnList)
 
@@ -523,10 +524,8 @@ if hasMatplotlib:
 # Only Mininet results
 print("*******************\nMininet LOSS_PERC plot 50 NODES, only UDP and UDPNC")
 MininetSubset = subsetByColumnValue(results_nparray, PLATFORM, MININET)
-#Only plot values less than 20% loss, otherwise difficult to see
-# MininetSubset = subsetLessThanByColumnValue(MininetSubset, LOSS_PERC, 15)
+# Leave out for clarity on graph
 MininetSubset = excludeByColumnValue(MininetSubset, LOSS_PERC, 1)
-colors = ['blue', 'red', 'green']
 if hasMatplotlib:
     plot.figure()
 
@@ -549,7 +548,7 @@ for i in range(NET_MODEL_STRINGS.index('net_udp'),NET_MODEL_STRINGS.index('net_u
 
         ax = boxPlotHelper(411, xColumnList+0.3*(i-3), yColumnList, colors[i-2], '', 'Topo Cons\n[%]', width=boxwidth)
         ax.title.set_text("TCP vs UDP vs UDPNC. 50 NODES")
-        ax.plot(xColumnList+boxwidth*(i-2), medians, color=colors[i-2], linestyle='--', linewidth=0.5)
+        ax.plot(xColumnList+boxwidth*(i-2), medians, color=colors[i-2], linestyle=linestyles[i-2], linewidth=1)
         plot.xlim([np.min(xColumnList)-boxwidth, np.max(xColumnList)+boxwidth*(i-2)+boxwidth])
         ax.set_xticks(xColumnList)
         ax.tick_params(labelbottom=False)
@@ -561,7 +560,7 @@ for i in range(NET_MODEL_STRINGS.index('net_udp'),NET_MODEL_STRINGS.index('net_u
         for arr in yColumnList:
             medians.append(np.median(arr))
         ax = boxPlotHelper(412, xColumnList+boxwidth*(i-3), yColumnList, colors[i-2], '', 'Drift dist\n[units]', width=boxwidth)
-        ax.plot(xColumnList+boxwidth*(i-2), medians, color=colors[i-2], linestyle='--', linewidth=0.5)
+        ax.plot(xColumnList+boxwidth*(i-2), medians, color=colors[i-2], linestyle=linestyles[i-2], linewidth=1)
         plot.xlim([np.min(xColumnList)-boxwidth, np.max(xColumnList)+boxwidth*(i-2)+boxwidth])
         ax.set_xticks(xColumnList)
         ax.tick_params(labelbottom=False)
@@ -575,7 +574,7 @@ for i in range(NET_MODEL_STRINGS.index('net_udp'),NET_MODEL_STRINGS.index('net_u
             medians.append(np.median(arr))
         ax = boxPlotHelper(413, xColumnList+boxwidth*(i-3), yColumnList, colors[i-2], '', 'Send\n[kBps]', width=boxwidth)
         plot.xlim([np.min(xColumnList)-boxwidth, np.max(xColumnList)+boxwidth*(i-2)+boxwidth])
-        ax.plot(xColumnList+boxwidth*(i-2), medians, color=colors[i-2], linestyle='--', linewidth=0.5)
+        ax.plot(xColumnList+boxwidth*(i-2), medians, color=colors[i-2], linestyle=linestyles[i-2], linewidth=1)
         ax.set_xticks(xColumnList)
         ax.tick_params(labelbottom=False)
 
@@ -587,7 +586,7 @@ for i in range(NET_MODEL_STRINGS.index('net_udp'),NET_MODEL_STRINGS.index('net_u
             medians.append(np.median(arr))
         ax = boxPlotHelper(414, xColumnList+boxwidth*(i-3), yColumnList, colors[i-2], 'LOSS_PERC', 'Recv\n[kBps]', width=boxwidth)
         plot.xlim([np.min(xColumnList)-boxwidth, np.max(xColumnList)+boxwidth*(i-2)+boxwidth])
-        ax.plot(xColumnList+boxwidth*(i-2), medians, color=colors[i-2], linestyle='--', linewidth=0.5)
+        ax.plot(xColumnList+boxwidth*(i-2), medians, color=colors[i-2], linestyle=linestyles[i-2], linewidth=1)
         ax.set_xticks(xColumnList)
         ax.set_xticklabels(xColumnList)
 
@@ -800,17 +799,18 @@ for SUBSETNODE_COUNT in [10, 20, 30, 40, 50]:
 # SUBSETNODE_COUNT = 20
     print("\nSUBSETNODE\_COUNT: ", SUBSETNODE_COUNT, "\linebreak")
     MininetSubset = subsetByColumnValue(results_nparray, PLATFORM, MININET)
-    NODES20Subset = subsetByColumnValue(MininetSubset, NODES_COUNT, SUBSETNODE_COUNT)
+    NODESSubset = subsetByColumnValue(MininetSubset, NODES_COUNT, SUBSETNODE_COUNT)
 
-    LOSS0Subset = subsetByColumnValue(NODES20Subset, LOSS_PERC, 0)
-    LOSS1Subset = subsetByColumnValue(NODES20Subset, LOSS_PERC, 1)
-    LOSS2Subset = subsetByColumnValue(NODES20Subset, LOSS_PERC, 2)
-    LOSS5Subset = subsetByColumnValue(NODES20Subset, LOSS_PERC, 5)
-    LOSS10Subset = subsetByColumnValue(NODES20Subset, LOSS_PERC, 10)
-    LOSS15Subset = subsetByColumnValue(NODES20Subset, LOSS_PERC, 15)
-    LOSS20Subset = subsetByColumnValue(NODES20Subset, LOSS_PERC, 20)
-    LOSS30Subset = subsetByColumnValue(NODES20Subset, LOSS_PERC, 30)
-    LOSS40Subset = subsetByColumnValue(NODES20Subset, LOSS_PERC, 40)
+    LOSS0Subset = subsetByColumnValue(NODESSubset, LOSS_PERC, 0)
+    LOSS1Subset = subsetByColumnValue(NODESSubset, LOSS_PERC, 1)
+    LOSS2Subset = subsetByColumnValue(NODESSubset, LOSS_PERC, 2)
+    LOSS5Subset = subsetByColumnValue(NODESSubset, LOSS_PERC, 5)
+    LOSS10Subset = subsetByColumnValue(NODESSubset, LOSS_PERC, 10)
+    LOSS15Subset = subsetByColumnValue(NODESSubset, LOSS_PERC, 15)
+    LOSS20Subset = subsetByColumnValue(NODESSubset, LOSS_PERC, 20)
+    LOSS30Subset = subsetByColumnValue(NODESSubset, LOSS_PERC, 30)
+    LOSS40Subset = subsetByColumnValue(NODESSubset, LOSS_PERC, 40)
+    LOSS50Subset = subsetByColumnValue(NODESSubset, LOSS_PERC, 50)
 
     avg_topo_str_matrix = list()
     avg_topo_str_matrix.append(['NET_MODEL:', 'TCP', 'UDP', 'UDPNC'])
@@ -823,6 +823,7 @@ for SUBSETNODE_COUNT in [10, 20, 30, 40, 50]:
     avg_topo_str_matrix.append(tabulateByNETMODEL(LOSS20Subset, AVG_TOPO_CONS, "20%"))
     avg_topo_str_matrix.append(tabulateByNETMODEL(LOSS30Subset, AVG_TOPO_CONS, "30%"))
     avg_topo_str_matrix.append(tabulateByNETMODEL(LOSS40Subset, AVG_TOPO_CONS, "40%"))
+    avg_topo_str_matrix.append(tabulateByNETMODEL(LOSS50Subset, AVG_TOPO_CONS, "50%"))
 
 
     avg_drift_str_matrix = list()
@@ -836,6 +837,7 @@ for SUBSETNODE_COUNT in [10, 20, 30, 40, 50]:
     avg_drift_str_matrix.append(tabulateByNETMODEL(LOSS20Subset, AVG_DRIFT, "20%"))
     avg_drift_str_matrix.append(tabulateByNETMODEL(LOSS30Subset, AVG_DRIFT, "30%"))
     avg_drift_str_matrix.append(tabulateByNETMODEL(LOSS40Subset, AVG_DRIFT, "40%"))
+    avg_drift_str_matrix.append(tabulateByNETMODEL(LOSS50Subset, AVG_DRIFT, "50%"))
     # print(avg_drift_str_matrix)
 
 
