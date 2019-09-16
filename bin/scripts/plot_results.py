@@ -402,7 +402,7 @@ if LABEL_list:
     # print(LABEL_list)
     if not plot_yes and not in_result_summary:
         with open('%s/Development/VAST-0.4.6/bin/results_summary/results_summary.txt' % home_dir, 'a') as outfile:
-            outfile.write(("%s, %d, %d, %d, %d, %d, %d, %d, %3.2f, %3.2f, %f, %f, %f, %f, %f, %f, %f %f, %s\n") % 
+            outfile.write(("%s, %d, %d, %d, %d, %d, %d, %d, %3.2f, %3.2f, %f, %f, %f, %f, %f, %f, %f, %f, %s\n") % 
                   tuple(LABEL_list))
         #         outfile.write("%s, %s, %f, %f, %f, %f, %f\n" 
     #             % (first_timestamp, input_file, np.max(active_nodes), mean_consistency, 
@@ -457,7 +457,9 @@ if (hasMatplotlib and plot_yes):
     plot.ylabel("Topo consistency\n[%]")
     ax2.get_xaxis().set_visible(False)
     plot.xlim(0, MAX_TIMESTAMP)
-    # plot.ylim(0, 110)
+    print("Consistency plot ylims: ", plot.ylim())
+    plot.ylim(96, 100.2)
+    plot.yticks(np.arange(96, 100, 1))
     plot.grid(True)
     
 
@@ -502,11 +504,11 @@ if (hasMatplotlib and plot_yes):
         ax4.plot([0,timestamps[index_aftersetuptime]], [mean_nicrecvbytes_beforeloss, mean_nicrecvbytes_beforeloss], 'r--')
         ax4.plot([timestamps[index_aftersetuptime],timestamps[-1]], [mean_nicrecvbytes_afterloss, mean_nicrecvbytes_afterloss], 'r--')
         # ax4.plot([0,timestamps[-1]], [mean_nicrecvbytes, mean_nicrecvbytes], 'r--')
-        ax4.text(timestamps[0], mean_nicrecvbytes_beforeloss*0.95, "%5.2f" % (mean_nicrecvbytes_beforeloss), color='r', bbox=dict(facecolor='white', alpha=1))
-        ax4.text(timestamps[-1], mean_nicrecvbytes_afterloss*1.1, "%5.2f" % (mean_nicrecvbytes_afterloss), color='r', bbox=dict(facecolor='white', alpha=1))
+        ax4.text(timestamps[0], mean_nicrecvbytes_beforeloss*1.2, "%5.2f" % (mean_nicrecvbytes_beforeloss), color='r', bbox=dict(facecolor='white', alpha=1))
+        ax4.text(timestamps[-1], mean_nicrecvbytes_afterloss*1.3, "%5.2f" % (mean_nicrecvbytes_afterloss), color='r', bbox=dict(facecolor='white', alpha=1))
 
         # Redraw text so that its on top
-        ax4.text(timestamps[0], mean_sendstat_beforeloss*0.55, "%5.2f" % (mean_sendstat_beforeloss), color='g', bbox=dict(facecolor='white', alpha=1))
+        ax4.text(timestamps[0], mean_sendstat_beforeloss*0.4, "%5.2f" % (mean_sendstat_beforeloss), color='g', bbox=dict(facecolor='white', alpha=1))
         ax4.text(timestamps[-1], mean_sendstat_afterloss*0.7, "%5.2f" % (mean_sendstat_afterloss), color='g', bbox=dict(facecolor='white', alpha=1))
         from matplotlib.lines import Line2D
         custom_lines = [Line2D([0], [0], color='g', lw=1),

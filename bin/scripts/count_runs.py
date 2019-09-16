@@ -76,6 +76,8 @@ AVG_TOPO_CONS = 9
 AVG_DRIFT = 10
 AVG_WORLDSENDSTAT = 11
 AVG_WORLDRECVSTAT = 12
+NICSEND_BYTES = 13
+NICRECV_BYTES = 14
 
 MININET = 1
 DOCKER = 2
@@ -99,6 +101,7 @@ with open(input_file, 'r') as csvfile:
         # print(",".join(row))
 
 header = results_text[0]
+print("header", header)
 results_text = results_text[1:]
 
 
