@@ -450,6 +450,7 @@ MininetSubset = subsetByColumnValue(results_nparray, PLATFORM, MININET)
 MininetSubset = subsetLessThanByColumnValue(MininetSubset, LOSS_PERC, 15)
 MininetSubset = excludeByColumnValue(MininetSubset, LOSS_PERC, 1)
 colors = ['blue', 'red', 'green']
+linestyles = [':', '-.', '--']
 if hasMatplotlib:
     plot.figure()
 
@@ -468,11 +469,12 @@ for i in range(NET_MODEL_STRINGS.index('net_ace'),NET_MODEL_STRINGS.index('net_u
         for arr in yColumnList:
             medians.append(np.median(arr))
 
-        ax = boxPlotHelper(411, xColumnList+0.3*(i-2), yColumnList, colors[i-2], 'LOSS_PERC', 'Topo Cons\n[%]', width=0.3)
+        ax = boxPlotHelper(411, xColumnList+0.3*(i-2), yColumnList, colors[i-2], '', 'Topo Cons\n[%]', width=0.3)
         ax.title.set_text("TCP vs UDP vs UDPNC. 50 NODES")
-        ax.plot(xColumnList+0.3*(i-2), medians, color=colors[i-2], linestyle='--', linewidth=0.5)
+        ax.plot(xColumnList+0.3*(i-2), medians, color=colors[i-2], linestyle=linestyles[i-2], linewidth=1)
         plot.xlim([np.min(xColumnList)-0.3, np.max(xColumnList)+0.3*(i-2)+0.3])
-        ax.get_xaxis().set_visible(False)
+        ax.set_xticks(xColumnList)
+        ax.tick_params(labelbottom=False)
 
     xColumnList, yColumnList = seperateByColumn(netUDPsubset_50NODES, LOSS_PERC, AVG_DRIFT, "50nodes, Mininet")
     if hasMatplotlib and len(xColumnList) > 0:
@@ -480,10 +482,11 @@ for i in range(NET_MODEL_STRINGS.index('net_ace'),NET_MODEL_STRINGS.index('net_u
         medians = list()
         for arr in yColumnList:
             medians.append(np.median(arr))
-        ax = boxPlotHelper(412, xColumnList+0.3*(i-2), yColumnList, colors[i-2], 'LOSS_PERC', 'Drift dist\n[units]', width=0.3)
-        ax.plot(xColumnList+0.3*(i-2), medians, color=colors[i-2], linestyle='--', linewidth=0.5)
+        ax = boxPlotHelper(412, xColumnList+0.3*(i-2), yColumnList, colors[i-2], '', 'Drift dist\n[units]', width=0.3)
+        ax.plot(xColumnList+0.3*(i-2), medians, color=colors[i-2], linestyle=linestyles[i-2], linewidth=1)
         plot.xlim([np.min(xColumnList)-0.3, np.max(xColumnList)+0.3*(i-2)+0.3])
-        ax.get_xaxis().set_visible(False)
+        ax.set_xticks(xColumnList)
+        ax.tick_params(labelbottom=False)
 
 
     xColumnList, yColumnList = seperateByColumn(netUDPsubset_50NODES, LOSS_PERC, AVG_WORLDSENDSTAT, "50nodes, Mininet")
@@ -492,10 +495,11 @@ for i in range(NET_MODEL_STRINGS.index('net_ace'),NET_MODEL_STRINGS.index('net_u
         medians = list()
         for arr in yColumnList:
             medians.append(np.median(arr))
-        ax = boxPlotHelper(413, xColumnList+0.3*(i-2), yColumnList, colors[i-2], 'LOSS_PERC', 'Send\n[kBps]', width=0.3)
+        ax = boxPlotHelper(413, xColumnList+0.3*(i-2), yColumnList, colors[i-2], '', 'Send\n[kBps]', width=0.3)
         plot.xlim([np.min(xColumnList)-0.3, np.max(xColumnList)+0.3*(i-2)+0.3])
-        ax.plot(xColumnList+0.3*(i-2), medians, color=colors[i-2], linestyle='--', linewidth=0.5)
-        ax.get_xaxis().set_visible(False)
+        ax.plot(xColumnList+0.3*(i-2), medians, color=colors[i-2], linestyle=linestyles[i-2], linewidth=1)
+        ax.set_xticks(xColumnList)
+        ax.tick_params(labelbottom=False)
 
     xColumnList, yColumnList = seperateByColumn(netUDPsubset_50NODES, LOSS_PERC, AVG_WORLDRECVSTAT, "50nodes, Mininet")
     if hasMatplotlib and len(xColumnList) > 0:
@@ -505,12 +509,89 @@ for i in range(NET_MODEL_STRINGS.index('net_ace'),NET_MODEL_STRINGS.index('net_u
             medians.append(np.median(arr))
         ax = boxPlotHelper(414, xColumnList+0.3*(i-2), yColumnList, colors[i-2], 'LOSS_PERC', 'Recv\n[kBps]', width=0.3)
         plot.xlim([np.min(xColumnList)-0.3, np.max(xColumnList)+0.3*(i-2)+0.3])
-        ax.plot(xColumnList+0.3*(i-2), medians, color=colors[i-2], linestyle='--', linewidth=0.5)
+        ax.plot(xColumnList+0.3*(i-2), medians, color=colors[i-2], linestyle=linestyles[i-2], linewidth=1)
         ax.set_xticks(xColumnList)
         ax.set_xticklabels(xColumnList)
 
 if hasMatplotlib:
     plot.savefig("results_summary_Mininet_50NODES.pdf", dpi=1200)
+    # plot.show()
+
+
+
+
+# 50 NODES, Only UDP and UDPNC
+# Only Mininet results
+print("*******************\nMininet LOSS_PERC plot 50 NODES, only UDP and UDPNC")
+MininetSubset = subsetByColumnValue(results_nparray, PLATFORM, MININET)
+# Leave out for clarity on graph
+MininetSubset = excludeByColumnValue(MininetSubset, LOSS_PERC, 1)
+if hasMatplotlib:
+    plot.figure()
+
+boxwidth = 0.5
+
+for i in range(NET_MODEL_STRINGS.index('net_udp'),NET_MODEL_STRINGS.index('net_udpNC') + 1):
+
+    print(i)
+    print(NET_MODEL_STRINGS[i])
+    netUDPsubset = subsetByColumnValue(MininetSubset, NET_MODEL, i)
+    netUDPsubset_50NODES = subsetByColumnValue(netUDPsubset, NODES_COUNT, 50)
+    xColumnList, yColumnList = seperateByColumn(netUDPsubset_50NODES, LOSS_PERC, AVG_TOPO_CONS, "50nodes, Mininet")
+    print(xColumnList)
+    print(len(xColumnList))
+    if hasMatplotlib and len(xColumnList) > 0:
+        #Calculate the medians:
+        medians = list()
+        for arr in yColumnList:
+            medians.append(np.median(arr))
+
+        ax = boxPlotHelper(411, xColumnList+0.3*(i-3), yColumnList, colors[i-2], '', 'Topo Cons\n[%]', width=boxwidth)
+        ax.title.set_text("TCP vs UDP vs UDPNC. 50 NODES")
+        ax.plot(xColumnList+boxwidth*(i-2), medians, color=colors[i-2], linestyle=linestyles[i-2], linewidth=1)
+        plot.xlim([np.min(xColumnList)-boxwidth, np.max(xColumnList)+boxwidth*(i-2)+boxwidth])
+        ax.set_xticks(xColumnList)
+        ax.tick_params(labelbottom=False)
+
+    xColumnList, yColumnList = seperateByColumn(netUDPsubset_50NODES, LOSS_PERC, AVG_DRIFT, "50nodes, Mininet")
+    if hasMatplotlib and len(xColumnList) > 0:
+        #Calculate the medians:
+        medians = list()
+        for arr in yColumnList:
+            medians.append(np.median(arr))
+        ax = boxPlotHelper(412, xColumnList+boxwidth*(i-3), yColumnList, colors[i-2], '', 'Drift dist\n[units]', width=boxwidth)
+        ax.plot(xColumnList+boxwidth*(i-2), medians, color=colors[i-2], linestyle=linestyles[i-2], linewidth=1)
+        plot.xlim([np.min(xColumnList)-boxwidth, np.max(xColumnList)+boxwidth*(i-2)+boxwidth])
+        ax.set_xticks(xColumnList)
+        ax.tick_params(labelbottom=False)
+
+
+    xColumnList, yColumnList = seperateByColumn(netUDPsubset_50NODES, LOSS_PERC, AVG_WORLDSENDSTAT, "50nodes, Mininet")
+    if hasMatplotlib and len(xColumnList) > 0:
+        #Calculate the medians:
+        medians = list()
+        for arr in yColumnList:
+            medians.append(np.median(arr))
+        ax = boxPlotHelper(413, xColumnList+boxwidth*(i-3), yColumnList, colors[i-2], '', 'Send\n[kBps]', width=boxwidth)
+        plot.xlim([np.min(xColumnList)-boxwidth, np.max(xColumnList)+boxwidth*(i-2)+boxwidth])
+        ax.plot(xColumnList+boxwidth*(i-2), medians, color=colors[i-2], linestyle=linestyles[i-2], linewidth=1)
+        ax.set_xticks(xColumnList)
+        ax.tick_params(labelbottom=False)
+
+    xColumnList, yColumnList = seperateByColumn(netUDPsubset_50NODES, LOSS_PERC, AVG_WORLDRECVSTAT, "50nodes, Mininet")
+    if hasMatplotlib and len(xColumnList) > 0:
+        #Calculate the medians:
+        medians = list()
+        for arr in yColumnList:
+            medians.append(np.median(arr))
+        ax = boxPlotHelper(414, xColumnList+boxwidth*(i-3), yColumnList, colors[i-2], 'LOSS_PERC', 'Recv\n[kBps]', width=boxwidth)
+        plot.xlim([np.min(xColumnList)-boxwidth, np.max(xColumnList)+boxwidth*(i-2)+boxwidth])
+        ax.plot(xColumnList+boxwidth*(i-2), medians, color=colors[i-2], linestyle=linestyles[i-2], linewidth=1)
+        ax.set_xticks(xColumnList)
+        ax.set_xticklabels(xColumnList)
+
+if hasMatplotlib:
+    plot.savefig("results_summary_Mininet_50NODES_UDP_UDPNC.pdf", dpi=1200)
     # plot.show()
 
 
@@ -546,7 +627,7 @@ if hasMatplotlib:
 #     plot.ylim([0.5, 35])
 #     plot.ylabel('Drift distance [units]')  
 #     plot.grid()
-#     plot.savefig("%s/Development/VAST-0.4.6/bin/results_summary/results_summary_Mininet.pdf", dpi=1200)
+#     plot.savefig("%s/Development/VAST-0.4.6/bin/results_summary/results_summary_Mininet.pdf" % home_dir, dpi=1200)
 
 # # Only Mininet results
 # print("*******************\nMininet UDP Subset zoomed in")
@@ -576,7 +657,7 @@ if hasMatplotlib:
 #     plot.ylim([0.5, 5])
 #     plot.ylabel('Drift distance [units]')  
 #     plot.grid()
-#     plot.savefig("%s/Development/VAST-0.4.6/bin/results_summary/results_summary_Mininet_zoomedin.pdf", dpi=1200)
+#     plot.savefig("%s/Development/VAST-0.4.6/bin/results_summary/results_summary_Mininet_zoomedin.pdf" % home_dir, dpi=1200)
 #     plot.show()
 
 
@@ -627,7 +708,7 @@ if hasMatplotlib:
 #     plot.ylim([0.5, 35])
 #     plot.ylabel('Drift distance [units]')  
 #     plot.grid()
-#     plot.savefig("%s/Development/VAST-0.4.6/bin/results_summary/results_summary_Docker.pdf", dpi=1200)
+#     plot.savefig("%s/Development/VAST-0.4.6/bin/results_summary/results_summary_Docker.pdf" % home_dir, dpi=1200)
 
 # # Only Docker results
 # print("*******************\nDocker UDP Subset zoomed in")
@@ -718,17 +799,18 @@ for SUBSETNODE_COUNT in [10, 20, 30, 40, 50]:
 # SUBSETNODE_COUNT = 20
     print("\nSUBSETNODE\_COUNT: ", SUBSETNODE_COUNT, "\linebreak")
     MininetSubset = subsetByColumnValue(results_nparray, PLATFORM, MININET)
-    NODES20Subset = subsetByColumnValue(MininetSubset, NODES_COUNT, SUBSETNODE_COUNT)
+    NODESSubset = subsetByColumnValue(MininetSubset, NODES_COUNT, SUBSETNODE_COUNT)
 
-    LOSS0Subset = subsetByColumnValue(NODES20Subset, LOSS_PERC, 0)
-    LOSS1Subset = subsetByColumnValue(NODES20Subset, LOSS_PERC, 1)
-    LOSS2Subset = subsetByColumnValue(NODES20Subset, LOSS_PERC, 2)
-    LOSS5Subset = subsetByColumnValue(NODES20Subset, LOSS_PERC, 5)
-    LOSS10Subset = subsetByColumnValue(NODES20Subset, LOSS_PERC, 10)
-    LOSS15Subset = subsetByColumnValue(NODES20Subset, LOSS_PERC, 15)
-    LOSS20Subset = subsetByColumnValue(NODES20Subset, LOSS_PERC, 20)
-    LOSS30Subset = subsetByColumnValue(NODES20Subset, LOSS_PERC, 30)
-    LOSS40Subset = subsetByColumnValue(NODES20Subset, LOSS_PERC, 40)
+    LOSS0Subset = subsetByColumnValue(NODESSubset, LOSS_PERC, 0)
+    LOSS1Subset = subsetByColumnValue(NODESSubset, LOSS_PERC, 1)
+    LOSS2Subset = subsetByColumnValue(NODESSubset, LOSS_PERC, 2)
+    LOSS5Subset = subsetByColumnValue(NODESSubset, LOSS_PERC, 5)
+    LOSS10Subset = subsetByColumnValue(NODESSubset, LOSS_PERC, 10)
+    LOSS15Subset = subsetByColumnValue(NODESSubset, LOSS_PERC, 15)
+    LOSS20Subset = subsetByColumnValue(NODESSubset, LOSS_PERC, 20)
+    LOSS30Subset = subsetByColumnValue(NODESSubset, LOSS_PERC, 30)
+    LOSS40Subset = subsetByColumnValue(NODESSubset, LOSS_PERC, 40)
+    LOSS50Subset = subsetByColumnValue(NODESSubset, LOSS_PERC, 50)
 
     avg_topo_str_matrix = list()
     avg_topo_str_matrix.append(['NET_MODEL:', 'TCP', 'UDP', 'UDPNC'])
@@ -741,6 +823,7 @@ for SUBSETNODE_COUNT in [10, 20, 30, 40, 50]:
     avg_topo_str_matrix.append(tabulateByNETMODEL(LOSS20Subset, AVG_TOPO_CONS, "20%"))
     avg_topo_str_matrix.append(tabulateByNETMODEL(LOSS30Subset, AVG_TOPO_CONS, "30%"))
     avg_topo_str_matrix.append(tabulateByNETMODEL(LOSS40Subset, AVG_TOPO_CONS, "40%"))
+    avg_topo_str_matrix.append(tabulateByNETMODEL(LOSS50Subset, AVG_TOPO_CONS, "50%"))
 
 
     avg_drift_str_matrix = list()
@@ -754,6 +837,7 @@ for SUBSETNODE_COUNT in [10, 20, 30, 40, 50]:
     avg_drift_str_matrix.append(tabulateByNETMODEL(LOSS20Subset, AVG_DRIFT, "20%"))
     avg_drift_str_matrix.append(tabulateByNETMODEL(LOSS30Subset, AVG_DRIFT, "30%"))
     avg_drift_str_matrix.append(tabulateByNETMODEL(LOSS40Subset, AVG_DRIFT, "40%"))
+    avg_drift_str_matrix.append(tabulateByNETMODEL(LOSS50Subset, AVG_DRIFT, "50%"))
     # print(avg_drift_str_matrix)
 
 
