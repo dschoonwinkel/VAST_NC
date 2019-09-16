@@ -5,6 +5,7 @@ import sys
 from os.path import expanduser
 import os
 from plot_result_utils import parseFilenameLabel
+import re
 
 
 TIMESTAMP = 0
