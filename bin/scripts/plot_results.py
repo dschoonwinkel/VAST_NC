@@ -64,6 +64,14 @@ MAX_TIMESTAMP = (SIMULATION_STEPS * TIMESTEP_DURATION)
 # Use this to see what happens past node 1 leave
 # MAX_TIMESTAMP = (SIMULATION_STEPS * TIMESTEP_DURATION * 2)
 
+TIMESTEP_DURATION_S = TIMESTEP_DURATION / 1000.0
+print("TIMESTEP_DURATION_S", TIMESTEP_DURATION_S)
+print("NODE_COUNT", NODE_COUNT)
+TOTAL_SETUPTIME_S = ((1 + TIMESTEP_DURATION_S * 10)*NODE_COUNT + TIMESTEP_DURATION_S * 1000)
+TOTAL_SETUPTIME = TOTAL_SETUPTIME_S * 1000
+print("Total connection setup time: ", TOTAL_SETUPTIME, 'ms')
+print("Total connection setup time: ", TOTAL_SETUPTIME / 1000, 's')
+
 results_text = list()
 
 input_file = '%s/Development/VAST-0.4.6/bin/logs/results/results1.txt' % home_dir
@@ -129,6 +137,13 @@ numpy_results = np.array(results)
 timestamps = numpy_results[:,0]
 timestamps = timestamps[np.where(timestamps < MAX_TIMESTAMP)]
 first_timestamp = int(results_text[0][0])
+
+
+print("Timestamps:", timestamps)
+after_setuptime_relative_timestamp = timestamps[0]+TOTAL_SETUPTIME
+print("After setuptime relative timestamp", after_setuptime_relative_timestamp)
+index_aftersetuptime = np.where(timestamps>after_setuptime_relative_timestamp)[0][0]
+print("index in timestamps for after setuptime", index_aftersetuptime)
 last_relative_timestamp = timestamps[-1]
 
 if last_relative_timestamp < 0.9 * MAX_TIMESTAMP:
@@ -141,15 +156,41 @@ max_nodes = np.max(active_nodes)
 active_matchers = numpy_results[:,ACTIVE_MATCHERS]
 max_matchers = np.max(active_matchers)
 
-topo_consistency = (100* 1.0*numpy_results[:,AN_VISIBLE] / (1.0*numpy_results[:,AN_ACTUAL]))[:len(timestamps)]
 
+# TOPO CONSISTENCY
+topo_consistency = (100* 1.0*numpy_results[:,AN_VISIBLE] / (1.0*numpy_results[:,AN_ACTUAL]))[:len(timestamps)]
 where_is_finite = np.isfinite(topo_consistency)
-print(len(where_is_finite))
+print("len(where_is_finite)", len(where_is_finite))
 mean_consistency = np.mean(topo_consistency[where_is_finite])
 where_are_NaNs = np.isnan(topo_consistency)
 topo_consistency[where_are_NaNs] = 100
-
 print("Mean consistency:", mean_consistency)
+
+mean_consistency_beforeloss = np.mean(topo_consistency[0:index_aftersetuptime])
+mean_consistency_afterloss = np.mean(topo_consistency[index_aftersetuptime:])
+print("mean_consistency_beforeloss:", mean_consistency_beforeloss)
+print("mean_consistency_afterloss:", mean_consistency_afterloss)
+
+
+
+# DRIFT DISTANCE
+# Before loss
+drift_nodes_beforeloss = numpy_results[:,DRIFT_NODES][:index_aftersetuptime]
+where_is_finite = np.nonzero(drift_nodes_beforeloss)
+drift_distance = numpy_results[:,TOTAL_DRIFT][:index_aftersetuptime]
+normalised_drift_distance = drift_distance / drift_nodes_beforeloss
+
+mean_drift_distance_beforeloss = np.mean(normalised_drift_distance[where_is_finite])
+print("Mean normalized drift distance before loss:", mean_drift_distance_beforeloss)
+
+# After loss
+drift_nodes = numpy_results[:,DRIFT_NODES][index_aftersetuptime:len(timestamps)]
+where_is_finite = np.nonzero(drift_nodes)
+drift_distance = numpy_results[:,TOTAL_DRIFT][index_aftersetuptime:len(timestamps)]
+normalised_drift_distance = drift_distance / drift_nodes
+
+mean_drift_distance_afterloss = np.mean(normalised_drift_distance[where_is_finite])
+print("Mean normalized drift distance after loss:", mean_drift_distance_afterloss)
 
 drift_nodes = numpy_results[:,DRIFT_NODES][:len(timestamps)]
 where_is_finite = np.nonzero(drift_nodes)
@@ -157,12 +198,14 @@ drift_distance = numpy_results[:,TOTAL_DRIFT][:len(timestamps)]
 normalised_drift_distance = drift_distance / drift_nodes
 
 mean_drift_distance = np.mean(normalised_drift_distance[where_is_finite])
-
 print("Mean normalized drift distance:", mean_drift_distance)
 
+
+
+
+#SEND / RECV STAT
 # Show results in kBps -> 10 ticks per second (1000ms / 100ms per tick) / 1000 B per kB
 CONVERSION_FACTOR = (1000 / TIMESTEP_DURATION) / 1000
-
 
 send_stat = (numpy_results[:,WORLDSENDSTAT]*CONVERSION_FACTOR)[:len(timestamps)]
 recv_stat = (numpy_results[:,WORLDRECVSTAT]*CONVERSION_FACTOR)[:len(timestamps)]
@@ -170,7 +213,19 @@ mean_sendstat = np.mean(send_stat)
 mean_recvstat = np.mean(recv_stat)  
 
 print("Mean send_stat:", mean_sendstat)
-print("Mean send_recv:", mean_recvstat) 
+print("Mean send_recv:", mean_recvstat)
+
+mean_sendstat_beforeloss = np.mean(send_stat[0:index_aftersetuptime])
+mean_recvstat_beforeloss = np.mean(recv_stat[0:index_aftersetuptime])  
+
+print("mean_sendstat_beforeloss:", mean_sendstat_beforeloss)
+print("mean_recvstat_beforeloss:", mean_recvstat_beforeloss)
+
+mean_sendstat_afterloss = np.mean(send_stat[index_aftersetuptime:])
+mean_recvstat_afterloss = np.mean(recv_stat[index_aftersetuptime:])
+
+print("mean_sendstat_afterloss:", mean_sendstat_afterloss)
+print("mean_recvstat_afterloss:", mean_recvstat_afterloss)
 
 raw_mcrecvbytes = (numpy_results[:,RAW_MCRECVBYTES]*CONVERSION_FACTOR)[:len(timestamps)]
 used_mcrecvbytes = (numpy_results[:,USED_MCRECVBYTES]*CONVERSION_FACTOR)[:len(timestamps)]
@@ -180,53 +235,18 @@ mean_usedmcrecv_stat = np.mean(used_mcrecvbytes)
 print("Mean raw_mcrecvbytes:", mean_rawmcrecv_stat)
 print("Mean used_mcrecvbytes:", mean_usedmcrecv_stat)
 
+mean_rawmcrecv_stat_beforeloss = np.mean(raw_mcrecvbytes[0:index_aftersetuptime])
+mean_usedmcrecv_stat_beforeloss = np.mean(used_mcrecvbytes[0:index_aftersetuptime])
 
+print("mean_rawmcrecv_stat_beforeloss:", mean_rawmcrecv_stat_beforeloss)
+print("mean_usedmcrecv_stat_beforeloss:", mean_usedmcrecv_stat_beforeloss)
 
+mean_rawmcrecv_stat_afterloss = np.mean(raw_mcrecvbytes[index_aftersetuptime:])
+mean_usedmcrecv_stat_afterloss = np.mean(used_mcrecvbytes[index_aftersetuptime:])
 
-# Output to results summary, only if we know the LABEL
-if LABEL_list:
-    NODE_COUNT = LABEL_list[1]
-    LABEL_list.insert(0, first_timestamp)
-    LABEL_list.extend([np.max(active_nodes), np.max(active_matchers), mean_consistency, 
-                  mean_drift_distance, mean_sendstat, mean_recvstat, 
-                  mean_rawmcrecv_stat, mean_usedmcrecv_stat])
-    LABEL_list.append(DATESTAMP_str)
+print("mean_rawmcrecv_stat_afterloss:", mean_rawmcrecv_stat_afterloss)
+print("mean_usedmcrecv_stat_afterloss:", mean_usedmcrecv_stat_afterloss)
 
-    #Check if the result is already in summary
-    in_result_summary = False
-    with open('%s/Development/VAST-0.4.6/bin/results_summary/results_summary.txt' % home_dir, 'r') as symmary_file:
-        data = symmary_file.readlines()
-
-        for line in data:
-            if line.find(DATESTAMP_str) != -1:
-                in_result_summary = True
-                print("Result already in summmary: ", line)
-
-
-    # print(LABEL_list)
-    if not plot_yes and not in_result_summary:
-        with open('%s/Development/VAST-0.4.6/bin/results_summary/results_summary.txt' % home_dir, 'a') as outfile:
-            outfile.write(("%s, %d, %d, %d, %d, %d, %d, %d, %3.2f, %3.2f, %f, %f, %f, %f, %f, %f, %s\n") % 
-                  tuple(LABEL_list))
-        #         outfile.write("%s, %s, %f, %f, %f, %f, %f\n" 
-    #             % (first_timestamp, input_file, np.max(active_nodes), mean_consistency, 
-    #               mean_drift_distance, np.mean(send_stat), np.mean(recv_stat)))
-    #         print("Saving test results in results_summary.txt with label " + input_file)
-
-
-# NET_MODEL_STRINGS = ['net_emu', 'net_ace', 'net_udp', 'net_udpNC']
-# label = "%s_%d_%d_%d_loss%d_%s" % \
-#             (NET_MODEL_STRINGS[NET_MODEL-1], NODE_COUNT, BW, DELAY, LOSS_PERC, first_timestamp)
-# print(label)
-
-# with open('%s/Development/VAST-0.4.6/bin/results_summary/results_summary.txt' % home_dir, 'a') as outfile:
-#     # outfile.write(("%s, %d, %d, %d, %d, %d, %f, %f, %f, %f, %f, %s\n") % 
-#           # (first_timestamp, NET_MODEL, NODE_COUNT, BW, DELAY, LOSS_PERC, np.max(active_nodes), mean_consistency, 
-#           #     mean_drift_distance, np.mean(send_stat), np.mean(recv_stat), sys.argv[2]))
-#         outfile.write("%s, %s, %f, %f, %f, %f, %f\n" 
-#             % (first_timestamp, input_file, np.max(active_nodes), mean_consistency, 
-#               mean_drift_distance, np.mean(send_stat), np.mean(recv_stat)))
-#         print("Saving test results in results_summary.txt with label " + input_file)
 
 resources_filename = re.sub(r"\.txt", "_resources.txt", input_file)
 resources_fileexist = False
@@ -299,6 +319,9 @@ if resources_fileexist:
 #         print(i, ": ", unique_messages[i])
 
 
+mean_nicsendbytes_afterloss = 0
+mean_nicrecvbytes_afterloss = 0
+
 tsharksummary_filename = re.sub(r"\.txt", "_tshark_summary.txt", input_file)
 tsharksummary_fileexists = False
 if (os.path.isfile(tsharksummary_filename)):
@@ -339,14 +362,67 @@ if tsharksummary_fileexists:
     print("Mean NIC send bytes", mean_nicsendbytes)
     print("Mean NIC recv bytes", mean_nicrecvbytes)
 
+    mean_nicsendbytes_beforeloss = np.mean(nic_sendbytes[0:index_aftersetuptime])
+    mean_nicrecvbytes_beforeloss = np.mean(nic_recvbytes[0:index_aftersetuptime])
 
-TIMESTEP_DURATION_S = TIMESTEP_DURATION / 1000.0
-print("TIMESTEP_DURATION_S", TIMESTEP_DURATION_S)
-print("NODE_COUNT", NODE_COUNT)
-TOTAL_SETUPTIME_S = ((1 + TIMESTEP_DURATION_S * 10)*NODE_COUNT + TIMESTEP_DURATION_S * 1000)
-TOTAL_SETUPTIME = TOTAL_SETUPTIME_S * 1000
-print("Total connection setup time: ", TOTAL_SETUPTIME, 'ms')
-print("Total connection setup time: ", TOTAL_SETUPTIME / 1000, 's')
+    print("mean_nicsendbytes_beforeloss", mean_nicsendbytes_beforeloss)
+    print("mean_nicrecvbytes_beforeloss", mean_nicrecvbytes_beforeloss)
+
+    mean_nicsendbytes_afterloss = np.mean(nic_sendbytes[index_aftersetuptime:])
+    mean_nicrecvbytes_afterloss = np.mean(nic_recvbytes[index_aftersetuptime:])
+
+    print("mean_nicsendbytes_afterloss", mean_nicsendbytes_afterloss)
+    print("mean_nicrecvbytes_afterloss", mean_nicrecvbytes_afterloss)
+
+
+
+# Output to results summary, only if we know the LABEL
+if LABEL_list:
+    NODE_COUNT = LABEL_list[1]
+    LABEL_list.insert(0, first_timestamp)
+    LABEL_list.extend([np.max(active_nodes), np.max(active_matchers), 
+                  mean_consistency_afterloss, 
+                  mean_drift_distance_afterloss, 
+                  mean_sendstat_afterloss, mean_recvstat_afterloss, 
+                  mean_rawmcrecv_stat_afterloss, mean_usedmcrecv_stat_afterloss, 
+                  mean_nicsendbytes_afterloss, mean_nicrecvbytes_afterloss])
+    LABEL_list.append(DATESTAMP_str)
+
+    #Check if the result is already in summary
+    in_result_summary = False
+    with open('%s/Development/VAST-0.4.6/bin/results_summary/results_summary.txt' % home_dir, 'r') as symmary_file:
+        data = symmary_file.readlines()
+
+        for line in data:
+            if line.find(DATESTAMP_str) != -1:
+                in_result_summary = True
+                print("Result already in summmary: ", line)
+
+
+    # print(LABEL_list)
+    if not plot_yes and not in_result_summary:
+        with open('%s/Development/VAST-0.4.6/bin/results_summary/results_summary.txt' % home_dir, 'a') as outfile:
+            outfile.write(("%s, %d, %d, %d, %d, %d, %d, %d, %3.2f, %3.2f, %f, %f, %f, %f, %f, %f, %f %f, %s\n") % 
+                  tuple(LABEL_list))
+        #         outfile.write("%s, %s, %f, %f, %f, %f, %f\n" 
+    #             % (first_timestamp, input_file, np.max(active_nodes), mean_consistency, 
+    #               mean_drift_distance, np.mean(send_stat), np.mean(recv_stat)))
+    #         print("Saving test results in results_summary.txt with label " + input_file)
+
+
+# NET_MODEL_STRINGS = ['net_emu', 'net_ace', 'net_udp', 'net_udpNC']
+# label = "%s_%d_%d_%d_loss%d_%s" % \
+#             (NET_MODEL_STRINGS[NET_MODEL-1], NODE_COUNT, BW, DELAY, LOSS_PERC, first_timestamp)
+# print(label)
+
+# with open('%s/Development/VAST-0.4.6/bin/results_summary/results_summary.txt' % home_dir, 'a') as outfile:
+#     # outfile.write(("%s, %d, %d, %d, %d, %d, %f, %f, %f, %f, %f, %s\n") % 
+#           # (first_timestamp, NET_MODEL, NODE_COUNT, BW, DELAY, LOSS_PERC, np.max(active_nodes), mean_consistency, 
+#           #     mean_drift_distance, np.mean(send_stat), np.mean(recv_stat), sys.argv[2]))
+#         outfile.write("%s, %s, %f, %f, %f, %f, %f\n" 
+#             % (first_timestamp, input_file, np.max(active_nodes), mean_consistency, 
+#               mean_drift_distance, np.mean(send_stat), np.mean(recv_stat)))
+#         print("Saving test results in results_summary.txt with label " + input_file)
 
 
 if (hasMatplotlib and plot_yes):
@@ -356,11 +432,11 @@ if (hasMatplotlib and plot_yes):
         plot.title(str(LABEL_list))
 
     ax1 = plot.subplot(5,1,1)
-    plot.plot(timestamps, active_nodes[:len(timestamps)])
-    plot.plot(timestamps, active_matchers[:len(timestamps)])
+    plot.plot(timestamps, active_nodes[:len(timestamps)], 'b')
+    plot.plot(timestamps, active_matchers[:len(timestamps)], 'r')
     plot.plot([TOTAL_SETUPTIME, TOTAL_SETUPTIME],[0, max(active_nodes)+1], 'k')
-    plot.text(timestamps[-1], max_nodes, str(max_nodes))
-    plot.text(timestamps[-1], max_matchers, str(max_matchers))
+    plot.text(timestamps[-1], max_nodes, str(max_nodes), color='b', bbox=dict(facecolor='white', alpha=1))
+    plot.text(timestamps[-1], max_matchers, str(max_matchers), color='r', bbox=dict(facecolor='white', alpha=1))
     plot.ylabel("# Active")
     plot.legend(['Nodes', 'Matchers'])
     ax1.get_xaxis().set_visible(False)
@@ -368,24 +444,32 @@ if (hasMatplotlib and plot_yes):
     plot.xlim(0, MAX_TIMESTAMP)
     plot.grid(True)
 
+
     ax2 = plot.subplot(5,1,2)
     plot.plot(timestamps, topo_consistency)
     plot.plot(timestamps[where_are_NaNs], topo_consistency[where_are_NaNs], 'r,')
-    plot.plot([0,timestamps[-1]], [mean_consistency,mean_consistency], 'r')
-    plot.plot([TOTAL_SETUPTIME, TOTAL_SETUPTIME],[0, 100], 'k')
-    plot.text(timestamps[-1], mean_consistency, "%5.2f" % mean_consistency)
+    plot.plot([0,timestamps[index_aftersetuptime]], [mean_consistency_beforeloss,mean_consistency_beforeloss], 'r--')
+    plot.plot([timestamps[index_aftersetuptime],timestamps[-1]], [mean_consistency_afterloss,mean_consistency_afterloss], 'r--')
+    # plot.plot([0,timestamps[-1]], [mean_consistency,mean_consistency], 'r--')
+    plot.plot([TOTAL_SETUPTIME, TOTAL_SETUPTIME],[np.min(topo_consistency), 100], 'k')
+    plot.text(timestamps[0], mean_consistency_afterloss, "%5.2f" % mean_consistency_beforeloss, bbox=dict(facecolor='white', alpha=1))
+    plot.text(timestamps[-1], mean_consistency_afterloss, "%5.2f" % mean_consistency_afterloss, bbox=dict(facecolor='white', alpha=1))
     plot.ylabel("Topo consistency\n[%]")
     ax2.get_xaxis().set_visible(False)
     plot.xlim(0, MAX_TIMESTAMP)
-    plot.ylim(0, 110)
+    # plot.ylim(0, 110)
     plot.grid(True)
     
+
     ax3 = plot.subplot(5,1,3)
     plot.plot(timestamps, normalised_drift_distance)
-    plot.plot([0,timestamps[-1]], [mean_drift_distance,mean_drift_distance], 'r')
+    plot.plot([0,timestamps[index_aftersetuptime]], [mean_drift_distance_beforeloss,mean_drift_distance_beforeloss], 'r--')
+    plot.plot([timestamps[index_aftersetuptime],timestamps[-1]], [mean_drift_distance_afterloss,mean_drift_distance_afterloss], 'r--')
+    # plot.plot([0,timestamps[-1]], [mean_drift_distance,mean_drift_distance], 'r--')
     plot.plot([TOTAL_SETUPTIME, TOTAL_SETUPTIME],[0, np.max(normalised_drift_distance[where_is_finite])], 'k')
     plot.ylabel("Norm drift\ndist[VE units]")
-    plot.text(timestamps[-1], mean_drift_distance, "%5.2f" % mean_drift_distance)
+    plot.text(timestamps[0], mean_drift_distance_beforeloss, "%5.2f" % mean_drift_distance_beforeloss, bbox=dict(facecolor='white', alpha=1))
+    plot.text(timestamps[-1], mean_drift_distance_afterloss, "%5.2f" % mean_drift_distance_afterloss, bbox=dict(facecolor='white', alpha=1))
     plot.xlim(0, MAX_TIMESTAMP)
     ax3.get_xaxis().set_visible(False)
     plot.grid(True)
@@ -398,32 +482,46 @@ if (hasMatplotlib and plot_yes):
     # ax4.text(timestamps[0], mean_sendstat*0.9, "%5.2f" % (mean_sendstat), color='g', bbox=dict(facecolor='white', alpha=1))
     # ax4.plot([0,timestamps[-1]], [mean_recvstat, mean_recvstat], 'b')
     # ax4.text(timestamps[-1]*0.95, mean_recvstat*0.6, "%5.2f" % (mean_recvstat), color='b')
-    ax4.set_ylabel("VAST Send\nUnicast [kBps]", color='g')
+    ax4.set_ylabel("VAST/NIC\nSend/Recv [kBps]")
     ax4.plot([TOTAL_SETUPTIME, TOTAL_SETUPTIME],[0, np.max(send_stat)], 'k')
     ax4.get_xaxis().set_visible(False)
     plot.xlim(0, MAX_TIMESTAMP)
     ax4.grid(True)
 
-    ax4_b = ax4.twinx()
+    # ax4_b = ax4.twinx()
     if (tsharksummary_fileexists):
-        ax4_b.plot(timestamps, nic_sendbytes, 'b')
-        ax4_b.plot([0,timestamps[-1]], [mean_nicsendbytes, mean_nicsendbytes], 'b--')
-        ax4_b.text(timestamps[-1]*0.95, mean_nicsendbytes*1.5, "%5.2f" % (mean_nicsendbytes), color='b', bbox=dict(facecolor='white', alpha=1))
-        ax4_b.plot(timestamps, nic_recvbytes, 'r')    
-        ax4_b.plot([0,timestamps[-1]], [mean_nicrecvbytes, mean_nicrecvbytes], 'r--')
-        ax4_b.text(timestamps[-1]*0.95, mean_nicrecvbytes*0.6, "%5.2f" % (mean_nicrecvbytes), color='r', bbox=dict(facecolor='white', alpha=1))
+        ax4.plot(timestamps, nic_sendbytes, 'b')
+        ax4.plot([0, timestamps[index_aftersetuptime]], [mean_nicsendbytes_beforeloss, mean_nicsendbytes_beforeloss], 'b--')
+        ax4.plot([timestamps[index_aftersetuptime],timestamps[-1]], [mean_nicsendbytes_afterloss, mean_nicsendbytes_afterloss], 'b--')
+        # ax4.plot([0,timestamps[-1]], [mean_nicsendbytes, mean_nicsendbytes], 'b--')
+        # ax4.text(timestamps[0], mean_nicsendbytes_beforeloss*1.3, "%5.2f" % (mean_nicsendbytes_beforeloss), color='b', bbox=dict(facecolor='white', alpha=1))
+        ax4.text(timestamps[0], mean_nicsendbytes_beforeloss*1.45, "%5.2f" % (mean_nicsendbytes_beforeloss), color='b', bbox=dict(facecolor='white', alpha=1))
+        ax4.text(timestamps[-1], mean_nicsendbytes_afterloss*1.4, "%5.2f" % (mean_nicsendbytes_afterloss), color='b', bbox=dict(facecolor='white', alpha=1))
+        
+        ax4.plot(timestamps, nic_recvbytes, 'r')    
+        ax4.plot([0,timestamps[index_aftersetuptime]], [mean_nicrecvbytes_beforeloss, mean_nicrecvbytes_beforeloss], 'r--')
+        ax4.plot([timestamps[index_aftersetuptime],timestamps[-1]], [mean_nicrecvbytes_afterloss, mean_nicrecvbytes_afterloss], 'r--')
+        # ax4.plot([0,timestamps[-1]], [mean_nicrecvbytes, mean_nicrecvbytes], 'r--')
+        ax4.text(timestamps[0], mean_nicrecvbytes_beforeloss*0.95, "%5.2f" % (mean_nicrecvbytes_beforeloss), color='r', bbox=dict(facecolor='white', alpha=1))
+        ax4.text(timestamps[-1], mean_nicrecvbytes_afterloss*1.1, "%5.2f" % (mean_nicrecvbytes_afterloss), color='r', bbox=dict(facecolor='white', alpha=1))
+
         # Redraw text so that its on top
-        ax4_b.text(timestamps[0], mean_sendstat*0.7, "%5.2f" % (mean_sendstat), color='g', bbox=dict(facecolor='white', alpha=1))
+        ax4.text(timestamps[0], mean_sendstat_beforeloss*0.55, "%5.2f" % (mean_sendstat_beforeloss), color='g', bbox=dict(facecolor='white', alpha=1))
+        ax4.text(timestamps[-1], mean_sendstat_afterloss*0.7, "%5.2f" % (mean_sendstat_afterloss), color='g', bbox=dict(facecolor='white', alpha=1))
         from matplotlib.lines import Line2D
         custom_lines = [Line2D([0], [0], color='g', lw=1),
                         Line2D([0], [0], color='b', lw=1),
                         Line2D([0], [0], color='r', lw=1)]
-        ax4_b.legend(custom_lines, ['Send VAST', 'Send NIC', 'Recv NIC'], loc='lower center')
+        # ax4.legend(custom_lines, ['Send VAST', 'Send NIC', 'Recv NIC'], loc='lower center')
+        ax4.legend(custom_lines, ['Send VAST', 'Send NIC', 'Recv NIC'], loc='upper left')
 
 
-        # ax4_b.legend(['Send NIC', 'Recv NIC'])
-        ax4_b.set_ylabel("NIC Send\nRecv Unicast [kBps]")
-        ylim = ax4_b.get_ylim()
+        # ax4.legend(['Send NIC', 'Recv NIC'])
+        # ax4.set_ylabel("NIC Send\nRecv Unicast [kBps]")
+        ylim = ax4.get_ylim()
+        # ylim = (ylim[0], ylim[1]*1.3) # For UDPNC
+        ylim = (ylim[0], ylim[1]*1.7) # For TCP
+        print(ylim)
         ax4.set_ylim(ylim)
         
     
@@ -431,19 +529,23 @@ if (hasMatplotlib and plot_yes):
 
     ax5 = plot.subplot(5,1,5)
     # plot.plot(timestamps, raw_mcrecvbytes, 'r',label='Raw MC Recv')
-    plot.plot(timestamps, used_mcrecvbytes, 'm', label='Used MC Recv')
+    # plot.plot(timestamps, used_mcrecvbytes, 'm', label='MC Recv')
+    plot.plot(timestamps, used_mcrecvbytes, color='m')
     # plot.plot([0,timestamps[-1]], [mean_rawmcrecv_stat, mean_rawmcrecv_stat], 'r')
-    plot.plot([0,timestamps[-1]], [mean_usedmcrecv_stat, mean_usedmcrecv_stat], 'm')
-    # plot.plot([TOTAL_SETUPTIME, TOTAL_SETUPTIME],[0, np.max(raw_mcrecvbytes)], 'k')
+    plot.plot([0,timestamps[index_aftersetuptime]], [mean_usedmcrecv_stat_beforeloss, mean_usedmcrecv_stat_beforeloss], color='m', linestyle='--')
+    plot.plot([timestamps[index_aftersetuptime],timestamps[-1]], [mean_usedmcrecv_stat_afterloss, mean_usedmcrecv_stat_afterloss], color='m', linestyle='--')
+    # plot.plot([0,timestamps[-1]], [mean_usedmcrecv_stat, mean_usedmcrecv_stat], color='m', linestyle='--')
+    plot.plot([TOTAL_SETUPTIME, TOTAL_SETUPTIME],[0, np.max(raw_mcrecvbytes)], 'k')
     # plot.text(timestamps[-1], mean_rawmcrecv_stat, "%5.2f" % (mean_rawmcrecv_stat), color='r')
-    plot.text(timestamps[-1], mean_usedmcrecv_stat, "%5.2f" % (mean_usedmcrecv_stat), color='m')
+    plot.text(timestamps[0], mean_usedmcrecv_stat_beforeloss, "%5.2f" % (mean_usedmcrecv_stat_beforeloss), color='m', bbox=dict(facecolor='white', alpha=1))
+    plot.text(timestamps[-1], mean_usedmcrecv_stat_afterloss, "%5.2f" % (mean_usedmcrecv_stat_afterloss), color='m', bbox=dict(facecolor='white', alpha=1))
     
-    plot.ylabel("Raw/Used\nMC [kBps]")
+    plot.ylabel("MC Recv\n[kBps]")
     if not resources_fileexist:
         plot.xticks(np.arange(min(timestamps), max(timestamps)+1, x_axis_interval))
     else:
         ax5.get_xaxis().set_visible(False)
-    plot.legend()
+    # plot.legend()
     plot.grid(True)
     plot.xlim(0, MAX_TIMESTAMP)
 
