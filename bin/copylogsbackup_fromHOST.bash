@@ -9,4 +9,4 @@ fi
 FROMHOST=$1
 echo $HOSTNAME
 
-rsync -rz -i --ignore-existing --dry-run dschoonwinkel@$FROMHOST:~/Development/VAST-0.4.6/bin/logs/logs_$HOSTNAME ~/Development/VAST-0.4.6/bin/logs/logs_backup/
+rsync -arz -i --ignore-existing --dry-run dschoonwinkel@$FROMHOST:~/Development/VAST-0.4.6/bin/logs/logs_$HOSTNAME ~/Development/VAST-0.4.6/bin/logs/logs_backup/
