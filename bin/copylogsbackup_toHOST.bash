@@ -9,4 +9,4 @@ fi
 TOHOST=$1
 echo $HOSTNAME
 
-rsync -vrz --progress --dry-run ~/Development/VAST-0.4.6/bin/logs/logs_backup/ dschoonwinkel@$TOHOST:~/Development/VAST-0.4.6/logs/logs_$HOSTNAME
+rsync -avrz --delete --progress ~/Development/VAST-0.4.6/bin/logs/logs_backup/ dschoonwinkel@$TOHOST:~/Development/VAST-0.4.6/bin/logs/logs_$HOSTNAME
