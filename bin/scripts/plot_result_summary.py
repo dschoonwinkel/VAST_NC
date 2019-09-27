@@ -23,6 +23,8 @@ AVG_WORLDSENDSTAT = 12
 AVG_WORLDRECVSTAT = 13
 RAW_MCRECVBYTES = 14
 USED_MCRECVBYTES = 15
+NICSEND_BYTES = 16
+NICRECV_BYTES = 17
 
 MININET = 1
 DOCKER = 2
@@ -153,7 +155,7 @@ results_nparray = results_nparray[:, :-1]
 # print(results_nparray)
 results_nparray = np.array(results_nparray, dtype=np.float)
 np.set_printoptions(linewidth=np.inf, formatter={'float': '{: 0.3f}'.format})
-# print(results_nparray)
+print(results_nparray)
 # print(results_nparray[:,NET_MODEL])
 # print(seperateByColumn(results_nparray, NODES_COUNT, AVG_DRIFT, "differentNodeCounts"))
 # xColumnList, yColumnList = seperateByColumn(results_nparray, NODES_COUNT, AVG_DRIFT, "differentNodeCounts")
@@ -454,6 +456,9 @@ linestyles = [':', '-.', '--']
 if hasMatplotlib:
     plot.figure()
 
+custom_lines = list()
+custom_lines_names = list()
+
 for i in range(NET_MODEL_STRINGS.index('net_ace'),NET_MODEL_STRINGS.index('net_udpNC') + 1):
 
     print(i)
@@ -475,6 +480,17 @@ for i in range(NET_MODEL_STRINGS.index('net_ace'),NET_MODEL_STRINGS.index('net_u
         plot.xlim([np.min(xColumnList)-0.3, np.max(xColumnList)+0.3*(i-2)+0.3])
         ax.set_xticks(xColumnList)
         ax.tick_params(labelbottom=False)
+        ax.set_yticks(np.arange(99.2, 100.2, 0.2))
+
+
+        from matplotlib.lines import Line2D
+        custom_lines.append(Line2D([0], [0], color=colors[i-2], linestyle=linestyles[i-2], lw=1))
+        if NET_MODEL_STRINGS[i] == 'net_ace':
+            custom_lines_names.append("TCP")
+        else:
+            custom_lines_names.append(NET_MODEL_STRINGS[i][4:].upper())
+
+        ax.legend(custom_lines, custom_lines_names, loc='lower left', prop={'size':7})
 
     xColumnList, yColumnList = seperateByColumn(netUDPsubset_50NODES, LOSS_PERC, AVG_DRIFT, "50nodes, Mininet")
     if hasMatplotlib and len(xColumnList) > 0:
@@ -487,27 +503,27 @@ for i in range(NET_MODEL_STRINGS.index('net_ace'),NET_MODEL_STRINGS.index('net_u
         plot.xlim([np.min(xColumnList)-0.3, np.max(xColumnList)+0.3*(i-2)+0.3])
         ax.set_xticks(xColumnList)
         ax.tick_params(labelbottom=False)
+        ax.set_yticks(np.arange(1.5, 7, 1))
 
-
-    xColumnList, yColumnList = seperateByColumn(netUDPsubset_50NODES, LOSS_PERC, AVG_WORLDSENDSTAT, "50nodes, Mininet")
+    xColumnList, yColumnList = seperateByColumn(netUDPsubset_50NODES, LOSS_PERC, NICSEND_BYTES, "50nodes, Mininet")
     if hasMatplotlib and len(xColumnList) > 0:
         #Calculate the medians:
         medians = list()
         for arr in yColumnList:
             medians.append(np.median(arr))
-        ax = boxPlotHelper(413, xColumnList+0.3*(i-2), yColumnList, colors[i-2], '', 'Send\n[kBps]', width=0.3)
+        ax = boxPlotHelper(413, xColumnList+0.3*(i-2), yColumnList, colors[i-2], '', 'NIC Send\n[kBps]', width=0.3)
         plot.xlim([np.min(xColumnList)-0.3, np.max(xColumnList)+0.3*(i-2)+0.3])
         ax.plot(xColumnList+0.3*(i-2), medians, color=colors[i-2], linestyle=linestyles[i-2], linewidth=1)
         ax.set_xticks(xColumnList)
         ax.tick_params(labelbottom=False)
 
-    xColumnList, yColumnList = seperateByColumn(netUDPsubset_50NODES, LOSS_PERC, AVG_WORLDRECVSTAT, "50nodes, Mininet")
+    xColumnList, yColumnList = seperateByColumn(netUDPsubset_50NODES, LOSS_PERC, NICRECV_BYTES, "50nodes, Mininet")
     if hasMatplotlib and len(xColumnList) > 0:
         #Calculate the medians:
         medians = list()
         for arr in yColumnList:
             medians.append(np.median(arr))
-        ax = boxPlotHelper(414, xColumnList+0.3*(i-2), yColumnList, colors[i-2], 'LOSS_PERC', 'Recv\n[kBps]', width=0.3)
+        ax = boxPlotHelper(414, xColumnList+0.3*(i-2), yColumnList, colors[i-2], 'LOSS_PERC', 'NIC Recv\n[kBps]', width=0.3)
         plot.xlim([np.min(xColumnList)-0.3, np.max(xColumnList)+0.3*(i-2)+0.3])
         ax.plot(xColumnList+0.3*(i-2), medians, color=colors[i-2], linestyle=linestyles[i-2], linewidth=1)
         ax.set_xticks(xColumnList)
@@ -526,10 +542,13 @@ print("*******************\nMininet LOSS_PERC plot 50 NODES, only UDP and UDPNC"
 MininetSubset = subsetByColumnValue(results_nparray, PLATFORM, MININET)
 # Leave out for clarity on graph
 MininetSubset = excludeByColumnValue(MininetSubset, LOSS_PERC, 1)
+MininetSubset = excludeByColumnValue(MininetSubset, LOSS_PERC, 2)
 if hasMatplotlib:
     plot.figure()
 
 boxwidth = 0.5
+custom_lines = list()
+custom_lines_names = list()
 
 for i in range(NET_MODEL_STRINGS.index('net_udp'),NET_MODEL_STRINGS.index('net_udpNC') + 1):
 
@@ -547,11 +566,19 @@ for i in range(NET_MODEL_STRINGS.index('net_udp'),NET_MODEL_STRINGS.index('net_u
             medians.append(np.median(arr))
 
         ax = boxPlotHelper(411, xColumnList+0.3*(i-3), yColumnList, colors[i-2], '', 'Topo Cons\n[%]', width=boxwidth)
-        ax.title.set_text("TCP vs UDP vs UDPNC. 50 NODES")
+        ax.title.set_text("UDP vs UDPNC. 50 NODES")
         ax.plot(xColumnList+boxwidth*(i-2), medians, color=colors[i-2], linestyle=linestyles[i-2], linewidth=1)
         plot.xlim([np.min(xColumnList)-boxwidth, np.max(xColumnList)+boxwidth*(i-2)+boxwidth])
         ax.set_xticks(xColumnList)
         ax.tick_params(labelbottom=False)
+        from matplotlib.lines import Line2D
+        custom_lines.append(Line2D([0], [0], color=colors[i-2], linestyle=linestyles[i-2], lw=1))
+        if NET_MODEL_STRINGS[i] == 'net_ace':
+            custom_lines_names.append("TCP")
+        else:
+            custom_lines_names.append(NET_MODEL_STRINGS[i][4:].upper())
+        ax.legend(custom_lines, custom_lines_names, loc='lower left', prop={'size':7})
+        ax.set_yticks(np.arange(60, 102, 10))
 
     xColumnList, yColumnList = seperateByColumn(netUDPsubset_50NODES, LOSS_PERC, AVG_DRIFT, "50nodes, Mininet")
     if hasMatplotlib and len(xColumnList) > 0:
@@ -564,27 +591,28 @@ for i in range(NET_MODEL_STRINGS.index('net_udp'),NET_MODEL_STRINGS.index('net_u
         plot.xlim([np.min(xColumnList)-boxwidth, np.max(xColumnList)+boxwidth*(i-2)+boxwidth])
         ax.set_xticks(xColumnList)
         ax.tick_params(labelbottom=False)
+        ax.set_yticks(np.arange(0, 70, 20))
 
 
-    xColumnList, yColumnList = seperateByColumn(netUDPsubset_50NODES, LOSS_PERC, AVG_WORLDSENDSTAT, "50nodes, Mininet")
+    xColumnList, yColumnList = seperateByColumn(netUDPsubset_50NODES, LOSS_PERC, NICSEND_BYTES, "50nodes, Mininet")
     if hasMatplotlib and len(xColumnList) > 0:
         #Calculate the medians:
         medians = list()
         for arr in yColumnList:
             medians.append(np.median(arr))
-        ax = boxPlotHelper(413, xColumnList+boxwidth*(i-3), yColumnList, colors[i-2], '', 'Send\n[kBps]', width=boxwidth)
+        ax = boxPlotHelper(413, xColumnList+boxwidth*(i-3), yColumnList, colors[i-2], '', 'NIC Send\n[kBps]', width=boxwidth)
         plot.xlim([np.min(xColumnList)-boxwidth, np.max(xColumnList)+boxwidth*(i-2)+boxwidth])
         ax.plot(xColumnList+boxwidth*(i-2), medians, color=colors[i-2], linestyle=linestyles[i-2], linewidth=1)
         ax.set_xticks(xColumnList)
         ax.tick_params(labelbottom=False)
 
-    xColumnList, yColumnList = seperateByColumn(netUDPsubset_50NODES, LOSS_PERC, AVG_WORLDRECVSTAT, "50nodes, Mininet")
+    xColumnList, yColumnList = seperateByColumn(netUDPsubset_50NODES, LOSS_PERC, NICRECV_BYTES, "50nodes, Mininet")
     if hasMatplotlib and len(xColumnList) > 0:
         #Calculate the medians:
         medians = list()
         for arr in yColumnList:
             medians.append(np.median(arr))
-        ax = boxPlotHelper(414, xColumnList+boxwidth*(i-3), yColumnList, colors[i-2], 'LOSS_PERC', 'Recv\n[kBps]', width=boxwidth)
+        ax = boxPlotHelper(414, xColumnList+boxwidth*(i-3), yColumnList, colors[i-2], 'LOSS_PERC', 'NIC Recv\n[kBps]', width=boxwidth)
         plot.xlim([np.min(xColumnList)-boxwidth, np.max(xColumnList)+boxwidth*(i-2)+boxwidth])
         ax.plot(xColumnList+boxwidth*(i-2), medians, color=colors[i-2], linestyle=linestyles[i-2], linewidth=1)
         ax.set_xticks(xColumnList)
@@ -797,7 +825,7 @@ for current_NODE_COUNT in iterator_NODECOUNTS:
 
 for SUBSETNODE_COUNT in [10, 20, 30, 40, 50]:
 # SUBSETNODE_COUNT = 20
-    print("\nSUBSETNODE\_COUNT: ", SUBSETNODE_COUNT, "\linebreak")
+    print("\nNode count: ", SUBSETNODE_COUNT, "\linebreak")
     MininetSubset = subsetByColumnValue(results_nparray, PLATFORM, MININET)
     NODESSubset = subsetByColumnValue(MininetSubset, NODES_COUNT, SUBSETNODE_COUNT)
 
@@ -811,6 +839,8 @@ for SUBSETNODE_COUNT in [10, 20, 30, 40, 50]:
     LOSS30Subset = subsetByColumnValue(NODESSubset, LOSS_PERC, 30)
     LOSS40Subset = subsetByColumnValue(NODESSubset, LOSS_PERC, 40)
     LOSS50Subset = subsetByColumnValue(NODESSubset, LOSS_PERC, 50)
+    LOSS60Subset = subsetByColumnValue(NODESSubset, LOSS_PERC, 60)
+    LOSS70Subset = subsetByColumnValue(NODESSubset, LOSS_PERC, 70)
 
     avg_topo_str_matrix = list()
     avg_topo_str_matrix.append(['NET_MODEL:', 'TCP', 'UDP', 'UDPNC'])
@@ -824,6 +854,8 @@ for SUBSETNODE_COUNT in [10, 20, 30, 40, 50]:
     avg_topo_str_matrix.append(tabulateByNETMODEL(LOSS30Subset, AVG_TOPO_CONS, "30%"))
     avg_topo_str_matrix.append(tabulateByNETMODEL(LOSS40Subset, AVG_TOPO_CONS, "40%"))
     avg_topo_str_matrix.append(tabulateByNETMODEL(LOSS50Subset, AVG_TOPO_CONS, "50%"))
+    avg_topo_str_matrix.append(tabulateByNETMODEL(LOSS60Subset, AVG_TOPO_CONS, "60%"))
+    avg_topo_str_matrix.append(tabulateByNETMODEL(LOSS70Subset, AVG_TOPO_CONS, "70%"))
 
 
     avg_drift_str_matrix = list()
@@ -838,16 +870,18 @@ for SUBSETNODE_COUNT in [10, 20, 30, 40, 50]:
     avg_drift_str_matrix.append(tabulateByNETMODEL(LOSS30Subset, AVG_DRIFT, "30%"))
     avg_drift_str_matrix.append(tabulateByNETMODEL(LOSS40Subset, AVG_DRIFT, "40%"))
     avg_drift_str_matrix.append(tabulateByNETMODEL(LOSS50Subset, AVG_DRIFT, "50%"))
+    avg_drift_str_matrix.append(tabulateByNETMODEL(LOSS60Subset, AVG_DRIFT, "60%"))
+    avg_drift_str_matrix.append(tabulateByNETMODEL(LOSS70Subset, AVG_DRIFT, "70%"))
     # print(avg_drift_str_matrix)
 
 
     try:
         from tabulate import tabulate
-        print("AVG\_TOPO\_CONS\linebreak")
+        print("Average topology consistency \linebreak")
 
         # print(tabulate(avg_topo_str_matrix, tablefmt='latex'))
         print(re.sub('pm', r'$\\pm$', tabulate(avg_topo_str_matrix, tablefmt='latex')))
-        print("\nAVG\_DRIFT\linebreak")
+        print("\nAverage normalised drift distance \linebreak")
         # print(tabulate(avg_drift_str_matrix, tablefmt='latex'))
         print(re.sub('pm', r'$\\pm$', tabulate(avg_drift_str_matrix, tablefmt='latex')))
 
