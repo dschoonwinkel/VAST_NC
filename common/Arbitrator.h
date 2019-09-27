@@ -34,7 +34,7 @@
 namespace Vast 
 {  
 
-    class EXPORT Arbitrator : public MessageHandler
+    class  Arbitrator : public MessageHandler
     {
     public:
         

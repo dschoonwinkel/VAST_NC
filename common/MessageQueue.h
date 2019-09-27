@@ -43,7 +43,7 @@ using namespace std;
 namespace Vast 
 {
 
-    class EXPORT MessageQueue
+    class  MessageQueue
     {
     public:
         MessageQueue (VASTnet *net)

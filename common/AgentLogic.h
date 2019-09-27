@@ -32,7 +32,7 @@
 
 namespace Vast 
 {  
-    class EXPORT AgentLogic
+    class  AgentLogic
     {
     public:
         AgentLogic ()

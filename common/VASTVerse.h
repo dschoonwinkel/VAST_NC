@@ -115,11 +115,9 @@ namespace Vast
     //      a globally unique handlerID first before creating the message handler
     //      and hook to an existing handler (such as VAST)
     //
-    
-    // TODO: need to cleanup current implementation (too ugly for hiding internal classes from user)
-    
+
     // NOTE: a general rule: avoid STL objects passing across DLL boundaries
-    class EXPORT VASTVerse : public AbstVASTVerse
+    class VASTVerse : public AbstVASTVerse
     {
     friend class VASTThread;
 

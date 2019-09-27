@@ -91,7 +91,7 @@ namespace Vast
     */
 
     // this is an export class so physical coordinates can be obtained externally
-    class EXPORT VASTRelay : public MessageHandler
+    class  VASTRelay : public MessageHandler
     {
 
     public:

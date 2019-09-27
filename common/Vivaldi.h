@@ -63,7 +63,7 @@ typedef struct
 /*                        Vivaldi Algorithm                             */
 /************************************************************************/
 
-class EXPORT Vivaldi
+class  Vivaldi
 {
 public:
 

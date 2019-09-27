@@ -167,7 +167,7 @@ protected:
 //                      also able to store/retrieve movement records
 //
 
-class EXPORT MovementGenerator
+class  MovementGenerator
 {
 public:
     MovementGenerator ();

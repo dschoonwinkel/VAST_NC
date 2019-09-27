@@ -33,7 +33,7 @@
 namespace Vast 
 {  
 
-    class EXPORT ArbitratorLogic
+    class  ArbitratorLogic
     {
     public:
         virtual ~ArbitratorLogic () {}

@@ -34,7 +34,7 @@
 
 namespace Vast {
 
-    class EXPORT Voronoi
+    class  Voronoi
     {
     public:
         Voronoi () {}

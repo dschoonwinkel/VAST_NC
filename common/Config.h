@@ -39,7 +39,7 @@
 #endif
 
 #ifdef _WINDOWS
-#define EXPORT __declspec (dllexport)
+#define  __declspec (dllexport)
 #else
 #define EXPORT /* nothing */
 #endif

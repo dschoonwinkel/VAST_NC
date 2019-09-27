@@ -67,19 +67,19 @@ typedef enum
 } RealNodeState;
 
 // initialize parameters, returns which node index to simulate, -1 for error, 0 for manual control
-EXPORT bool                 ReadPara (SimPara &para, const char * filename = "VASTreal.ini");
-EXPORT int                  InitPara (VAST_NetModel model, VASTPara_Net &netpara, SimPara &simpara, int argc = 0, char *argv[] = NULL, bool *is_gateway = NULL, world_t *world_id = 0, Area *aoi = NULL, char *GWstr = NULL, int *interval = NULL);
-EXPORT int                  InitSim (SimPara &para, VASTPara_Net &netpara);
-EXPORT bool                 CreateNode (bool wait_till_ready = true);
-EXPORT int                  NextStep ();
-EXPORT Node *               GetNode ();
+ bool                 ReadPara (SimPara &para, const char * filename = "VASTreal.ini");
+ int                  InitPara (VAST_NetModel model, VASTPara_Net &netpara, SimPara &simpara, int argc = 0, char *argv[] = NULL, bool *is_gateway = NULL, world_t *world_id = 0, Area *aoi = NULL, char *GWstr = NULL, int *interval = NULL);
+ int                  InitSim (SimPara &para, VASTPara_Net &netpara);
+ bool                 CreateNode (bool wait_till_ready = true);
+ int                  NextStep ();
+ Node *               GetNode ();
 vector<Vast::Node *>*GetNeighbors ();
-EXPORT vector<Vast::id_t> * GetEnclosingNeighbors (int level = 1);
-EXPORT int                  Shutdown ();
-EXPORT vector<Vast::line2d>*GetEdges ();
-EXPORT bool					isNodeMatcher();
-EXPORT Area                 *GetNodeMatcherAOI();
-EXPORT bool                 GetBoundingBox (point2d& min, point2d& max);
+ vector<Vast::id_t> * GetEnclosingNeighbors (int level = 1);
+ int                  Shutdown ();
+ vector<Vast::line2d>*GetEdges ();
+ bool					isNodeMatcher();
+ Area                 *GetNodeMatcherAOI();
+ bool                 GetBoundingBox (point2d& min, point2d& max);
 
 
 

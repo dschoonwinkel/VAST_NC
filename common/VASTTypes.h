@@ -191,7 +191,7 @@ typedef enum
 
 // virtual interface that a class should implement to become
 // serializable into a bytestring sendable over network
-class EXPORT Serializable 
+class  Serializable
 {
 public:
     Serializable () {}
@@ -215,7 +215,7 @@ public:
 // a particular stat record for certain data
 //
 
-class EXPORT StatType : public Serializable  
+class  StatType : public Serializable
 {
 public:
     StatType ()
@@ -328,7 +328,7 @@ public:
 //
 // a spot location in the virtual world
 //
-class EXPORT Position : public Serializable 
+class  Position : public Serializable
 {
 
 public:
@@ -539,7 +539,7 @@ public:
     coord_t z;
 };
 
-class EXPORT Area : public Serializable
+class  Area : public Serializable
 {
 public:
     Area ()
@@ -651,7 +651,7 @@ public:
 };
 
 
-class EXPORT IPaddr : public Serializable
+class  IPaddr : public Serializable
 {
 public:
     IPaddr ()
@@ -835,7 +835,7 @@ inline std::ostream& operator<<(std::ostream& output, IPaddr const& addr )
  *  someone behind NAT should be
  *    140.112.172.11:23|192.168.5.8:22018
  */
-class EXPORT Addr : public Serializable
+class  Addr : public Serializable
 {
     
 public:
@@ -996,7 +996,7 @@ public:
     //IPaddr          privateIP;      // private IP
 };
 
-class EXPORT Node : public Serializable
+class  Node : public Serializable
 {
 public:
     Node ()
@@ -1111,7 +1111,7 @@ inline std::ostream& operator<<(std::ostream& output, Node const& node )
     return output;
 }
 
-class EXPORT Subscription : public Serializable
+class  Subscription : public Serializable
 {
 public:
     Subscription ()
@@ -1282,7 +1282,7 @@ private:
     std::map<id_t, Area> _neighbors;
 };
 
-class EXPORT Message : public Serializable
+class  Message : public Serializable
 {
 public:
 
@@ -1968,7 +1968,7 @@ inline std::ostream& operator<<(std::ostream& output, Message const& msg )
 
 
 // a simple class to keep count & calculate statistics
-class EXPORT Ratio
+class  Ratio
 {
 public:
     Ratio ()
@@ -1991,7 +1991,7 @@ public:
 //  Following are used by Voronoi class
 //
 
-class EXPORT point2d
+class  point2d
 {
 public:
 
@@ -2035,7 +2035,7 @@ public:
 };
 
 
-class EXPORT segment
+class  segment
 {
 public:
 	point2d p1;
@@ -2127,7 +2127,7 @@ public:
     }
 };
 
-class EXPORT line2d
+class  line2d
 {
 public:
 

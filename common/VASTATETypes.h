@@ -183,7 +183,7 @@ namespace Vast
     } VASTATE_Message;
 
     // class for Universally Unique ID (used as object identifier)
-    class EXPORT UID : public Serializable
+    class  UID : public Serializable
     {
     public:
         #define UID_BYTE_LEN 16
@@ -363,7 +363,7 @@ namespace Vast
 
 
     // a list of Attributes used by an Object or an Event
-    class EXPORT Attributes
+    class  Attributes
     {
     public:
 
@@ -417,7 +417,7 @@ namespace Vast
     };
     
     // a list of Attributes used by an Object or an event
-    class EXPORT AttributesImpl : public Attributes
+    class  AttributesImpl : public Attributes
     {
     public:
         
@@ -512,7 +512,7 @@ namespace Vast
         timestamp_t _timestamp;
     };
         
-    class EXPORT Object : public AttributesImpl
+    class  Object : public AttributesImpl
     {
     public:
         Object ();

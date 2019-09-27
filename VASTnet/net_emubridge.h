@@ -33,7 +33,7 @@
 #include <math.h>
 namespace Vast {
 
-    class EXPORT net_emubridge 
+    class  net_emubridge 
     {
 
     public:

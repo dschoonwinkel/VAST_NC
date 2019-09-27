@@ -175,7 +175,7 @@ namespace Vast {
     } VASTHeaderType;
 
     // definition of main VAST network functions
-    class EXPORT VASTnet
+    class  VASTnet
     {
     public:
 

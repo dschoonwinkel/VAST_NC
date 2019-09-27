@@ -69,7 +69,7 @@ namespace Vast
 
     } TOPOLOGY_Message;
 
-    class EXPORT Topology : public MessageHandler
+    class  Topology : public MessageHandler
     {
 
     public:

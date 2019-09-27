@@ -94,7 +94,7 @@ namespace Vast
     //      Also, a VAST node (the same one) serves as both a Client at a regular node
     //      and also a Relay/Matcher at super-peers
     //
-    class EXPORT VAST : public MessageHandler
+    class  VAST : public MessageHandler
     {
 
     public:

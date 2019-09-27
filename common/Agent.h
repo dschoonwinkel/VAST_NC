@@ -33,7 +33,7 @@
 
 namespace Vast 
 {  
-    class EXPORT Agent : public MessageHandler
+    class  Agent : public MessageHandler
     {
     public:
         Agent ()

@@ -45,7 +45,7 @@ using namespace std;
 
 namespace Vast 
 {        
-    class EXPORT MessageHandler
+    class  MessageHandler
     {
     
     friend class MessageQueue;

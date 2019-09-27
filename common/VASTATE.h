@@ -42,7 +42,7 @@
 namespace Vast 
 {        
 
-    class EXPORT VASTATE
+    class  VASTATE
     {
     public:
         

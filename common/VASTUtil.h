@@ -45,7 +45,7 @@ using namespace std;
 
 // forward declaration
 
-//class EXPORT errout;
+//class  errout;
 
 // 
 // errout: Error output utility
@@ -53,7 +53,7 @@ using namespace std;
 
 namespace Vast {
 
-class EXPORT errout
+class  errout
 {
 public:
 	errout ();
@@ -78,7 +78,7 @@ enum SFOpenMode
     SFMode_Write
 };
 
-class EXPORT SectionedFile
+class  SectionedFile
 {
 public:
     SectionedFile ()
@@ -96,7 +96,7 @@ public:
     virtual bool refresh () = 0;
 };
 
-class EXPORT FileClassFactory
+class  FileClassFactory
 {
 public:
     FileClassFactory ()
@@ -143,14 +143,14 @@ private:
     SFOpenMode _mode;
 };
 
-class EXPORT Compressor
+class  Compressor
 {
 public:
     size_t compress (uint8_t *source, uint8_t *dest, size_t size);
 };
 
 // refer to: http://www.yolinux.com/TUTORIALS/C++Singleton.html
-class EXPORT LogManager
+class  LogManager
 {
 
 public:
@@ -235,7 +235,7 @@ private:
 // it uses the Singleton Design Pattern as described in:
 // http://en.wikipedia.org/wiki/Singleton_pattern#C.2B.2B
 //
-class EXPORT TimeMonitor 
+class  TimeMonitor 
 {
 public:
 

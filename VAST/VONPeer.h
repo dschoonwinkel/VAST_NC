@@ -92,7 +92,7 @@ namespace Vast
     // This class joins a node as "VONPeer", which allows the user client
     // to execute VON commands: move, getNeighbors
     // 
-    class EXPORT VONPeer
+    class  VONPeer
     {
 
     public:
