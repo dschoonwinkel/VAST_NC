@@ -1,3 +1,5 @@
+CC=g++
+
 unittest_net_udp_handler = ./unittest_net_udp_handler
 unittest_net_udpnc_handler = ./unittest_net_udpnc_handler
 unittest_rlncmessage = ./unittest_rlncmessage
@@ -26,7 +28,7 @@ LIBS_KODO = -Wl,-Bstatic -L$(HOME)/Development/kodo-rlnc/kodo_build -lkodo_rlnc 
 LIBS = $(LIBS_COMMON) $(LIBS_ACE) $(LIBS_THREAD) $(LIBS_DL) $(LIBS_BOOST)
 
 ACE_PATH    = /usr
-INC_PATHS   = -I../../common -I../../VASTsim -I$(ACE_PATH)/include -I../../VAST -I../../VASTnet -I../../coding_host
+INC_PATHS   = -I../../common -I../../VASTsim -I$(ACE_PATH)/include -I../../VAST -I../../VASTnet -I../../coding_host -I../../VASTStatLog
 LIB_PATHS   = -L../../lib -L../../Dependencies/lib/Release -L$(ACE_PATH)/lib
 
 .PHONY: unittest_net_udp_handler unittest_net_udpnc_handler unittest_rlncmessage unittest_net_udpnc_mchandler make_vastnet unittest_customrlncdecoder unittest_net_udpnc_consumer unittest_vastnet

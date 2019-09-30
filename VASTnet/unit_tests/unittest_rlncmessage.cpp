@@ -244,6 +244,7 @@ void testSerializeHeader()
 
     std::array<unsigned char, 8> buffer;
     memcpy(buffer.data(), &header1, sizeof(RLNCHeader));
+    printf("Sizeof RLNCHeader %d", sizeof(RLNCHeader));
 
     Logger::saveBinaryArray("header.txt", buffer.data(), 8);
 
