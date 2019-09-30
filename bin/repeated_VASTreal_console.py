@@ -40,6 +40,7 @@ def replace_NODECOUNT(node_count):
 
 def main():
 	#NODE_COUNT_list = [50, 40, 30, 20, 10]
+	#NODE_COUNT_list = [40, 30, 20, 10]
 	NODE_COUNT_list = [50]
 	# NODE_COUNT_list = [15]
 
