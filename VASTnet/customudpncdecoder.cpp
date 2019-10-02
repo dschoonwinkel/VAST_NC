@@ -1,33 +1,33 @@
-#include "customrlncdecoder.h"
+#include "customudpncdecoder.h"
 #include "net_manager.h"
 #include "VASTnet.h"
 #include "logger.h"
 #include <memory>
 #include "autodestructortimer.h"
 
-customrlncdecoder::customrlncdecoder ():
+customudpncdecoder::customudpncdecoder ():
     decoder_factory(field, MAX_SYMBOLS, MAX_PACKET_SIZE),
     encoder_factory(field, MAX_SYMBOLS, MAX_PACKET_SIZE)
 {
-    CPPDEBUG("RLNCdecoder::constructor: finite field" << std::endl);
+    CPPDEBUG("UDPNCdecoder::constructor: finite field" << std::endl);
     CPPDEBUG(int(field) << std::endl);
 
 }
 
-void customrlncdecoder::startAddLockTimer()
+void customudpncdecoder::startAddLockTimer()
 {
     t1 = std::chrono::high_resolution_clock::now();
 }
 
-void customrlncdecoder::stopAddLockTimer()
+void customudpncdecoder::stopAddLockTimer()
 {
     auto t2 = std::chrono::high_resolution_clock::now();
     addLockTimer += std::chrono::duration_cast<std::chrono::microseconds>(t2-t1);
 }
 
-void customrlncdecoder::addRLNCMessage(RLNCMessage input_message)
+void customudpncdecoder::addUDPNCMessage(UDPNCMessage input_message)
 {
-#ifndef COMPUTE_RLNC
+#ifndef COMPUTE_UDPNC
     return;
 #endif
 
@@ -49,7 +49,7 @@ void customrlncdecoder::addRLNCMessage(RLNCMessage input_message)
             {
                 CPPDEBUG("Stored packet: \n" << packet_pool[pktids.front()] << std::endl);
                 CPPDEBUG("Recvd packet: \n" << input_message << std::endl);
-                throw std::logic_error("customrlncdecoder::addRLNCMessage: packet ids are supposed unique: \
+                throw std::logic_error("customudpncdecoder::addUDPNCMessage: packet ids are supposed unique: \
                                        Found different packet with same ID ");
             }
         }
@@ -75,20 +75,20 @@ void customrlncdecoder::addRLNCMessage(RLNCMessage input_message)
     }
 }
 
-void customrlncdecoder::clearPacketPool ()
+void customudpncdecoder::clearPacketPool ()
 {
     std::lock_guard<std::mutex> packet_guard(packet_pool_mutex);
     packet_pool.clear ();
     NC_packets.clear ();
 }
 
-size_t customrlncdecoder::getPacketPoolSize ()
+size_t customudpncdecoder::getPacketPoolSize ()
 {
     return packet_pool.size ();
 }
 
-bool customrlncdecoder::_fetchFromPacketPool(RLNCMessage &active_encoded_packet,
-                                       std::map<size_t, RLNCMessage> &available_packets,
+bool customudpncdecoder::_fetchFromPacketPool(UDPNCMessage &active_encoded_packet,
+                                       std::map<size_t, UDPNCMessage> &available_packets,
                                        size_t &decoded_packet_index)
 {
 
@@ -169,15 +169,15 @@ bool customrlncdecoder::_fetchFromPacketPool(RLNCMessage &active_encoded_packet,
     }
     else if (available_packets.size () != (active_encoded_packet.getPacketIds ().size () - 1))
     {
-//        CPPDEBUG("customrlncdecoder::produceDecodedRLNCMessage Could not find enough available packets to decode" << std::endl);
+//        CPPDEBUG("customudpncdecoder::produceDecodedUDPNCMessage Could not find enough available packets to decode" << std::endl);
         return false;
     }
     return true;
 }
 
-bool customrlncdecoder::_putAvailableInDecoder(std::shared_ptr<kodo_rlnc::decoder> decoder,
-                                         const std::map<size_t, RLNCMessage> &available_packets,
-                                         const RLNCMessage &active_encoded_packet,
+bool customudpncdecoder::_putAvailableInDecoder(std::shared_ptr<kodo_rlnc::decoder> decoder,
+                                         const std::map<size_t, UDPNCMessage> &available_packets,
+                                         const UDPNCMessage &active_encoded_packet,
                                          const size_t &decoded_packet_index,
                                          uint32_t &total_checksum)
 {
@@ -194,10 +194,10 @@ bool customrlncdecoder::_putAvailableInDecoder(std::shared_ptr<kodo_rlnc::decode
         //Serialize the whole packet, not just the (un-encoded) message
         available_packets.at(k).serialize(reinterpret_cast<char*>(buffer.data()));
         uint32_t checksum = 0;
-        checksum = RLNCMessage::generateChecksum(buffer.data(), available_packets.at(k).sizeOf());
+        checksum = UDPNCMessage::generateChecksum(buffer.data(), available_packets.at(k).sizeOf());
 
 #ifdef SAVE_PACKETS
-        Logger::saveBinaryArray("RLNCdecoder_" + std::to_string(available_packets[k].getPacketIds()[0]) + ".txt", buffer.data(), available_packets[k].sizeOf());
+        Logger::saveBinaryArray("UDPNCdecoder_" + std::to_string(available_packets[k].getPacketIds()[0]) + ".txt", buffer.data(), available_packets[k].sizeOf());
 #endif
 
         total_checksum += checksum;
@@ -208,7 +208,7 @@ bool customrlncdecoder::_putAvailableInDecoder(std::shared_ptr<kodo_rlnc::decode
         if (decoder->is_complete ())
         {
             //Sanity check
-            CPPDEBUG("customrlncdecoder::_putAvailableInDecoder Could decode packet with only uncoded symbols" << std::endl);
+            CPPDEBUG("customudpncdecoder::_putAvailableInDecoder Could decode packet with only uncoded symbols" << std::endl);
             break;
         }
 
@@ -217,17 +217,17 @@ bool customrlncdecoder::_putAvailableInDecoder(std::shared_ptr<kodo_rlnc::decode
     return true;
 }
 
-std::shared_ptr<RLNCMessage> customrlncdecoder::produceDecodedRLNCMessage()
+std::shared_ptr<UDPNCMessage> customudpncdecoder::produceDecodedUDPNCMessage()
 {
-#ifndef COMPUTE_RLNC
+#ifndef COMPUTE_UDPNC
     return NULL;
 #endif
     decodes_attempted++;
 
     AutoDestructorTimer timer("decodingTimer", &decoderTimer);
 
-    std::shared_ptr<RLNCMessage> decoded_msg = nullptr;
-    //Leave enough space for RLNC coefficients
+    std::shared_ptr<UDPNCMessage> decoded_msg = nullptr;
+    //Leave enough space for UDPNC coefficients
     std::array<uint8_t, MAX_PACKET_SIZE + 20> payload;
     payload.fill(0);
     //Enough space for two symbols to be decoded
@@ -235,8 +235,8 @@ std::shared_ptr<RLNCMessage> customrlncdecoder::produceDecodedRLNCMessage()
     data_out.fill(0);
 
 
-    std::map<size_t, RLNCMessage> available_packets;
-    RLNCMessage active_encoded_packet;
+    std::map<size_t, UDPNCMessage> available_packets;
+    UDPNCMessage active_encoded_packet;
     size_t decoded_packet_index = -1;
 
 
@@ -257,7 +257,7 @@ std::shared_ptr<RLNCMessage> customrlncdecoder::produceDecodedRLNCMessage()
     //Sanity check
     if (available_packets.size() != 1)
     {
-        throw std::logic_error(std::string("customrlncdecoder::produceDecodedRLNCMessage available_packet.size() ") +
+        throw std::logic_error(std::string("customudpncdecoder::produceDecodedUDPNCMessage available_packet.size() ") +
                                "should be 1, as we only currently code 2 packets together\n");
     }
 
@@ -282,25 +282,25 @@ std::shared_ptr<RLNCMessage> customrlncdecoder::produceDecodedRLNCMessage()
 //                    std::abort();
         }
 
-        RLNCMessage msg;
+        UDPNCMessage msg;
         if (msg.deserialize (reinterpret_cast<char*>(data_out.data () + decoded_packet_index * MAX_PACKET_SIZE), MAX_PACKET_SIZE) != -1)
         {
             //Use the newly decoded packet - should be most cases true
-            decoded_msg = std::make_shared<RLNCMessage>(msg);
+            decoded_msg = std::make_shared<UDPNCMessage>(msg);
 #ifdef SAVE_PACKETS
-            Logger::saveBinaryArray("RLNCdecoder_" + std::to_string(msg.getPacketIds()[0]) + ".txt",
+            Logger::saveBinaryArray("UDPNCdecoder_" + std::to_string(msg.getPacketIds()[0]) + ".txt",
                     reinterpret_cast<char*>(data_out.data () + decoded_packet_index * MAX_PACKET_SIZE), msg.sizeOf());
 #endif
 
             //Calculate checksum to see if decoding is correct
-            total_checksum += RLNCMessage::generateChecksum(data_out.data () + decoded_packet_index * MAX_PACKET_SIZE,
+            total_checksum += UDPNCMessage::generateChecksum(data_out.data () + decoded_packet_index * MAX_PACKET_SIZE,
                                                      msg.sizeOf());
 
             if (total_checksum != active_encoded_packet.getChecksum())
             {
-                CPPDEBUG("customrlncdecoder::produceDecodedRLNCMessage Checksum was not correct"
+                CPPDEBUG("customudpncdecoder::produceDecodedUDPNCMessage Checksum was not correct"
                          << std::endl << (*decoded_msg) << std::endl);
-                CPPDEBUG("customrlncdecoder::produceDecodedRLNCMessage: Packets coded together " << active_encoded_packet.getPacketIds()[0] << "," << active_encoded_packet.getPacketIds()[1] << std::endl);
+                CPPDEBUG("customudpncdecoder::produceDecodedUDPNCMessage: Packets coded together " << active_encoded_packet.getPacketIds()[0] << "," << active_encoded_packet.getPacketIds()[1] << std::endl);
                 packets_checksum_incorrect++;
                 return nullptr;
             }
@@ -309,33 +309,33 @@ std::shared_ptr<RLNCMessage> customrlncdecoder::produceDecodedRLNCMessage()
         }
         else
         {
-            CPPDEBUG("customrlncdecoder::produceDecodedRLNCMessage: Could not deserialize the decoded packet" << std::endl);
+            CPPDEBUG("customudpncdecoder::produceDecodedUDPNCMessage: Could not deserialize the decoded packet" << std::endl);
         }
 
     }
     else
     {
-        CPPDEBUG("customrlncdecoder::produceDecodedRLNCMessage: Could not decode, probably linearly dependent, deleting it and its packets" << std::endl);
+        CPPDEBUG("customudpncdecoder::produceDecodedUDPNCMessage: Could not decode, probably linearly dependent, deleting it and its packets" << std::endl);
         packet_linearly_dependent++;
     }
 
     return decoded_msg;
 }
 
-customrlncdecoder::~customrlncdecoder ()
+customudpncdecoder::~customudpncdecoder ()
 {
-    std::cout << "\n~customrlncdecoder:: packets added to packet pool: " << packets_added_packetpool << std::endl;
-    std::cout << "~customrlncdecoder:: decodes_attempted: " << decodes_attempted << std::endl;
-    std::cout << "~customrlncdecoder:: packet_recovered: " << packets_recovered << std::endl;
-    std::cout << "~customrlncdecoder:: packets_already_decoded: " << packets_already_decoded << std::endl;
-    std::cout << "~customrlncdecoder:: packets_missing_undecodable: " << packets_missing_undecodable << std::endl;
-    std::cout << "~customrlncdecoder:: packets_checksum_incorrect: " << packets_checksum_incorrect << std::endl;
-    std::cout << "~customrlncdecoder:: packet_linearly_dependent: " << packet_linearly_dependent << std::endl;
-    std::cout << "~customrlncdecoder:: max_packetpool_size: " << max_packetpool_size << std::endl;
-    std::cout << "~customrlncdecoder:: max_NC_packets_size: " << max_NC_packets_size << std::endl;
-    std::cout << "~customrlncdecoder:: time spent in addLock: " << addLockTimer.count() / 1000 << " milliseconds " << std::endl;
-    std::cout << "~customrlncdecoder:: time spent decoding: " << decoderTimer.count() / 1000 << " milliseconds " << std::endl;
+    std::cout << "\n~customudpncdecoder:: packets added to packet pool: " << packets_added_packetpool << std::endl;
+    std::cout << "~customudpncdecoder:: decodes_attempted: " << decodes_attempted << std::endl;
+    std::cout << "~customudpncdecoder:: packet_recovered: " << packets_recovered << std::endl;
+    std::cout << "~customudpncdecoder:: packets_already_decoded: " << packets_already_decoded << std::endl;
+    std::cout << "~customudpncdecoder:: packets_missing_undecodable: " << packets_missing_undecodable << std::endl;
+    std::cout << "~customudpncdecoder:: packets_checksum_incorrect: " << packets_checksum_incorrect << std::endl;
+    std::cout << "~customudpncdecoder:: packet_linearly_dependent: " << packet_linearly_dependent << std::endl;
+    std::cout << "~customudpncdecoder:: max_packetpool_size: " << max_packetpool_size << std::endl;
+    std::cout << "~customudpncdecoder:: max_NC_packets_size: " << max_NC_packets_size << std::endl;
+    std::cout << "~customudpncdecoder:: time spent in addLock: " << addLockTimer.count() / 1000 << " milliseconds " << std::endl;
+    std::cout << "~customudpncdecoder:: time spent decoding: " << decoderTimer.count() / 1000 << " milliseconds " << std::endl;
     if (packets_recovered > 0)
-        std::cout << "~customrlncdecoder:: time spent decoding per recovered msg: " << decoderTimer.count() / packets_recovered << " microseconds " << std::endl;
+        std::cout << "~customudpncdecoder:: time spent decoding per recovered msg: " << decoderTimer.count() / packets_recovered << " microseconds " << std::endl;
 }
 

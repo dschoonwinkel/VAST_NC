@@ -2,8 +2,8 @@
 #include <assert.h>
 #include <string.h>
 #include "net_udpnc_mchandler.h"
-#include "abstract_rlnc_msg_receiver_testimpl.h"
-#include "rlncrecoder.h"
+#include "abstract_udpnc_msg_receiver_testimpl.h"
+#include "udpncrecoder.h"
 #include <boost/thread/thread.hpp>
 #include <boost/chrono.hpp>
 
@@ -31,12 +31,12 @@ void test_process_encoded()
 
     Vast::net_udpNC_MChandler mchandler(local_endpoint);
     
-    Vast::AbstractRNLCMsgReceiverTestImpl tester;
+    Vast::AbstractUDPNCMsgReceiverTestImpl tester;
 
-    RLNCHeader_factory factory1;
+    UDPNCHeader_factory factory1;
 
-    RLNCHeader header1 = factory1.build ();
-    RLNCMessage msg1(header1);
+    UDPNCHeader header1 = factory1.build ();
+    UDPNCMessage msg1(header1);
 
     std::string hello = "Hello World!";
     msg1.putMessage (hello.c_str (), hello.length());
@@ -47,7 +47,7 @@ void test_process_encoded()
 
     //Setting a route for 239.255.0.1 is required to open mc socket
     system("sudo route add 239.255.0.1 enp0s3");
-    mchandler.open (&tester, false);
+    mchandler.open (&tester, NULL, false);
 
     mchandler.process_input(buffer, msg1.sizeOf ());
 
@@ -68,8 +68,8 @@ void test_process_encoded()
     //Create an encoded packet, put it in the processor
 
 
-    RLNCHeader header2 = factory1.build ();
-    RLNCMessage msg2(header2);
+    UDPNCHeader header2 = factory1.build ();
+    UDPNCMessage msg2(header2);
 
     std::string bye = "Goodbye world!";
     msg2.putMessage (hello.c_str (), hello.length());
@@ -81,16 +81,16 @@ void test_process_encoded()
 
 //    msg2.serialize (buffer);
 
-    RLNCrecoder recoder;
+    UDPNCrecoder recoder;
 
-    recoder.addRLNCMessage(msg1);
-    recoder.addRLNCMessage(msg2);
+    recoder.addUDPNCMessage(msg1);
+    recoder.addUDPNCMessage(msg2);
 
-    std::shared_ptr<RLNCMessage> temp_msg = recoder.produceRLNCMessage();
+    std::shared_ptr<UDPNCMessage> temp_msg = recoder.produceUDPNCMessage();
 
     if (!temp_msg)
     {
-        std::cerr << "Could not produce RLNC encoded message" << std::endl;
+        std::cerr << "Could not produce UDPNC encoded message" << std::endl;
         std::abort();
     }
 
@@ -100,7 +100,7 @@ void test_process_encoded()
     //Equivalent to receive
     mchandler.process_input(reinterpret_cast<char*>(payload.data()), payload.size ());
 
-    assert(tester.RLNC_msg_received_call_count == 1);
+    assert(tester.UDPNC_msg_received_call_count == 1);
     assert(tester.recv_msg == msg2);
 
     onCloseWait();
@@ -117,10 +117,10 @@ void test_toAddrForMe()
 
     Vast::net_udpNC_MChandler mchandler(local_endpoint);
 
-    RLNCHeader_factory factory1;
+    UDPNCHeader_factory factory1;
 
-    RLNCHeader header1 = factory1.build ();
-    RLNCMessage msg1(header1);
+    UDPNCHeader header1 = factory1.build ();
+    UDPNCMessage msg1(header1);
 
     std::string hello = "Hello World!";
     msg1.putMessage (hello.c_str (), hello.length());
@@ -136,8 +136,8 @@ void test_toAddrForMe()
     std::cout << "Single addr in packet: " << std::endl;
     assert(mchandler.toAddrForMe (msg1) == true);
 
-    RLNCHeader header2 = factory1.build ();
-    RLNCMessage msg2(header2);
+    UDPNCHeader header2 = factory1.build ();
+    UDPNCMessage msg2(header2);
 
     std::string bye = "Goodbye world!";
     msg2.putMessage (bye.c_str (), bye.length());
@@ -152,8 +152,8 @@ void test_toAddrForMe()
     std::cout << "Two addrs in packet: " << std::endl;
     assert(mchandler.toAddrForMe (msg2) == true);
 
-    RLNCHeader header3 = factory1.build ();
-    RLNCMessage msg3(header3);
+    UDPNCHeader header3 = factory1.build ();
+    UDPNCMessage msg3(header3);
 
     std::string OK = "OK world!";
     msg3.putMessage (OK.c_str (), OK.length());

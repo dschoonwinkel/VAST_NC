@@ -18,16 +18,16 @@ namespace Vast
     }
 
     int net_udpNC_handler::open (io_service *io_service, abstract_net_udp *msghandler,
-                                 AbstractRLNCMsgReceiver *RLNCsink, bool startthread)
+                                 AbstractUDPNCMsgReceiver *UDPNCsink, bool startthread)
     {
-        if (RLNCsink == NULL)
-            RLNCsink = this;
+        if (UDPNCsink == NULL)
+            UDPNCsink = this;
 
         CPPDEBUG("net_udpNC_handler::open" << std::endl);
         _timeout_keepalive = msghandler->getTimestamp();
         net_udp_handler::open(io_service, msghandler, startthread);
         mchandler.open (&consumer, msghandler, startthread);
-        consumer.open (RLNCsink, msghandler, &mchandler, startthread);
+        consumer.open (UDPNCsink, msghandler, &mchandler, startthread);
 
         return 0;
     }
@@ -52,8 +52,8 @@ namespace Vast
             return -1;
         }
 
-        RLNCHeader_factory header_factory(GENSIZE, generation);
-        RLNCMessage message(header_factory.build());
+        UDPNCHeader_factory header_factory(GENSIZE, generation);
+        UDPNCMessage message(header_factory.build());
 
         if (n != 0 && msg != NULL)
         {
@@ -86,13 +86,13 @@ namespace Vast
             CPPDEBUG("net_udpNC_handler::send _msghandler->getReal_net_udp was NULL" << std::endl);
         }
 
-        message.putPacketId(RLNCMessage::generatePacketId (myID, pkt_gen_count++));
+        message.putPacketId(UDPNCMessage::generatePacketId (myID, pkt_gen_count++));
         message.putOrdering (ordering);
         message.putFromId (myID);
         message.putToAddr (to_addr);
 
         //Add to the decoder, if later used for decoding
-        mchandler.putOtherRLNCMessage (message);
+        mchandler.putOtherUDPNCMessage (message);
 
         std::vector<char> buf(message.sizeOf());
         int sending_len = message.serialize(buf.data ());
@@ -146,16 +146,16 @@ namespace Vast
 
     void net_udpNC_handler::process_input(const char *buf, ip::udp::endpoint remote_endpoint, std::size_t bytes_transferred)
     {
-        RLNCHeader header;
+        UDPNCHeader header;
 
-        memcpy(&header, buf, sizeof(RLNCHeader));
+        memcpy(&header, buf, sizeof(UDPNCHeader));
 
         //Check if it is really a VAST message: Start and end bytes of header should be correct
-        if (!RLNCHeader_factory::isRLNCHeader(header))
+        if (!UDPNCHeader_factory::isUDPNCHeader(header))
         {
-//                    CPPDEBUG("net_udp_handler::handle_input Non-RLNC message received on UDP socket" << std::endl);
+//                    CPPDEBUG("net_udp_handler::handle_input Non-UDPNC message received on UDP socket" << std::endl);
         }
-        else if (RLNCHeader_factory::isRLNCHeader (header) && header.enc_packet_count > 1)
+        else if (UDPNCHeader_factory::isUDPNCHeader (header) && header.enc_packet_count > 1)
         {
 //            throw std::logic_error("net_udpNC_handler::handle_input: Encoded packet received in unicast handler\n");
 //            CPPDEBUG("net_udpNC_handler::handle_input: Encoded packet received in unicast handler\n");
@@ -163,15 +163,15 @@ namespace Vast
             packets_MChandler_handover++;
         }
         else {
-//                    CPPDEBUG("net_udpNC_handler::handle_input RLNC message received" << std::endl);
+//                    CPPDEBUG("net_udpNC_handler::handle_input UDPNC message received" << std::endl);
 
-            RLNCMessage input_message;
+            UDPNCMessage input_message;
             input_message.deserialize (buf, bytes_transferred);
             //Add uncoded messages to the packet pool to aid in decoding later
-            mchandler.putOtherRLNCMessage (input_message);
+            mchandler.putOtherUDPNCMessage (input_message);
             IPaddr remote_addr(remote_endpoint.address().to_v4().to_ulong(), remote_endpoint.port());
 //                CPPDEBUG("net_udpNC_handler handle_input: IPaddr " << remote_addr << std::endl);
-            consumer.RLNC_msg_received (input_message, remote_addr);
+            consumer.UDPNC_msg_received (input_message, remote_addr);
 
         }
     }
@@ -187,16 +187,16 @@ namespace Vast
     }
 
 
-    void net_udpNC_handler::handoff_input (RLNCMessage input_message, IPaddr socket_addr)
+    void net_udpNC_handler::handoff_input (UDPNCMessage input_message, IPaddr socket_addr)
     {
         id_t fromhost = input_message.getFirstFromId();
         net_udp_handler::process_input(input_message.getMessage (), input_message.getMessageSize (), socket_addr, fromhost);
     }
 
-    void net_udpNC_handler::RLNC_msg_received(RLNCMessage input_message, IPaddr socket_addr)
+    void net_udpNC_handler::UDPNC_msg_received(UDPNCMessage input_message, IPaddr socket_addr)
     {
-//        CPPDEBUG("net_udpNC_handler::RLNC_msg_received Decoded from mc_handler: " << decoded_from_mchandler << std::endl);
-//        CPPDEBUG("net_udpNC_handler::RLNC_msg_received first from_id: " << msg.getFirstFromId ()<< std::endl);
+//        CPPDEBUG("net_udpNC_handler::UDPNC_msg_received Decoded from mc_handler: " << decoded_from_mchandler << std::endl);
+//        CPPDEBUG("net_udpNC_handler::UDPNC_msg_received first from_id: " << msg.getFirstFromId ()<< std::endl);
 
         //MC message are not associated with a specific endpoint
         handoff_input (input_message, socket_addr);

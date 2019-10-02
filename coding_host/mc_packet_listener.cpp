@@ -59,7 +59,7 @@ void MC_packet_listener::start_receive ()
 int MC_packet_listener::handle_input (const boost::system::error_code& error,
                   std::size_t bytes_transferred)
 {
-    RLNCHeader header;
+    UDPNCHeader header;
 
     CPPDEBUG("MC_packet_listener::handle_input Received from : " << _remote_endpoint_ << std::endl);
 
@@ -70,29 +70,29 @@ int MC_packet_listener::handle_input (const boost::system::error_code& error,
 
         char *p = _buf;
 
-        memcpy(&header, p, sizeof(RLNCHeader));
+        memcpy(&header, p, sizeof(UDPNCHeader));
 
             //Check if it is really a VAST message: Start and end bytes of header should be correct
-            if (!RLNCHeader_factory::isRLNCHeader(header))
+            if (!UDPNCHeader_factory::isUDPNCHeader(header))
             {
-                CPPDEBUG("MC_packet_listener::handle_input Non-RLNC message received on UDP socket" << std::endl);
+                CPPDEBUG("MC_packet_listener::handle_input Non-UDPNC message received on UDP socket" << std::endl);
             }
             else {
-                CPPDEBUG("RLNC message received on the coding host" << std::endl);
-                RLNCMessage message;
+                CPPDEBUG("UDPNC message received on the coding host" << std::endl);
+                UDPNCMessage message;
 
                 message.deserialize(_buf, bytes_transferred);
 
                 std::cout << "Received message: \n" << message << std::endl;
-//                recoder.addRLNCMessage(message);
+//                recoder.addUDPNCMessage(message);
 
 //                msgs_mutex.lock();
-//                RLNCMessage *temp_msg = recoder.produceRLNCMessage();
+//                UDPNCMessage *temp_msg = recoder.produceUDPNCMessage();
 
 
 //                if (temp_msg != NULL)
 //                {
-//                    msgs.push_back(RLNCMessage(*temp_msg));
+//                    msgs.push_back(UDPNCMessage(*temp_msg));
 //                    delete temp_msg;
 //                }
 

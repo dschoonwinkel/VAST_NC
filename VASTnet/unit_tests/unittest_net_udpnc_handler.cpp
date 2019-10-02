@@ -1,8 +1,8 @@
 #include <iostream>
 #include <assert.h>
 #include "net_udpNC_handler.h"
-#include "rlnc_packet_factory.h"
-#include "rlncmessage.h"
+#include "udpnc_packet_factory.h"
+#include "udpncmessage.h"
 #include "absnet_udp_testimpl.h"
 #include <boost/asio.hpp>
 #include "VASTnet.h"
@@ -44,11 +44,11 @@ void testHandoffInput()
     buf1.add ((char *)&vast_header1, sizeof (Vast::VASTHeader));
     buf1.add (&msg1);
 
-    RLNCHeader_factory factory;
+    UDPNCHeader_factory factory;
 
-    RLNCHeader header1 = factory.build();
+    UDPNCHeader header1 = factory.build();
 
-    RLNCMessage message1(header1);
+    UDPNCMessage message1(header1);
 
     int id1 = 2;
 
@@ -73,12 +73,12 @@ void testHandoffInput()
     Vast::absnet_udp_testimpl tester;
     io_service ios;
     handler.open (&ios, &tester, &handler, false);
-    handler.RLNC_msg_received (message1, Vast::IPaddr());
+    handler.UDPNC_msg_received (message1, Vast::IPaddr());
 
 
     std::cout << tester.message << std::endl;
     std::cout << std::string(buf1.data, buf1.size) << std::endl;
-    //Returned message is the entire RLNC payload, i.e. VAST message - contained in buf2
+    //Returned message is the entire UDPNC payload, i.e. VAST message - contained in buf2
     assert(tester.message == std::string(buf1.data, buf1.size));
 
     handler.close();
@@ -103,11 +103,11 @@ void testMultipleClose()
     buf1.add ((char *)&vast_header1, sizeof (Vast::VASTHeader));
     buf1.add (&msg1);
 
-    RLNCHeader_factory factory;
+    UDPNCHeader_factory factory;
 
-    RLNCHeader header1 = factory.build();
+    UDPNCHeader header1 = factory.build();
 
-    RLNCMessage message1(header1);
+    UDPNCMessage message1(header1);
 
     int id1 = 2;
 
@@ -132,12 +132,12 @@ void testMultipleClose()
     Vast::absnet_udp_testimpl tester;
     io_service ios;
     handler.open (&ios, &tester, &handler, false);
-    handler.RLNC_msg_received (message1, Vast::IPaddr());
+    handler.UDPNC_msg_received (message1, Vast::IPaddr());
 
 
     std::cout << tester.message << std::endl;
     std::cout << std::string(buf1.data, buf1.size) << std::endl;
-    //Returned message is the entire RLNC payload, i.e. VAST message - contained in buf2
+    //Returned message is the entire UDPNC payload, i.e. VAST message - contained in buf2
     assert(tester.message == std::string(buf1.data, buf1.size));
 
     handler.close();

@@ -1,9 +1,6 @@
 CC=g++
 
 vaststatlog_test = ./vaststatlog_test
-rlnc_packet_test = ./rlnc_packet_test
-rlnc_encoded_packet_test = ./rlnc_encoded_packet_test
-test_net_udpnc_mchandler = ./test_net_udpnc_mchandler
 udp_buffertest = ./udp_buffertest
 
 ACE_ROOT = /usr
@@ -12,7 +9,7 @@ ACE_ROOT = /usr
 #CFLAGS=-O2 -ftree-vectorize -std=c++14 -Wall -Wextra
 CFLAGS=-ggdb -std=c++14 -Wall -Wextra $(COPTS) 
 
-LIBS_COMMON = -lvastsim -lvast -lvastnet -lvastcommon
+LIBS_COMMON = -lvastsim -lvast -lvastnet -lvastcommon -lvaststatlog
 #-lz -ldl -lpthread
 LIBS_ACE    = -lACE
 LIBS_THREAD = -lpthread
@@ -26,33 +23,16 @@ LIBS_KODO = -Wl,-Bstatic -L$(HOME)/Development/kodo-rlnc/kodo_build -lkodo_rlnc 
 LIBS = $(LIBS_COMMON) $(LIBS_ACE) $(LIBS_THREAD) $(LIBS_DL) $(LIBS_BOOST)
 
 ACE_PATH    = /usr
-INC_PATHS   = -I../common -I../VASTsim -I$(ACE_PATH)/include -I../VAST -I../VASTnet -I../coding_host
+INC_PATHS   = -I../common -I../VASTsim -I$(ACE_PATH)/include -I../VAST -I../VASTnet -I../coding_host -I../VASTStatLog
 LIB_PATHS   = -L../lib -L../Dependencies/lib/Release -L$(ACE_PATH)/lib
 
-.PHONY: vaststatlog_test test_net_udpnc_mchandler rlnc_packet_test rlnc_encoded_packet_test
+.PHONY: vaststatlog_test udp_buffertest
 
-all: vaststatlog_test test_net_udpnc_mchandler rlnc_packet_test rlnc_encoded_packet_test
+all: vaststatlog_test udp_buffertest
 
 vaststatlog_test: vaststatlog_test.cpp
 	$(CC) $(CFLAGS) $(INC_PATHS) $(LIBS_INCKODO) $(LIB_PATHS) $< $(LIBS) $(LIBS_KODO) \
 	-o $(vaststatlog_test)
-
-rlnc_packet_test: rlnc_packet_test.cpp
-	$(CC) $(CFLAGS) $(INC_PATHS) $(LIBS_INCKODO) $(LIB_PATHS) $< $(LIBS) $(LIBS_KODO) \
-	-o $(rlnc_packet_test)
-
-rlnc_encoded_packet_test: rlnc_encoded_packet_test.cpp ../coding_host/rlncrecoder.cpp
-	$(CC) $(CFLAGS) $(INC_PATHS) $(LIBS_INCKODO) $(LIB_PATHS) $^ $(LIBS) $(LIBS_KODO) \
-	-o $(rlnc_encoded_packet_test)
-
-
-test_net_udpnc_mchandler: test_net_udpnc_mchandler.cpp
-	$(CC) $(CFLAGS) $(INC_PATHS) $(LIBS_INCKODO) $(LIB_PATHS) $< $(LIBS) $(LIBS_KODO) \
-	-o $(test_net_udpnc_mchandler)
-
-test_customrlncdecoder_repeated: test_customrlncdecoder_repeated.cpp ../coding_host/rlncrecoder.cpp
-	$(CC) $(CFLAGS) $(INC_PATHS) $(LIBS_INCKODO) $(LIB_PATHS) $^ $(LIBS) $(LIBS_KODO) \
-	-o $(test_customrlncdecoder_repeated)
 
 udp_buffertest: udp_buffertest.cpp
 	$(CC) $(CFLAGS) $^ $(LIBS_BOOST) \
@@ -60,6 +40,6 @@ udp_buffertest: udp_buffertest.cpp
 
 
 clean:
-	-rm $(vaststatlog_test) $(rlnc_packet_test) $(test_net_udpnc_mchandler) $(rlnc_encoded_packet_test) $(test_customrlncdecoder_repeated)
+	-rm $(vaststatlog_test) $(udp_buffertest)
 
 noace:

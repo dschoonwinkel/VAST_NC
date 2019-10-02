@@ -3,27 +3,27 @@
 
 #include "net_udp_handler.h"
 #include "net_udpnc_mchandler.h"
-#include "rlnc_packet_factory.h"
-#include "rlncmessage.h"
-#include "abstract_rlnc_msg_receiver.h"
+#include "udpnc_packet_factory.h"
+#include "udpncmessage.h"
+#include "abstract_udpnc_msg_receiver.h"
 #include "net_udpnc_consumer.h"
 #include "timeouts.h"
 #include "abstract_input_processor.h"
 
 namespace Vast
 {
-    class net_udpNC_handler : public net_udp_handler, public AbstractRLNCMsgReceiver, public abstract_input_processor
+    class net_udpNC_handler : public net_udp_handler, public AbstractUDPNCMsgReceiver, public abstract_input_processor
     {
     public:
         net_udpNC_handler(ip::udp::endpoint local_endpoint);
         virtual ~net_udpNC_handler();
 
 
-        ///Default open function. Uses test case function with RLNCsink = NULL parameter
+        ///Default open function. Uses test case function with UDPNCsink = NULL parameter
         int open (io_service *io_service, abstract_net_udp *msghandler, bool startthread = true);
 
-        ///Used in test cases where I need a different RLNCsink output
-        int open (io_service *io_service, abstract_net_udp *msghandler, AbstractRLNCMsgReceiver *RLNCsink = NULL, bool startthread = true);
+        ///Used in test cases where I need a different UDPNCsink output
+        int open (io_service *io_service, abstract_net_udp *msghandler, AbstractUDPNCMsgReceiver *UDPNCsink = NULL, bool startthread = true);
         // call net_udp_handler close and mchandler close
         int close (void);
 
@@ -39,9 +39,9 @@ namespace Vast
                              std::size_t bytes_transferred);
 
         //Hands input packet off to net_udp_handler
-        void handoff_input (RLNCMessage input_message, IPaddr socket_addr);
+        void handoff_input (UDPNCMessage input_message, IPaddr socket_addr);
 
-        void RLNC_msg_received(RLNCMessage input_message, IPaddr socket_addr);
+        void UDPNC_msg_received(UDPNCMessage input_message, IPaddr socket_addr);
 
         //Do nothing here, for now
         void tick();

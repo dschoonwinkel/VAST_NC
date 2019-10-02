@@ -1,5 +1,5 @@
-#include "rlncmessage.h"
-#include "rlncrecoder.h"
+#include "udpncmessage.h"
+#include "udpncrecoder.h"
 #include <vector>
 #include <boost/asio.hpp>
 #include <iostream>
@@ -8,7 +8,7 @@
 #include <time.h>
 #include <stdlib.h>
 #include "net_udpnc_mchandler.h"
-#include "abstract_rlnc_msg_receiver_testimpl.h"
+#include "abstract_udpnc_msg_receiver_testimpl.h"
 #include <boost/thread/thread.hpp>
 #include <boost/chrono.hpp>
 
@@ -23,7 +23,7 @@ void testFirstIndex()
                 ip::address::from_string(remote_ip), remote_port);
 
     Vast::net_udpNC_MChandler mchandler(local_endpoint);
-    Vast::AbstractRNLCMsgReceiverTestImpl tester;
+    Vast::AbstractUDPNCMsgReceiverTestImpl tester;
     mchandler.open(&tester, false);
 
     char data1[] = {'d', 'e', 'a', 'd'};
@@ -53,14 +53,14 @@ void testFirstIndex()
     memcpy(vast_data2.data ()+sizeof(Vast::VASTHeader), data2, 4);
 
 
-    RLNCrecoder recoder;
+    UDPNCrecoder recoder;
 
-    RLNCHeader_factory factory;
-    RLNCHeader header1 = factory.build();
-    RLNCHeader header2 = factory.build();
+    UDPNCHeader_factory factory;
+    UDPNCHeader header1 = factory.build();
+    UDPNCHeader header2 = factory.build();
 
-    RLNCMessage message1(header1);
-    RLNCMessage message2(header2);
+    UDPNCMessage message1(header1);
+    UDPNCMessage message2(header2);
 
     int id1 = rand() % 10;
     int id2 = -1;
@@ -86,14 +86,14 @@ void testFirstIndex()
     std::cout << "Symbol 1:" << message1 << std::endl;
     std::cout << "Symbol 2:" << message2 << std::endl;
 
-    recoder.addRLNCMessage(message1);
-    recoder.addRLNCMessage(message2);
+    recoder.addUDPNCMessage(message1);
+    recoder.addUDPNCMessage(message2);
 
-    std::shared_ptr<RLNCMessage> temp_msg = recoder.produceRLNCMessage();
+    std::shared_ptr<UDPNCMessage> temp_msg = recoder.produceUDPNCMessage();
 
     if (!temp_msg)
     {
-        std::cerr << "Could not produce RLNC encoded message" << std::endl;
+        std::cerr << "Could not produce UDPNC encoded message" << std::endl;
         exit(EXIT_FAILURE);
     }
 
@@ -108,7 +108,7 @@ void testFirstIndex()
     //Equivalent to receive
     mchandler.process_input (reinterpret_cast<char*>(payload.data()), payload.size ());
 
-    assert(tester.RLNC_msg_received_call_count == 1);
+    assert(tester.UDPNC_msg_received_call_count == 1);
     assert(tester.recv_msg == message2);
 
     mchandler.close();
@@ -126,7 +126,7 @@ void testSecondIndex()
                 ip::address::from_string(remote_ip), remote_port);
 
     Vast::net_udpNC_MChandler mchandler(local_endpoint);
-    Vast::AbstractRNLCMsgReceiverTestImpl tester;
+    Vast::AbstractUDPNCMsgReceiverTestImpl tester;
     mchandler.open(&tester, false);
 
     char data1[] = {'d', 'e', 'a', 'd'};
@@ -156,14 +156,14 @@ void testSecondIndex()
     memcpy(vast_data2.data ()+sizeof(Vast::VASTHeader), data2, 4);
 
 
-    RLNCrecoder recoder;
+    UDPNCrecoder recoder;
 
-    RLNCHeader_factory factory;
-    RLNCHeader header1 = factory.build();
-    RLNCHeader header2 = factory.build();
+    UDPNCHeader_factory factory;
+    UDPNCHeader header1 = factory.build();
+    UDPNCHeader header2 = factory.build();
 
-    RLNCMessage message1(header1);
-    RLNCMessage message2(header2);
+    UDPNCMessage message1(header1);
+    UDPNCMessage message2(header2);
 
     int id1 = rand() % 10;
     int id2 = -1;
@@ -189,14 +189,14 @@ void testSecondIndex()
     std::cout << "Symbol 1:" << message1 << std::endl;
     std::cout << "Symbol 2:" << message2 << std::endl;
 
-    recoder.addRLNCMessage(message1);
-    recoder.addRLNCMessage(message2);
+    recoder.addUDPNCMessage(message1);
+    recoder.addUDPNCMessage(message2);
 
-    std::shared_ptr<RLNCMessage> temp_msg = recoder.produceRLNCMessage();
+    std::shared_ptr<UDPNCMessage> temp_msg = recoder.produceUDPNCMessage();
 
     if (!temp_msg)
     {
-        std::cerr << "Could not produce RLNC encoded message" << std::endl;
+        std::cerr << "Could not produce UDPNC encoded message" << std::endl;
         exit(EXIT_FAILURE);
     }
 
@@ -212,7 +212,7 @@ void testSecondIndex()
     //Equivalent to receive
     mchandler.process_input (reinterpret_cast<char*>(payload.data()), payload.size ());
 
-    assert(tester.RLNC_msg_received_call_count == 1);
+    assert(tester.UDPNC_msg_received_call_count == 1);
     assert(tester.recv_msg == message1);
 
     mchandler.close();
@@ -228,7 +228,7 @@ void testUndecodable()
                 ip::address::from_string(remote_ip), remote_port);
 
     Vast::net_udpNC_MChandler mchandler(local_endpoint);
-    Vast::AbstractRNLCMsgReceiverTestImpl tester;
+    Vast::AbstractUDPNCMsgReceiverTestImpl tester;
     mchandler.open(&tester, false);
 
     char data1[] = {'d', 'e', 'a', 'd'};
@@ -258,14 +258,14 @@ void testUndecodable()
     memcpy(vast_data2.data ()+sizeof(Vast::VASTHeader), data2, 4);
 
 
-    RLNCrecoder recoder;
+    UDPNCrecoder recoder;
 
-    RLNCHeader_factory factory;
-    RLNCHeader header1 = factory.build();
-    RLNCHeader header2 = factory.build();
+    UDPNCHeader_factory factory;
+    UDPNCHeader header1 = factory.build();
+    UDPNCHeader header2 = factory.build();
 
-    RLNCMessage message1(header1);
-    RLNCMessage message2(header2);
+    UDPNCMessage message1(header1);
+    UDPNCMessage message2(header2);
 
     int id1 = rand() % 10;
     int id2 = -1;
@@ -288,14 +288,14 @@ void testUndecodable()
     message1.putMessage(vast_data1.data (), 100);
     message2.putMessage(vast_data2.data (), 100);
 
-    recoder.addRLNCMessage(message1);
-    recoder.addRLNCMessage(message2);
+    recoder.addUDPNCMessage(message1);
+    recoder.addUDPNCMessage(message2);
 
-    std::shared_ptr<RLNCMessage> temp_msg = recoder.produceRLNCMessage();
+    std::shared_ptr<UDPNCMessage> temp_msg = recoder.produceUDPNCMessage();
 
     if (!temp_msg)
     {
-        std::cerr << "Could not produce RLNC encoded message" << std::endl;
+        std::cerr << "Could not produce UDPNC encoded message" << std::endl;
         exit(EXIT_FAILURE);
     }
 
@@ -306,7 +306,7 @@ void testUndecodable()
     //Equivalent to receive
     mchandler.process_input (reinterpret_cast<char*>(payload.data()), payload.size ());
 
-    assert(tester.RLNC_msg_received_call_count == 0);
+    assert(tester.UDPNC_msg_received_call_count == 0);
     assert(mchandler.getPacketPoolSize () == 0);
 
     mchandler.close();
@@ -323,7 +323,7 @@ void testUnnecessary()
                 ip::address::from_string(remote_ip), remote_port);
 
     Vast::net_udpNC_MChandler mchandler(local_endpoint);
-    Vast::AbstractRNLCMsgReceiverTestImpl tester;
+    Vast::AbstractUDPNCMsgReceiverTestImpl tester;
     mchandler.open(&tester, false);
 
     char data1[] = {'d', 'e', 'a', 'd'};
@@ -353,14 +353,14 @@ void testUnnecessary()
     memcpy(vast_data2.data ()+sizeof(Vast::VASTHeader), data2, 4);
 
 
-    RLNCrecoder recoder;
+    UDPNCrecoder recoder;
 
-    RLNCHeader_factory factory;
-    RLNCHeader header1 = factory.build();
-    RLNCHeader header2 = factory.build();
+    UDPNCHeader_factory factory;
+    UDPNCHeader header1 = factory.build();
+    UDPNCHeader header2 = factory.build();
 
-    RLNCMessage message1(header1);
-    RLNCMessage message2(header2);
+    UDPNCMessage message1(header1);
+    UDPNCMessage message2(header2);
 
     int id1 = rand() % 10;
     int id2 = -1;
@@ -383,14 +383,14 @@ void testUnnecessary()
     message1.putMessage(vast_data1.data (), 100);
     message2.putMessage(vast_data2.data (), 100);
 
-    recoder.addRLNCMessage(message1);
-    recoder.addRLNCMessage(message2);
+    recoder.addUDPNCMessage(message1);
+    recoder.addUDPNCMessage(message2);
 
-    std::shared_ptr<RLNCMessage> temp_msg = recoder.produceRLNCMessage();
+    std::shared_ptr<UDPNCMessage> temp_msg = recoder.produceUDPNCMessage();
 
     if (!temp_msg)
     {
-        std::cerr << "Could not produce RLNC encoded message" << std::endl;
+        std::cerr << "Could not produce UDPNC encoded message" << std::endl;
         exit(EXIT_FAILURE);
     }
 
@@ -411,7 +411,7 @@ void testUnnecessary()
     //Equivalent to receive
     mchandler.process_input (reinterpret_cast<char*>(payload.data()), payload.size ());
 
-    assert(tester.RLNC_msg_received_call_count == 0);
+    assert(tester.UDPNC_msg_received_call_count == 0);
 
     mchandler.close();
 
@@ -427,7 +427,7 @@ void testExtraPacket()
                 ip::address::from_string(remote_ip), remote_port);
 
     Vast::net_udpNC_MChandler mchandler(local_endpoint);
-    Vast::AbstractRNLCMsgReceiverTestImpl tester;
+    Vast::AbstractUDPNCMsgReceiverTestImpl tester;
     mchandler.open(&tester, false);
 
     char data1[] = {'d', 'e', 'a', 'd'};
@@ -469,16 +469,16 @@ void testExtraPacket()
     memcpy(vast_data3.data ()+sizeof(Vast::VASTHeader), data3, 4);
 
 
-    RLNCrecoder recoder;
+    UDPNCrecoder recoder;
 
-    RLNCHeader_factory factory;
-    RLNCHeader header1 = factory.build();
-    RLNCHeader header2 = factory.build();
-    RLNCHeader header3 = factory.build();
+    UDPNCHeader_factory factory;
+    UDPNCHeader header1 = factory.build();
+    UDPNCHeader header2 = factory.build();
+    UDPNCHeader header3 = factory.build();
 
-    RLNCMessage message1(header1);
-    RLNCMessage message2(header2);
-    RLNCMessage message3(header3);
+    UDPNCMessage message1(header1);
+    UDPNCMessage message2(header2);
+    UDPNCMessage message3(header3);
 
     int id1 = rand() % 10;
     int id2 = -1;
@@ -513,15 +513,15 @@ void testExtraPacket()
     message2.putMessage(vast_data2.data (), 100);
     message3.putMessage (vast_data3.data (), 100);
 
-    recoder.addRLNCMessage(message1);
-    recoder.addRLNCMessage(message2);
-    recoder.addRLNCMessage(message3);
+    recoder.addUDPNCMessage(message1);
+    recoder.addUDPNCMessage(message2);
+    recoder.addUDPNCMessage(message3);
 
-    std::shared_ptr<RLNCMessage> temp_msg = recoder.produceRLNCMessage();
+    std::shared_ptr<UDPNCMessage> temp_msg = recoder.produceUDPNCMessage();
 
     if (!temp_msg)
     {
-        std::cerr << "Could not produce RLNC encoded message" << std::endl;
+        std::cerr << "Could not produce UDPNC encoded message" << std::endl;
         exit(EXIT_FAILURE);
     }
 
@@ -537,17 +537,17 @@ void testExtraPacket()
     //Equivalent to receive
     mchandler.process_input (reinterpret_cast<char*>(payload.data()), payload.size ());
 
-    assert(tester.RLNC_msg_received_call_count == 1);
+    assert(tester.UDPNC_msg_received_call_count == 1);
     assert(tester.recv_msg == message2);
 
     assert(recoder.getPacketPoolSize() == 1);
 
-    recoder.addRLNCMessage (message1);
-    temp_msg = recoder.produceRLNCMessage();
+    recoder.addUDPNCMessage (message1);
+    temp_msg = recoder.produceUDPNCMessage();
 
     if (!temp_msg)
     {
-        std::cerr << "Could not produce RLNC encoded message" << std::endl;
+        std::cerr << "Could not produce UDPNC encoded message" << std::endl;
         exit(EXIT_FAILURE);
     }
 
@@ -566,7 +566,7 @@ void testExtraPacket()
     //Equivalent to receive
     mchandler.process_input (reinterpret_cast<char*>(payload.data()), payload.size ());
 
-    assert(tester.RLNC_msg_received_call_count == 2);
+    assert(tester.UDPNC_msg_received_call_count == 2);
     assert(tester.recv_msg == message3);
 
     mchandler.close();
@@ -591,12 +591,12 @@ void testNETIDUNASSIGNED()
     memcpy(vast_data1.data (), &vast_header1, sizeof(Vast::VASTHeader));
     memcpy(vast_data1.data()+sizeof(Vast::VASTHeader), data1, 4);
 
-    RLNCrecoder recoder;
+    UDPNCrecoder recoder;
 
-    RLNCHeader_factory factory;
-    RLNCHeader header1 = factory.build();
+    UDPNCHeader_factory factory;
+    UDPNCHeader header1 = factory.build();
 
-    RLNCMessage message1(header1);
+    UDPNCMessage message1(header1);
 
     int id1 = NET_ID_UNASSIGNED;
 
@@ -608,17 +608,17 @@ void testNETIDUNASSIGNED()
 
     message1.putMessage(vast_data1.data (), 100);
 
-    recoder.addRLNCMessage(message1);
+    recoder.addUDPNCMessage(message1);
 
     assert(recoder.getPacketPoolSize () == 0);
 
-    customrlncdecoder decoder;
-    decoder.addRLNCMessage (message1);
+    customudpncdecoder decoder;
+    decoder.addUDPNCMessage (message1);
     assert(decoder.getPacketPoolSize () == 0);
 
-    RLNCHeader header2 = factory.build();
+    UDPNCHeader header2 = factory.build();
 
-    RLNCMessage message2(header2);
+    UDPNCMessage message2(header2);
 
     int id2 = 123;
 
@@ -630,11 +630,11 @@ void testNETIDUNASSIGNED()
 
     message2.putMessage(vast_data1.data (), 100);
 
-    recoder.addRLNCMessage(message2);
+    recoder.addUDPNCMessage(message2);
 
     assert(recoder.getPacketPoolSize () == 1);
 
-    decoder.addRLNCMessage (message2);
+    decoder.addUDPNCMessage (message2);
     assert(decoder.getPacketPoolSize () == 1);
 }
 
@@ -667,10 +667,10 @@ void testThrowPktNotUnique()
     memcpy(vast_data2.data (), &vast_header2, sizeof(Vast::VASTHeader));
     memcpy(vast_data2.data ()+sizeof(Vast::VASTHeader), data2, 4);
 
-    RLNCHeader_factory factory;
-    RLNCHeader header1 = factory.build();
+    UDPNCHeader_factory factory;
+    UDPNCHeader header1 = factory.build();
 
-    RLNCMessage message1(header1);
+    UDPNCMessage message1(header1);
 
     int id1 = NET_ID_UNASSIGNED;
 
@@ -682,16 +682,16 @@ void testThrowPktNotUnique()
 
     message1.putMessage(vast_data1.data (), 100);
 
-    customrlncdecoder decoder;
-    decoder.addRLNCMessage (message1);
-    decoder.addRLNCMessage (message1);
+    customudpncdecoder decoder;
+    decoder.addUDPNCMessage (message1);
+    decoder.addUDPNCMessage (message1);
     assert(decoder.getPacketPoolSize () == 0);
 
     //If something went wrong, we will have an exception wrongly thrown by now
 
     //Normal packet adding
-    RLNCHeader header2 = factory.build();
-    RLNCMessage message2(header2);
+    UDPNCHeader header2 = factory.build();
+    UDPNCMessage message2(header2);
 
     int id2 = 123;
 
@@ -703,15 +703,15 @@ void testThrowPktNotUnique()
 
     message2.putMessage(vast_data1.data (), 100);
 
-    decoder.addRLNCMessage (message2);
+    decoder.addUDPNCMessage (message2);
     //Add the same packet twice
-    decoder.addRLNCMessage (message2);
+    decoder.addUDPNCMessage (message2);
     assert(decoder.getPacketPoolSize () == 1);
 
     //Create a different packet with same id, but different contents
-    RLNCHeader header3 = factory.build();
+    UDPNCHeader header3 = factory.build();
 
-    RLNCMessage message3(header3);
+    UDPNCMessage message3(header3);
 
     message3.putPacketId(id2);
     message3.putFromId (id2);
@@ -720,7 +720,7 @@ void testThrowPktNotUnique()
     message3.putMessage(vast_data2.data (), 100);
 
     try {
-        decoder.addRLNCMessage (message3);
+        decoder.addUDPNCMessage (message3);
         std::abort();
     }
     catch (std::logic_error)
@@ -759,10 +759,10 @@ void testChecksum()
     memcpy(vast_data2.data (), &vast_header2, sizeof(Vast::VASTHeader));
     memcpy(vast_data2.data ()+sizeof(Vast::VASTHeader), data2, 4);
 
-    RLNCHeader_factory factory;
-    RLNCHeader header1 = factory.build();
+    UDPNCHeader_factory factory;
+    UDPNCHeader header1 = factory.build();
 
-    RLNCMessage message1(header1);
+    UDPNCMessage message1(header1);
 
     int id1 = 123;
 
@@ -774,12 +774,12 @@ void testChecksum()
 
     message1.putMessage(vast_data1.data (), 100);
 
-    RLNCrecoder recoder;
-    recoder.addRLNCMessage (message1);
+    UDPNCrecoder recoder;
+    recoder.addUDPNCMessage (message1);
 
     //Normal packet adding
-    RLNCHeader header2 = factory.build();
-    RLNCMessage message2(header2);
+    UDPNCHeader header2 = factory.build();
+    UDPNCMessage message2(header2);
 
     int id2 = 456;
 
@@ -791,19 +791,19 @@ void testChecksum()
 
     message2.putMessage(vast_data2.data (), 100);
 
-    recoder.addRLNCMessage (message2);
+    recoder.addUDPNCMessage (message2);
 
     std::array<char, MAX_PACKET_SIZE> buffer;
 
     uint32_t checksum = 0;
     message1.serialize(buffer.data());
-    checksum = RLNCMessage::generateChecksum(buffer.data(), message1.sizeOf());
+    checksum = UDPNCMessage::generateChecksum(buffer.data(), message1.sizeOf());
 
     buffer.fill(0);
     message2.serialize(buffer.data());
-    checksum += RLNCMessage::generateChecksum(buffer.data(), message2.sizeOf());
+    checksum += UDPNCMessage::generateChecksum(buffer.data(), message2.sizeOf());
 
-    std::shared_ptr<RLNCMessage> encoded_msg = recoder.produceRLNCMessage();
+    std::shared_ptr<UDPNCMessage> encoded_msg = recoder.produceUDPNCMessage();
 
     assert(encoded_msg);
     assert(encoded_msg->getChecksum() == checksum);
@@ -829,7 +829,7 @@ void testRepeated()
                 ip::address::from_string(remote_ip), remote_port);
 
     Vast::net_udpNC_MChandler mchandler(local_endpoint);
-    Vast::AbstractRNLCMsgReceiverTestImpl tester;
+    Vast::AbstractUDPNCMsgReceiverTestImpl tester;
     mchandler.open(&tester, false);
 
     for (size_t i = 0; i < iterations; i++)
@@ -862,14 +862,14 @@ void testRepeated()
         memcpy(vast_data2.data ()+sizeof(Vast::VASTHeader), data2, 4);
 
 
-        RLNCrecoder recoder;
+        UDPNCrecoder recoder;
 
-        RLNCHeader_factory factory;
-        RLNCHeader header1 = factory.build();
-        RLNCHeader header2 = factory.build();
+        UDPNCHeader_factory factory;
+        UDPNCHeader header1 = factory.build();
+        UDPNCHeader header2 = factory.build();
 
-        RLNCMessage message1(header1);
-        RLNCMessage message2(header2);
+        UDPNCMessage message1(header1);
+        UDPNCMessage message2(header2);
 
         //Assure that the messages does not have similar or 0 fromIDs
         int id1 = i + 1; // ie. 1 - 10000
@@ -893,10 +893,10 @@ void testRepeated()
 
         auto t1 = std::chrono::high_resolution_clock::now();
 
-        recoder.addRLNCMessage(message1);
-        recoder.addRLNCMessage(message2);
+        recoder.addUDPNCMessage(message1);
+        recoder.addUDPNCMessage(message2);
 
-        std::shared_ptr<RLNCMessage> temp_msg = recoder.produceRLNCMessage();
+        std::shared_ptr<UDPNCMessage> temp_msg = recoder.produceUDPNCMessage();
 
         auto t2 = std::chrono::high_resolution_clock::now();
 
@@ -904,7 +904,7 @@ void testRepeated()
 
         if (!temp_msg)
         {
-            std::cerr << "Could not produce RLNC encoded message" << std::endl;
+            std::cerr << "Could not produce UDPNC encoded message" << std::endl;
             exit(EXIT_FAILURE);
         }
 
@@ -925,8 +925,8 @@ void testRepeated()
         decoding_timer += std::chrono::duration_cast<std::chrono::microseconds>(t4-t3);
 
         //This does not work well as these could be linearly dependent coded messages
-//        while(tester.RLNC_msg_received_call_count != i+1) {}
-//        assert(tester.RLNC_msg_received_call_count == i+1);
+//        while(tester.UDPNC_msg_received_call_count != i+1) {}
+//        assert(tester.UDPNC_msg_received_call_count == i+1);
 //        assert(tester.recv_msg == message2);
     }
 

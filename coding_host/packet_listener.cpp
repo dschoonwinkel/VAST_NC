@@ -1,6 +1,6 @@
 #include "packet_listener.h"
 #include <iostream>
-#include "rlnc_packet_factory.h"
+#include "udpnc_packet_factory.h"
 #include "VASTnet.h"
 #include "logger.h"
 
@@ -106,14 +106,14 @@ void packet_listener::process_input (const char *buf,
                                      std::size_t bytes_transferred)
 {
     process_msg_count++;
-    RLNCHeader header;
+    UDPNCHeader header;
 
-    memcpy(&header, buf, sizeof(RLNCHeader));
+    memcpy(&header, buf, sizeof(UDPNCHeader));
 
     //Check if it is really a VAST message: Start and end bytes of header should be correct
-    if (!RLNCHeader_factory::isRLNCHeader(header))
+    if (!UDPNCHeader_factory::isUDPNCHeader(header))
     {
-        Logger::debugPeriodic("packet_listener::handle_input Non-RLNC message received on UDP socket", 1000, 1e6);
+        Logger::debugPeriodic("packet_listener::handle_input Non-UDPNC message received on UDP socket", 1000, 1e6);
         return;
     }
     else if (header.enc_packet_count > 1)
@@ -122,8 +122,8 @@ void packet_listener::process_input (const char *buf,
         return;
     }
     else {
-//          CPPDEBUG("RLNC message received on the coding host" << std::endl);
-        RLNCMessage message;
+//          CPPDEBUG("UDPNC message received on the coding host" << std::endl);
+        UDPNCMessage message;
 
         message.deserialize(buf, bytes_transferred);
 
@@ -131,25 +131,25 @@ void packet_listener::process_input (const char *buf,
         if (message.getFirstFromId () == NET_ID_UNASSIGNED)
             return;
 
-        //Do not code empty RLNCMessage packets, used as synchronise packets, only unicast
+        //Do not code empty UDPNCMessage packets, used as synchronise packets, only unicast
         if (message.getMessageSize() == 0)
         {
-//            CPPDEBUG("packet_listener::process_input Empty RLNC Keep alive packet found " << std::endl);
+//            CPPDEBUG("packet_listener::process_input Empty UDPNC Keep alive packet found " << std::endl);
             return;
         }
 
         recvfrommap_count[message.getFirstFromId()]++;
 
-        recoder.addRLNCMessage(message);
+        recoder.addUDPNCMessage(message);
 
         msgs_mutex.lock();
-        std::shared_ptr<RLNCMessage> temp_msg = recoder.produceRLNCMessage();
+        std::shared_ptr<UDPNCMessage> temp_msg = recoder.produceUDPNCMessage();
 
 
         if (temp_msg)
         {
-            msgs.push_back(RLNCMessage(*temp_msg));
-//            CPPDEBUG("packet_listener::handle_input: Adding RLNCmessage to queue" << std::endl);
+            msgs.push_back(UDPNCMessage(*temp_msg));
+//            CPPDEBUG("packet_listener::handle_input: Adding UDPNCmessage to queue" << std::endl);
         }
 
         msgs_mutex.unlock();
@@ -187,7 +187,7 @@ void packet_listener::start_send()
             continue;
         }
 
-        RLNCMessage message(msgs.front());
+        UDPNCMessage message(msgs.front());
         msgs.pop_front();
         msgs_mutex.unlock();
 

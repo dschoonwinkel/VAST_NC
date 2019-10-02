@@ -1,23 +1,23 @@
-#include "rlncrecoder.h"
+#include "udpncrecoder.h"
 #include <iostream>
 #include "net_manager.h"
 #include <thread>
 #include "logger.h"
 
-RLNCrecoder::RLNCrecoder() :
+UDPNCrecoder::UDPNCrecoder() :
     encoder_factory(field, MAX_SYMBOLS, MAX_PACKET_SIZE),
     header_factory(GENSIZE, 0)
 {
 
 }
 
-void RLNCrecoder::startEncodeTimer()
+void UDPNCrecoder::startEncodeTimer()
 {
     t1 = std::chrono::high_resolution_clock::now();
     encodeTimerRunning = true;
 }
 
-void RLNCrecoder::stopEncodeTimer()
+void UDPNCrecoder::stopEncodeTimer()
 {
     if (encodeTimerRunning)
     {
@@ -27,15 +27,15 @@ void RLNCrecoder::stopEncodeTimer()
     encodeTimerRunning = false;
 }
 
-void RLNCrecoder::addRLNCMessage(RLNCMessage msg)
+void UDPNCrecoder::addUDPNCMessage(UDPNCMessage msg)
 {
-//    Logger::debugThread("RLNCrecoder::addRLNCMessage");
+//    Logger::debugThread("UDPNCrecoder::addUDPNCMessage");
     auto pktids = msg.getPacketIds();
 
     //Ignore all NET_ID_UNASSIGNED
     if (msg.getFirstFromId () == NET_ID_UNASSIGNED)
     {
-        CPPDEBUG("RLNCrecoder::addRLNCMessage Could not add pkt from NET_ID_UNASSIGNED" << std::endl);
+        CPPDEBUG("UDPNCrecoder::addUDPNCMessage Could not add pkt from NET_ID_UNASSIGNED" << std::endl);
         return;
     }
     //If an uncoded packet and it is within the codable size
@@ -50,10 +50,10 @@ void RLNCrecoder::addRLNCMessage(RLNCMessage msg)
 
     }
     else if (msg.getMessageSize() > MAX_PACKET_SIZE)
-        CPPDEBUG("rlncrecoder::addRLNCMessage: Could not add packet, size too large" << std::endl);
+        CPPDEBUG("udpncrecoder::addUDPNCMessage: Could not add packet, size too large" << std::endl);
     else
     {
-        CPPDEBUG("rlncrecoder::addRLNCMessage: could not add packet, because reasons..." << std::endl);
+        CPPDEBUG("udpncrecoder::addUDPNCMessage: could not add packet, because reasons..." << std::endl);
     }
 
     if (packet_pool.size() > max_packetpool_size)
@@ -71,13 +71,13 @@ void RLNCrecoder::addRLNCMessage(RLNCMessage msg)
     }
 }
 
-std::shared_ptr<RLNCMessage> RLNCrecoder::produceRLNCMessage()
+std::shared_ptr<UDPNCMessage> UDPNCrecoder::produceUDPNCMessage()
 {
     startEncodeTimer();
-//    Logger::debugThread("RLNCrecoder::produceRLNCMessage");
+//    Logger::debugThread("UDPNCrecoder::produceUDPNCMessage");
     if (packet_pool.size() < 2)
     {
-        CPPDEBUG("RLNCrecoder::produceRLNCMessage packet_pool.size() too small" << std::endl);
+        CPPDEBUG("UDPNCrecoder::produceUDPNCMessage packet_pool.size() too small" << std::endl);
         stopEncodeTimer();
         return nullptr;
     }
@@ -86,8 +86,8 @@ std::shared_ptr<RLNCMessage> RLNCrecoder::produceRLNCMessage()
 
     auto encoder = encoder_factory.build();
 
-    RLNCMessage *message1 = &packet_pool.begin()->second;
-    RLNCMessage *message2 = &packet_pool.rbegin()->second;
+    UDPNCMessage *message1 = &packet_pool.begin()->second;
+    UDPNCMessage *message2 = &packet_pool.rbegin()->second;
 
     //Cannot encode packets from the same host together
     for (auto reverse_iter = packet_pool.rbegin();
@@ -99,7 +99,7 @@ std::shared_ptr<RLNCMessage> RLNCrecoder::produceRLNCMessage()
 
     if (message1->getFirstFromId() == message2->getFirstFromId())
     {
-        CPPDEBUG("rlncrecoder::produceRLNCMessage could not find packets from different hosts" << std::endl);
+        CPPDEBUG("udpncrecoder::produceUDPNCMessage could not find packets from different hosts" << std::endl);
         stopEncodeTimer();
         return nullptr;
     }
@@ -114,7 +114,7 @@ std::shared_ptr<RLNCMessage> RLNCrecoder::produceRLNCMessage()
     message2->serialize(reinterpret_cast<char*>(data2.data()));
 
     auto header = header_factory.build();
-    std::shared_ptr<RLNCMessage> message (new RLNCMessage(header));
+    std::shared_ptr<UDPNCMessage> message (new UDPNCMessage(header));
     message->putIdsAddr(message1->getPacketIds()[0],
                         message1->getFromIds ()[0],
                         message1->getToAddrs ()[0]);
@@ -123,13 +123,13 @@ std::shared_ptr<RLNCMessage> RLNCrecoder::produceRLNCMessage()
                         message2->getFromIds ()[0],
                         message2->getToAddrs ()[0]);
 
-    uint32_t checksum1 = RLNCMessage::generateChecksum(data1.data(), message1->sizeOf());
+    uint32_t checksum1 = UDPNCMessage::generateChecksum(data1.data(), message1->sizeOf());
 #ifdef SAVE_PACKETS
-    Logger::saveBinaryArray("RLNCrecoder_" + std::to_string(message1->getPacketIds()[0]) + ".txt", data1.data(), message1->sizeOf());
+    Logger::saveBinaryArray("UDPNCrecoder_" + std::to_string(message1->getPacketIds()[0]) + ".txt", data1.data(), message1->sizeOf());
 #endif
-    uint32_t checksum2 = RLNCMessage::generateChecksum(data2.data(), message2->sizeOf());
+    uint32_t checksum2 = UDPNCMessage::generateChecksum(data2.data(), message2->sizeOf());
 #ifdef SAVE_PACKETS
-    Logger::saveBinaryArray("RLNCrecoder_" + std::to_string(message2->getPacketIds()[0]) + ".txt", data2.data(), message2->sizeOf());
+    Logger::saveBinaryArray("UDPNCrecoder_" + std::to_string(message2->getPacketIds()[0]) + ".txt", data2.data(), message2->sizeOf());
 #endif
     message->setChecksum(checksum1 + checksum2);
 
@@ -148,19 +148,19 @@ std::shared_ptr<RLNCMessage> RLNCrecoder::produceRLNCMessage()
     return message;
 }
 
-size_t RLNCrecoder::getPacketPoolSize ()
+size_t UDPNCrecoder::getPacketPoolSize ()
 {
     return packet_pool.size();
 }
 
-RLNCrecoder::~RLNCrecoder()
+UDPNCrecoder::~UDPNCrecoder()
 {
-    std::cout << "~RLNCrecoder: Max packet_pool size: " << max_packetpool_size << std::endl;
-    std::cout << "~RLNCrecoder: packets_encoded: " << packets_encoded << std::endl;
-    std::cout << "~RLNCrecoder:: time spent encoding: " << encodeTimer.count() / 1000 << " milliseconds " << std::endl;
+    std::cout << "~UDPNCrecoder: Max packet_pool size: " << max_packetpool_size << std::endl;
+    std::cout << "~UDPNCrecoder: packets_encoded: " << packets_encoded << std::endl;
+    std::cout << "~UDPNCrecoder:: time spent encoding: " << encodeTimer.count() / 1000 << " milliseconds " << std::endl;
     if (packets_encoded > 0)
     {
-        std::cout << "~RLNCrecoder:: time spent encoding per packet: "
+        std::cout << "~UDPNCrecoder:: time spent encoding per packet: "
                  << encodeTimer.count() / packets_encoded
                  << " microseconds " << std::endl << std::endl;
     }

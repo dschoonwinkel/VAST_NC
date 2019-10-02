@@ -11,12 +11,12 @@ namespace Vast
     {
     }
 
-    void net_udpNC_consumer::open(AbstractRLNCMsgReceiver *RLNCsink,
+    void net_udpNC_consumer::open(AbstractUDPNCMsgReceiver *UDPNCsink,
                                   abstract_net_udp *abs_netudp,
                                   net_udpNC_MChandler* mchandler, bool startthread)
     {
         CPPDEBUG("net_udpNC_consumer::open" << std::endl);
-        this->RLNCsink = RLNCsink;
+        this->UDPNCsink = UDPNCsink;
         this->abs_netudp = abs_netudp;
         this->mchandler = mchandler;
 
@@ -26,7 +26,7 @@ namespace Vast
         }
     }
 
-    void net_udpNC_consumer::RLNC_msg_received (RLNCMessage msg, IPaddr socket_addr)
+    void net_udpNC_consumer::UDPNC_msg_received (UDPNCMessage msg, IPaddr socket_addr)
     {
         msg.socket_addr = socket_addr;
         _msg_queue.push (msg);
@@ -44,7 +44,7 @@ namespace Vast
         if (running)
             CPPDEBUG("net_udpNC_consumer::consume Starting processing message on thread" << std::endl);
 
-        RLNCMessage msg;
+        UDPNCMessage msg;
 
         while(running)
         {
@@ -62,7 +62,7 @@ namespace Vast
 
     }
 
-    void net_udpNC_consumer::process_input (RLNCMessage input_message, IPaddr socket_addr)
+    void net_udpNC_consumer::process_input (UDPNCMessage input_message, IPaddr socket_addr)
     {
 
         total_packets_processed++;
@@ -72,7 +72,7 @@ namespace Vast
         filter_input (input_message, socket_addr);
     }
 
-    void net_udpNC_consumer::filter_input (RLNCMessage input_message, IPaddr socket_addr)
+    void net_udpNC_consumer::filter_input (UDPNCMessage input_message, IPaddr socket_addr)
     {
         if (input_message.getToAddrs ().size () > 0)
         {
@@ -107,13 +107,13 @@ namespace Vast
         }
     }
 
-    void net_udpNC_consumer::order_input(RLNCMessage input_message, IPaddr socket_addr)
+    void net_udpNC_consumer::order_input(UDPNCMessage input_message, IPaddr socket_addr)
     {
         id_t firstFromID = input_message.getFirstFromId ();
 
         if (input_message.getMessageSize() == 0)
         {
-//            CPPDEBUG("net_udpNC_consumer::process_input Empty RLNC packet received, using as sync packet" << std::endl);
+//            CPPDEBUG("net_udpNC_consumer::process_input Empty UDPNC packet received, using as sync packet" << std::endl);
             recvd_ordering[input_message.getFirstFromId ()] = input_message.getOrdering ();
 
             //NOTE: why does this clear cause such a big improvement in performance?
@@ -157,7 +157,7 @@ namespace Vast
         //Save latest packet number
         recvd_ordering[input_message.getFirstFromId ()] = input_message.getOrdering ();
 
-        RLNCsink->RLNC_msg_received (input_message, socket_addr);
+        UDPNCsink->UDPNC_msg_received (input_message, socket_addr);
 //        size_t msgqueuesize = _msg_queue.size();
 //        if (msgqueuesize > 0)
 //            Logger::debugPeriodic("net_udpNC_consumer::order_input Size of _msg_queue, working on reducing it " + std::to_string(msgqueuesize), 100, 10, true);

@@ -1,6 +1,6 @@
-#include "customrlncdecoder.h"
-#include "rlncrecoder.h"
-#include "rlnc_packet_factory.h"
+#include "customudpncdecoder.h"
+#include "udpncrecoder.h"
+#include "udpnc_packet_factory.h"
 
 #include <boost/asio.hpp>
 #include <kodo_rlnc/coders.hpp>
@@ -17,15 +17,15 @@ int main()
     std::array<uint8_t, MAX_PACKET_SIZE*2> buffer;
     buffer.fill(0);
 
-    RLNCrecoder recoder;
-    customrlncdecoder decoder;
+    UDPNCrecoder recoder;
+    customudpncdecoder decoder;
 
-    RLNCHeader_factory factory;
-    RLNCHeader header1 = factory.build();
-    RLNCHeader header2 = factory.build();
+    UDPNCHeader_factory factory;
+    UDPNCHeader header1 = factory.build();
+    UDPNCHeader header2 = factory.build();
 
-    RLNCMessage message1(header1);
-    RLNCMessage message2(header2);
+    UDPNCMessage message1(header1);
+    UDPNCMessage message2(header2);
 
 
     message1.putPacketId(123);
@@ -39,10 +39,10 @@ int main()
     std::cout << "Symbol 1:" << message1 << std::endl;
     std::cout << "Symbol 2:" << message2 << std::endl;
 
-    recoder.addRLNCMessage(message1);
-    recoder.addRLNCMessage(message2);
+    recoder.addUDPNCMessage(message1);
+    recoder.addUDPNCMessage(message2);
 
-    std::shared_ptr<RLNCMessage> temp_msg = recoder.produceRLNCMessage();
+    std::shared_ptr<UDPNCMessage> temp_msg = recoder.produceUDPNCMessage();
 
     if (!temp_msg)
     {
@@ -52,10 +52,10 @@ int main()
 
     std::cout << "Coded Symbol:" << (*temp_msg) << std::endl;
 
-    decoder.addRLNCMessage(*temp_msg);
+    decoder.addUDPNCMessage(*temp_msg);
 
-    decoder.addRLNCMessage(message1);
-    std::shared_ptr<RLNCMessage> decoded_msg = decoder.produceDecodedRLNCMessage();
+    decoder.addUDPNCMessage(message1);
+    std::shared_ptr<UDPNCMessage> decoded_msg = decoder.produceDecodedUDPNCMessage();
 
     if (decoded_msg != NULL)
     {

@@ -1,5 +1,5 @@
 #include <iostream>
-#include <rlncmessage.h>
+#include <udpncmessage.h>
 #include <assert.h>
 #include <string.h>
 #include <queue>
@@ -14,7 +14,7 @@ void runUnitTest1()
 void testPacketIds()
 {
     std::cout << "testPacketIds" << std::endl;
-    RLNCMessage msg1;
+    UDPNCMessage msg1;
     packetid_t id1 = 1234567890;
 
     msg1.putPacketId (id1);
@@ -25,7 +25,7 @@ void testPacketIds()
 void testFromId()
 {
     std::cout << "testFromId" << std::endl;
-    RLNCMessage msg1;
+    UDPNCMessage msg1;
     packetid_t id1 = 1234567890;
     Vast::id_t from_id = 13132323123;
     Vast::id_t from_id2 = 1345982345;
@@ -44,7 +44,7 @@ void testFromId()
 void testToAddrs()
 {
     std::cout << "testToAddrs" << std::endl;
-    RLNCMessage msg1;
+    UDPNCMessage msg1;
     packetid_t id1 = 1234567890;
     Vast::id_t from_id = 13132323123;
     Vast::IPaddr addr1("127.0.0.1", 1037);
@@ -64,7 +64,7 @@ void testPutMessage()
     std::cout << "testPutMessage" << std::endl;
     std::string test1 = "Hello World!123";
 
-    RLNCMessage msg1;
+    UDPNCMessage msg1;
 
     msg1.putMessage (test1.c_str (), test1.length ());
 
@@ -77,7 +77,7 @@ void testPutMessage()
 void testOrdering()
 {
     std::cout << "testOrdering" << std::endl;
-    RLNCMessage msg1;
+    UDPNCMessage msg1;
 
     msg1.putOrdering (123);
 
@@ -86,9 +86,9 @@ void testOrdering()
 
 void testFactoryOrdering()
 {
-    RLNCHeader_factory factory;
-    RLNCHeader header1 = factory.build ();
-    RLNCHeader header2 = factory.build();
+    UDPNCHeader_factory factory;
+    UDPNCHeader header1 = factory.build ();
+    UDPNCHeader header2 = factory.build();
 
     assert(header1.ordering == 1);
     assert(header2.ordering == 2);
@@ -100,15 +100,15 @@ void testSizeOfSerialize()
 
     std::string test1 = "Hello World!123";
 
-    RLNCHeader_factory factory1;
-    RLNCHeader header1 = factory1.build ();
+    UDPNCHeader_factory factory1;
+    UDPNCHeader header1 = factory1.build ();
 
     header1.enc_packet_count = 1;
     header1.generation = 1;
     header1.gensize = 0;
     header1.ordering = 3;
 
-    RLNCMessage msg1(header1);
+    UDPNCMessage msg1(header1);
     packetid_t id1 = 1234567890;
     Vast::id_t from_id = 13132323123;
     Vast::IPaddr addr1("127.0.0.1", 1037);
@@ -119,14 +119,14 @@ void testSizeOfSerialize()
 
     msg1.putMessage (test1.c_str (), test1.length ());
 
-    //Sizeof RLNCMessage:
+    //Sizeof UDPNCMessage:
     //Header = 8 bytes
     //Packetid = 8 bytes
     //FromId = 8 bytes
     //ToAddr = 4 bytes IP + 2 bytes port
     //Variable length msg in chars
     //Checksum
-    assert(msg1.sizeOf () == (sizeof(RLNCHeader)
+    assert(msg1.sizeOf () == (sizeof(UDPNCHeader)
                               + sizeof(packetid_t) * 1 + sizeof(Vast::id_t) * 1
                               + sizeof(uint32_t) + 2 * sizeof(uint16_t)
                               + sizeof(char) * test1.length ()
@@ -138,7 +138,7 @@ void testSizeOfSerialize()
 
     msg1.serialize (buffer);
 
-    RLNCMessage msg2;
+    UDPNCMessage msg2;
 
     msg2.deserialize (buffer, msg1.sizeOf ());
 
@@ -151,15 +151,15 @@ void testEquals()
 
     std::string test1 = "Hello World!123";
 
-    RLNCHeader_factory factory1;
-    RLNCHeader header1 = factory1.build ();
+    UDPNCHeader_factory factory1;
+    UDPNCHeader header1 = factory1.build ();
 
     header1.enc_packet_count = 1;
     header1.generation = 1;
     header1.gensize = 0;
     header1.ordering = 3;
 
-    RLNCMessage msg1(header1);
+    UDPNCMessage msg1(header1);
     packetid_t id1 = 1234567890;
     Vast::id_t from_id = 13132323123;
     Vast::IPaddr addr1("127.0.0.1", 1037);
@@ -172,7 +172,7 @@ void testEquals()
     msg1.putMessage (test1.c_str (), test1.length ());
     msg1.socket_addr = sock_addr;
 
-    RLNCMessage msg2(header1);
+    UDPNCMessage msg2(header1);
 
     msg2.putPacketId (id1);
     msg2.putFromId (from_id);
@@ -194,21 +194,21 @@ void testEquals()
 
 void testQueueDequeue()
 {
-    std::queue<RLNCMessage> queue1;
+    std::queue<UDPNCMessage> queue1;
 
     std::cout << "testQueueDequeue" << std::endl;
 
     std::string test1 = "Hello World!123";
 
-    RLNCHeader_factory factory1;
-    RLNCHeader header1 = factory1.build ();
+    UDPNCHeader_factory factory1;
+    UDPNCHeader header1 = factory1.build ();
 
     header1.enc_packet_count = 1;
     header1.generation = 1;
     header1.gensize = 0;
     header1.ordering = 3;
 
-    RLNCMessage msg1(header1);
+    UDPNCMessage msg1(header1);
     packetid_t id1 = 1234567890;
     Vast::id_t from_id = 13132323123;
     Vast::IPaddr addr1("127.0.0.1", 1037);
@@ -223,7 +223,7 @@ void testQueueDequeue()
 
     queue1.push(msg1);
 
-    RLNCMessage msg2 = queue1.front();
+    UDPNCMessage msg2 = queue1.front();
 
     assert(msg1 == msg2);
 
@@ -233,8 +233,8 @@ void testSerializeHeader()
 {
     std::cout << "testSerializeHeader" << std::endl;
 
-    RLNCHeader_factory factory1;
-    RLNCHeader header1 = factory1.build ();
+    UDPNCHeader_factory factory1;
+    UDPNCHeader header1 = factory1.build ();
 
     header1.enc_packet_count = 1;
     header1.generation = 1;
@@ -243,8 +243,8 @@ void testSerializeHeader()
     header1.packetsize = 0xbeef;
 
     std::array<unsigned char, 8> buffer;
-    memcpy(buffer.data(), &header1, sizeof(RLNCHeader));
-    printf("Sizeof RLNCHeader %d", sizeof(RLNCHeader));
+    memcpy(buffer.data(), &header1, sizeof(UDPNCHeader));
+    printf("Sizeof UDPNCHeader %d", sizeof(UDPNCHeader));
 
     Logger::saveBinaryArray("header.txt", buffer.data(), 8);
 

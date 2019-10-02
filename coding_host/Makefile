@@ -24,11 +24,11 @@ LIB_PATHS   = -L../lib -L../Dependencies/lib/Release -L$(ACE_PATH)/lib
 
 all: coding_host
 
-coding_host: main.cpp packet_listener.cpp rlncrecoder.cpp mc_packet_listener.cpp
+coding_host: main.cpp packet_listener.cpp udpncrecoder.cpp mc_packet_listener.cpp
 	$(CC) $(CFLAGS) $(INC_PATHS) $(LIBS_INCKODO) $(LIB_PATHS) $^ $(LIBS) $(LIBS_KODO) \
 	-o $(coding_host)
 
-mc_listener_main: mc_listener_main.cpp packet_listener.cpp rlncrecoder.cpp mc_packet_listener.cpp
+mc_listener_main: mc_listener_main.cpp packet_listener.cpp udpncrecoder.cpp mc_packet_listener.cpp
 	$(CC) $(CFLAGS) $(INC_PATHS) $(LIBS_INCKODO) $(LIB_PATHS) $^ $(LIBS) $(LIBS_KODO) \
 	-o $(mc_listener_main)
 

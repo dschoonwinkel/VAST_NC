@@ -1,4 +1,4 @@
-#include "rlncmessage.h"
+#include "udpncmessage.h"
 #include "net_udpNC_handler.h"
 #include "net_udpnc_consumer.h"
 #include <assert.h>
@@ -10,7 +10,7 @@
 #include <boost/asio.hpp>
 #include "VASTVerse.h"
 #include "absnet_udp_testimpl.h"
-#include "abstract_rlnc_msg_receiver_testimpl.h"
+#include "abstract_udpnc_msg_receiver_testimpl.h"
 #include "packet_listener.h"
 #include "abstract_sender_impl.h"
 #include <chrono>
@@ -25,11 +25,11 @@ using namespace std;
 
 std::vector<string> msgcapIDs;
 std::map<string, netudpnc_capturemsgs> allRestoredMsgs;
-std::vector<RLNCMessage> savedRelevantMsgs;
-std::vector<RLNCMessage> processedMsgs;
+std::vector<UDPNCMessage> savedRelevantMsgs;
+std::vector<UDPNCMessage> processedMsgs;
 timestamp_t latest_timestamp;
 ip::udp::endpoint endpoint(ip::address::from_string("10.0.0.2"), 1037);
-AbstractRNLCMsgReceiverTestImpl RLNCsink;
+AbstractUDPNCMsgReceiverTestImpl UDPNCsink;
 
 SimPara simpara;
 int g_MS_PER_TIMESTEP;
@@ -155,7 +155,7 @@ void sendMessages()
     net_udpNC_handler handler(endpoint);
     io_service ios;
     absnet_udp_testimpl absudp(IPaddr(endpoint.address().to_v4().to_ulong(), 1037));
-    handler.open(&ios, &absudp, &RLNCsink);
+    handler.open(&ios, &absudp, &UDPNCsink);
     timestamp_t ticker = latest_timestamp;
 
 
@@ -241,7 +241,7 @@ void checkInputEqualOutput()
             if (it2->_remote_endpoint == endpoint)
             {
                 meant_to_endpoint++;
-                RLNCMessage msg;
+                UDPNCMessage msg;
                 msg.deserialize(it2->_buffer.c_str(), it2->_buffer.length());
                 savedRelevantMsgs.push_back(msg);
             }
@@ -249,20 +249,20 @@ void checkInputEqualOutput()
     }
 
     std::cout << meant_to_endpoint << " packets meant for this endpoint" << std::endl;
-    std::cout << RLNCsink.RLNC_msg_received_call_count << " packets received in RLNCsink" << std::endl;
+    std::cout << UDPNCsink.UDPNC_msg_received_call_count << " packets received in UDPNCsink" << std::endl;
 
     std::cout << "Checking if received msgs are equal to sent msgs: " << std::endl;
     bool all_equal = true;
 
-    if (RLNCsink.all_recv_msgs.size() == savedRelevantMsgs.size())
+    if (UDPNCsink.all_recv_msgs.size() == savedRelevantMsgs.size())
     {
-        for (size_t i = 0; i < RLNCsink.all_recv_msgs.size(); i++)
+        for (size_t i = 0; i < UDPNCsink.all_recv_msgs.size(); i++)
         {
-            all_equal = all_equal && RLNCsink.all_recv_msgs[i].contentEquals(savedRelevantMsgs[i]);
-            if (!(RLNCsink.all_recv_msgs[i].contentEquals(savedRelevantMsgs[i])))
+            all_equal = all_equal && UDPNCsink.all_recv_msgs[i].contentEquals(savedRelevantMsgs[i]);
+            if (!(UDPNCsink.all_recv_msgs[i].contentEquals(savedRelevantMsgs[i])))
             {
                 std::cout << "Messages were not equal @ " << i << std::endl
-                          << RLNCsink.all_recv_msgs[i]
+                          << UDPNCsink.all_recv_msgs[i]
                           << savedRelevantMsgs[i]
                           << std::endl;
             }
@@ -270,8 +270,8 @@ void checkInputEqualOutput()
     }
     else
     {
-        std::cout << "RLNCsink and savedRelevantMsgs unequal size" << std::endl;
-        std::cout << RLNCsink.all_recv_msgs.size() << " vs " << savedRelevantMsgs.size() << std::endl;
+        std::cout << "UDPNCsink and savedRelevantMsgs unequal size" << std::endl;
+        std::cout << UDPNCsink.all_recv_msgs.size() << " vs " << savedRelevantMsgs.size() << std::endl;
         all_equal = false;
     }
 
@@ -296,14 +296,14 @@ void checkInputEqualOutput()
     }
 
     //Put sent and received messages in a map, to verify if those that were received, were received correctly.
-    std::map<packetid_t, RLNCMessage> saved_sent_messages;
-    std::map<packetid_t, RLNCMessage> recvd_messages;
+    std::map<packetid_t, UDPNCMessage> saved_sent_messages;
+    std::map<packetid_t, UDPNCMessage> recvd_messages;
     for (auto it = savedRelevantMsgs.begin(); it != savedRelevantMsgs.end(); ++it)
     {
         saved_sent_messages[(*it).getPacketIds()[0]] = (*it);
     }
 
-    for (auto it = RLNCsink.all_recv_msgs.begin(); it != RLNCsink.all_recv_msgs.end(); ++it)
+    for (auto it = UDPNCsink.all_recv_msgs.begin(); it != UDPNCsink.all_recv_msgs.end(); ++it)
     {
         recvd_messages[(*it).getPacketIds()[0]] = (*it);
     }

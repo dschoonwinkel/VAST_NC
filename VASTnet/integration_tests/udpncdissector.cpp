@@ -1,4 +1,4 @@
-#include "rlnc_packet_factory.h"
+#include "udpnc_packet_factory.h"
 #include <fstream>
 #include <iostream>
 #include <string>
@@ -14,7 +14,7 @@ int main (int argc, char** argv)
 {
     if (argc < 2)
     {
-        cout << "Usage: ./rlncdissector.cpp <filename>" << endl;
+        cout << "Usage: ./udpncdissector.cpp <filename>" << endl;
         exit(1);
     }
 
@@ -43,9 +43,9 @@ int main (int argc, char** argv)
 
     size_t offset = 0;
 
-    RLNCHeader header;
-    memcpy(&header, memblock + offset, sizeof(RLNCHeader));
-    offset += sizeof(RLNCHeader);
+    UDPNCHeader header;
+    memcpy(&header, memblock + offset, sizeof(UDPNCHeader));
+    offset += sizeof(UDPNCHeader);
 
     cout << header << endl;
 

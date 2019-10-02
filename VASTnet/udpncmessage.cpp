@@ -1,4 +1,4 @@
-#include "rlncmessage.h"
+#include "udpncmessage.h"
 #include <algorithm>
 #include <boost/format.hpp>
 #include <exception>
@@ -7,18 +7,18 @@
 #include "logger.h"
 #include <string>
 
-RLNCMessage::RLNCMessage()
+UDPNCMessage::UDPNCMessage()
 {
 
 }
 
-RLNCMessage::RLNCMessage (RLNCHeader header)
+UDPNCMessage::UDPNCMessage (UDPNCHeader header)
 {
     this->header = header;
     header.enc_packet_count = 0;
 }
 
-RLNCMessage::RLNCMessage (const RLNCMessage &message):
+UDPNCMessage::UDPNCMessage (const UDPNCMessage &message):
     socket_addr(message.socket_addr.host, message.socket_addr.port)
 {
     this->header = message.header;
@@ -29,47 +29,47 @@ RLNCMessage::RLNCMessage (const RLNCMessage &message):
     this->socket_addr = socket_addr;
     this->checksum = message.checksum;
 
-//    CPPDEBUG("RLNCMessage copy constructor called" <<std::endl);
+//    CPPDEBUG("UDPNCMessage copy constructor called" <<std::endl);
 }
 
-const std::vector<packetid_t> RLNCMessage::getPacketIds() const
+const std::vector<packetid_t> UDPNCMessage::getPacketIds() const
 {
     return pkt_ids;
 }
 
-const std::vector<Vast::id_t> RLNCMessage::getFromIds()
+const std::vector<Vast::id_t> UDPNCMessage::getFromIds()
 {
     return from_ids;
 }
 
-Vast::id_t RLNCMessage::getFirstFromId()
+Vast::id_t UDPNCMessage::getFirstFromId()
 {
     return from_ids.front ();
 }
 
-const std::vector<Vast::IPaddr> RLNCMessage::getToAddrs()
+const std::vector<Vast::IPaddr> UDPNCMessage::getToAddrs()
 {
     return to_addrs;
 }
 
-void RLNCMessage::putPacketId(packetid_t pkt_id, bool autonumber)
+void UDPNCMessage::putPacketId(packetid_t pkt_id, bool autonumber)
 {
     pkt_ids.push_back(pkt_id);
     if (autonumber)
         header.enc_packet_count = pkt_ids.size();
 }
 
-void RLNCMessage::putFromId (Vast::id_t from_id)
+void UDPNCMessage::putFromId (Vast::id_t from_id)
 {
     from_ids.push_back(from_id);
 }
 
-void RLNCMessage::putToAddr(Vast::IPaddr addr)
+void UDPNCMessage::putToAddr(Vast::IPaddr addr)
 {
     to_addrs.push_back (addr);
 }
 
-void RLNCMessage::putIdsAddr(packetid_t pkt_id,
+void UDPNCMessage::putIdsAddr(packetid_t pkt_id,
                              Vast::id_t from_id,
                              Vast::IPaddr addr, bool autonumber)
 {
@@ -78,51 +78,51 @@ void RLNCMessage::putIdsAddr(packetid_t pkt_id,
     putToAddr(addr);
 }
 
-void RLNCMessage::putMessage(const char* buffer, size_t len)
+void UDPNCMessage::putMessage(const char* buffer, size_t len)
 {
     msg.assign (buffer, len);
     header.packetsize = len;
 }
 
-const char *RLNCMessage::getMessage()
+const char *UDPNCMessage::getMessage()
 {
         return msg.c_str ();
 }
 
-const uint8_t *RLNCMessage::getMessageU()
+const uint8_t *UDPNCMessage::getMessageU()
 {
     return reinterpret_cast<const uint8_t*>(getMessage());
 }
 
-size_t RLNCMessage::getMessageSize()
+size_t UDPNCMessage::getMessageSize()
 {
     return header.packetsize;
 }
 
-void RLNCMessage::putOrdering(uint8_t ordering)
+void UDPNCMessage::putOrdering(uint8_t ordering)
 {
     header.ordering = ordering;
 }
 
-uint8_t RLNCMessage::getOrdering()
+uint8_t UDPNCMessage::getOrdering()
 {
     return header.ordering;
 }
 
-uint32_t RLNCMessage::getChecksum()
+uint32_t UDPNCMessage::getChecksum()
 {
     return checksum;
 }
 
-void RLNCMessage::setChecksum(uint32_t checksum)
+void UDPNCMessage::setChecksum(uint32_t checksum)
 {
     this->checksum = checksum;
 }
 
 // size of this class, must be implemented
-size_t RLNCMessage::sizeOf () const
+size_t UDPNCMessage::sizeOf () const
 {
-    size_t size = sizeof(RLNCHeader);
+    size_t size = sizeof(UDPNCHeader);
     size += header.enc_packet_count * sizeof(packetid_t);
     size += header.enc_packet_count * sizeof(Vast::id_t);
     //Size of internals of the IPaddr class = 4 bytes IP + 2 * 2 bytes for port and padding
@@ -137,14 +137,14 @@ size_t RLNCMessage::sizeOf () const
 // store into a buffer (assuming the buffer has enough space)
 // buffer can be NULL (simply to query the total size)
 // returns the total size of the packed class
-size_t RLNCMessage::serialize (char *buffer) const
+size_t UDPNCMessage::serialize (char *buffer) const
 {
     size_t n = 0;
     if (buffer == NULL)
         return sizeOf();
 
-    memcpy(buffer+n, &header, sizeof(RLNCHeader));
-    n += sizeof(RLNCHeader);
+    memcpy(buffer+n, &header, sizeof(UDPNCHeader));
+    n += sizeof(UDPNCHeader);
 
     //Check if pkt_ids, from_ids and to_addrs have same length
     if (pkt_ids.size () == from_ids.size () && from_ids.size() == to_addrs.size ())
@@ -188,17 +188,17 @@ size_t RLNCMessage::serialize (char *buffer) const
 
 // restores a buffer into the object
 // returns number of bytes restored (should be > 0 if correct)
-int RLNCMessage::deserialize (const char *buffer, size_t size)
+int UDPNCMessage::deserialize (const char *buffer, size_t size)
 {
     size_t n = 0;
-    if (size > sizeof(RLNCHeader) && buffer != NULL)
+    if (size > sizeof(UDPNCHeader) && buffer != NULL)
     {
-        memcpy(&header, buffer+n, sizeof(RLNCHeader));
-        n += sizeof(RLNCHeader);
+        memcpy(&header, buffer+n, sizeof(UDPNCHeader));
+        n += sizeof(UDPNCHeader);
 
-        if (!RLNCHeader_factory::isRLNCHeader (header))
+        if (!UDPNCHeader_factory::isUDPNCHeader (header))
         {
-            CPPDEBUG("RLNCMessage::deserialize Not a RLNC Header" << std::endl);
+            CPPDEBUG("UDPNCMessage::deserialize Not a UDPNC Header" << std::endl);
 
             std::cout << "Sample of first few bytes in buffer (max =" << size << std::endl;
             for (size_t i = 0; i < 10; i++)
@@ -226,7 +226,7 @@ int RLNCMessage::deserialize (const char *buffer, size_t size)
             n += sizeof(Vast::id_t);
 
             Vast::IPaddr addr;
-            size_t remaining_bytes = size - sizeof(RLNCHeader) - i*(sizeof(packetid_t) + sizeof(Vast::id_t) + addr.sizeOf ());
+            size_t remaining_bytes = size - sizeof(UDPNCHeader) - i*(sizeof(packetid_t) + sizeof(Vast::id_t) + addr.sizeOf ());
             addr.deserialize (buffer+n, remaining_bytes);
             putToAddr (addr);
             n += addr.sizeOf ();
@@ -234,12 +234,12 @@ int RLNCMessage::deserialize (const char *buffer, size_t size)
         }
         if (header.packetsize > size)
         {
-            std::cerr << "RLNCMessage::deserialize Header packet size larger than available bytes" << std::endl;
+            std::cerr << "UDPNCMessage::deserialize Header packet size larger than available bytes" << std::endl;
             std::cerr << "header.start " << header.start << std::endl;
             std::cerr << "header.end: " << header.end << std::endl;
             msg.resize(size - n);
             msg.assign(buffer+n, size-n);
-            std::cerr << "RLNCMessage::deserialize" << *(this) << std::endl;
+            std::cerr << "UDPNCMessage::deserialize" << *(this) << std::endl;
             return -1;
         }
 
@@ -259,11 +259,11 @@ int RLNCMessage::deserialize (const char *buffer, size_t size)
     return 0;
 }
 
-bool RLNCMessage::operator==(const RLNCMessage other) const
+bool UDPNCMessage::operator==(const UDPNCMessage other) const
 {
     bool equals = true;
 
-    equals = equals && (RLNCHeader_factory::isRLNCHeadersEqual (other.header, this->header));
+    equals = equals && (UDPNCHeader_factory::isUDPNCHeadersEqual (other.header, this->header));
     equals = equals && (other.pkt_ids == this->pkt_ids);
     equals = equals && (other.from_ids == this->from_ids);
     equals = equals && (other.to_addrs == this->to_addrs);
@@ -283,11 +283,11 @@ bool RLNCMessage::operator==(const RLNCMessage other) const
  * @param other
  * @return
  */
-bool RLNCMessage::contentEquals(const RLNCMessage other) const
+bool UDPNCMessage::contentEquals(const UDPNCMessage other) const
 {
     bool equals = true;
 
-    equals = equals && (RLNCHeader_factory::isRLNCHeadersEqual (other.header, this->header));
+    equals = equals && (UDPNCHeader_factory::isUDPNCHeadersEqual (other.header, this->header));
     equals = equals && (other.pkt_ids == this->pkt_ids);
     equals = equals && (other.from_ids == this->from_ids);
     equals = equals && (other.to_addrs == this->to_addrs);
@@ -301,10 +301,10 @@ bool RLNCMessage::contentEquals(const RLNCMessage other) const
     return equals;
 }
 
-std::ostream& operator<<(std::ostream& output, RLNCMessage const& message )
+std::ostream& operator<<(std::ostream& output, UDPNCMessage const& message )
 {
 
-        output << "RLNCMessage::stream >> output: ******************************\n";
+        output << "UDPNCMessage::stream >> output: ******************************\n";
         output << "Header: " << std::endl;
         output << "header.ordering " << message.header.ordering<< std::endl;
         output << "header.packetsize " << message.header.packetsize << std::endl;
@@ -333,7 +333,7 @@ std::ostream& operator<<(std::ostream& output, RLNCMessage const& message )
         return output;
 }
 
-packetid_t RLNCMessage::generatePacketId(Vast::id_t id, int ordering)
+packetid_t UDPNCMessage::generatePacketId(Vast::id_t id, int ordering)
 {
     packetid_t x = id;
     x += 0x9e3779b97f4a7c15;
@@ -346,12 +346,12 @@ packetid_t RLNCMessage::generatePacketId(Vast::id_t id, int ordering)
     return x;
 }
 
-uint32_t RLNCMessage::generateChecksum(const uint8_t *buffer, size_t bufsize)
+uint32_t UDPNCMessage::generateChecksum(const uint8_t *buffer, size_t bufsize)
 {
     return generateChecksum(reinterpret_cast<const char*>(buffer), bufsize);
 }
 
-uint32_t RLNCMessage::generateChecksum(const char *buffer, size_t bufsize)
+uint32_t UDPNCMessage::generateChecksum(const char *buffer, size_t bufsize)
 {
     boost::crc_32_type  result;
     result.process_bytes(buffer, bufsize);

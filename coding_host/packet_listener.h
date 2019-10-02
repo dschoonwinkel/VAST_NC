@@ -3,9 +3,9 @@
 
 #include <boost/asio.hpp>
 #include <boost/thread.hpp>
-#include "rlnc_packet_factory.h"
-#include "rlncmessage.h"
-#include "rlncrecoder.h"
+#include "udpnc_packet_factory.h"
+#include "udpncmessage.h"
+#include "udpncrecoder.h"
 #include "abstract_sender.h"
 #include "abstract_input_processor.h"
 #include <deque>
@@ -69,14 +69,14 @@ protected:
 
     bool                        running = true;
 
-    RLNCrecoder                 recoder;
+    UDPNCrecoder                 recoder;
 
     // generic buffer
     char _buf[BUFSIZ];
     char _sendbuf[BUFSIZ];
 
     //Message store
-    std::deque<RLNCMessage> msgs;
+    std::deque<UDPNCMessage> msgs;
     std::mutex msgs_mutex;
 
     size_t total_coded_msgs_sent = 0;

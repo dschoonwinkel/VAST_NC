@@ -1,6 +1,6 @@
 #include "net_udpnc_mchandler.h"
 #include "net_udp.h"
-#include "rlncmessage.h"
+#include "udpncmessage.h"
 #include "VASTnet.h"
 #include "vastnetstatlog_entry.h"
 
@@ -14,7 +14,7 @@ namespace Vast
         _local_endpoint = local_endpoint;
     }
 
-    int net_udpNC_MChandler::open(AbstractRLNCMsgReceiver *msghandler, abstract_net_udp *udp_manager,
+    int net_udpNC_MChandler::open(AbstractUDPNCMsgReceiver *msghandler, abstract_net_udp *udp_manager,
                                   bool startthread) {
         CPPDEBUG("net_udpNC_MChandler::open" << std::endl);
         _msghandler = msghandler;
@@ -96,32 +96,32 @@ namespace Vast
 
     void net_udpNC_MChandler::process_input(const char *buf, std::size_t bytes_transferred)
     {
-        RLNCHeader header;
-        memcpy(&header, buf, sizeof(RLNCHeader));
+        UDPNCHeader header;
+        memcpy(&header, buf, sizeof(UDPNCHeader));
 
             //Check if it is really a VAST message: Start and end bytes of header should be correct
-            if (!RLNCHeader_factory::isRLNCHeader(header))
+            if (!UDPNCHeader_factory::isUDPNCHeader(header))
             {
-                    CPPDEBUG("net_udp_handler::process_input Non-RLNC message received on UDP socket" << std::endl);
+                    CPPDEBUG("net_udp_handler::process_input Non-UDPNC message received on UDP socket" << std::endl);
             }
-            else if (RLNCHeader_factory::isRLNCHeader (header) && header.enc_packet_count > 1)
+            else if (UDPNCHeader_factory::isUDPNCHeader (header) && header.enc_packet_count > 1)
             {
 //                CPPDEBUG("net_udpnc_mchandler::process_input: Encoded packet received" << std::endl);
                 process_encoded (buf, bytes_transferred);
             }
             else {
-                CPPDEBUG("net_udpnc_mchandler::process_input uncoded RLNC message received" << std::endl);
+                CPPDEBUG("net_udpnc_mchandler::process_input uncoded UDPNC message received" << std::endl);
 //                    throw std::logic_error("net_udpnc_mchandler::process_input Received unencoded packet in MC handler\n");
-                RLNCMessage other;
+                UDPNCMessage other;
                 other.deserialize (buf, bytes_transferred);
-                putOtherRLNCMessage (other);
+                putOtherUDPNCMessage (other);
                 unicastpackets_processed++;
             }
     }
 
     void net_udpNC_MChandler::process_encoded (const char *buf, std::size_t bytes_transferred)
     {
-            RLNCMessage message1;
+            UDPNCMessage message1;
             message1.deserialize (buf, bytes_transferred);
             raw_interval_MCrecv_bytes+= bytes_transferred;
             packets_processed++;
@@ -129,8 +129,8 @@ namespace Vast
             if (toAddrForMe (message1))
             {
                 used_interval_MCrecv_bytes+= bytes_transferred;
-                putOtherRLNCMessage (message1);
-                std::shared_ptr<RLNCMessage> decoded_msg = decoder.produceDecodedRLNCMessage();
+                putOtherUDPNCMessage (message1);
+                std::shared_ptr<UDPNCMessage> decoded_msg = decoder.produceDecodedUDPNCMessage();
 
 
                 if (decoded_msg != NULL)
@@ -138,7 +138,7 @@ namespace Vast
                     if (_msghandler != NULL)
                     {
                         //MC loses original source socket addr, pass empty IPaddr
-                        _msghandler->RLNC_msg_received(*decoded_msg, IPaddr());
+                        _msghandler->UDPNC_msg_received(*decoded_msg, IPaddr());
                     }
                     else {
                         std::cerr << "net_udpNC_MChandler::process_encoded: _msghandler was NULL" << std::endl;
@@ -200,9 +200,9 @@ namespace Vast
 //        }
 //    }
 
-    void net_udpNC_MChandler::putOtherRLNCMessage(RLNCMessage other)
+    void net_udpNC_MChandler::putOtherUDPNCMessage(UDPNCMessage other)
     {
-        decoder.addRLNCMessage (other);
+        decoder.addUDPNCMessage (other);
     }
 
     void net_udpNC_MChandler::clearPacketPool ()
@@ -215,7 +215,7 @@ namespace Vast
         return decoder.getPacketPoolSize ();
     }
 
-    bool net_udpNC_MChandler::toAddrForMe(RLNCMessage msg)
+    bool net_udpNC_MChandler::toAddrForMe(UDPNCMessage msg)
     {
         IPaddr local_addr(_local_endpoint.address().to_v4().to_ulong(), _local_endpoint.port ());
         for (auto &addr : msg.getToAddrs ())

@@ -1,5 +1,5 @@
-#include "rlncrecoder.h"
-#include "customrlncdecoder.h"
+#include "udpncrecoder.h"
+#include "customudpncdecoder.h"
 #include <iostream>
 #include <assert.h>
 
@@ -21,35 +21,35 @@ int main()
 
     size_t data179_len = 79;
 
-    RLNCMessage msg634;
+    UDPNCMessage msg634;
     msg634.deserialize(reinterpret_cast<char*>(data634), data634_len);
 
-    RLNCMessage msg179;
+    UDPNCMessage msg179;
     msg179.deserialize(reinterpret_cast<char*>(data179), data179_len);
 
-    RLNCrecoder recoder;
+    UDPNCrecoder recoder;
 
-    recoder.addRLNCMessage(msg634);
-    recoder.addRLNCMessage(msg179);
+    recoder.addUDPNCMessage(msg634);
+    recoder.addUDPNCMessage(msg179);
 
-    std::shared_ptr<RLNCMessage> temp_msg = recoder.produceRLNCMessage();
+    std::shared_ptr<UDPNCMessage> temp_msg = recoder.produceUDPNCMessage();
 
     if (!temp_msg)
     {
-        std::cout << "Could not produce encoded RLNC messages" << std::endl;
+        std::cout << "Could not produce encoded UDPNC messages" << std::endl;
         exit(EXIT_FAILURE);
     }
 
-    customrlncdecoder decoder;
+    customudpncdecoder decoder;
 
-    decoder.addRLNCMessage(*temp_msg);
-    decoder.addRLNCMessage(msg179);
+    decoder.addUDPNCMessage(*temp_msg);
+    decoder.addUDPNCMessage(msg179);
 
-    std::shared_ptr<RLNCMessage> decoded_msg = decoder.produceDecodedRLNCMessage();
+    std::shared_ptr<UDPNCMessage> decoded_msg = decoder.produceDecodedUDPNCMessage();
 
     if (decoded_msg == NULL)
     {
-        std::cout << "Could not produce decoded RLNC messages" << std::endl;
+        std::cout << "Could not produce decoded UDPNC messages" << std::endl;
         exit(EXIT_FAILURE);
     }
 

@@ -1,34 +1,34 @@
-#include "rlnc_packet_factory.h"
+#include "udpnc_packet_factory.h"
 #include "VASTTypes.h"
 
-RLNCHeader_factory::RLNCHeader_factory()
+UDPNCHeader_factory::UDPNCHeader_factory()
 {
-    resetRLNCHeader(header);
+    resetUDPNCHeader(header);
 }
 
-RLNCHeader_factory::RLNCHeader_factory(char gensize, char generation, char ordering)
+UDPNCHeader_factory::UDPNCHeader_factory(char gensize, char generation, char ordering)
 {
-    resetRLNCHeader(header);
+    resetUDPNCHeader(header);
 
     header.gensize = gensize;
     header.generation = generation;
     header.ordering = ordering;
 }
 
-RLNCHeader RLNCHeader_factory::build()
+UDPNCHeader UDPNCHeader_factory::build()
 {
     header.start = START_BITS;
     header.end = END_BITS;
-    resetRLNCHeader(header);
+    resetUDPNCHeader(header);
 
-    //Every new RLNC header should have its own position in the stream
+    //Every new UDPNC header should have its own position in the stream
     ordering++;
     header.ordering = ordering;
 
     return header;
 }
 
-bool RLNCHeader_factory::isRLNCHeader(RLNCHeader header)
+bool UDPNCHeader_factory::isUDPNCHeader(UDPNCHeader header)
 {
     if (header.start == START_BITS && header.end == END_BITS)
         return true;
@@ -36,7 +36,7 @@ bool RLNCHeader_factory::isRLNCHeader(RLNCHeader header)
         return false;
 }
 
-void RLNCHeader_factory::resetRLNCHeader(RLNCHeader &header)
+void UDPNCHeader_factory::resetUDPNCHeader(UDPNCHeader &header)
 {
     header.enc_packet_count = 0;
     header.generation = generation;
@@ -45,17 +45,17 @@ void RLNCHeader_factory::resetRLNCHeader(RLNCHeader &header)
     header.packetsize = 0;
 }
 
-size_t RLNCHeader_factory::getRLNCHeaderOffset(RLNCHeader header)
+size_t UDPNCHeader_factory::getUDPNCHeaderOffset(UDPNCHeader header)
 {
     size_t offset = 0;
-    offset += sizeof(RLNCHeader);
+    offset += sizeof(UDPNCHeader);
     offset += header.enc_packet_count * sizeof(packetid_t);
     offset += header.enc_packet_count * sizeof(Vast::id_t);
-//    CPPDEBUG("RLNCHeader_factory::getRLNCHeaderOffset Offset: " << offset << std::endl);
+//    CPPDEBUG("UDPNCHeader_factory::getUDPNCHeaderOffset Offset: " << offset << std::endl);
     return offset;
 }
 
-bool RLNCHeader_factory::isRLNCHeadersEqual(const RLNCHeader header1, const RLNCHeader header2)
+bool UDPNCHeader_factory::isUDPNCHeadersEqual(const UDPNCHeader header1, const UDPNCHeader header2)
 {
     bool equals = true;
     equals = equals && (header1.start == header2.start);
@@ -70,10 +70,10 @@ bool RLNCHeader_factory::isRLNCHeadersEqual(const RLNCHeader header1, const RLNC
     return equals;
 }
 
-std::ostream& operator<<(std::ostream& output, RLNCHeader const& header )
+std::ostream& operator<<(std::ostream& output, UDPNCHeader const& header )
 {
 
-        output << "RLNCHeader::stream >> output: ******************************\n";
+        output << "UDPNCHeader::stream >> output: ******************************\n";
         output << "Header: " << std::endl;
         output << "header.ordering " << header.ordering<< std::endl;
         output << "header.packetsize " << header.packetsize << std::endl;

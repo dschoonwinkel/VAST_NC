@@ -1,5 +1,5 @@
 udpnc_integration_test = ./udpnc_integration_test
-rlncdissector=./rlncdissector
+udpncdissector=./udpncdissector
 differentlen_codingtest = ./differentlen_codingtest
 
 ACE_ROOT = /usr
@@ -25,23 +25,23 @@ ACE_PATH    = /usr
 INC_PATHS   = -I../../common -I../../VASTsim -I$(ACE_PATH)/include -I../../VAST -I../../VASTnet -I../../coding_host -I../../VASTStatLog -I../unit_tests
 LIB_PATHS   = -L../../lib -L../../Dependencies/lib/Release -L$(ACE_PATH)/lib
 
-.PHONY: udpnc_integration_test rlncdissector differentlen_codingtest
+.PHONY: udpnc_integration_test udpncdissector differentlen_codingtest
 
 all: udpnc_integration_test differentlen_codingtest
 
-udpnc_integration_test: udpnc_integration_test.cpp ../unit_tests/absnet_udp_testimpl.h ../unit_tests/abstract_rlnc_msg_receiver_testimpl.cpp ../../coding_host/packet_listener.cpp ../../coding_host/rlncrecoder.cpp
+udpnc_integration_test: udpnc_integration_test.cpp ../unit_tests/absnet_udp_testimpl.h ../unit_tests/abstract_udpnc_msg_receiver_testimpl.cpp ../../coding_host/packet_listener.cpp ../../coding_host/udpncrecoder.cpp
 	$(MAKE) make_vastnet
 	$(CC) $(CFLAGS) $(INC_PATHS) $(LIBS_INCKODO) $(LIB_PATHS) $^ $(LIBS) $(LIBS_KODO) \
 	-o $(udpnc_integration_test)
 #	echo "Running: udpnc_integration_test"
 #	$(udpnc_integration_test)
 
-rlncdissector: rlncdissector.cpp
+udpncdissector: udpncdissector.cpp
 	$(MAKE) make_vastnet
 	$(CC) $(CFLAGS) $(INC_PATHS) $(LIB_PATHS) $^ $(LIBS) \
-	-o $(rlncdissector)
+	-o $(udpncdissector)
 
-differentlen_codingtest: differentlen_codingtest.cpp ../../coding_host/rlncrecoder.cpp
+differentlen_codingtest: differentlen_codingtest.cpp ../../coding_host/udpncrecoder.cpp
 	$(MAKE) make_vastnet
 	$(CC) $(CFLAGS) $(INC_PATHS) $(LIBS_INCKODO) $(LIB_PATHS) $^ $(LIBS) $(LIBS_KODO) \
 	-o $(differentlen_codingtest)

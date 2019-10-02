@@ -1,7 +1,7 @@
-#ifndef RLNCDECODER_H
-#define RLNCDECODER_H
+#ifndef UDPNCDECODER_H
+#define UDPNCDECODER_H
 
-#include "rlncmessage.h"
+#include "udpncmessage.h"
 #include <iostream>
 #include <map>
 #include <vector>
@@ -21,14 +21,14 @@ using namespace boost::asio;
 using rlnc_decoder = kodo_rlnc::decoder;
 using rlnc_encoder = kodo_rlnc::encoder;
 
-class customrlncdecoder
+class customudpncdecoder
 {
 public:
-    customrlncdecoder();
-    ~customrlncdecoder();
+    customudpncdecoder();
+    ~customudpncdecoder();
 
-    void addRLNCMessage(RLNCMessage msg);
-    std::shared_ptr<RLNCMessage> produceDecodedRLNCMessage();
+    void addUDPNCMessage(UDPNCMessage msg);
+    std::shared_ptr<UDPNCMessage> produceDecodedUDPNCMessage();
 
     //Called to clear packet pool and NC_packets at the end of each "generation"
     void clearPacketPool();
@@ -36,19 +36,19 @@ public:
 
 private:
 
-    //produceDecodedRLNCMessage helper functions
-    bool _fetchFromPacketPool(RLNCMessage &active_encoded_packet,
-                              std::map<size_t, RLNCMessage> &available_packets,
+    //produceDecodedUDPNCMessage helper functions
+    bool _fetchFromPacketPool(UDPNCMessage &active_encoded_packet,
+                              std::map<size_t, UDPNCMessage> &available_packets,
                               size_t &decoded_packet_index);
 
     bool _putAvailableInDecoder(std::shared_ptr<kodo_rlnc::decoder> decoder,
-                                const std::map<size_t, RLNCMessage> &available_packets,
-                                const RLNCMessage &active_encoded_packet,
+                                const std::map<size_t, UDPNCMessage> &available_packets,
+                                const UDPNCMessage &active_encoded_packet,
                                 const size_t &decoded_packet_index,
                                 uint32_t &total_checksum);
 
-    std::map<packetid_t, RLNCMessage> packet_pool;
-    std::vector<RLNCMessage> NC_packets;
+    std::map<packetid_t, UDPNCMessage> packet_pool;
+    std::vector<UDPNCMessage> NC_packets;
 
     //Timing functions used for determining holdups
     void startAddLockTimer();
@@ -61,7 +61,7 @@ private:
     // The factories are used to build actual encoders/decoders
     rlnc_decoder::factory decoder_factory;
     rlnc_encoder::factory encoder_factory;
-    RLNCHeader_factory header_factory;
+    UDPNCHeader_factory header_factory;
 
     std::mutex packet_pool_mutex;
     //For stats collection purposes
@@ -82,4 +82,4 @@ private:
     std::chrono::microseconds decoderTimer = std::chrono::microseconds::zero();
 };
 
-#endif // RLNCDECODER_H
+#endif // UDPNCDECODER_H

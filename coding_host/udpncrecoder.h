@@ -1,7 +1,7 @@
-#ifndef RLNCRECODER_H
-#define RLNCRECODER_H
+#ifndef UDPNCRECODER_H
+#define UDPNCRECODER_H
 
-#include "rlncmessage.h"
+#include "udpncmessage.h"
 #include <iostream>
 #include <map>
 #include <array>
@@ -15,19 +15,19 @@
 
 using rlnc_encoder = kodo_rlnc::encoder;
 
-class RLNCrecoder
+class UDPNCrecoder
 {
 public:
-    RLNCrecoder();
-    ~RLNCrecoder();
+    UDPNCrecoder();
+    ~UDPNCrecoder();
 
-    void addRLNCMessage(RLNCMessage msg);
-    std::shared_ptr<RLNCMessage> produceRLNCMessage();
+    void addUDPNCMessage(UDPNCMessage msg);
+    std::shared_ptr<UDPNCMessage> produceUDPNCMessage();
     size_t getPacketPoolSize();
 
 
 private:
-    std::map<packetid_t, RLNCMessage> packet_pool;
+    std::map<packetid_t, UDPNCMessage> packet_pool;
 
     // Typdefs for the encoder/decoder type we wish to use
     fifi::api::field field = fifi::api::field::FINITE_FIELD_SIZE;
@@ -35,7 +35,7 @@ private:
     // In the following we will make an encoder/decoder factory.
     // The factories are used to build actual encoders/decoders
     rlnc_encoder::factory encoder_factory;
-    RLNCHeader_factory header_factory;
+    UDPNCHeader_factory header_factory;
 
     size_t max_packetpool_size = 0;
     size_t packets_encoded = 0;
@@ -47,4 +47,4 @@ private:
     bool encodeTimerRunning = false;
 };
 
-#endif // RLNCRECODER_H
+#endif // UDPNCRECODER_H

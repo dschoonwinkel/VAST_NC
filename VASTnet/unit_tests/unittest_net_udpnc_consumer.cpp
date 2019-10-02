@@ -1,9 +1,9 @@
 #include <iostream>
 #include <assert.h>
 #include "net_udpNC_handler.h"
-#include "rlnc_packet_factory.h"
-#include "rlncmessage.h"
-#include "abstract_rlnc_msg_receiver_testimpl.h"
+#include "udpnc_packet_factory.h"
+#include "udpncmessage.h"
+#include "abstract_udpnc_msg_receiver_testimpl.h"
 #include "absnet_udp_testimpl.h"
 #include "VASTnet.h"
 #include "VASTBuffer.h"
@@ -44,11 +44,11 @@ namespace Vast
             buf1.add ((char *)&vast_header1, sizeof (Vast::VASTHeader));
             buf1.add (&msg1);
 
-            RLNCHeader_factory factory;
+            UDPNCHeader_factory factory;
 
-            RLNCHeader header1 = factory.build();
+            UDPNCHeader header1 = factory.build();
 
-            RLNCMessage message1(header1);
+            UDPNCMessage message1(header1);
 
             int id1 = rand() % 10;
 
@@ -64,7 +64,7 @@ namespace Vast
 
             Vast::net_udpNC_consumer consumer;
             Vast::absnet_udp_testimpl absnet_udp;
-            Vast::AbstractRNLCMsgReceiverTestImpl recv_tester;
+            Vast::AbstractUDPNCMsgReceiverTestImpl recv_tester;
             Vast::net_udpNC_MChandlerMock mock;
             consumer.open (&recv_tester, &absnet_udp, &mock);
             boost::this_thread::sleep_for (boost::chrono::milliseconds(sleep_time));
@@ -77,11 +77,11 @@ namespace Vast
             for (size_t i = 0; i < iterations; i++)
             {
                 message1.putOrdering(i);
-                consumer.RLNC_msg_received (message1, IPaddr());
+                consumer.UDPNC_msg_received (message1, IPaddr());
                 //Start the clock for processing time here
                 auto t1 = std::chrono::high_resolution_clock::now();
 
-                while (recv_tester.RLNC_msg_received_call_count != prev_call_count + 1)
+                while (recv_tester.UDPNC_msg_received_call_count != prev_call_count + 1)
                 {
 
                 }
@@ -105,9 +105,9 @@ namespace Vast
         }
 
 
-        void testRLNC_msg_received()
+        void testUDPNC_msg_received()
         {
-            std::cout << "\n\nrunning testRLNC_msg_received" << std::endl;
+            std::cout << "\n\nrunning testUDPNC_msg_received" << std::endl;
             char data1[] = "message1";
             char data2[] = "message2";
             data2[0] = rand() % 25 + 'a';
@@ -135,13 +135,13 @@ namespace Vast
             buf2.add ((char *)&vast_header2, sizeof (Vast::VASTHeader));
             buf2.add (&msg2);
 
-            RLNCHeader_factory factory;
+            UDPNCHeader_factory factory;
 
-            RLNCHeader header1 = factory.build();
-            RLNCHeader header2 = factory.build();
+            UDPNCHeader header1 = factory.build();
+            UDPNCHeader header2 = factory.build();
 
-            RLNCMessage message1(header1);
-            RLNCMessage message2(header2);
+            UDPNCMessage message1(header1);
+            UDPNCMessage message2(header2);
 
             int id1 = rand() % 10;
 
@@ -168,10 +168,10 @@ namespace Vast
 
             Vast::net_udpNC_consumer consumer;
             Vast::absnet_udp_testimpl absnet_udp;
-            Vast::AbstractRNLCMsgReceiverTestImpl recv_tester;
+            Vast::AbstractUDPNCMsgReceiverTestImpl recv_tester;
             consumer.open (&recv_tester, &absnet_udp, NULL);
-            consumer.RLNC_msg_received (message1, local_addr);
-            consumer.RLNC_msg_received (message2, local_addr);
+            consumer.UDPNC_msg_received (message1, local_addr);
+            consumer.UDPNC_msg_received (message2, local_addr);
             boost::this_thread::sleep_for (boost::chrono::milliseconds(sleep_time));
 
             consumer.close ();
@@ -181,7 +181,7 @@ namespace Vast
 //            std::cout << (size_t)&local_endpoint << std::endl;
             std::cout << recv_tester.recv_msg.socket_addr << std::endl;
 
-            //Add the socket_addr to message2 - it was added in RLNC_msg_received
+            //Add the socket_addr to message2 - it was added in UDPNC_msg_received
             message2.socket_addr = local_addr;
             assert(recv_tester.recv_msg == message2);
             assert(recv_tester.recv_msg.socket_addr == local_addr);
@@ -219,13 +219,13 @@ namespace Vast
             buf2.add ((char *)&vast_header2, sizeof (Vast::VASTHeader));
             buf2.add (&msg2);
 
-            RLNCHeader_factory factory;
+            UDPNCHeader_factory factory;
 
-            RLNCHeader header1 = factory.build();
-            RLNCHeader header2 = factory.build();
+            UDPNCHeader header1 = factory.build();
+            UDPNCHeader header2 = factory.build();
 
-            RLNCMessage message1(header1);
-            RLNCMessage message2(header2);
+            UDPNCMessage message1(header1);
+            UDPNCMessage message2(header2);
 
             int id1 = NET_ID_UNASSIGNED;
 
@@ -249,7 +249,7 @@ namespace Vast
 
             Vast::net_udpNC_consumer consumer;
             Vast::absnet_udp_testimpl absnet_udp;
-            Vast::AbstractRNLCMsgReceiverTestImpl tester;
+            Vast::AbstractUDPNCMsgReceiverTestImpl tester;
             consumer.open (&tester, &absnet_udp, NULL);
             consumer.process_input (message1, Vast::IPaddr());
             consumer.process_input (message2, Vast::IPaddr());
@@ -257,7 +257,7 @@ namespace Vast
 
 
             std::cout << tester.recv_msg << std::endl;
-            //Returned message is the entire RLNC payload, i.e. VAST message - contained in buf2
+            //Returned message is the entire UDPNC payload, i.e. VAST message - contained in buf2
             assert(tester.recv_msg == message2);
 
 
@@ -294,13 +294,13 @@ namespace Vast
             buf2.add ((char *)&vast_header2, sizeof (Vast::VASTHeader));
             buf2.add (&msg2);
 
-            RLNCHeader_factory factory;
+            UDPNCHeader_factory factory;
 
-            RLNCHeader header1 = factory.build();
-            RLNCHeader header2 = factory.build();
+            UDPNCHeader header1 = factory.build();
+            UDPNCHeader header2 = factory.build();
 
-            RLNCMessage message1(header1);
-            RLNCMessage message2(header2);
+            UDPNCMessage message1(header1);
+            UDPNCMessage message2(header2);
 
             std::cout << message1 << std::endl;
             std::cout << message2 << std::endl;
@@ -321,7 +321,7 @@ namespace Vast
 
             Vast::net_udpNC_consumer consumer;
             Vast::absnet_udp_testimpl absnet_udp;
-            Vast::AbstractRNLCMsgReceiverTestImpl tester;
+            Vast::AbstractUDPNCMsgReceiverTestImpl tester;
             consumer.open (&tester, &absnet_udp, NULL);
             consumer.process_input (message1, Vast::IPaddr());
             consumer.process_input (message2, Vast::IPaddr());
@@ -363,13 +363,13 @@ namespace Vast
             buf2.add ((char *)&vast_header2, sizeof (Vast::VASTHeader));
             buf2.add (&msg2);
 
-            RLNCHeader_factory factory;
+            UDPNCHeader_factory factory;
 
-            RLNCHeader header1 = factory.build();
-            RLNCHeader header2 = factory.build();
+            UDPNCHeader header1 = factory.build();
+            UDPNCHeader header2 = factory.build();
 
-            RLNCMessage message1(header1);
-            RLNCMessage message2(header2);
+            UDPNCMessage message1(header1);
+            UDPNCMessage message2(header2);
 
             int id1 = rand() % 10;
 
@@ -388,7 +388,7 @@ namespace Vast
 
             Vast::net_udpNC_consumer consumer;
             Vast::absnet_udp_testimpl absnet_udp;
-            Vast::AbstractRNLCMsgReceiverTestImpl tester;
+            Vast::AbstractUDPNCMsgReceiverTestImpl tester;
             consumer.open (&tester, &absnet_udp, NULL);
             boost::this_thread::sleep_for (boost::chrono::milliseconds(sleep_time));
             consumer.process_input (message1, Vast::IPaddr());
@@ -443,13 +443,13 @@ namespace Vast
             buf2.add ((char *)&vast_header2, sizeof (Vast::VASTHeader));
             buf2.add (&msg2);
 
-            RLNCHeader_factory factory;
+            UDPNCHeader_factory factory;
 
-            RLNCHeader header1 = factory.build();
-            RLNCHeader header2 = factory.build();
+            UDPNCHeader header1 = factory.build();
+            UDPNCHeader header2 = factory.build();
 
-            RLNCMessage message1(header1);
-            RLNCMessage message2(header2);
+            UDPNCMessage message1(header1);
+            UDPNCMessage message2(header2);
 
             int id1 = rand() % 10;
             int id2 = -1;
@@ -474,12 +474,12 @@ namespace Vast
 
             Vast::net_udpNC_consumer consumer;
             Vast::absnet_udp_testimpl absnet_udp;
-            Vast::AbstractRNLCMsgReceiverTestImpl tester;
+            Vast::AbstractUDPNCMsgReceiverTestImpl tester;
             consumer.open (&tester, &absnet_udp, NULL);
             boost::this_thread::sleep_for (boost::chrono::milliseconds(sleep_time));
             consumer.process_input (message1, Vast::IPaddr());
             //Check if we have received the first message from the first ID
-            //Returned message is the entire RLNC payload, i.e. VAST message - contained in buf2
+            //Returned message is the entire UDPNC payload, i.e. VAST message - contained in buf2
             assert(tester.recv_msg == message1);
 
             consumer.process_input (message2, Vast::IPaddr());
@@ -521,13 +521,13 @@ namespace Vast
             buf2.add ((char *)&vast_header2, sizeof (Vast::VASTHeader));
             buf2.add (&msg2);
 
-            RLNCHeader_factory factory;
+            UDPNCHeader_factory factory;
 
-            RLNCHeader header1 = factory.build();
-            RLNCHeader header2 = factory.build();
+            UDPNCHeader header1 = factory.build();
+            UDPNCHeader header2 = factory.build();
 
-            RLNCMessage message1(header1);
-            RLNCMessage message2(header2);
+            UDPNCMessage message1(header1);
+            UDPNCMessage message2(header2);
 
             message1.putOrdering (255);
             //Ordering 256 == 0 because of overflow
@@ -552,7 +552,7 @@ namespace Vast
 
             Vast::net_udpNC_consumer consumer;
             Vast::absnet_udp_testimpl absnet_udp;
-            Vast::AbstractRNLCMsgReceiverTestImpl tester;
+            Vast::AbstractUDPNCMsgReceiverTestImpl tester;
             Vast::net_udpNC_MChandlerMock mock;
             consumer.open (&tester, &absnet_udp, &mock);
             boost::this_thread::sleep_for (boost::chrono::milliseconds(sleep_time));
@@ -563,7 +563,7 @@ namespace Vast
             consumer.close();
 
             std::cout << tester.recv_msg << std::endl;
-            //Returned message is the entire RLNC payload, i.e. VAST message - contained in buf2
+            //Returned message is the entire UDPNC payload, i.e. VAST message - contained in buf2
             assert(tester.recv_msg == message2);
 
             assert(mock.clearPacketPoolCalled == 1);
@@ -602,13 +602,13 @@ namespace Vast
             buf2.add ((char *)&vast_header2, sizeof (Vast::VASTHeader));
             buf2.add (&msg2);
 
-            RLNCHeader_factory factory;
+            UDPNCHeader_factory factory;
 
-            RLNCHeader header1 = factory.build();
-            RLNCHeader header2 = factory.build();
+            UDPNCHeader header1 = factory.build();
+            UDPNCHeader header2 = factory.build();
 
-            RLNCMessage message1(header1);
-            RLNCMessage message2(header2);
+            UDPNCMessage message1(header1);
+            UDPNCMessage message2(header2);
 
             //Simulate loss of packets -> last highest packet and first low packet
             message1.putOrdering (246);
@@ -634,7 +634,7 @@ namespace Vast
             Vast::net_udpNC_consumer consumer;
             Vast::absnet_udp_testimpl absnet_udp;
             Vast::net_udpNC_MChandlerMock mock;
-            Vast::AbstractRNLCMsgReceiverTestImpl tester;
+            Vast::AbstractUDPNCMsgReceiverTestImpl tester;
             consumer.open (&tester, &absnet_udp, &mock);
             boost::this_thread::sleep_for (boost::chrono::milliseconds(sleep_time));
 
@@ -642,7 +642,7 @@ namespace Vast
             consumer.process_input (message2, Vast::IPaddr());
 
             std::cout << tester.recv_msg << std::endl;
-            //Returned message is the entire RLNC payload, i.e. VAST message - contained in buf2
+            //Returned message is the entire UDPNC payload, i.e. VAST message - contained in buf2
             assert(tester.recv_msg == message2);
 
             assert(mock.clearPacketPoolCalled == 1);
@@ -682,13 +682,13 @@ namespace Vast
             buf2.add ((char *)&vast_header2, sizeof (Vast::VASTHeader));
             buf2.add (&msg2);
 
-            RLNCHeader_factory factory;
+            UDPNCHeader_factory factory;
 
-            RLNCHeader header1 = factory.build();
-            RLNCHeader header2 = factory.build();
+            UDPNCHeader header1 = factory.build();
+            UDPNCHeader header2 = factory.build();
 
-            RLNCMessage message1(header1);
-            RLNCMessage message2(header2);
+            UDPNCMessage message1(header1);
+            UDPNCMessage message2(header2);
 
             //Simulate loss of packets -> last highest packet and first low packet
             message1.putOrdering (LOWEST_RESET_PACKET_ORDERING_NUMBER-1);
@@ -713,7 +713,7 @@ namespace Vast
 
             Vast::net_udpNC_consumer consumer;
             Vast::absnet_udp_testimpl absnet_udp;
-            Vast::AbstractRNLCMsgReceiverTestImpl tester;
+            Vast::AbstractUDPNCMsgReceiverTestImpl tester;
             Vast::net_udpNC_MChandlerMock mock;
             consumer.open (&tester, &absnet_udp, &mock);
             boost::this_thread::sleep_for (boost::chrono::milliseconds(sleep_time));
@@ -749,17 +749,17 @@ namespace Vast
         {
             std::cout << "\n\nrunning testHandleNoToAddress" << std::endl;
 
-            RLNCHeader_factory factory;
+            UDPNCHeader_factory factory;
 
-            RLNCHeader header1 = factory.build();
-            RLNCHeader header2 = factory.build();
+            UDPNCHeader header1 = factory.build();
+            UDPNCHeader header2 = factory.build();
 
-            RLNCMessage message1(header1);
-            RLNCMessage message2(header2);
+            UDPNCMessage message1(header1);
+            UDPNCMessage message2(header2);
 
             Vast::net_udpNC_consumer consumer;
             Vast::absnet_udp_testimpl absnet_udp;
-            Vast::AbstractRNLCMsgReceiverTestImpl tester;
+            Vast::AbstractUDPNCMsgReceiverTestImpl tester;
             consumer.open (&tester, &absnet_udp, NULL);
             boost::this_thread::sleep_for (boost::chrono::milliseconds(sleep_time));
 
@@ -768,7 +768,7 @@ namespace Vast
 
             std::cout << tester.recv_msg << std::endl;
             //Do not accept packets without a toAddr
-            assert(tester.RLNC_msg_received_call_count == 0);
+            assert(tester.UDPNC_msg_received_call_count == 0);
 
             consumer.close();
 
@@ -792,11 +792,11 @@ namespace Vast
             buf1.add ((char *)&vast_header1, sizeof (Vast::VASTHeader));
             buf1.add (&msg1);
 
-            RLNCHeader_factory factory;
+            UDPNCHeader_factory factory;
 
-            RLNCHeader header1 = factory.build();
+            UDPNCHeader header1 = factory.build();
 
-            RLNCMessage message1(header1);
+            UDPNCMessage message1(header1);
 
             int id1 = rand() % 10;
             int id2 = -1;
@@ -821,7 +821,7 @@ namespace Vast
 
             Vast::net_udpNC_consumer consumer;
             Vast::absnet_udp_testimpl absnet_udp;
-            Vast::AbstractRNLCMsgReceiverTestImpl tester;
+            Vast::AbstractUDPNCMsgReceiverTestImpl tester;
             consumer.open (&tester, &absnet_udp, NULL);
             boost::this_thread::sleep_for (boost::chrono::milliseconds(sleep_time));
 
@@ -844,7 +844,7 @@ namespace Vast
 int main()
 {
     Vast::unittest_net_udpnc_consumer testing_consumer;
-    testing_consumer.testRLNC_msg_received();
+    testing_consumer.testUDPNC_msg_received();
     testing_consumer.testFromNETUNASSIGNED ();
     testing_consumer.testOrderingNormalChain ();
     testing_consumer.testOrderingWrongChain ();

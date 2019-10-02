@@ -1,25 +1,25 @@
-#ifndef RLNCMESSAGE_H
-#define RLNCMESSAGE_H
+#ifndef UDPNCMESSAGE_H
+#define UDPNCMESSAGE_H
 
 #define MAX_SYMBOLS 2
 #define MAX_PACKET_SIZE 500
 #define GENSIZE 1
 #define MAX_GEN_NUM 255
 
-#define COMPUTE_RLNC
+#define COMPUTE_UDPNC
 
-#include "rlnc_packet_factory.h"
+#include "udpnc_packet_factory.h"
 #include <VASTTypes.h>
 #include <boost/asio.hpp>
 
-class RLNCMessage
+class UDPNCMessage
 {
 public:
-    RLNCMessage();
+    UDPNCMessage();
 
-    RLNCMessage (RLNCHeader header);
+    UDPNCMessage (UDPNCHeader header);
     //Copy constructor
-    RLNCMessage (const RLNCMessage &message);
+    UDPNCMessage (const UDPNCMessage &message);
 
     const std::vector<packetid_t> getPacketIds() const;
     const std::vector<Vast::id_t> getFromIds();
@@ -49,21 +49,21 @@ public:
     //Returns -1 on error
     int deserialize(const char *buffer, size_t size);
 
-    bool operator==(const RLNCMessage other) const;
-    bool contentEquals(const RLNCMessage other) const;
+    bool operator==(const UDPNCMessage other) const;
+    bool contentEquals(const UDPNCMessage other) const;
 
     packetid_t static generatePacketId(Vast::id_t id, int ordering);
 
     uint32_t static generateChecksum(const uint8_t *buffer, size_t bufsize);
     uint32_t static generateChecksum(const char *buffer, size_t bufsize);
 
-    friend std::ostream& operator<<(std::ostream&, RLNCMessage const& message);
+    friend std::ostream& operator<<(std::ostream&, UDPNCMessage const& message);
 
     //Only used for storing remote address in Concurrent queue. Not serialized
     Vast::IPaddr socket_addr;
 
 private:
-    RLNCHeader header;
+    UDPNCHeader header;
     std::vector<packetid_t> pkt_ids;
     std::vector<Vast::id_t> from_ids;
     std::vector<Vast::IPaddr> to_addrs;
@@ -73,4 +73,4 @@ private:
 
 };
 
-#endif // RLNCMESSAGE_H
+#endif // UDPNCMESSAGE_H

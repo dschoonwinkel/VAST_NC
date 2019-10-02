@@ -1,8 +1,10 @@
+CC=g++
+
 coding_host = ./test_recoding_decoding
 basic_encoder_test = ./basic_encoder_test
 test_uncoded_coded_mixed = ./test_uncoded_coded_mixed
 test_uncoded_coded_mixed2 = ./test_uncoded_coded_mixed2
-unittest_rlncrecoder= ./unittest_rlncrecoder
+unittest_udpncrecoder= ./unittest_udpncrecoder
 
 
 #CFLAGS=-O2 -ftree-vectorize -std=c++14 -Wall -Wextra -Wno-expansion-to-defined
@@ -25,11 +27,11 @@ ACE_PATH    = /usr
 INC_PATHS   = -I.. -I../../common -I../../VASTsim -I$(ACE_PATH)/include -I../../VAST -I../../VASTnet
 LIB_PATHS   = -L../../lib -L../../Dependencies/lib/Release -L$(ACE_PATH)/lib
 
-.PHONY: unittest_rlncrecoder
+.PHONY: unittest_udpncrecoder
 
-all: coding_host basic_encoder_test test_uncoded_coded_mixed test_uncoded_coded_mixed2 unittest_rlncrecoder
+all: coding_host basic_encoder_test test_uncoded_coded_mixed test_uncoded_coded_mixed2 unittest_udpncrecoder
 
-coding_host: test_recoding_decoding.cpp ../packet_listener.cpp ../rlncrecoder.cpp ../../VASTnet/customrlncdecoder.cpp
+coding_host: test_recoding_decoding.cpp ../packet_listener.cpp ../udpncrecoder.cpp ../../VASTnet/customudpncdecoder.cpp
 	$(CC) $(CFLAGS) $(INC_PATHS) $(LIBS_INCKODO) $(LIB_PATHS) $^ $(LIBS) $(LIBS_KODO) \
 	-o $(coding_host)
 
@@ -45,12 +47,12 @@ test_uncoded_coded_mixed2: test_uncoded_coded_mixed2.cpp
 	$(CC) $(CFLAGS) $(INC_PATHS) $(LIBS_INCKODO) $(LIB_PATHS) $^ $(LIBS) $(LIBS_KODO) \
 	-o $(test_uncoded_coded_mixed2)
 
-unittest_rlncrecoder: unittest_rlncrecoder.cpp ../packet_listener.cpp ../rlncrecoder.cpp ../../VASTnet/customrlncdecoder.cpp
+unittest_udpncrecoder: unittest_udpncrecoder.cpp ../packet_listener.cpp ../udpncrecoder.cpp ../../VASTnet/customudpncdecoder.cpp
 	$(CC) $(CFLAGS) $(INC_PATHS) $(LIBS_INCKODO) $(LIB_PATHS) $^ $(LIBS) $(LIBS_KODO) \
-	-o $(unittest_rlncrecoder)
-	$(unittest_rlncrecoder)
+	-o $(unittest_udpncrecoder)
+	$(unittest_udpncrecoder)
 
 clean:
-	-rm $(coding_host) $(test_uncoded_coded_mixed) $(test_uncoded_coded_mixed2) $(basic_encoder_test) $(unittest_rlncrecoder)
+	-rm $(coding_host) $(test_uncoded_coded_mixed) $(test_uncoded_coded_mixed2) $(basic_encoder_test) $(unittest_udpncrecoder)
 
 

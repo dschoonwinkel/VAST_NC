@@ -4,9 +4,9 @@
 #include "VASTTypes.h"
 #include <boost/asio.hpp>
 #include <boost/thread.hpp>
-#include "rlncmessage.h"
-#include "customrlncdecoder.h"
-#include "abstract_rlnc_msg_receiver.h"
+#include "udpncmessage.h"
+#include "customudpncdecoder.h"
+#include "abstract_udpnc_msg_receiver.h"
 #include "vastnetstatlog_entry.h"
 #include <memory>
 #include "abstract_net_udp.h"
@@ -23,7 +23,7 @@ namespace Vast
         virtual ~net_udpNC_MChandler();
 
         //MChandler will run its own io_service
-        int open (AbstractRLNCMsgReceiver *msghandler, abstract_net_udp *udp_manager, bool startthread = true);
+        int open (AbstractUDPNCMsgReceiver *msghandler, abstract_net_udp *udp_manager, bool startthread = true);
 
         // close connection & unregister from io_service
         int close (void);
@@ -31,12 +31,12 @@ namespace Vast
         void process_input(const char *buf, std::size_t bytes_transferred);
         void process_encoded(const char *buf, std::size_t bytes_transferred);
 
-        void putOtherRLNCMessage(RLNCMessage other);
+        void putOtherUDPNCMessage(UDPNCMessage other);
 
         virtual void clearPacketPool();
         size_t getPacketPoolSize();
 
-        bool toAddrForMe(RLNCMessage msg);
+        bool toAddrForMe(UDPNCMessage msg);
 
         void tick();
 
@@ -61,14 +61,14 @@ namespace Vast
         ip::udp::endpoint           _local_endpoint;
         ip::udp::endpoint           MC_address;
         char                        _buf[VAST_BUFSIZ];
-        AbstractRLNCMsgReceiver     *_msghandler = NULL;
+        AbstractUDPNCMsgReceiver     *_msghandler = NULL;
         abstract_net_udp            *_udp_manager = NULL;
 
 
         // the same io_service as net_udp
         io_service                  *_io_service = NULL;
         boost::thread               *_iosthread = NULL;
-        customrlncdecoder                 decoder;
+        customudpncdecoder                 decoder;
 
         size_t packets_received = 0;
         size_t stacked_packets_received = 0;
