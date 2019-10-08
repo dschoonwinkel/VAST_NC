@@ -200,6 +200,11 @@
                     {
                         pStatlog = std::make_unique<VASTStatLogEntry>(_world, vnode);
                     }
+
+                    if (pLatencyStatlog == NULL)
+                    {
+                        pLatencyStatlog = std::make_unique<VASTLatencyStatLogEntry>(vnode->getSelf()->id);
+                    }
                 }
             }
         }
@@ -247,6 +252,10 @@
         _steps_recorded++;
 
         pStatlog->recordStat();
+        // Move latency
+        pLatencyStatlog->recordLatencyStat (getVerse()->getTimestamp(), vnode->getMessageLatency (19));
+        // publish latency
+//      pLatencyStatlog->recordLatencyStat (getVerse()->getTimestamp(), vnode->getMessageLatency (19));
 
         if (_steps_recorded % 100)
         {
