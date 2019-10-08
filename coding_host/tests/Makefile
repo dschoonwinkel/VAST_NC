@@ -31,7 +31,7 @@ LIB_PATHS   = -L../../lib -L../../Dependencies/lib/Release -L$(ACE_PATH)/lib
 
 all: coding_host basic_encoder_test test_uncoded_coded_mixed test_uncoded_coded_mixed2 unittest_udpncrecoder
 
-coding_host: test_recoding_decoding.cpp ../packet_listener.cpp ../udpncrecoder.cpp ../../VASTnet/customudpncdecoder.cpp
+coding_host: test_recoding_decoding.cpp ../packet_listener.cpp ../udpncrecoder.cpp ../../VASTnet/udpnc_decoder.cpp
 	$(CC) $(CFLAGS) $(INC_PATHS) $(LIBS_INCKODO) $(LIB_PATHS) $^ $(LIBS) $(LIBS_KODO) \
 	-o $(coding_host)
 
@@ -47,7 +47,7 @@ test_uncoded_coded_mixed2: test_uncoded_coded_mixed2.cpp
 	$(CC) $(CFLAGS) $(INC_PATHS) $(LIBS_INCKODO) $(LIB_PATHS) $^ $(LIBS) $(LIBS_KODO) \
 	-o $(test_uncoded_coded_mixed2)
 
-unittest_udpncrecoder: unittest_udpncrecoder.cpp ../packet_listener.cpp ../udpncrecoder.cpp ../../VASTnet/customudpncdecoder.cpp
+unittest_udpncrecoder: unittest_udpncrecoder.cpp ../packet_listener.cpp ../udpncrecoder.cpp ../../VASTnet/udpnc_decoder.cpp
 	$(CC) $(CFLAGS) $(INC_PATHS) $(LIBS_INCKODO) $(LIB_PATHS) $^ $(LIBS) $(LIBS_KODO) \
 	-o $(unittest_udpncrecoder)
 	$(unittest_udpncrecoder)

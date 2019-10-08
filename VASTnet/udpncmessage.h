@@ -52,7 +52,7 @@ public:
     bool operator==(const UDPNCMessage other) const;
     bool contentEquals(const UDPNCMessage other) const;
 
-    packetid_t static generatePacketId(Vast::id_t id, int ordering);
+    packetid_t static generatePacketId(Vast::id_t id, int sequence_number);
 
     uint32_t static generateChecksum(const uint8_t *buffer, size_t bufsize);
     uint32_t static generateChecksum(const char *buffer, size_t bufsize);

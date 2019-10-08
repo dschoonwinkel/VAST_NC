@@ -12,33 +12,33 @@ namespace Vast
 
     }
 
-    int net_udpNC_handler::open(io_service *io_service, abstract_net_udp *msghandler, bool startthread)
+    int net_udpNC_handler::open(io_service *io_service, abstract_net_udp *net_udp, bool startthread)
     {
-        return open(io_service, msghandler, NULL, startthread);
+        return open(io_service, net_udp, NULL, startthread);
     }
 
-    int net_udpNC_handler::open (io_service *io_service, abstract_net_udp *msghandler,
+    int net_udpNC_handler::open (io_service *io_service, abstract_net_udp *net_udp,
                                  AbstractUDPNCMsgReceiver *UDPNCsink, bool startthread)
     {
         if (UDPNCsink == NULL)
             UDPNCsink = this;
 
         CPPDEBUG("net_udpNC_handler::open" << std::endl);
-        _timeout_keepalive = msghandler->getTimestamp();
-        net_udp_handler::open(io_service, msghandler, startthread);
-        mchandler.open (&consumer, msghandler, startthread);
-        consumer.open (UDPNCsink, msghandler, &mchandler, startthread);
+        _timeout_keepalive = net_udp->getTimestamp();
+        net_udp_handler::open(io_service, net_udp, startthread);
+        mchandler.open (&consumer, net_udp, startthread);
+        consumer.open (UDPNCsink, net_udp, &mchandler, startthread);
 
         return 0;
     }
 
     size_t net_udpNC_handler::send(const char *msg, size_t n, ip::udp::endpoint remote_endpoint)
     {
-        if (_msghandler->getTimestamp() > _timeout_keepalive + _KEEPALIVE_UDPNC_TIMEOUT_)
+        if (_net_udp->getTimestamp() > _timeout_keepalive + _KEEPALIVE_UDPNC_TIMEOUT_)
         {
             //Send keep alive packet to syncronise receiver
             send_helper(NULL, n, remote_endpoint);
-            _timeout_keepalive = _msghandler->getTimestamp();
+            _timeout_keepalive = _net_udp->getTimestamp();
         }
 
         return send_helper(msg, n, remote_endpoint);
@@ -77,9 +77,9 @@ namespace Vast
         send_ordering[net_manager::resolveHostID (&to_addr)]++;
 
         id_t myID = -1;
-        if (_msghandler->getReal_net_udp ())
+        if (_net_udp->getReal_net_udp ())
         {
-            myID = _msghandler->getReal_net_udp ()->getID ();
+            myID = _net_udp->getReal_net_udp ()->getID ();
         }
         else
         {

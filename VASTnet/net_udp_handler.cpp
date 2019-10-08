@@ -23,7 +23,7 @@ namespace Vast {
         CPPDEBUG("net_udp_handler::open " << std::endl);
         is_open = true;
         _io_service = io_service;
-        _msghandler = msghandler;
+        _net_udp = msghandler;
 
         //Open the UDP socket for listening
         if (_udpsocket == NULL) {
@@ -184,7 +184,7 @@ namespace Vast {
                 storeRemoteAddress(temp_id, remote_addr);
 
                 //We assume if we can get a packet from the host, we are connected to that host
-                _msghandler->socket_connected(temp_id, this, false);
+                _net_udp->socket_connected(temp_id, this, false);
             }
             else if (temp_id == NET_ID_UNASSIGNED && msg.msgtype == ID_REQUEST)
             {
@@ -200,7 +200,7 @@ namespace Vast {
             //Break up messages into VASTMessage sizes
             //msg start at p - 4, i.e. start of header
             //msgsize = header.msg_size + 4 for header
-            _msghandler->msg_received(temp_id, p - sizeof(VASTHeader), header.msg_size + sizeof(VASTHeader));
+            _net_udp->msg_received(temp_id, p - sizeof(VASTHeader), header.msg_size + sizeof(VASTHeader));
 
             //Next message
             p += header.msg_size;
@@ -383,7 +383,7 @@ namespace Vast {
         if (remote_disconnected_id != NET_ID_UNASSIGNED)
         {
             CPPDEBUG("net_udp_handler::handle_disconnect. Disconnecting ID " << remote_disconnected_id << std::endl);
-            _msghandler->socket_disconnected(remote_disconnected_id);
+            _net_udp->socket_disconnected(remote_disconnected_id);
         }
     }
 

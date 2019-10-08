@@ -24,7 +24,7 @@ namespace Vast{
         net_udpNC_consumer();
         ~net_udpNC_consumer();
 
-        void open(AbstractUDPNCMsgReceiver *UDPNCsink,
+        void open(AbstractUDPNCMsgReceiver *udpNC_handler,
                   abstract_net_udp *abs_netudp,
                   net_udpNC_MChandler* mchandler, bool startthread = true);
 
@@ -46,7 +46,7 @@ namespace Vast{
         //Ensures order of incoming packets remains correct, passes to handoff_input
         void order_input(UDPNCMessage input_message, IPaddr socket_addr);
 
-        AbstractUDPNCMsgReceiver                 *UDPNCsink = NULL;
+        AbstractUDPNCMsgReceiver                 *udpNC_handler = NULL;
         abstract_net_udp                        *abs_netudp = NULL;
         net_udpNC_MChandler                     *mchandler = NULL;
 

@@ -16,7 +16,7 @@ namespace Vast
                                   net_udpNC_MChandler* mchandler, bool startthread)
     {
         CPPDEBUG("net_udpNC_consumer::open" << std::endl);
-        this->UDPNCsink = UDPNCsink;
+        this->udpNC_handler = UDPNCsink;
         this->abs_netudp = abs_netudp;
         this->mchandler = mchandler;
 
@@ -157,7 +157,7 @@ namespace Vast
         //Save latest packet number
         recvd_ordering[input_message.getFirstFromId ()] = input_message.getOrdering ();
 
-        UDPNCsink->UDPNC_msg_received (input_message, socket_addr);
+        udpNC_handler->UDPNC_msg_received (input_message, socket_addr);
 //        size_t msgqueuesize = _msg_queue.size();
 //        if (msgqueuesize > 0)
 //            Logger::debugPeriodic("net_udpNC_consumer::order_input Size of _msg_queue, working on reducing it " + std::to_string(msgqueuesize), 100, 10, true);

@@ -21,11 +21,11 @@ using namespace boost::asio;
 using rlnc_decoder = kodo_rlnc::decoder;
 using rlnc_encoder = kodo_rlnc::encoder;
 
-class customudpncdecoder
+class udpNC_decoder
 {
 public:
-    customudpncdecoder();
-    ~customudpncdecoder();
+    udpNC_decoder();
+    ~udpNC_decoder();
 
     void addUDPNCMessage(UDPNCMessage msg);
     std::shared_ptr<UDPNCMessage> produceDecodedUDPNCMessage();
@@ -61,7 +61,6 @@ private:
     // The factories are used to build actual encoders/decoders
     rlnc_decoder::factory decoder_factory;
     rlnc_encoder::factory encoder_factory;
-    UDPNCHeader_factory header_factory;
 
     std::mutex packet_pool_mutex;
     //For stats collection purposes

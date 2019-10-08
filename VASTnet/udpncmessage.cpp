@@ -333,7 +333,7 @@ std::ostream& operator<<(std::ostream& output, UDPNCMessage const& message )
         return output;
 }
 
-packetid_t UDPNCMessage::generatePacketId(Vast::id_t id, int ordering)
+packetid_t UDPNCMessage::generatePacketId(Vast::id_t id, int sequence_number)
 {
     packetid_t x = id;
     x += 0x9e3779b97f4a7c15;
@@ -342,7 +342,7 @@ packetid_t UDPNCMessage::generatePacketId(Vast::id_t id, int ordering)
     x ^= (x >> 27);
     x *= 0x94d049bb133111eb;
     x ^= (x >> 31);
-    x += ordering;
+    x += sequence_number;
     return x;
 }
 

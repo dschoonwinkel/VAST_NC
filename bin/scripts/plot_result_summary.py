@@ -823,6 +823,111 @@ for current_NODE_COUNT in iterator_NODECOUNTS:
     #         ax.set_xticks(xColumnList)
     #         ax.set_xticklabels(xColumnList)
 
+
+
+
+
+
+
+
+
+
+# Only Mininet results
+print("*******************\nMininet LOSS10 plot 10-50 NODES")
+MininetSubset = subsetByColumnValue(results_nparray, PLATFORM, MININET)
+MininetSubset = subsetByColumnValue(MininetSubset, LOSS_PERC, 10)
+colors = ['blue', 'red', 'green']
+linestyles = [':', '-.', '--']
+if hasMatplotlib:
+    plot.figure()
+
+custom_lines = list()
+custom_lines_names = list()
+
+print(MininetSubset)
+
+for i in range(NET_MODEL_STRINGS.index('net_ace'),NET_MODEL_STRINGS.index('net_udpNC') + 1):
+
+    print(i)
+    print(NET_MODEL_STRINGS[i])
+    NETMODEL_subset = subsetByColumnValue(MininetSubset, NET_MODEL, i)
+    xColumnList, yColumnList = seperateByColumn(NETMODEL_subset, NODES_COUNT, AVG_TOPO_CONS, "10LOSS, 10-50nodes, Mininet")
+    print(xColumnList)
+    print(len(xColumnList))
+    if hasMatplotlib and len(xColumnList) > 0:
+        #Calculate the medians:
+        medians = list()
+        for arr in yColumnList:
+            medians.append(np.median(arr))
+
+        ax = boxPlotHelper(411, xColumnList+0.3*(i-2), yColumnList, colors[i-2], '', 'Topo Cons\n[%]', width=0.3)
+        ax.title.set_text("TCP vs UDP vs UDPNC. 10\% LOSS, 10-50 NODES")
+        ax.plot(xColumnList+0.3*(i-2), medians, color=colors[i-2], linestyle=linestyles[i-2], linewidth=1)
+        plot.xlim([np.min(xColumnList)-0.3, np.max(xColumnList)+0.3*(i-2)+0.3])
+        ax.set_xticks(xColumnList)
+        ax.tick_params(labelbottom=False)
+        ax.set_yticks(np.arange(99.2, 100.2, 0.2))
+
+
+        from matplotlib.lines import Line2D
+        custom_lines.append(Line2D([0], [0], color=colors[i-2], linestyle=linestyles[i-2], lw=1))
+        if NET_MODEL_STRINGS[i] == 'net_ace':
+            custom_lines_names.append("TCP")
+        else:
+            custom_lines_names.append(NET_MODEL_STRINGS[i][4:].upper())
+
+        ax.legend(custom_lines, custom_lines_names, loc='lower left', prop={'size':7})
+
+    xColumnList, yColumnList = seperateByColumn(NETMODEL_subset, NODES_COUNT, AVG_DRIFT, "10LOSS, 10-50nodes, Mininet")
+    if hasMatplotlib and len(xColumnList) > 0:
+        #Calculate the medians:
+        medians = list()
+        for arr in yColumnList:
+            medians.append(np.median(arr))
+        ax = boxPlotHelper(412, xColumnList+0.3*(i-2), yColumnList, colors[i-2], '', 'Drift dist\n[units]', width=0.3)
+        ax.plot(xColumnList+0.3*(i-2), medians, color=colors[i-2], linestyle=linestyles[i-2], linewidth=1)
+        plot.xlim([np.min(xColumnList)-0.3, np.max(xColumnList)+0.3*(i-2)+0.3])
+        ax.set_xticks(xColumnList)
+        ax.tick_params(labelbottom=False)
+        ax.set_yticks(np.arange(1.5, 7, 1))
+
+    xColumnList, yColumnList = seperateByColumn(NETMODEL_subset, NODES_COUNT, NICSEND_BYTES, "10LOSS, 10-50nodes, Mininet")
+    if hasMatplotlib and len(xColumnList) > 0:
+        #Calculate the medians:
+        medians = list()
+        for arr in yColumnList:
+            medians.append(np.median(arr))
+        ax = boxPlotHelper(413, xColumnList+0.3*(i-2), yColumnList, colors[i-2], '', 'NIC Send\n[kBps]', width=0.3)
+        plot.xlim([np.min(xColumnList)-0.3, np.max(xColumnList)+0.3*(i-2)+0.3])
+        ax.plot(xColumnList+0.3*(i-2), medians, color=colors[i-2], linestyle=linestyles[i-2], linewidth=1)
+        ax.set_xticks(xColumnList)
+        ax.tick_params(labelbottom=False)
+
+    xColumnList, yColumnList = seperateByColumn(NETMODEL_subset, NODES_COUNT, NICRECV_BYTES, "10LOSS, 10-50nodes, Mininet")
+    if hasMatplotlib and len(xColumnList) > 0:
+        #Calculate the medians:
+        medians = list()
+        for arr in yColumnList:
+            medians.append(np.median(arr))
+        ax = boxPlotHelper(414, xColumnList+0.3*(i-2), yColumnList, colors[i-2], 'NODES_COUNT', 'NIC Recv\n[kBps]', width=0.3)
+        plot.xlim([np.min(xColumnList)-0.3, np.max(xColumnList)+0.3*(i-2)+0.3])
+        ax.plot(xColumnList+0.3*(i-2), medians, color=colors[i-2], linestyle=linestyles[i-2], linewidth=1)
+        ax.set_xticks(xColumnList)
+        ax.set_xticklabels(xColumnList)
+
+if hasMatplotlib:
+    plot.savefig("results_summary_Mininet_LOSS10_10_50NODES.pdf", dpi=1200)
+    # plot.show()
+
+
+
+
+
+
+
+
+
+
 for SUBSETNODE_COUNT in [10, 20, 30, 40, 50]:
 # SUBSETNODE_COUNT = 20
     print("\nNode count: ", SUBSETNODE_COUNT, "\linebreak")

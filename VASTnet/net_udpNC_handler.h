@@ -20,10 +20,10 @@ namespace Vast
 
 
         ///Default open function. Uses test case function with UDPNCsink = NULL parameter
-        int open (io_service *io_service, abstract_net_udp *msghandler, bool startthread = true);
+        int open (io_service *io_service, abstract_net_udp *net_udp, bool startthread = true);
 
         ///Used in test cases where I need a different UDPNCsink output
-        int open (io_service *io_service, abstract_net_udp *msghandler, AbstractUDPNCMsgReceiver *UDPNCsink = NULL, bool startthread = true);
+        int open (io_service *io_service, abstract_net_udp *net_udp, AbstractUDPNCMsgReceiver *UDPNCsink = NULL, bool startthread = true);
         // call net_udp_handler close and mchandler close
         int close (void);
 

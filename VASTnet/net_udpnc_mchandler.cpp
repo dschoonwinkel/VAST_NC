@@ -14,10 +14,10 @@ namespace Vast
         _local_endpoint = local_endpoint;
     }
 
-    int net_udpNC_MChandler::open(AbstractUDPNCMsgReceiver *msghandler, abstract_net_udp *udp_manager,
+    int net_udpNC_MChandler::open(AbstractUDPNCMsgReceiver *consumer, abstract_net_udp *udp_manager,
                                   bool startthread) {
         CPPDEBUG("net_udpNC_MChandler::open" << std::endl);
-        _msghandler = msghandler;
+        _msghandler = consumer;
         _udp_manager = udp_manager;
 
         std::cout << "net_udpNC_MChandler::open: _local_endpoint: " << _local_endpoint << std::endl;

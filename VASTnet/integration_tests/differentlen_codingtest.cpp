@@ -1,5 +1,5 @@
 #include "udpncrecoder.h"
-#include "customudpncdecoder.h"
+#include "udpnc_decoder.h"
 #include <iostream>
 #include <assert.h>
 
@@ -40,7 +40,7 @@ int main()
         exit(EXIT_FAILURE);
     }
 
-    customudpncdecoder decoder;
+    udpNC_decoder decoder;
 
     decoder.addUDPNCMessage(*temp_msg);
     decoder.addUDPNCMessage(msg179);

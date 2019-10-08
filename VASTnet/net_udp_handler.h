@@ -75,7 +75,7 @@ namespace Vast {
         ip::udp::endpoint           _remote_endpoint_;
         ip::udp::endpoint           _local_endpoint;
         char                        _buf[VAST_BUFSIZ];
-        abstract_net_udp            *_msghandler;
+        abstract_net_udp            *_net_udp;
 
         size_t packets_received = 0;
         size_t stacked_packets_received = 0;

@@ -5,7 +5,7 @@
 #include <boost/asio.hpp>
 #include <boost/thread.hpp>
 #include "udpncmessage.h"
-#include "customudpncdecoder.h"
+#include "udpNC_decoder.h"
 #include "abstract_udpnc_msg_receiver.h"
 #include "vastnetstatlog_entry.h"
 #include <memory>
@@ -23,7 +23,7 @@ namespace Vast
         virtual ~net_udpNC_MChandler();
 
         //MChandler will run its own io_service
-        int open (AbstractUDPNCMsgReceiver *msghandler, abstract_net_udp *udp_manager, bool startthread = true);
+        int open (AbstractUDPNCMsgReceiver *consumer, abstract_net_udp *udp_manager, bool startthread = true);
 
         // close connection & unregister from io_service
         int close (void);
@@ -68,7 +68,7 @@ namespace Vast
         // the same io_service as net_udp
         io_service                  *_io_service = NULL;
         boost::thread               *_iosthread = NULL;
-        customudpncdecoder                 decoder;
+        udpNC_decoder                 decoder;
 
         size_t packets_received = 0;
         size_t stacked_packets_received = 0;

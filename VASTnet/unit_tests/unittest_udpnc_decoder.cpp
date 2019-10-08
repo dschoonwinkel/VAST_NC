@@ -612,7 +612,7 @@ void testNETIDUNASSIGNED()
 
     assert(recoder.getPacketPoolSize () == 0);
 
-    customudpncdecoder decoder;
+    udpNC_decoder decoder;
     decoder.addUDPNCMessage (message1);
     assert(decoder.getPacketPoolSize () == 0);
 
@@ -682,7 +682,7 @@ void testThrowPktNotUnique()
 
     message1.putMessage(vast_data1.data (), 100);
 
-    customudpncdecoder decoder;
+    udpNC_decoder decoder;
     decoder.addUDPNCMessage (message1);
     decoder.addUDPNCMessage (message1);
     assert(decoder.getPacketPoolSize () == 0);

@@ -1,11 +1,11 @@
-#include "customudpncdecoder.h"
+#include "udpNC_decoder.h"
 #include "net_manager.h"
 #include "VASTnet.h"
 #include "logger.h"
 #include <memory>
 #include "autodestructortimer.h"
 
-customudpncdecoder::customudpncdecoder ():
+udpNC_decoder::udpNC_decoder ():
     decoder_factory(field, MAX_SYMBOLS, MAX_PACKET_SIZE),
     encoder_factory(field, MAX_SYMBOLS, MAX_PACKET_SIZE)
 {
@@ -14,18 +14,18 @@ customudpncdecoder::customudpncdecoder ():
 
 }
 
-void customudpncdecoder::startAddLockTimer()
+void udpNC_decoder::startAddLockTimer()
 {
     t1 = std::chrono::high_resolution_clock::now();
 }
 
-void customudpncdecoder::stopAddLockTimer()
+void udpNC_decoder::stopAddLockTimer()
 {
     auto t2 = std::chrono::high_resolution_clock::now();
     addLockTimer += std::chrono::duration_cast<std::chrono::microseconds>(t2-t1);
 }
 
-void customudpncdecoder::addUDPNCMessage(UDPNCMessage input_message)
+void udpNC_decoder::addUDPNCMessage(UDPNCMessage input_message)
 {
 #ifndef COMPUTE_UDPNC
     return;
@@ -49,7 +49,7 @@ void customudpncdecoder::addUDPNCMessage(UDPNCMessage input_message)
             {
                 CPPDEBUG("Stored packet: \n" << packet_pool[pktids.front()] << std::endl);
                 CPPDEBUG("Recvd packet: \n" << input_message << std::endl);
-                throw std::logic_error("customudpncdecoder::addUDPNCMessage: packet ids are supposed unique: \
+                throw std::logic_error("udpNC_decoder::addUDPNCMessage: packet ids are supposed unique: \
                                        Found different packet with same ID ");
             }
         }
@@ -75,19 +75,19 @@ void customudpncdecoder::addUDPNCMessage(UDPNCMessage input_message)
     }
 }
 
-void customudpncdecoder::clearPacketPool ()
+void udpNC_decoder::clearPacketPool ()
 {
     std::lock_guard<std::mutex> packet_guard(packet_pool_mutex);
     packet_pool.clear ();
     NC_packets.clear ();
 }
 
-size_t customudpncdecoder::getPacketPoolSize ()
+size_t udpNC_decoder::getPacketPoolSize ()
 {
     return packet_pool.size ();
 }
 
-bool customudpncdecoder::_fetchFromPacketPool(UDPNCMessage &active_encoded_packet,
+bool udpNC_decoder::_fetchFromPacketPool(UDPNCMessage &active_encoded_packet,
                                        std::map<size_t, UDPNCMessage> &available_packets,
                                        size_t &decoded_packet_index)
 {
@@ -169,13 +169,13 @@ bool customudpncdecoder::_fetchFromPacketPool(UDPNCMessage &active_encoded_packe
     }
     else if (available_packets.size () != (active_encoded_packet.getPacketIds ().size () - 1))
     {
-//        CPPDEBUG("customudpncdecoder::produceDecodedUDPNCMessage Could not find enough available packets to decode" << std::endl);
+//        CPPDEBUG("udpNC_decoder::produceDecodedUDPNCMessage Could not find enough available packets to decode" << std::endl);
         return false;
     }
     return true;
 }
 
-bool customudpncdecoder::_putAvailableInDecoder(std::shared_ptr<kodo_rlnc::decoder> decoder,
+bool udpNC_decoder::_putAvailableInDecoder(std::shared_ptr<kodo_rlnc::decoder> decoder,
                                          const std::map<size_t, UDPNCMessage> &available_packets,
                                          const UDPNCMessage &active_encoded_packet,
                                          const size_t &decoded_packet_index,
@@ -208,7 +208,7 @@ bool customudpncdecoder::_putAvailableInDecoder(std::shared_ptr<kodo_rlnc::decod
         if (decoder->is_complete ())
         {
             //Sanity check
-            CPPDEBUG("customudpncdecoder::_putAvailableInDecoder Could decode packet with only uncoded symbols" << std::endl);
+            CPPDEBUG("udpNC_decoder::_putAvailableInDecoder Could decode packet with only uncoded symbols" << std::endl);
             break;
         }
 
@@ -217,7 +217,7 @@ bool customudpncdecoder::_putAvailableInDecoder(std::shared_ptr<kodo_rlnc::decod
     return true;
 }
 
-std::shared_ptr<UDPNCMessage> customudpncdecoder::produceDecodedUDPNCMessage()
+std::shared_ptr<UDPNCMessage> udpNC_decoder::produceDecodedUDPNCMessage()
 {
 #ifndef COMPUTE_UDPNC
     return NULL;
@@ -257,7 +257,7 @@ std::shared_ptr<UDPNCMessage> customudpncdecoder::produceDecodedUDPNCMessage()
     //Sanity check
     if (available_packets.size() != 1)
     {
-        throw std::logic_error(std::string("customudpncdecoder::produceDecodedUDPNCMessage available_packet.size() ") +
+        throw std::logic_error(std::string("udpNC_decoder::produceDecodedUDPNCMessage available_packet.size() ") +
                                "should be 1, as we only currently code 2 packets together\n");
     }
 
@@ -298,9 +298,9 @@ std::shared_ptr<UDPNCMessage> customudpncdecoder::produceDecodedUDPNCMessage()
 
             if (total_checksum != active_encoded_packet.getChecksum())
             {
-                CPPDEBUG("customudpncdecoder::produceDecodedUDPNCMessage Checksum was not correct"
+                CPPDEBUG("udpNC_decoder::produceDecodedUDPNCMessage Checksum was not correct"
                          << std::endl << (*decoded_msg) << std::endl);
-                CPPDEBUG("customudpncdecoder::produceDecodedUDPNCMessage: Packets coded together " << active_encoded_packet.getPacketIds()[0] << "," << active_encoded_packet.getPacketIds()[1] << std::endl);
+                CPPDEBUG("udpNC_decoder::produceDecodedUDPNCMessage: Packets coded together " << active_encoded_packet.getPacketIds()[0] << "," << active_encoded_packet.getPacketIds()[1] << std::endl);
                 packets_checksum_incorrect++;
                 return nullptr;
             }
@@ -309,33 +309,33 @@ std::shared_ptr<UDPNCMessage> customudpncdecoder::produceDecodedUDPNCMessage()
         }
         else
         {
-            CPPDEBUG("customudpncdecoder::produceDecodedUDPNCMessage: Could not deserialize the decoded packet" << std::endl);
+            CPPDEBUG("udpNC_decoder::produceDecodedUDPNCMessage: Could not deserialize the decoded packet" << std::endl);
         }
 
     }
     else
     {
-        CPPDEBUG("customudpncdecoder::produceDecodedUDPNCMessage: Could not decode, probably linearly dependent, deleting it and its packets" << std::endl);
+        CPPDEBUG("udpNC_decoder::produceDecodedUDPNCMessage: Could not decode, probably linearly dependent, deleting it and its packets" << std::endl);
         packet_linearly_dependent++;
     }
 
     return decoded_msg;
 }
 
-customudpncdecoder::~customudpncdecoder ()
+udpNC_decoder::~udpNC_decoder ()
 {
-    std::cout << "\n~customudpncdecoder:: packets added to packet pool: " << packets_added_packetpool << std::endl;
-    std::cout << "~customudpncdecoder:: decodes_attempted: " << decodes_attempted << std::endl;
-    std::cout << "~customudpncdecoder:: packet_recovered: " << packets_recovered << std::endl;
-    std::cout << "~customudpncdecoder:: packets_already_decoded: " << packets_already_decoded << std::endl;
-    std::cout << "~customudpncdecoder:: packets_missing_undecodable: " << packets_missing_undecodable << std::endl;
-    std::cout << "~customudpncdecoder:: packets_checksum_incorrect: " << packets_checksum_incorrect << std::endl;
-    std::cout << "~customudpncdecoder:: packet_linearly_dependent: " << packet_linearly_dependent << std::endl;
-    std::cout << "~customudpncdecoder:: max_packetpool_size: " << max_packetpool_size << std::endl;
-    std::cout << "~customudpncdecoder:: max_NC_packets_size: " << max_NC_packets_size << std::endl;
-    std::cout << "~customudpncdecoder:: time spent in addLock: " << addLockTimer.count() / 1000 << " milliseconds " << std::endl;
-    std::cout << "~customudpncdecoder:: time spent decoding: " << decoderTimer.count() / 1000 << " milliseconds " << std::endl;
+    std::cout << "\n~udpNC_decoder:: packets added to packet pool: " << packets_added_packetpool << std::endl;
+    std::cout << "~udpNC_decoder:: decodes_attempted: " << decodes_attempted << std::endl;
+    std::cout << "~udpNC_decoder:: packet_recovered: " << packets_recovered << std::endl;
+    std::cout << "~udpNC_decoder:: packets_already_decoded: " << packets_already_decoded << std::endl;
+    std::cout << "~udpNC_decoder:: packets_missing_undecodable: " << packets_missing_undecodable << std::endl;
+    std::cout << "~udpNC_decoder:: packets_checksum_incorrect: " << packets_checksum_incorrect << std::endl;
+    std::cout << "~udpNC_decoder:: packet_linearly_dependent: " << packet_linearly_dependent << std::endl;
+    std::cout << "~udpNC_decoder:: max_packetpool_size: " << max_packetpool_size << std::endl;
+    std::cout << "~udpNC_decoder:: max_NC_packets_size: " << max_NC_packets_size << std::endl;
+    std::cout << "~udpNC_decoder:: time spent in addLock: " << addLockTimer.count() / 1000 << " milliseconds " << std::endl;
+    std::cout << "~udpNC_decoder:: time spent decoding: " << decoderTimer.count() / 1000 << " milliseconds " << std::endl;
     if (packets_recovered > 0)
-        std::cout << "~customudpncdecoder:: time spent decoding per recovered msg: " << decoderTimer.count() / packets_recovered << " microseconds " << std::endl;
+        std::cout << "~udpNC_decoder:: time spent decoding per recovered msg: " << decoderTimer.count() / packets_recovered << " microseconds " << std::endl;
 }
 

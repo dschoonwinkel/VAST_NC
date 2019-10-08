@@ -1,4 +1,4 @@
-#include "customudpncdecoder.h"
+#include "udpnc_decoder.h"
 #include "udpncrecoder.h"
 #include "udpnc_packet_factory.h"
 
@@ -18,7 +18,7 @@ int main()
     buffer.fill(0);
 
     UDPNCrecoder recoder;
-    customudpncdecoder decoder;
+    udpNC_decoder decoder;
 
     UDPNCHeader_factory factory;
     UDPNCHeader header1 = factory.build();

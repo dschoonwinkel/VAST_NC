@@ -209,7 +209,7 @@ void packet_listener::start_send()
 
 size_t packet_listener::send (const char *buf, size_t n, ip::udp::endpoint remote_endpoint)
 {
-    if (_recv_udp == NULL)
+    if (_send_udp == NULL)
     {
         std::cerr << "packet_listener::send trying to send before socket is ready" << std::endl;
         return -1;
@@ -218,7 +218,7 @@ size_t packet_listener::send (const char *buf, size_t n, ip::udp::endpoint remot
 
 
 //    CPPDEBUG("packet_listener::send size of sent packet: " << n << std::endl);
-    _recv_udp->async_send_to(buffer(buf, n), remote_endpoint,
+    _send_udp->async_send_to(buffer(buf, n), remote_endpoint,
                                boost::bind(&packet_listener::handle_send_to, this,
                                boost::asio::placeholders::error,
                                boost::asio::placeholders::bytes_transferred));
