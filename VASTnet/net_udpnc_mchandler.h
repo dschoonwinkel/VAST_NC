@@ -5,7 +5,7 @@
 #include <boost/asio.hpp>
 #include <boost/thread.hpp>
 #include "udpncmessage.h"
-#include "udpNC_decoder.h"
+#include "udpnc_decoder.h"
 #include "abstract_udpnc_msg_receiver.h"
 #include "vastnetstatlog_entry.h"
 #include <memory>
