@@ -3,13 +3,15 @@
 
 #include "vaststatlog.h"
 #include "vastnetstatlog.h"
+#include "vastlatencystatlog.h"
 #include <string>
 
 using namespace Vast;
 
 extern std::map<std::string, Vast::VASTStatLog> allRestoredLogs;
 extern std::map<std::string, Vast::VASTNetStatLog> allRestoredNetStatLogs;
-extern std::vector<std::string> logIDs, NetStatLogIDs;
+extern std::map<std::string, Vast::VASTLatencyStatLog> allRestoredLatencyStatLogs;
+extern std::vector<std::string> logIDs, NetStatLogIDs, LatencyStatLogIDs;
 extern timestamp_t latest_timestamp;
 
 extern size_t total_AN_actual, total_AN_visible, total_drift, max_drift, drift_nodes, total_active_nodes;
@@ -18,6 +20,7 @@ extern size_t total_AN_actual, total_AN_visible, total_drift, max_drift, drift_n
 void initVariables();
 bool readIniFile(const char * filename = "VASTreal.ini");
 void calculateUpdate();
+void calculateLatencyUpdate();
 size_t calc_consistency (const VASTStatLog &restoredLog, size_t &total_AN_actual,
                        size_t &total_AN_visible, size_t &total_drift, size_t &max_drift,
                        size_t &drift_nodes, timestamp_t latest_timestamp);

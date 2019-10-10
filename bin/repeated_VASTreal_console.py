@@ -41,7 +41,7 @@ def replace_NODECOUNT(node_count):
 def main():
 	#NODE_COUNT_list = [50, 40, 30, 20, 10]
 	#NODE_COUNT_list = [40, 30, 20, 10]
-	NODE_COUNT_list = [50]
+	NODE_COUNT_list = [10]
 	# NODE_COUNT_list = [15]
 
 	with open("Mininet.ini", 'r') as config:
@@ -60,11 +60,17 @@ def main():
 		for j in range(ITERATIONS):
 			label = runOnce()
 			print("Run %d completed %s %s" % (j, socket.gethostname(), label))
+			with open("run_log.txt", 'a') as runlog:
+				runlog.write("Run %d completed %s %s\n" % (j, socket.gethostname(), label))
 
 		# subprocess.call("echo \"Runs completed on %s with label %s\" \
 		# 	| mail -s \"Test status\" daniel.schoonwinkel@gmail.com" % 
 		# 	(socket.gethostname(), label),
 		# 		shell=True)
+
+	with open("run_log.txt", 'a') as runlog:
+		runlog.write("Runs completed\n\n")
+	
 
 	# replace_NODECOUNT(NODE_COUNT_list[0])
 	# print(runOnce())

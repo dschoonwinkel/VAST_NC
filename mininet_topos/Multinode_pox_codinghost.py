@@ -51,6 +51,8 @@ def myNetwork():
 
     loss_perc = LOSS_PERC
     Node_count = NODE_COUNT
+    delay = DELAY
+    bw = BW
     run_codinghost = True
 
     if (len(sys.argv) > 1):
@@ -106,7 +108,7 @@ def myNetwork():
         # coding_host.cmd("xterm -hold -fg black -bg green -geometry 80x10+200+600 -e \"./coding_host \" &")
         coding_host.cmd("./coding_host &> output_dump/codinghost.txt &")
         pass
-    # CLI(net)
+    #CLI(net)
 
     for i in range(1,Node_count+1):
         try:
@@ -145,7 +147,15 @@ def myNetwork():
         links = hosts[i-1].connectionsTo(s1)
         srcLink = links[0][0]
         dstLink = links[0][1]
-        dstLink.config(**{'loss' : loss_perc})
+        prop_dict = dict()
+        if loss_perc > 0:
+            prop_dict['loss'] = loss_perc
+        if delay > 0:
+            prop_dict['delay'] = '%dms' % delay
+        if bw > 0:
+            prop_dict['bw'] = bw
+        if len(prop_dict.keys()) > 0:
+            dstLink.config(**prop_dict)
 
 
     #h1 = net.get('h1')

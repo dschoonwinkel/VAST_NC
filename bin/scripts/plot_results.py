@@ -376,6 +376,73 @@ if tsharksummary_fileexists:
 
 
 
+
+
+# Latency results
+mean_normalized_latency = 0
+
+latency_filename = re.sub(r"\.txt", "_latency.txt", input_file)
+latency_fileexists = False
+if (os.path.isfile(latency_filename)):
+    latency_fileexists = True
+    print("Latency file found")
+    latency_text = list()
+    with open(latency_filename, 'r') as csvfile:
+        spamreader = csv.reader(csvfile, delimiter=",")
+        for row in spamreader:
+            latency_text.append(row)
+            # print(",".join(row))
+    if len(latency_text) <= 1:
+        latency_fileexists = False;
+
+
+if latency_fileexists:
+    header = latency_text[0]
+    latency_text = latency_text[1:]
+
+    latency = list()
+
+    for row in latency_text:
+        # print(row)
+        latency.append([(int(row[0])-first_timestamp), int(row[1]), int(row[2])])
+        # print(results[-1])
+        # print(int(row[0])%10000)
+
+    numpy_latency = np.array(latency)
+
+    ACTIVE_NODES_LATENCY = 1
+    MOVE_LATENCY = 2
+
+    active_nodes = (numpy_latency[:,ACTIVE_NODES_LATENCY])[:len(timestamps)]
+    move_latency = (numpy_latency[:,MOVE_LATENCY])[:len(timestamps)]
+    normalized_move_latency = move_latency / active_nodes
+    mean_normalized_move_latency = np.mean(normalized_move_latency)
+
+    print("Mean Normalized latency ", mean_normalized_move_latency)
+    # print("Mean NIC recv bytes", mean_nicrecvbytes)
+
+    # mean_nicsendbytes_beforeloss = np.mean(active_nodes[0:index_aftersetuptime])
+    # mean_nicrecvbytes_beforeloss = np.mean(move_latency[0:index_aftersetuptime])
+
+    # print("mean_nicsendbytes_beforeloss", mean_nicsendbytes_beforeloss)
+    # print("mean_nicrecvbytes_beforeloss", mean_nicrecvbytes_beforeloss)
+
+    # mean_nicsendbytes_afterloss = np.mean(active_nodes[index_aftersetuptime:])
+    # mean_nicrecvbytes_afterloss = np.mean(move_latency[index_aftersetuptime:])
+
+    # print("mean_nicsendbytes_afterloss", mean_nicsendbytes_afterloss)
+    # print("mean_nicrecvbytes_afterloss", mean_nicrecvbytes_afterloss)
+
+
+
+
+
+
+
+
+
+
+
 # Output to results summary, only if we know the LABEL
 if LABEL_list:
     NODE_COUNT = LABEL_list[1]
@@ -431,7 +498,12 @@ if (hasMatplotlib and plot_yes):
     if (LABEL_list):
         plot.title(str(LABEL_list))
 
-    ax1 = plot.subplot(5,1,1)
+    if latency_fileexists:
+        subplot_count = 6
+    else:
+        subplot_count = 5
+
+    ax1 = plot.subplot(subplot_count,1,1)
     plot.plot(timestamps, active_nodes[:len(timestamps)], 'b')
     plot.plot(timestamps, active_matchers[:len(timestamps)], 'r')
     plot.plot([TOTAL_SETUPTIME, TOTAL_SETUPTIME],[0, max(active_nodes)+1], 'k')
@@ -445,7 +517,7 @@ if (hasMatplotlib and plot_yes):
     plot.grid(True)
 
 
-    ax2 = plot.subplot(5,1,2)
+    ax2 = plot.subplot(subplot_count,1,2)
     plot.plot(timestamps, topo_consistency)
     plot.plot(timestamps[where_are_NaNs], topo_consistency[where_are_NaNs], 'r,')
     plot.plot([0,timestamps[index_aftersetuptime]], [mean_consistency_beforeloss,mean_consistency_beforeloss], 'r--')
@@ -463,7 +535,7 @@ if (hasMatplotlib and plot_yes):
     plot.grid(True)
     
 
-    ax3 = plot.subplot(5,1,3)
+    ax3 = plot.subplot(subplot_count,1,3)
     plot.plot(timestamps, normalised_drift_distance)
     plot.plot([0,timestamps[index_aftersetuptime]], [mean_drift_distance_beforeloss,mean_drift_distance_beforeloss], 'r--')
     plot.plot([timestamps[index_aftersetuptime],timestamps[-1]], [mean_drift_distance_afterloss,mean_drift_distance_afterloss], 'r--')
@@ -476,7 +548,7 @@ if (hasMatplotlib and plot_yes):
     ax3.get_xaxis().set_visible(False)
     plot.grid(True)
     
-    ax4 = plot.subplot(5,1,4)
+    ax4 = plot.subplot(subplot_count,1,4)
     ax4.plot(timestamps, send_stat, 'g',label='Send stat')
     # ax4.plot(timestamps, recv_stat, 'b', label='Recv stat')
     ax4.plot([0,timestamps[-1]], [mean_sendstat, mean_sendstat], 'g--')
@@ -529,7 +601,7 @@ if (hasMatplotlib and plot_yes):
     
     
 
-    ax5 = plot.subplot(5,1,5)
+    ax5 = plot.subplot(subplot_count,1,5)
     # plot.plot(timestamps, raw_mcrecvbytes, 'r',label='Raw MC Recv')
     # plot.plot(timestamps, used_mcrecvbytes, 'm', label='MC Recv')
     plot.plot(timestamps, used_mcrecvbytes, color='m')
@@ -543,6 +615,28 @@ if (hasMatplotlib and plot_yes):
     plot.text(timestamps[-1], mean_usedmcrecv_stat_afterloss, "%5.2f" % (mean_usedmcrecv_stat_afterloss), color='m', bbox=dict(facecolor='white', alpha=1))
     
     plot.ylabel("MC Recv\n[kBps]")
+
+
+
+    if (latency_fileexists):
+        ax5 = plot.subplot(subplot_count,1,subplot_count)
+        # plot.plot(timestamps, raw_mcrecvbytes, 'r',label='Raw MC Recv')
+        # plot.plot(timestamps, used_mcrecvbytes, 'm', label='MC Recv')
+        plot.plot(timestamps, normalized_move_latency, color='b')
+        # plot.plot([0,timestamps[-1]], [mean_rawmcrecv_stat, mean_rawmcrecv_stat], 'r')
+        # plot.plot([0,timestamps[index_aftersetuptime]], [mean_usedmcrecv_stat_beforeloss, mean_usedmcrecv_stat_beforeloss], color='m', linestyle='--')
+        # plot.plot([timestamps[index_aftersetuptime],timestamps[-1]], [mean_usedmcrecv_stat_afterloss, mean_usedmcrecv_stat_afterloss], color='m', linestyle='--')
+        # # plot.plot([0,timestamps[-1]], [mean_usedmcrecv_stat, mean_usedmcrecv_stat], color='m', linestyle='--')
+        # plot.plot([TOTAL_SETUPTIME, TOTAL_SETUPTIME],[0, np.max(raw_mcrecvbytes)], 'k')
+        # # plot.text(timestamps[-1], mean_rawmcrecv_stat, "%5.2f" % (mean_rawmcrecv_stat), color='r')
+        # plot.text(timestamps[0], mean_usedmcrecv_stat_beforeloss, "%5.2f" % (mean_usedmcrecv_stat_beforeloss), color='m', bbox=dict(facecolor='white', alpha=1))
+        # plot.text(timestamps[-1], mean_usedmcrecv_stat_afterloss, "%5.2f" % (mean_usedmcrecv_stat_afterloss), color='m', bbox=dict(facecolor='white', alpha=1))
+        
+        plot.ylabel("Latency")
+
+
+
+
     if not resources_fileexist:
         plot.xticks(np.arange(min(timestamps), max(timestamps)+1, x_axis_interval))
     else:

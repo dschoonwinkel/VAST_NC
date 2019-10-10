@@ -56,8 +56,14 @@ namespace Vast {
 
         if (latency != NULL)
         {
+//            CPPDEBUG("VASTLatencyStatLogEntry::recordLatencyStat: latency.total: "
+//                     << latency->total << std::endl);
             latencyStat = *latency;
             _steps_recorded++;
+        }
+        else {
+            CPPDEBUG("VASTLatencyStatLogEntry::recordLatencyStat: latency was NULL"
+                     << std::endl);
         }
 
         saveToLogFile();

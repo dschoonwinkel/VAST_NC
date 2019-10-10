@@ -1015,8 +1015,8 @@ namespace Vast
 
         case SYNC_CLOCK:
             CPPDEBUG("VASTMatcher::handleMessage SYNC_CLOCK" << std::endl);
-            break;
-         /*
+//            break;
+
             {
                 if (isGateway () == false)
                 {
@@ -1038,7 +1038,7 @@ namespace Vast
         
                 sendMessage (msg);            
             }
-            break;*/
+            break;
 
         // process universal VASTnet message, msgtype = 0
         case DISCONNECT:

@@ -4,6 +4,7 @@
 #include "VASTVerse.h"
 #include "vaststatlog.h"
 #include "vastnetstatlog.h"
+#include "vastlatencystatlog.h"
 
 #include <climits>
 
@@ -16,8 +17,10 @@ SimPara simpara;
 
 std::map<std::string, VASTStatLog> allRestoredLogs;
 std::map<std::string, VASTNetStatLog> allRestoredNetStatLogs;
+std::map<std::string, VASTLatencyStatLog> allRestoredLatencyStatLogs;
 std::vector<std::string> logIDs;
 std::vector<std::string> NetStatLogIDs;
+std::vector<std::string> LatencyStatLogIDs;
 timestamp_t latest_timestamp;
 
 std::string results_file = "./logs/results/results1.txt";
@@ -25,6 +28,9 @@ std::ofstream ofs(results_file);
 
 std::string individual_drift = "./logs/results/individual_drift.txt";
 std::ofstream drift_distances_file(individual_drift);
+
+std::string latency_results = "./logs/results/results1_latency.txt";
+std::ofstream latency_results_file(latency_results);
 
 
 //Variables needed for calc_consistency
@@ -40,12 +46,19 @@ long RawMCRecvBytes = 0, UsedMCRecvBytes = 0;
 long prevRawMCRecvBytes = 0, prevUsedMCRecvBytes = 0;
 
 
+//LatencyStat variables
+bool hasLatencyStat = false;
+long LatencyTotal = 0;
+long prevLatencyTotal = 0;
+
+
 map <int, size_t> drift_distances;
 int g_MS_PER_TIMESTEP;
 
 void initVariables();
 void readIniFile();
 void calculateUpdate();
+void calculateLatencyUpdate();
 size_t calc_consistency (const VASTStatLog &restoredLog, size_t &total_AN_actual,
                        size_t &total_AN_visible, size_t &total_drift, size_t &max_drift,
                        size_t &drift_nodes, timestamp_t latest_timestamp);
@@ -133,9 +146,9 @@ void initVariables()
             continue;
         }
 
-        else if (filename.find("Net") != string::npos)
+        else if (filename.find("VASTStat") == string::npos)
         {
-            CPPDEBUG("NetStat file, skipping " << filename << std::endl);
+            CPPDEBUG("NetStat or LatencyStat file, skipping " << filename << std::endl);
             continue;
         }
 
@@ -193,6 +206,42 @@ void initVariables()
     ofs << "timestamp," << "active_nodes," << "active_matchers," << "AN_actual," << "AN_visible,"
         << "Total drift," << "Max drift," << "drift nodes," << "worldSendStat," << "worldRecvStat,"
         << "rawMCRecvBytes," << "usedMCRecvBytes" << std::endl;
+
+
+
+
+    //VASTLatencyStatLog_id.txt
+    CPPDEBUG("Processing VASTLatencyStatLog" << std::endl);
+    for (directory_iterator itr(dir_path); itr != end_itr; ++itr) {
+
+        //Skip subfolders
+        if (is_directory(itr->path())) continue;
+
+        CPPDEBUG(itr->path() << std::endl);
+        std::string filename = itr->path().string();
+        //If this is not a TXT file, it is probably not a VASTLatencyStatLog file
+        if (filename.find(".txt") == string::npos)
+        {
+            CPPDEBUG("Skipping " << filename << std::endl);
+            continue;
+        }
+
+        else if (filename.find("Latency") == string::npos)
+        {
+            CPPDEBUG("normal Stat file, skipping " << filename << std::endl);
+            continue;
+        }
+
+        VASTLatencyStatLog restoredLog(filename);
+
+        allRestoredLatencyStatLogs[filename] = restoredLog;
+        LatencyStatLogIDs.push_back(filename);
+
+    }
+
+    latency_results_file << "timestamp," << "active_nodes," << "MOVElatency" << std::endl;
+
+
 
     for (size_t log_iter = 0; log_iter < logIDs.size(); log_iter++)
     {
@@ -332,8 +381,57 @@ void calculateUpdate()
     prevRawMCRecvBytes = tempRawMCRecvBytes;
     prevUsedMCRecvBytes = tempUsedMCRecvBytes;
 
+    calculateLatencyUpdate();
 
     latest_timestamp += simpara.TIMESTEP_DURATION;
+
+}
+
+void calculateLatencyUpdate()
+{
+    long tempLatency = 0;
+
+
+    //LatencyStat
+    for (size_t log_iter = 0; log_iter < LatencyStatLogIDs.size(); log_iter++) {
+
+        VASTLatencyStatLog &restoredLog = allRestoredLatencyStatLogs[LatencyStatLogIDs[log_iter]];
+
+        //If the log entries are finished, skip
+        if (restoredLog.finished())
+        {
+            continue;
+        }
+
+        //Allow each log to catch up to the current timestamp
+        while (restoredLog.getTimestamp() < latest_timestamp && !restoredLog.finished())
+        {
+            restoredLog.nextStep();
+        }
+
+        if (restoredLog.isJoinedAt(latest_timestamp))
+        {
+            tempLatency += restoredLog.getLatencyStat().total;
+        }
+    }
+
+//    std::cout << "timestamp: " << latest_timestamp << "Temp Latency: " << tempLatency << std::endl;
+
+
+    if (tempLatency > prevLatencyTotal)
+    {
+        LatencyTotal = tempLatency - prevLatencyTotal;
+    }
+
+    if (LatencyTotal > 1000000 )
+    {
+        std::cout << "\nLatency stat is very large" << std::endl;
+        std::cout << "Latency " << LatencyTotal << std::endl;
+        std::cout << "tempLatency " << tempLatency << std::endl;
+        std::cout << "prevLatencyTotal " << prevLatencyTotal << std::endl;
+    }
+
+    prevLatencyTotal = tempLatency;
 
 }
 
@@ -395,6 +493,10 @@ void outputResults() {
         << drift_nodes << "," << worldSendStat << "," << worldRecvStat << ","
         << RawMCRecvBytes << "," << UsedMCRecvBytes << std::endl;
 
+    //Save the latency results in a different file
+    latency_results_file << latest_timestamp << "," << total_active_nodes << "," << LatencyTotal << std::endl;
+
+
     //Save the individual drift distances seperately
     drift_distances_file << latest_timestamp << ",";
     for (size_t log_iter = 0; log_iter < allRestoredLogs.size(); log_iter++)
@@ -411,6 +513,9 @@ void closeOutputFile()
 {
     ofs.flush();
     ofs.close();
+
+    latency_results_file.flush();
+    latency_results_file.close();
 
     drift_distances_file.flush();
     drift_distances_file.close();

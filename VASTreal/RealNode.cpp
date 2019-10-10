@@ -253,9 +253,9 @@
 
         pStatlog->recordStat();
         // Move latency
-        pLatencyStatlog->recordLatencyStat (getVerse()->getTimestamp(), vnode->getMessageLatency (19));
+        pLatencyStatlog->recordLatencyStat (getVerse()->getTimestamp(), vnode->getMessageLatency (43));
         // publish latency
-//      pLatencyStatlog->recordLatencyStat (getVerse()->getTimestamp(), vnode->getMessageLatency (19));
+//      pLatencyStatlog->recordLatencyStat (getVerse()->getTimestamp(), vnode->getMessageLatency (38));
 
         if (_steps_recorded % 100)
         {

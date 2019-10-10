@@ -485,6 +485,8 @@ namespace Vast
 
         // calculate average
         _latency[msgtype].calculateAverage ();
+//        CPPDEBUG("VASTClient::getMessageLatency: msgtype = " << msgtype
+//                 << " _latency[msgtype].average" << _latency[msgtype].average << std::endl);
 
         return &_latency[msgtype];
     }
@@ -1021,6 +1023,9 @@ namespace Vast
         StatType &stat = _latency[msgtype];
 
         timestamp_t duration = _net->getTimestamp () - sendtime;
+//        CPPDEBUG("VASTClient::recordLatency: net->getTimestamp()"
+//                 << _net->getTimestamp()
+//                 << " - sendtime: " << sendtime << std::endl);
         
         // do not record zero latency
         if (duration == 0)
@@ -1035,6 +1040,7 @@ namespace Vast
 
         stat.total += (size_t)duration;
         stat.num_records++;
+//        CPPDEBUG("VASTClient::recordLatency: stat.total = " << stat.total << std::endl);
     }
 
     static const char* msgtype2string[] =
