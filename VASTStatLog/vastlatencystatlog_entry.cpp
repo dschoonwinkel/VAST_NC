@@ -59,6 +59,8 @@ namespace Vast {
 //            CPPDEBUG("VASTLatencyStatLogEntry::recordLatencyStat: latency.total: "
 //                     << latency->total << std::endl);
             latencyStat = *latency;
+            latencyStat.calculateAverage();
+            latency->reset();
             _steps_recorded++;
         }
         else {

@@ -389,7 +389,8 @@ void calculateUpdate()
 
 void calculateLatencyUpdate()
 {
-    long tempLatency = 0;
+//    long tempLatency = 0;
+    LatencyTotal = 0;
 
 
     //LatencyStat
@@ -411,27 +412,31 @@ void calculateLatencyUpdate()
 
         if (restoredLog.isJoinedAt(latest_timestamp))
         {
-            tempLatency += restoredLog.getLatencyStat().total;
+            LatencyTotal += restoredLog.getLatencyStat().average;
         }
     }
 
 //    std::cout << "timestamp: " << latest_timestamp << "Temp Latency: " << tempLatency << std::endl;
 
 
-    if (tempLatency > prevLatencyTotal)
-    {
-        LatencyTotal = tempLatency - prevLatencyTotal;
-    }
+//    if (tempLatency > prevLatencyTotal)
+//    {
+//        LatencyTotal = tempLatency - prevLatencyTotal;
+//    }
 
-    if (LatencyTotal > 1000000 )
+    if (LatencyTotal > 100000 )
     {
         std::cout << "\nLatency stat is very large" << std::endl;
         std::cout << "Latency " << LatencyTotal << std::endl;
-        std::cout << "tempLatency " << tempLatency << std::endl;
-        std::cout << "prevLatencyTotal " << prevLatencyTotal << std::endl;
+//        std::cout << "tempLatency " << tempLatency << std::endl;
+//        std::cout << "prevLatencyTotal " << prevLatencyTotal << std::endl;
+    }
+    if (total_active_nodes > 0)
+    {
+        CPPDEBUG("Normalized latency: " << LatencyTotal / total_active_nodes << " active nodes " << total_active_nodes << std::endl);
     }
 
-    prevLatencyTotal = tempLatency;
+//    prevLatencyTotal = tempLatency;
 
 }
 

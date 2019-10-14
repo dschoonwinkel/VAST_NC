@@ -35,7 +35,18 @@ print("Usage: ./plot_results.py <input_file: default = results1.txt>\n\
 home_dir = expanduser("~")
 print("Home Dir: ", home_dir)
 
-with open("%s/Development/VAST-0.4.6/bin/VASTreal.ini" % home_dir, 'r') as config:
+VASTreal_file = "%s/Development/VAST-0.4.6/bin/VASTreal.ini" % home_dir
+Mininet_file = "%s/Development/VAST-0.4.6/bin/Mininet.ini" % home_dir
+
+if (os.path.isfile("../VASTreal.ini")):
+     VASTreal_file = "../VASTreal.ini"
+
+if (os.path.isfile("../Mininet.ini")):
+     Mininet_file = "../Mininet.ini"
+
+print(VASTreal_file, Mininet_file)
+
+with open(VASTreal_file, 'r') as config:
     data = config.readlines()
     TIMESTEP_DURATION = float(data[-1])
     # print("TIMESTEP_DURATION", TIMESTEP_DURATION, "[ms]")
@@ -45,7 +56,7 @@ with open("%s/Development/VAST-0.4.6/bin/VASTreal.ini" % home_dir, 'r') as confi
     # print ("NET_MODEL", NET_MODEL)
 
 
-with open("%s/Development/VAST-0.4.6/bin/Mininet.ini" % home_dir, 'r') as config:
+with open(Mininet_file, 'r') as config:
     data = config.readlines()
     NODE_COUNT = int(data[data.index('#NODE_COUNT;    // Nodes started in simulation\n')+1])
     # print("NODE_COUNT", NODE_COUNT)
@@ -421,17 +432,11 @@ if latency_fileexists:
     print("Mean Normalized latency ", mean_normalized_move_latency)
     # print("Mean NIC recv bytes", mean_nicrecvbytes)
 
-    # mean_nicsendbytes_beforeloss = np.mean(active_nodes[0:index_aftersetuptime])
-    # mean_nicrecvbytes_beforeloss = np.mean(move_latency[0:index_aftersetuptime])
+    mean_normalized_move_latency_beforeloss = np.mean(normalized_move_latency[0:index_aftersetuptime])
+    print("mean_normalized_move_latency_beforeloss", mean_normalized_move_latency_beforeloss)
 
-    # print("mean_nicsendbytes_beforeloss", mean_nicsendbytes_beforeloss)
-    # print("mean_nicrecvbytes_beforeloss", mean_nicrecvbytes_beforeloss)
-
-    # mean_nicsendbytes_afterloss = np.mean(active_nodes[index_aftersetuptime:])
-    # mean_nicrecvbytes_afterloss = np.mean(move_latency[index_aftersetuptime:])
-
-    # print("mean_nicsendbytes_afterloss", mean_nicsendbytes_afterloss)
-    # print("mean_nicrecvbytes_afterloss", mean_nicrecvbytes_afterloss)
+    mean_normalized_move_latency_afterloss = np.mean(normalized_move_latency[index_aftersetuptime:])
+    print("mean_normalized_move_latency_afterloss", mean_normalized_move_latency_afterloss)
 
 
 
@@ -613,25 +618,22 @@ if (hasMatplotlib and plot_yes):
     # plot.text(timestamps[-1], mean_rawmcrecv_stat, "%5.2f" % (mean_rawmcrecv_stat), color='r')
     plot.text(timestamps[0], mean_usedmcrecv_stat_beforeloss, "%5.2f" % (mean_usedmcrecv_stat_beforeloss), color='m', bbox=dict(facecolor='white', alpha=1))
     plot.text(timestamps[-1], mean_usedmcrecv_stat_afterloss, "%5.2f" % (mean_usedmcrecv_stat_afterloss), color='m', bbox=dict(facecolor='white', alpha=1))
-    
+    plot.xlim(0, MAX_TIMESTAMP)
     plot.ylabel("MC Recv\n[kBps]")
 
 
 
     if (latency_fileexists):
         ax5 = plot.subplot(subplot_count,1,subplot_count)
-        # plot.plot(timestamps, raw_mcrecvbytes, 'r',label='Raw MC Recv')
-        # plot.plot(timestamps, used_mcrecvbytes, 'm', label='MC Recv')
         plot.plot(timestamps, normalized_move_latency, color='b')
-        # plot.plot([0,timestamps[-1]], [mean_rawmcrecv_stat, mean_rawmcrecv_stat], 'r')
-        # plot.plot([0,timestamps[index_aftersetuptime]], [mean_usedmcrecv_stat_beforeloss, mean_usedmcrecv_stat_beforeloss], color='m', linestyle='--')
-        # plot.plot([timestamps[index_aftersetuptime],timestamps[-1]], [mean_usedmcrecv_stat_afterloss, mean_usedmcrecv_stat_afterloss], color='m', linestyle='--')
-        # # plot.plot([0,timestamps[-1]], [mean_usedmcrecv_stat, mean_usedmcrecv_stat], color='m', linestyle='--')
-        # plot.plot([TOTAL_SETUPTIME, TOTAL_SETUPTIME],[0, np.max(raw_mcrecvbytes)], 'k')
+        # plot.plot([0,timestamps[-1]], [mean_normalized_move_latency_stat, mean_normalized_move_latency_stat], 'r')
+        plot.plot([0,timestamps[index_aftersetuptime]], [mean_normalized_move_latency_beforeloss, mean_normalized_move_latency_beforeloss], color='b', linestyle='--')
+        plot.plot([timestamps[index_aftersetuptime],timestamps[-1]], [mean_normalized_move_latency_afterloss, mean_normalized_move_latency_afterloss], color='b', linestyle='--')
+        plot.plot([TOTAL_SETUPTIME, TOTAL_SETUPTIME],[0, np.max(normalized_move_latency)], 'k')
         # # plot.text(timestamps[-1], mean_rawmcrecv_stat, "%5.2f" % (mean_rawmcrecv_stat), color='r')
         # plot.text(timestamps[0], mean_usedmcrecv_stat_beforeloss, "%5.2f" % (mean_usedmcrecv_stat_beforeloss), color='m', bbox=dict(facecolor='white', alpha=1))
-        # plot.text(timestamps[-1], mean_usedmcrecv_stat_afterloss, "%5.2f" % (mean_usedmcrecv_stat_afterloss), color='m', bbox=dict(facecolor='white', alpha=1))
-        
+        plot.text(timestamps[-1], mean_normalized_move_latency_afterloss, "%5.2f" % (mean_normalized_move_latency_afterloss), color='b', bbox=dict(facecolor='white', alpha=1))
+        plot.xlim(0, MAX_TIMESTAMP)
         plot.ylabel("Latency")
 
 
