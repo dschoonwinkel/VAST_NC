@@ -47,6 +47,7 @@ long prevRawMCRecvBytes = 0, prevUsedMCRecvBytes = 0;
 
 
 //LatencyStat variables
+size_t total_latency_nodes = 0;
 bool hasLatencyStat = false;
 long LatencyTotal = 0;
 long prevLatencyTotal = 0;
@@ -391,6 +392,7 @@ void calculateLatencyUpdate()
 {
 //    long tempLatency = 0;
     LatencyTotal = 0;
+    total_latency_nodes = 0;
 
 
     //LatencyStat
@@ -416,8 +418,13 @@ void calculateLatencyUpdate()
             {
                 CPPDEBUG("Latency Stat very large: " << restoredLog.getLatencyStat().average << std::endl);
             }
+            else if (restoredLog.getLatencyStat().num_records == 0)
+            {
+                CPPDEBUG("Latency Stat Did not contain any records" << std::endl);
+            }
             else {
                 LatencyTotal += restoredLog.getLatencyStat().average;
+                total_latency_nodes++;
             }
 
 
@@ -507,7 +514,7 @@ void outputResults() {
         << RawMCRecvBytes << "," << UsedMCRecvBytes << std::endl;
 
     //Save the latency results in a different file
-    latency_results_file << latest_timestamp << "," << total_active_nodes << "," << LatencyTotal << std::endl;
+    latency_results_file << latest_timestamp << "," << total_latency_nodes << "," << LatencyTotal << std::endl;
 
 
     //Save the individual drift distances seperately
