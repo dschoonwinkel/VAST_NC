@@ -391,6 +391,7 @@ if tsharksummary_fileexists:
 
 # Latency results
 mean_normalized_latency = 0
+mean_normalized_move_latency_afterloss = 0
 
 latency_filename = re.sub(r"\.txt", "_latency.txt", input_file)
 latency_fileexists = False
@@ -457,7 +458,7 @@ if LABEL_list:
                   mean_drift_distance_afterloss, 
                   mean_sendstat_afterloss, mean_recvstat_afterloss, 
                   mean_rawmcrecv_stat_afterloss, mean_usedmcrecv_stat_afterloss, 
-                  mean_nicsendbytes_afterloss, mean_nicrecvbytes_afterloss])
+                  mean_nicsendbytes_afterloss, mean_nicrecvbytes_afterloss, mean_normalized_move_latency_afterloss])
     LABEL_list.append(DATESTAMP_str)
 
     #Check if the result is already in summary
@@ -474,7 +475,7 @@ if LABEL_list:
     # print(LABEL_list)
     if not plot_yes and not in_result_summary:
         with open('%s/Development/VAST-0.4.6/bin/results_summary/results_summary.txt' % home_dir, 'a') as outfile:
-            outfile.write(("%s, %d, %d, %d, %d, %d, %d, %d, %3.2f, %3.2f, %f, %f, %f, %f, %f, %f, %f, %f, %s\n") % 
+            outfile.write(("%s, %d, %d, %d, %d, %d, %d, %d, %3.2f, %3.2f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %s\n") % 
                   tuple(LABEL_list))
         #         outfile.write("%s, %s, %f, %f, %f, %f, %f\n" 
     #             % (first_timestamp, input_file, np.max(active_nodes), mean_consistency, 

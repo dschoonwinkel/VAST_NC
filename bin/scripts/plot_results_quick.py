@@ -360,6 +360,68 @@ if tsharksummary_fileexists:
 
 
 
+
+
+# Latency results
+mean_normalized_latency = 0
+mean_normalized_move_latency_afterloss = 0
+
+latency_filename = re.sub(r"\.txt", "_latency.txt", input_file)
+latency_fileexists = False
+if (os.path.isfile(latency_filename)):
+    latency_fileexists = True
+    print("Latency file found")
+    latency_text = list()
+    with open(latency_filename, 'r') as csvfile:
+        spamreader = csv.reader(csvfile, delimiter=",")
+        for row in spamreader:
+            latency_text.append(row)
+            # print(",".join(row))
+    if len(latency_text) <= 1:
+        latency_fileexists = False;
+
+
+if latency_fileexists:
+    header = latency_text[0]
+    latency_text = latency_text[1:]
+
+    latency = list()
+
+    for row in latency_text:
+        # print(row)
+        latency.append([(int(row[0])-first_timestamp), int(row[1]), int(row[2])])
+        # print(results[-1])
+        # print(int(row[0])%10000)
+
+    numpy_latency = np.array(latency)
+
+    ACTIVE_NODES_LATENCY = 1
+    MOVE_LATENCY = 2
+
+    active_nodes = (numpy_latency[:,ACTIVE_NODES_LATENCY])[:len(timestamps)]
+    move_latency = (numpy_latency[:,MOVE_LATENCY])[:len(timestamps)]
+    normalized_move_latency = move_latency / active_nodes
+    mean_normalized_move_latency = np.mean(normalized_move_latency)
+
+    print("Mean Normalized latency ", mean_normalized_move_latency)
+    # print("Mean NIC recv bytes", mean_nicrecvbytes)
+
+    mean_normalized_move_latency_beforeloss = np.mean(normalized_move_latency[0:index_aftersetuptime])
+    print("mean_normalized_move_latency_beforeloss", mean_normalized_move_latency_beforeloss)
+
+    mean_normalized_move_latency_afterloss = np.mean(normalized_move_latency[index_aftersetuptime:])
+    print("mean_normalized_move_latency_afterloss", mean_normalized_move_latency_afterloss)
+
+
+
+
+
+
+
+
+
+
+
 # Output to results summary, only if we know the LABEL
 if LABEL_list:
     NODE_COUNT = LABEL_list[1]
@@ -369,7 +431,7 @@ if LABEL_list:
                   mean_drift_distance_afterloss, 
                   mean_sendstat_afterloss, mean_recvstat_afterloss, 
                   mean_rawmcrecv_stat_afterloss, mean_usedmcrecv_stat_afterloss, 
-                  mean_nicsendbytes_afterloss, mean_nicrecvbytes_afterloss])
+                  mean_nicsendbytes_afterloss, mean_nicrecvbytes_afterloss, mean_normalized_move_latency_afterloss])
     LABEL_list.append(DATESTAMP_str)
 
     #Check if the result is already in summary
@@ -386,7 +448,7 @@ if LABEL_list:
     # print(LABEL_list)
     if not in_result_summary:
         with open('%s/Development/VAST-0.4.6/bin/results_summary/results_summary.txt' % home_dir, 'a') as outfile:
-            outfile.write(("%s, %d, %d, %d, %d, %d, %d, %d, %3.2f, %3.2f, %f, %f, %f, %f, %f, %f, %f, %f, %s\n") % 
+            outfile.write(("%s, %d, %d, %d, %d, %d, %d, %d, %3.2f, %3.2f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %s\n") % 
                   tuple(LABEL_list))
 
 
