@@ -412,7 +412,15 @@ void calculateLatencyUpdate()
 
         if (restoredLog.isJoinedAt(latest_timestamp))
         {
-            LatencyTotal += restoredLog.getLatencyStat().average;
+            if (restoredLog.getLatencyStat().average > 10000)
+            {
+                CPPDEBUG("Latency Stat very large: " << restoredLog.getLatencyStat().average << std::endl);
+            }
+            else {
+                LatencyTotal += restoredLog.getLatencyStat().average;
+            }
+
+
         }
     }
 
