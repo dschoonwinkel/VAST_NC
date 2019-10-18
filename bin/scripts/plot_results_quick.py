@@ -406,7 +406,7 @@ if latency_fileexists:
     print("Mean Normalized latency ", mean_normalized_move_latency)
     # print("Mean NIC recv bytes", mean_nicrecvbytes)
 
-    mean_normalized_move_latency_beforeloss = np.mean(normalized_move_latency[0:index_aftersetuptime])
+    mean_normalized_move_latency_beforeloss = np.mean(normalized_move_latency[1:index_aftersetuptime])
     print("mean_normalized_move_latency_beforeloss", mean_normalized_move_latency_beforeloss)
 
     mean_normalized_move_latency_afterloss = np.mean(normalized_move_latency[index_aftersetuptime:])
