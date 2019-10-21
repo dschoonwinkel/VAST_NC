@@ -79,6 +79,8 @@ AVG_WORLDRECVSTAT = 12
 NICSEND_BYTES = 13
 NICRECV_BYTES = 14
 
+KEY_TEXT = ['FIRST_TIMESTAMP','NET_MODEL','NODES_COUNT','BW_LIMIT','DELAY_MS','LOSS_PERC','STEPS','PLATFORM','ACTIVE_NODES','AVG_TOPO_CONS','AVG_DRIFT','AVG_WORLDSENDSTAT','AVG_WORLDRECVSTAT','NICSEND_BYTES','NICRECV_BYTES']
+
 MININET = 1
 DOCKER = 2
 
@@ -137,3 +139,46 @@ for i in range(NET_MODEL_STRINGS.index('net_ace'),NET_MODEL_STRINGS.index('net_u
     subset = subsetByColumnValue(MininetSubset, NET_MODEL, i)
     countByColumn(subset, NODES_COUNT, DELAY_MS)
 
+
+
+if len(sys.argv) > 3:
+
+    prop_key = KEY_TEXT.index(sys.argv[2])
+    prop_value = int(sys.argv[3])
+    print("\n\n\
+*********************\n\
+Filtered by %s %s\n\
+*********************" % (sys.argv[2], sys.argv[3]))
+    MininetSubset = subsetByColumnValue(results_nparray, prop_key, prop_value)
+
+    print("\n\n\
+*********************\n\
+Seperated by LOSS_PERC, %s %s\n\
+*********************"  % (sys.argv[2], sys.argv[3]))
+
+    MininetSubset = subsetByColumnValue(MininetSubset, PLATFORM, MININET)
+    MininetSubset = subsetByColumnValue(MininetSubset, STEPS, 5000)
+
+    for i in range(NET_MODEL_STRINGS.index('net_ace'),NET_MODEL_STRINGS.index('net_udpNC') + 1):
+
+        print(i)
+        print(NET_MODEL_STRINGS[i])
+        subset = subsetByColumnValue(MininetSubset, NET_MODEL, i)
+        countByColumn(subset, NODES_COUNT, LOSS_PERC)
+
+    print("\n\n\
+*********************\n\
+Seperated by DELAY_MS %s %s\n\
+*********************" % (sys.argv[2], sys.argv[3]))
+    for i in range(NET_MODEL_STRINGS.index('net_ace'),NET_MODEL_STRINGS.index('net_udpNC') + 1):
+
+        print(i)
+        print(NET_MODEL_STRINGS[i])
+        subset = subsetByColumnValue(MininetSubset, NET_MODEL, i)
+        countByColumn(subset, NODES_COUNT, DELAY_MS)
+
+
+
+else:
+    print("Usage: count_runs.py <filename> <KEY_TEXT> <VALUE>\n\
+        Eg count_runs.py results_summary.txt LOSS_PERC 10")
