@@ -25,6 +25,7 @@ RAW_MCRECVBYTES = 14
 USED_MCRECVBYTES = 15
 NICSEND_BYTES = 16
 NICRECV_BYTES = 17
+LATENCY = 18
 
 MININET = 1
 DOCKER = 2
@@ -448,6 +449,7 @@ if hasMatplotlib:
 # Only Mininet results
 print("*******************\nMininet LOSS_PERC plot 50 NODES")
 MininetSubset = subsetByColumnValue(results_nparray, PLATFORM, MININET)
+MininetSubset = subsetByColumnValue(MininetSubset, DELAY_MS, 0)
 #Only plot values less than 20% loss, otherwise difficult to see
 MininetSubset = subsetLessThanByColumnValue(MininetSubset, LOSS_PERC, 15)
 MininetSubset = excludeByColumnValue(MininetSubset, LOSS_PERC, 1)
@@ -540,6 +542,7 @@ if hasMatplotlib:
 # Only Mininet results
 print("*******************\nMininet LOSS_PERC plot 50 NODES, only UDP and UDPNC")
 MininetSubset = subsetByColumnValue(results_nparray, PLATFORM, MININET)
+MininetSubset = subsetByColumnValue(MininetSubset, DELAY_MS, 0)
 # Leave out for clarity on graph
 MininetSubset = excludeByColumnValue(MininetSubset, LOSS_PERC, 1)
 MininetSubset = excludeByColumnValue(MininetSubset, LOSS_PERC, 2)
@@ -836,6 +839,7 @@ for current_NODE_COUNT in iterator_NODECOUNTS:
 print("*******************\nMininet LOSS10 plot 10-50 NODES")
 MininetSubset = subsetByColumnValue(results_nparray, PLATFORM, MININET)
 MininetSubset = subsetByColumnValue(MininetSubset, LOSS_PERC, 10)
+MininetSubset = subsetByColumnValue(MininetSubset, DELAY_MS, 0)
 colors = ['blue', 'red', 'green']
 linestyles = [':', '-.', '--']
 if hasMatplotlib:
@@ -921,6 +925,213 @@ if hasMatplotlib:
 
 
 
+
+
+
+
+# Only Mininet results, latency results
+print("*******************\nMininet LOSS10 DELAY0 plot 50 NODES")
+MininetSubset = subsetByColumnValue(results_nparray, PLATFORM, MININET)
+MininetSubset = subsetByColumnValue(MininetSubset, LOSS_PERC, 0)
+MininetSubset = subsetByColumnValue(MininetSubset, DELAY_MS, 0)
+MininetSubset = subsetByColumnValue(MininetSubset, NODES_COUNT, 50)
+colors = ['blue', 'red', 'green']
+linestyles = [':', '-.', '--']
+if hasMatplotlib:
+    plot.figure()
+
+custom_lines = list()
+custom_lines_names = list()
+
+print(MininetSubset)
+
+for i in range(NET_MODEL_STRINGS.index('net_ace'),NET_MODEL_STRINGS.index('net_udpNC') + 1):
+
+    print(i)
+    print(NET_MODEL_STRINGS[i])
+    NETMODEL_subset = subsetByColumnValue(MininetSubset, NET_MODEL, i)
+    xColumnList, yColumnList = seperateByColumn(NETMODEL_subset, DELAY_MS, AVG_TOPO_CONS, "0LOSS, 50nodes, Mininet")
+    print(xColumnList)
+    print(len(xColumnList))
+    if hasMatplotlib and len(xColumnList) > 0:
+        #Calculate the medians:
+        medians = list()
+        for arr in yColumnList:
+            medians.append(np.median(arr))
+
+        ax = boxPlotHelper(511, xColumnList+0.3*(i-2), yColumnList, colors[i-2], '', 'Topo Cons\n[%]', width=0.3)
+        ax.title.set_text("TCP vs UDP vs UDPNC. 0\% LOSS, 50 NODES")
+        ax.plot(xColumnList+0.3*(i-2), medians, color=colors[i-2], linestyle=linestyles[i-2], linewidth=1)
+        plot.xlim([np.min(xColumnList)-0.3, np.max(xColumnList)+0.3*(i-2)+0.3])
+        ax.set_xticks(xColumnList)
+        ax.tick_params(labelbottom=False)
+        # ax.set_yticks(np.arange(99.2, 100.2, 0.2))
+
+
+        from matplotlib.lines import Line2D
+        custom_lines.append(Line2D([0], [0], color=colors[i-2], linestyle=linestyles[i-2], lw=1))
+        if NET_MODEL_STRINGS[i] == 'net_ace':
+            custom_lines_names.append("TCP")
+        else:
+            custom_lines_names.append(NET_MODEL_STRINGS[i][4:].upper())
+
+        ax.legend(custom_lines, custom_lines_names, loc='lower left', prop={'size':7})
+
+    xColumnList, yColumnList = seperateByColumn(NETMODEL_subset, DELAY_MS, AVG_DRIFT, "0LOSS, 50nodes, Mininet")
+    if hasMatplotlib and len(xColumnList) > 0:
+        #Calculate the medians:
+        medians = list()
+        for arr in yColumnList:
+            medians.append(np.median(arr))
+        ax = boxPlotHelper(512, xColumnList+0.3*(i-2), yColumnList, colors[i-2], '', 'Drift dist\n[units]', width=0.3)
+        ax.plot(xColumnList+0.3*(i-2), medians, color=colors[i-2], linestyle=linestyles[i-2], linewidth=1)
+        plot.xlim([np.min(xColumnList)-0.3, np.max(xColumnList)+0.3*(i-2)+0.3])
+        ax.set_xticks(xColumnList)
+        ax.tick_params(labelbottom=False)
+        ax.set_yticks(np.arange(1.5, 4, 0.5))
+
+    xColumnList, yColumnList = seperateByColumn(NETMODEL_subset, DELAY_MS, NICSEND_BYTES, "0LOSS, 50nodes, Mininet")
+    if hasMatplotlib and len(xColumnList) > 0:
+        #Calculate the medians:
+        medians = list()
+        for arr in yColumnList:
+            medians.append(np.median(arr))
+        ax = boxPlotHelper(513, xColumnList+0.3*(i-2), yColumnList, colors[i-2], '', 'NIC Send\n[kBps]', width=0.3)
+        plot.xlim([np.min(xColumnList)-0.3, np.max(xColumnList)+0.3*(i-2)+0.3])
+        ax.plot(xColumnList+0.3*(i-2), medians, color=colors[i-2], linestyle=linestyles[i-2], linewidth=1)
+        ax.set_xticks(xColumnList)
+        ax.tick_params(labelbottom=False)
+
+    xColumnList, yColumnList = seperateByColumn(NETMODEL_subset, DELAY_MS, NICRECV_BYTES, "0LOSS, 50nodes, Mininet")
+    if hasMatplotlib and len(xColumnList) > 0:
+        #Calculate the medians:
+        medians = list()
+        for arr in yColumnList:
+            medians.append(np.median(arr))
+        ax = boxPlotHelper(514, xColumnList+0.3*(i-2), yColumnList, colors[i-2], 'DELAY_MS', 'NIC Recv\n[kBps]', width=0.3)
+        plot.xlim([np.min(xColumnList)-0.3, np.max(xColumnList)+0.3*(i-2)+0.3])
+        ax.plot(xColumnList+0.3*(i-2), medians, color=colors[i-2], linestyle=linestyles[i-2], linewidth=1)
+        ax.set_xticks(xColumnList)
+        ax.set_xticklabels(xColumnList)
+
+    xColumnList, yColumnList = seperateByColumn(NETMODEL_subset, DELAY_MS, LATENCY, "0LOSS, 50nodes, Mininet")
+    if hasMatplotlib and len(xColumnList) > 0:
+        #Calculate the medians:
+        medians = list()
+        for arr in yColumnList:
+            medians.append(np.median(arr))
+        ax = boxPlotHelper(515, xColumnList+0.3*(i-2), yColumnList, colors[i-2], 'DELAY_MS', 'Latency\n[ms]', width=0.3)
+        plot.xlim([np.min(xColumnList)-0.3, np.max(xColumnList)+0.3*(i-2)+0.3])
+        ax.plot(xColumnList+0.3*(i-2), medians, color=colors[i-2], linestyle=linestyles[i-2], linewidth=1)
+        ax.set_xticks(xColumnList)
+        ax.set_xticklabels(xColumnList)
+
+if hasMatplotlib:
+    plot.savefig("results_summary_Mininet_LOSS0_DELAY0_50NODES_latency.pdf", dpi=1200)
+    # plot.show()
+
+
+
+# Only Mininet results, latency results, variable delay
+print("*******************\nMininet LOSS10, variable DELAY plot 50 NODES")
+MininetSubset = subsetByColumnValue(results_nparray, PLATFORM, MININET)
+MininetSubset = subsetByColumnValue(MininetSubset, LOSS_PERC, 10)
+MininetSubset = subsetByColumnValue(MininetSubset, NODES_COUNT, 50)
+MininetSubset = excludeByColumnValue(MininetSubset, LATENCY, 0)
+colors = ['blue', 'red', 'green']
+linestyles = [':', '-.', '--']
+if hasMatplotlib:
+    plot.figure()
+
+custom_lines = list()
+custom_lines_names = list()
+
+print(MininetSubset)
+
+for i in range(NET_MODEL_STRINGS.index('net_ace'),NET_MODEL_STRINGS.index('net_udpNC') + 1):
+
+    print(i)
+    print(NET_MODEL_STRINGS[i])
+    NETMODEL_subset = subsetByColumnValue(MininetSubset, NET_MODEL, i)
+    xColumnList, yColumnList = seperateByColumn(NETMODEL_subset, DELAY_MS, AVG_TOPO_CONS, "0LOSS, 50nodes, Mininet")
+    print(xColumnList)
+    print(len(xColumnList))
+    if hasMatplotlib and len(xColumnList) > 0:
+        #Calculate the medians:
+        medians = list()
+        for arr in yColumnList:
+            medians.append(np.median(arr))
+
+        ax = boxPlotHelper(511, xColumnList+0.3*(i-2), yColumnList, colors[i-2], '', 'Topo Cons\n[%]', width=0.3)
+        ax.title.set_text("TCP vs UDP vs UDPNC. 0\% LOSS, 50 NODES")
+        ax.plot(xColumnList+0.3*(i-2), medians, color=colors[i-2], linestyle=linestyles[i-2], linewidth=1)
+        plot.xlim([np.min(xColumnList)-0.3, np.max(xColumnList)+0.3*(i-2)+0.3])
+        ax.set_xticks(xColumnList)
+        ax.tick_params(labelbottom=False)
+        ax.set_yticks(np.arange(92, 100.2, 1))
+
+
+        from matplotlib.lines import Line2D
+        custom_lines.append(Line2D([0], [0], color=colors[i-2], linestyle=linestyles[i-2], lw=1))
+        if NET_MODEL_STRINGS[i] == 'net_ace':
+            custom_lines_names.append("TCP")
+        else:
+            custom_lines_names.append(NET_MODEL_STRINGS[i][4:].upper())
+
+        ax.legend(custom_lines, custom_lines_names, loc='lower left', prop={'size':7})
+
+    xColumnList, yColumnList = seperateByColumn(NETMODEL_subset, DELAY_MS, AVG_DRIFT, "0LOSS, 50nodes, Mininet")
+    if hasMatplotlib and len(xColumnList) > 0:
+        #Calculate the medians:
+        medians = list()
+        for arr in yColumnList:
+            medians.append(np.median(arr))
+        ax = boxPlotHelper(512, xColumnList+0.3*(i-2), yColumnList, colors[i-2], '', 'Drift dist\n[units]', width=0.3)
+        ax.plot(xColumnList+0.3*(i-2), medians, color=colors[i-2], linestyle=linestyles[i-2], linewidth=1)
+        plot.xlim([np.min(xColumnList)-0.3, np.max(xColumnList)+0.3*(i-2)+0.3])
+        ax.set_xticks(xColumnList)
+        ax.tick_params(labelbottom=False)
+        ax.set_yticks(np.arange(1.5, 26, 5))
+
+    xColumnList, yColumnList = seperateByColumn(NETMODEL_subset, DELAY_MS, NICSEND_BYTES, "0LOSS, 50nodes, Mininet")
+    if hasMatplotlib and len(xColumnList) > 0:
+        #Calculate the medians:
+        medians = list()
+        for arr in yColumnList:
+            medians.append(np.median(arr))
+        ax = boxPlotHelper(513, xColumnList+0.3*(i-2), yColumnList, colors[i-2], '', 'NIC Send\n[kBps]', width=0.3)
+        plot.xlim([np.min(xColumnList)-0.3, np.max(xColumnList)+0.3*(i-2)+0.3])
+        ax.plot(xColumnList+0.3*(i-2), medians, color=colors[i-2], linestyle=linestyles[i-2], linewidth=1)
+        ax.set_xticks(xColumnList)
+        ax.tick_params(labelbottom=False)
+
+    xColumnList, yColumnList = seperateByColumn(NETMODEL_subset, DELAY_MS, NICRECV_BYTES, "0LOSS, 50nodes, Mininet")
+    if hasMatplotlib and len(xColumnList) > 0:
+        #Calculate the medians:
+        medians = list()
+        for arr in yColumnList:
+            medians.append(np.median(arr))
+        ax = boxPlotHelper(514, xColumnList+0.3*(i-2), yColumnList, colors[i-2], 'DELAY_MS', 'NIC Recv\n[kBps]', width=0.3)
+        plot.xlim([np.min(xColumnList)-0.3, np.max(xColumnList)+0.3*(i-2)+0.3])
+        ax.plot(xColumnList+0.3*(i-2), medians, color=colors[i-2], linestyle=linestyles[i-2], linewidth=1)
+        ax.set_xticks(xColumnList)
+        ax.set_xticklabels(xColumnList)
+
+    xColumnList, yColumnList = seperateByColumn(NETMODEL_subset, DELAY_MS, LATENCY, "0LOSS, 50nodes, Mininet")
+    if hasMatplotlib and len(xColumnList) > 0:
+        #Calculate the medians:
+        medians = list()
+        for arr in yColumnList:
+            medians.append(np.median(arr))
+        ax = boxPlotHelper(515, xColumnList+0.3*(i-2), yColumnList, colors[i-2], 'DELAY_MS', 'Latency\n[ms]', width=0.3)
+        plot.xlim([np.min(xColumnList)-0.3, np.max(xColumnList)+0.3*(i-2)+0.3])
+        ax.plot(xColumnList+0.3*(i-2), medians, color=colors[i-2], linestyle=linestyles[i-2], linewidth=1)
+        ax.set_xticks(xColumnList)
+        ax.set_xticklabels(xColumnList)
+
+if hasMatplotlib:
+    plot.savefig("results_summary_Mininet_LOSS10_DELAYX_50NODES_latency.pdf", dpi=1200)
+    # plot.show()
 
 
 

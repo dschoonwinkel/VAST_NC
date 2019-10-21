@@ -112,7 +112,10 @@ results_nparray = results_nparray[:, :-1]
 results_nparray = np.array(results_nparray, dtype=np.float)
 np.set_printoptions(linewidth=np.inf, formatter={'float': '{: 0.3f}'.format})
 
-
+print("\n\n\
+*********************\n\
+Seperated by LOSS_PERC\n\
+*********************")
 MininetSubset = subsetByColumnValue(results_nparray, PLATFORM, MININET)
 MininetSubset = subsetByColumnValue(MininetSubset, STEPS, 5000)
 
@@ -122,4 +125,15 @@ for i in range(NET_MODEL_STRINGS.index('net_ace'),NET_MODEL_STRINGS.index('net_u
     print(NET_MODEL_STRINGS[i])
     subset = subsetByColumnValue(MininetSubset, NET_MODEL, i)
     countByColumn(subset, NODES_COUNT, LOSS_PERC)
+
+print("\n\n\
+*********************\n\
+Seperated by DELAY_MS\n\
+*********************")
+for i in range(NET_MODEL_STRINGS.index('net_ace'),NET_MODEL_STRINGS.index('net_udpNC') + 1):
+
+    print(i)
+    print(NET_MODEL_STRINGS[i])
+    subset = subsetByColumnValue(MininetSubset, NET_MODEL, i)
+    countByColumn(subset, NODES_COUNT, DELAY_MS)
 
