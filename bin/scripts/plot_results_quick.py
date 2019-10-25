@@ -22,8 +22,20 @@ RAW_MCRECVBYTES = 10
 USED_MCRECVBYTES = 11
 
 home_dir = expanduser("~")
+print("Home Dir: ", home_dir)
 
-with open("%s/Development/VAST-0.4.6/bin/VASTreal.ini" % home_dir, 'r') as config:
+VASTreal_file = "%s/Development/VAST-0.4.6/bin/VASTreal.ini" % home_dir
+Mininet_file = "%s/Development/VAST-0.4.6/bin/Mininet.ini" % home_dir
+
+if (os.path.isfile("../VASTreal.ini")):
+     VASTreal_file = "../VASTreal.ini"
+
+if (os.path.isfile("../Mininet.ini")):
+     Mininet_file = "../Mininet.ini"
+
+print(VASTreal_file, Mininet_file)
+
+with open(VASTreal_file, 'r') as config:
     data = config.readlines()
     TIMESTEP_DURATION = float(data[-1])
     # print("TIMESTEP_DURATION", TIMESTEP_DURATION, "[ms]")
@@ -33,7 +45,7 @@ with open("%s/Development/VAST-0.4.6/bin/VASTreal.ini" % home_dir, 'r') as confi
     # print ("NET_MODEL", NET_MODEL)
 
 
-with open("%s/Development/VAST-0.4.6/bin/Mininet.ini" % home_dir, 'r') as config:
+with open(Mininet_file, 'r') as config:
     data = config.readlines()
     NODE_COUNT = int(data[data.index('#NODE_COUNT;    // Nodes started in simulation\n')+1])
     # print("NODE_COUNT", NODE_COUNT)
@@ -398,9 +410,9 @@ if latency_fileexists:
     ACTIVE_NODES_LATENCY = 1
     MOVE_LATENCY = 2
 
-    active_nodes = (numpy_latency[:,ACTIVE_NODES_LATENCY])[:len(timestamps)]
+    latency_active_nodes = (numpy_latency[:,ACTIVE_NODES_LATENCY])[:len(timestamps)]
     move_latency = (numpy_latency[:,MOVE_LATENCY])[:len(timestamps)]
-    normalized_move_latency = move_latency / active_nodes
+    normalized_move_latency = move_latency / latency_active_nodes
     mean_normalized_move_latency = np.mean(normalized_move_latency)
 
     print("Mean Normalized latency ", mean_normalized_move_latency)

@@ -12,7 +12,7 @@ print("Home Dir: ", home_dir)
 finddir = "%s/Development/VAST-0.4.6/bin/logs/logs_backup" % home_dir
 
 result_files = glob.glob(finddir+"/*/*/results1.txt")
-
+data = list()
 results_summary_filename = '%s/Development/VAST-0.4.6/bin/results_summary/results_summary.txt' % home_dir
 if (os.path.isfile(results_summary_filename)):
     with open(results_summary_filename, 'r') as summary_file:

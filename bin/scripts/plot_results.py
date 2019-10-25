@@ -425,9 +425,9 @@ if latency_fileexists:
     ACTIVE_NODES_LATENCY = 1
     MOVE_LATENCY = 2
 
-    active_nodes = (numpy_latency[:,ACTIVE_NODES_LATENCY])[:len(timestamps)]
+    latency_active_nodes = (numpy_latency[:,ACTIVE_NODES_LATENCY])[:len(timestamps)]
     move_latency = (numpy_latency[:,MOVE_LATENCY])[:len(timestamps)]
-    normalized_move_latency = move_latency / active_nodes
+    normalized_move_latency = move_latency / latency_active_nodes
     mean_normalized_move_latency = np.mean(normalized_move_latency)
 
     print("Mean Normalized latency ", mean_normalized_move_latency)

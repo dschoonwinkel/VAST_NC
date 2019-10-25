@@ -39,7 +39,7 @@ except ImportError:
 
 def seperateByColumn(results_matrix, xColumnIndex, yColumnIndex, tag):
     # print(results_matrix[:,xColumnIndex])
-    print("seperateByColumn: ", tag)
+    # print("seperateByColumn: ", tag)
     xColumnList = np.unique(results_matrix[:,xColumnIndex])
     # print(xColumnList)
     yColumnList = list()
@@ -48,9 +48,9 @@ def seperateByColumn(results_matrix, xColumnIndex, yColumnIndex, tag):
         # print(results_matrix[np.where(results_matrix[:,NET_MODEL] == point)])
         # print(results_matrix[np.where(results_matrix[:,NET_MODEL] == point)][:,yColumnIndex])
         yColumnList.append(results_matrix[np.where(results_matrix[:,xColumnIndex] == point)][:,yColumnIndex])
-        print(point, "Count:", len(results_matrix[np.where(results_matrix[:,xColumnIndex] == point)][:,yColumnIndex]))
+        # print(point, "Count:", len(results_matrix[np.where(results_matrix[:,xColumnIndex] == point)][:,yColumnIndex]))
         # print(point, "Avg: ", np.mean(results_matrix[np.where(results_matrix[:,xColumnIndex] == point)][:,yColumnIndex]))
-        print(point, "Median: ", np.median(results_matrix[np.where(results_matrix[:,xColumnIndex] == point)][:,yColumnIndex]))
+        # print(point, "Median: ", np.median(results_matrix[np.where(results_matrix[:,xColumnIndex] == point)][:,yColumnIndex]))
         # print(point, "Std: ", np.std(results_matrix[np.where(results_matrix[:,xColumnIndex] == point)][:,yColumnIndex]), "\n")
 
     return xColumnList, yColumnList
@@ -1053,7 +1053,7 @@ for i in range(NET_MODEL_STRINGS.index('net_ace'),NET_MODEL_STRINGS.index('net_u
     print(i)
     print(NET_MODEL_STRINGS[i])
     NETMODEL_subset = subsetByColumnValue(MininetSubset, NET_MODEL, i)
-    xColumnList, yColumnList = seperateByColumn(NETMODEL_subset, DELAY_MS, AVG_TOPO_CONS, "0LOSS, 50nodes, Mininet")
+    xColumnList, yColumnList = seperateByColumn(NETMODEL_subset, DELAY_MS, AVG_TOPO_CONS, "10LOSS, 50nodes, Mininet")
     print(xColumnList)
     print(len(xColumnList))
     if hasMatplotlib and len(xColumnList) > 0:
@@ -1062,8 +1062,10 @@ for i in range(NET_MODEL_STRINGS.index('net_ace'),NET_MODEL_STRINGS.index('net_u
         for arr in yColumnList:
             medians.append(np.median(arr))
 
-        ax = boxPlotHelper(511, xColumnList+0.3*(i-2), yColumnList, colors[i-2], '', 'Topo Cons\n[%]', width=0.3)
-        ax.title.set_text("TCP vs UDP vs UDPNC. 0\% LOSS, 50 NODES")
+        width = 0.02*np.max(xColumnList)
+        spacing = 0.021*np.max(xColumnList)
+        ax = boxPlotHelper(511, xColumnList+spacing*(i-2), yColumnList, colors[i-2], '', 'Topo Cons\n[%]', width=width)
+        ax.title.set_text("TCP vs UDP vs UDPNC. 10\% LOSS, 50 NODES")
         ax.plot(xColumnList+0.3*(i-2), medians, color=colors[i-2], linestyle=linestyles[i-2], linewidth=1)
         plot.xlim([np.min(xColumnList)-0.3, np.max(xColumnList)+0.3*(i-2)+0.3])
         ax.set_xticks(xColumnList)
@@ -1080,50 +1082,58 @@ for i in range(NET_MODEL_STRINGS.index('net_ace'),NET_MODEL_STRINGS.index('net_u
 
         ax.legend(custom_lines, custom_lines_names, loc='lower left', prop={'size':7})
 
-    xColumnList, yColumnList = seperateByColumn(NETMODEL_subset, DELAY_MS, AVG_DRIFT, "0LOSS, 50nodes, Mininet")
+    xColumnList, yColumnList = seperateByColumn(NETMODEL_subset, DELAY_MS, AVG_DRIFT, "10LOSS, 50nodes, Mininet")
     if hasMatplotlib and len(xColumnList) > 0:
         #Calculate the medians:
         medians = list()
         for arr in yColumnList:
             medians.append(np.median(arr))
-        ax = boxPlotHelper(512, xColumnList+0.3*(i-2), yColumnList, colors[i-2], '', 'Drift dist\n[units]', width=0.3)
+        width = 0.02*np.max(xColumnList)
+        spacing = 0.021*np.max(xColumnList)
+        ax = boxPlotHelper(512, xColumnList+spacing*(i-2), yColumnList, colors[i-2], '', 'Drift dist\n[units]', width=width)
         ax.plot(xColumnList+0.3*(i-2), medians, color=colors[i-2], linestyle=linestyles[i-2], linewidth=1)
         plot.xlim([np.min(xColumnList)-0.3, np.max(xColumnList)+0.3*(i-2)+0.3])
         ax.set_xticks(xColumnList)
         ax.tick_params(labelbottom=False)
         ax.set_yticks(np.arange(1.5, 26, 5))
 
-    xColumnList, yColumnList = seperateByColumn(NETMODEL_subset, DELAY_MS, NICSEND_BYTES, "0LOSS, 50nodes, Mininet")
+    xColumnList, yColumnList = seperateByColumn(NETMODEL_subset, DELAY_MS, NICSEND_BYTES, "10LOSS, 50nodes, Mininet")
     if hasMatplotlib and len(xColumnList) > 0:
         #Calculate the medians:
         medians = list()
         for arr in yColumnList:
             medians.append(np.median(arr))
-        ax = boxPlotHelper(513, xColumnList+0.3*(i-2), yColumnList, colors[i-2], '', 'NIC Send\n[kBps]', width=0.3)
+        width = 0.02*np.max(xColumnList)
+        spacing = 0.021*np.max(xColumnList)
+        ax = boxPlotHelper(513, xColumnList+spacing*(i-2), yColumnList, colors[i-2], '', 'NIC Send\n[kBps]', width=width)
         plot.xlim([np.min(xColumnList)-0.3, np.max(xColumnList)+0.3*(i-2)+0.3])
         ax.plot(xColumnList+0.3*(i-2), medians, color=colors[i-2], linestyle=linestyles[i-2], linewidth=1)
         ax.set_xticks(xColumnList)
         ax.tick_params(labelbottom=False)
 
-    xColumnList, yColumnList = seperateByColumn(NETMODEL_subset, DELAY_MS, NICRECV_BYTES, "0LOSS, 50nodes, Mininet")
+    xColumnList, yColumnList = seperateByColumn(NETMODEL_subset, DELAY_MS, NICRECV_BYTES, "10LOSS, 50nodes, Mininet")
     if hasMatplotlib and len(xColumnList) > 0:
         #Calculate the medians:
         medians = list()
         for arr in yColumnList:
             medians.append(np.median(arr))
-        ax = boxPlotHelper(514, xColumnList+0.3*(i-2), yColumnList, colors[i-2], 'DELAY_MS', 'NIC Recv\n[kBps]', width=0.3)
+        width = 0.02*np.max(xColumnList)
+        spacing = 0.021*np.max(xColumnList)
+        ax = boxPlotHelper(514, xColumnList+spacing*(i-2), yColumnList, colors[i-2], 'DELAY_MS', 'NIC Recv\n[kBps]', width=width)
         plot.xlim([np.min(xColumnList)-0.3, np.max(xColumnList)+0.3*(i-2)+0.3])
         ax.plot(xColumnList+0.3*(i-2), medians, color=colors[i-2], linestyle=linestyles[i-2], linewidth=1)
         ax.set_xticks(xColumnList)
         ax.set_xticklabels(xColumnList)
 
-    xColumnList, yColumnList = seperateByColumn(NETMODEL_subset, DELAY_MS, LATENCY, "0LOSS, 50nodes, Mininet")
+    xColumnList, yColumnList = seperateByColumn(NETMODEL_subset, DELAY_MS, LATENCY, "10LOSS, 50nodes, Mininet")
     if hasMatplotlib and len(xColumnList) > 0:
         #Calculate the medians:
         medians = list()
         for arr in yColumnList:
             medians.append(np.median(arr))
-        ax = boxPlotHelper(515, xColumnList+0.3*(i-2), yColumnList, colors[i-2], 'DELAY_MS', 'Latency\n[ms]', width=0.3)
+        width = 0.02*np.max(xColumnList)
+        spacing = 0.021*np.max(xColumnList)
+        ax = boxPlotHelper(515, xColumnList+spacing*(i-2), yColumnList, colors[i-2], 'DELAY_MS', 'Latency\n[ms]', width=width)
         plot.xlim([np.min(xColumnList)-0.3, np.max(xColumnList)+0.3*(i-2)+0.3])
         ax.plot(xColumnList+0.3*(i-2), medians, color=colors[i-2], linestyle=linestyles[i-2], linewidth=1)
         ax.set_xticks(xColumnList)

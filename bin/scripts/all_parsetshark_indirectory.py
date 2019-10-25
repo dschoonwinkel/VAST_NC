@@ -24,6 +24,9 @@ print(finddir)
 
 result_folders = glob.glob(finddir+"/*/pcaps")
 print(result_folders)
+if len(result_folders) == 0:
+	result_folders = glob.glob(finddir+"pcaps")
+	print(result_folders)
 
 working_directory = os.getcwd()
 
