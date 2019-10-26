@@ -428,15 +428,19 @@ if latency_fileexists:
     latency_active_nodes = (numpy_latency[:,ACTIVE_NODES_LATENCY])[:len(timestamps)]
     move_latency = (numpy_latency[:,MOVE_LATENCY])[:len(timestamps)]
     normalized_move_latency = move_latency / latency_active_nodes
-    mean_normalized_move_latency = np.mean(normalized_move_latency)
 
+    latency_where_is_finite = np.isfinite(normalized_move_latency)
+    mean_normalized_move_latency = np.mean(normalized_move_latency[latency_where_is_finite])
     print("Mean Normalized latency ", mean_normalized_move_latency)
-    # print("Mean NIC recv bytes", mean_nicrecvbytes)
 
-    mean_normalized_move_latency_beforeloss = np.mean(normalized_move_latency[1:index_aftersetuptime])
+    normalized_move_latency_beforeloss = normalized_move_latency[1:index_aftersetuptime]
+    latency_where_is_finite = np.isfinite(normalized_move_latency_beforeloss)
+    mean_normalized_move_latency_beforeloss = np.mean(normalized_move_latency_beforeloss[latency_where_is_finite])
     print("mean_normalized_move_latency_beforeloss", mean_normalized_move_latency_beforeloss)
 
-    mean_normalized_move_latency_afterloss = np.mean(normalized_move_latency[index_aftersetuptime:])
+    normalized_move_latency_afterloss = normalized_move_latency[index_aftersetuptime:]
+    latency_where_is_finite = np.isfinite(normalized_move_latency_afterloss)
+    mean_normalized_move_latency_afterloss = np.mean(normalized_move_latency_afterloss[latency_where_is_finite])
     print("mean_normalized_move_latency_afterloss", mean_normalized_move_latency_afterloss)
 
 
@@ -631,8 +635,7 @@ if (hasMatplotlib and plot_yes):
         plot.plot([0,timestamps[index_aftersetuptime]], [mean_normalized_move_latency_beforeloss, mean_normalized_move_latency_beforeloss], color='b', linestyle='--')
         plot.plot([timestamps[index_aftersetuptime],timestamps[-1]], [mean_normalized_move_latency_afterloss, mean_normalized_move_latency_afterloss], color='b', linestyle='--')
         plot.plot([TOTAL_SETUPTIME, TOTAL_SETUPTIME],[0, np.max(normalized_move_latency)], 'k')
-        # # plot.text(timestamps[-1], mean_rawmcrecv_stat, "%5.2f" % (mean_rawmcrecv_stat), color='r')
-        # plot.text(timestamps[0], mean_usedmcrecv_stat_beforeloss, "%5.2f" % (mean_usedmcrecv_stat_beforeloss), color='m', bbox=dict(facecolor='white', alpha=1))
+        plot.text(timestamps[0], mean_usedmcrecv_stat_beforeloss, "%5.2f" % (mean_normalized_move_latency_beforeloss), color='b', bbox=dict(facecolor='white', alpha=1))
         plot.text(timestamps[-1], mean_normalized_move_latency_afterloss, "%5.2f" % (mean_normalized_move_latency_afterloss), color='b', bbox=dict(facecolor='white', alpha=1))
         plot.xlim(0, MAX_TIMESTAMP)
         plot.ylabel("Latency")
