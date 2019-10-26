@@ -413,15 +413,19 @@ if latency_fileexists:
     latency_active_nodes = (numpy_latency[:,ACTIVE_NODES_LATENCY])[:len(timestamps)]
     move_latency = (numpy_latency[:,MOVE_LATENCY])[:len(timestamps)]
     normalized_move_latency = move_latency / latency_active_nodes
-    mean_normalized_move_latency = np.mean(normalized_move_latency)
 
+    latency_where_is_finite = np.isfinite(normalized_move_latency)
+    mean_normalized_move_latency = np.mean(normalized_move_latency[latency_where_is_finite])
     print("Mean Normalized latency ", mean_normalized_move_latency)
-    # print("Mean NIC recv bytes", mean_nicrecvbytes)
 
-    mean_normalized_move_latency_beforeloss = np.mean(normalized_move_latency[1:index_aftersetuptime])
+    normalized_move_latency_beforeloss = normalized_move_latency[1:index_aftersetuptime]
+    latency_where_is_finite = np.isfinite(normalized_move_latency_beforeloss)
+    mean_normalized_move_latency_beforeloss = np.mean(normalized_move_latency_beforeloss[latency_where_is_finite])
     print("mean_normalized_move_latency_beforeloss", mean_normalized_move_latency_beforeloss)
 
-    mean_normalized_move_latency_afterloss = np.mean(normalized_move_latency[index_aftersetuptime:])
+    normalized_move_latency_afterloss = normalized_move_latency[index_aftersetuptime:]
+    latency_where_is_finite = np.isfinite(normalized_move_latency_afterloss)
+    mean_normalized_move_latency_afterloss = np.mean(normalized_move_latency_afterloss[latency_where_is_finite])
     print("mean_normalized_move_latency_afterloss", mean_normalized_move_latency_afterloss)
 
 
