@@ -1,6 +1,7 @@
 import csv
 import numpy as np
 import scipy.stats as st
+from plot_result_utils import NET_MODEL_STRINGS
 hasMatplotlib = True
 try:
     import matplotlib.pyplot as plot
@@ -131,7 +132,7 @@ default_linestyles = [':', '-.', '--']
 default_spacing = 0.35
 default_width = 0.3
 
-def boxPlotHelper(subplotLayout, BoxIndex, xColumnList, yColumnList, xlabel, ylabel, width=0.5, color='', setXTickLabel=False):
+def boxPlotHelper(subplotLayout, BoxIndex, xColumnList, yColumnList, xlabel, ylabel, width=0, color='', setXTickLabel=False):
     if hasMatplotlib:
         ax = plot.subplot(subplotLayout)
         if (len(xColumnList) > 0):
@@ -140,8 +141,12 @@ def boxPlotHelper(subplotLayout, BoxIndex, xColumnList, yColumnList, xlabel, yla
                 color = default_colors[(BoxIndex-2) % len(default_colors)]
 
 
-            # width = 0.02*np.max(xColumnList)
-            spacing = 0.021*np.max(xColumnList)
+            if (width == 0):
+                width = 0.03*np.max(xColumnList)  
+            if (width < default_width):
+                width = default_width
+
+            spacing = 0.033*np.max(xColumnList)
             if spacing < default_spacing:
                 print("Using default_spacing")
                 spacing = default_spacing 
@@ -155,14 +160,14 @@ def boxPlotHelper(subplotLayout, BoxIndex, xColumnList, yColumnList, xlabel, yla
             plot.grid(True, alpha=0.5)
 
             plot.xlim([np.min(xColumnList)-spacing, np.max(xColumnList)+spacing*(BoxIndex-2)+spacing])
-            ax.set_xticks(xColumnList)
-            ax.tick_params(labelbottom=setXTickLabel)
+            plot.xticks(xColumnList, xColumnList)
+            plot.tick_params(labelbottom=setXTickLabel)
 
             medians = list()
             for arr in yColumnList:
                 medians.append(np.median(arr))
             if (len(medians) > 0):
-                ax.plot(xColumnList, medians, color=color, linestyle=default_linestyles[(BoxIndex-2) % len(default_linestyles)], linewidth=1)
+                ax.plot(xColumnListOffset, medians, color=color, linestyle=default_linestyles[(BoxIndex-2) % len(default_linestyles)], linewidth=1)
 
         else:
             print("No data")
@@ -170,3 +175,58 @@ def boxPlotHelper(subplotLayout, BoxIndex, xColumnList, yColumnList, xlabel, yla
         return ax
     else:
         print("Matplotlib not installed")
+
+
+
+def plot_TopoCon_Drift_BW_Latency(resultsSubset, XAxisProp, PropName, Title, DescriptionString=""):
+    if hasMatplotlib:
+        plot.figure()
+
+    custom_lines = list()
+    custom_lines_names = list()
+
+
+    for i in range(NET_MODEL_STRINGS.index('net_ace'),NET_MODEL_STRINGS.index('net_udpNC') + 1):
+
+        print(NET_MODEL_STRINGS[i])
+        NETMODEL_subset = subsetByColumnValue(resultsSubset, NET_MODEL, i)
+        xColumnList, yColumnList = seperateByColumn(NETMODEL_subset, XAxisProp, AVG_TOPO_CONS, DescriptionString)
+        print(xColumnList)
+        print(len(xColumnList))
+        if hasMatplotlib and len(xColumnList) > 0:
+            
+
+            ax = boxPlotHelper(511, i, xColumnList, yColumnList, '', 'Topo Cons\n[%]')
+            ax.title.set_text(Title)
+            # ax.set_yticks(np.arange(99.2, 100.2, 0.2))
+
+
+            from matplotlib.lines import Line2D
+            custom_lines.append(Line2D([0], [0], color=default_colors[i-2], linestyle=default_linestyles[i-2], lw=1))
+            if NET_MODEL_STRINGS[i] == 'net_ace':
+                custom_lines_names.append("TCP")
+            else:
+                custom_lines_names.append(NET_MODEL_STRINGS[i][4:].upper())
+
+            ax.legend(custom_lines, custom_lines_names, loc='lower left', prop={'size':7})
+
+        xColumnList, yColumnList = seperateByColumn(NETMODEL_subset, XAxisProp, AVG_DRIFT, DescriptionString)
+        if hasMatplotlib and len(xColumnList) > 0:
+            
+            ax = boxPlotHelper(512, i, xColumnList, yColumnList, '', 'Drift dist\n[units]')
+            # ax.set_yticks(np.arange(1.5, 4, 0.5))
+
+        xColumnList, yColumnList = seperateByColumn(NETMODEL_subset, XAxisProp, NICSEND_BYTES, DescriptionString)
+        if hasMatplotlib and len(xColumnList) > 0:
+            
+            ax = boxPlotHelper(513, i, xColumnList, yColumnList, '', 'NIC Send\n[kBps]')
+
+        xColumnList, yColumnList = seperateByColumn(NETMODEL_subset, XAxisProp, NICRECV_BYTES, DescriptionString)
+        if hasMatplotlib and len(xColumnList) > 0:
+            
+            ax = boxPlotHelper(514, i, xColumnList, yColumnList, '', 'NIC Recv\n[kBps]')
+
+        xColumnList, yColumnList = seperateByColumn(NETMODEL_subset, XAxisProp, LATENCY, DescriptionString)
+        if hasMatplotlib and len(xColumnList) > 0:
+            
+            ax = boxPlotHelper(515, i, xColumnList, yColumnList, PropName, 'Latency\n[ms]', setXTickLabel=True)

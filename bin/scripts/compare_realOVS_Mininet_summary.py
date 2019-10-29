@@ -41,9 +41,7 @@ custom_lines_names = list()
 DescriptionString = "0LOSS, 4nodes, realOVS"
 
 
-# for i in range(NET_MODEL_STRINGS.index('net_ace'),NET_MODEL_STRINGS.index('net_udpNC') + 1):
-i = 4
-if i == 4:
+for i in range(NET_MODEL_STRINGS.index('net_ace'),NET_MODEL_STRINGS.index('net_udpNC') + 1):
 
     print(NET_MODEL_STRINGS[i])
     NETMODEL_subset = subsetByColumnValue(realOVSSubset, NET_MODEL, i)
@@ -53,11 +51,8 @@ if i == 4:
     if hasMatplotlib and len(xColumnList) > 0:
         
 
-        ax = boxPlotHelper(511, i, xColumnList+0.3*(i-2), yColumnList, '', 'Topo Cons\n[%]', width=0.3, color=colors[i-2])
+        ax = boxPlotHelper(511, i, xColumnList, yColumnList, '', 'Topo Cons\n[%]')
         ax.title.set_text("TCP vs UDP vs UDPNC. 0\% LOSS, 4 NODES, REAL_OVS")
-        plot.xlim([np.min(xColumnList)-0.3, np.max(xColumnList)+0.3*(i-2)+0.3])
-        ax.set_xticks(xColumnList)
-        ax.tick_params(labelbottom=False)
         # ax.set_yticks(np.arange(99.2, 100.2, 0.2))
 
 
@@ -73,36 +68,23 @@ if i == 4:
     xColumnList, yColumnList = seperateByColumn(NETMODEL_subset, LOSS_PERC, AVG_DRIFT, DescriptionString)
     if hasMatplotlib and len(xColumnList) > 0:
         
-        ax = boxPlotHelper(512, i, xColumnList+0.3*(i-2), yColumnList, '', 'Drift dist\n[units]', width=0.3, color=colors[i-2])
-        plot.xlim([np.min(xColumnList)-0.3, np.max(xColumnList)+0.3*(i-2)+0.3])
-        ax.set_xticks(xColumnList)
-        ax.tick_params(labelbottom=False)
+        ax = boxPlotHelper(512, i, xColumnList, yColumnList, '', 'Drift dist\n[units]')
         ax.set_yticks(np.arange(1.5, 4, 0.5))
 
     xColumnList, yColumnList = seperateByColumn(NETMODEL_subset, LOSS_PERC, NICSEND_BYTES, DescriptionString)
     if hasMatplotlib and len(xColumnList) > 0:
         
-        ax = boxPlotHelper(513, i, xColumnList+0.3*(i-2), yColumnList, '', 'NIC Send\n[kBps]', width=0.3, color=colors[i-2])
-        plot.xlim([np.min(xColumnList)-0.3, np.max(xColumnList)+0.3*(i-2)+0.3])
-        ax.set_xticks(xColumnList)
-        ax.tick_params(labelbottom=False)
+        ax = boxPlotHelper(513, i, xColumnList, yColumnList, '', 'NIC Send\n[kBps]')
 
     xColumnList, yColumnList = seperateByColumn(NETMODEL_subset, LOSS_PERC, NICRECV_BYTES, DescriptionString)
     if hasMatplotlib and len(xColumnList) > 0:
         
-        ax = boxPlotHelper(514, i, xColumnList+0.3*(i-2), yColumnList, '', 'NIC Recv\n[kBps]', width=0.3, color=colors[i-2])
-        plot.xlim([np.min(xColumnList)-0.3, np.max(xColumnList)+0.3*(i-2)+0.3])
-        ax.set_xticks(xColumnList)
-        ax.set_xticklabels(xColumnList)
-        ax.tick_params(labelbottom=False)
+        ax = boxPlotHelper(514, i, xColumnList, yColumnList, '', 'NIC Recv\n[kBps]')
 
     xColumnList, yColumnList = seperateByColumn(NETMODEL_subset, LOSS_PERC, LATENCY, DescriptionString)
     if hasMatplotlib and len(xColumnList) > 0:
         
-        ax = boxPlotHelper(515, i, xColumnList+0.3*(i-2), yColumnList, 'LOSS_PERC', 'Latency\n[ms]', width=0.3, color=colors[i-2])
-        plot.xlim([np.min(xColumnList)-0.3, np.max(xColumnList)+0.3*(i-2)+0.3])
-        ax.set_xticks(xColumnList)
-        ax.set_xticklabels(xColumnList)
+        ax = boxPlotHelper(515, i, xColumnList, yColumnList, 'LOSS_PERC', 'Latency\n[ms]', setXTickLabel=True)
 
 if hasMatplotlib:
     plot.savefig("compare_realOVS_Mininet_LOSS0_4NODES.pdf", dpi=1200)
