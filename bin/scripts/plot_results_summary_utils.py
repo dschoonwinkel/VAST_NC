@@ -1,10 +1,11 @@
 import csv
 import numpy as np
 import scipy.stats as st
-from plot_result_utils import NET_MODEL_STRINGS
+from plot_result_utils import NET_MODEL_STRINGS, NET_MODEL_STRINGS_THESIS
 hasMatplotlib = True
 try:
     import matplotlib.pyplot as plot
+    from matplotlib.ticker import AutoMinorLocator, FormatStrFormatter, LinearLocator, MaxNLocator
 except ImportError:
     print("Matplotlib not available on this console")
     hasMatplotlib = False
@@ -132,7 +133,7 @@ default_linestyles = [':', '-.', '--']
 default_spacing = 0.35
 default_width = 0.3
 
-def boxPlotHelper(subplotLayout, BoxIndex, xColumnList, yColumnList, xlabel, ylabel, width=0, color='', setXTickLabel=False):
+def boxPlotHelper(subplotLayout, BoxIndex, xColumnList, yColumnList, xlabel, ylabel, width=0, color='', setXTickLabel=False, offset=0):
     if hasMatplotlib:
         ax = plot.subplot(subplotLayout)
         if (len(xColumnList) > 0):
@@ -151,7 +152,7 @@ def boxPlotHelper(subplotLayout, BoxIndex, xColumnList, yColumnList, xlabel, yla
                 print("Using default_spacing")
                 spacing = default_spacing 
 
-            xColumnListOffset = xColumnList+spacing*(BoxIndex-2) 
+            xColumnListOffset = xColumnList+spacing*(BoxIndex-2+offset) 
 
             box = plot.boxplot(yColumnList, positions=xColumnListOffset, widths=width) 
             plot.setp(box['boxes'], color=color)
@@ -176,9 +177,47 @@ def boxPlotHelper(subplotLayout, BoxIndex, xColumnList, yColumnList, xlabel, yla
     else:
         print("Matplotlib not installed")
 
+def plot_TopoCon_Drift_BW_Latency(NETMODEL_subset, BoxIndex, XAxisProp, PropName, Title, DescriptionString="", offset=0):
+
+    
+    xColumnList, yColumnList = seperateByColumn(NETMODEL_subset, XAxisProp, AVG_TOPO_CONS, DescriptionString)
+    print(xColumnList)
+    print(len(xColumnList))
+    if hasMatplotlib and len(xColumnList) > 0:
+
+        ax1 = boxPlotHelper(511, BoxIndex, xColumnList, yColumnList, '', 'Topo Cons\n[%]', offset=offset)
+        ax1.title.set_text(Title)
+        ax1.yaxis.set_major_locator(MaxNLocator(nbins=5))
+
+    xColumnList, yColumnList = seperateByColumn(NETMODEL_subset, XAxisProp, AVG_DRIFT, DescriptionString)
+    if hasMatplotlib and len(xColumnList) > 0:
+        
+        ax = boxPlotHelper(512, BoxIndex, xColumnList, yColumnList, '', 'Drift dist\n[units]', offset=offset)
+        ax.yaxis.set_major_locator(MaxNLocator(nbins=5))
+
+    xColumnList, yColumnList = seperateByColumn(NETMODEL_subset, XAxisProp, NICSEND_BYTES, DescriptionString)
+    if hasMatplotlib and len(xColumnList) > 0:
+        
+        ax = boxPlotHelper(513, BoxIndex, xColumnList, yColumnList, '', 'NIC Send\n[kBps]', offset=offset)
+        ax.yaxis.set_major_locator(MaxNLocator(nbins=5))
+
+    xColumnList, yColumnList = seperateByColumn(NETMODEL_subset, XAxisProp, NICRECV_BYTES, DescriptionString)
+    if hasMatplotlib and len(xColumnList) > 0:
+        
+        ax = boxPlotHelper(514, BoxIndex, xColumnList, yColumnList, '', 'NIC Recv\n[kBps]', offset=offset)
+        ax.yaxis.set_major_locator(MaxNLocator(nbins=5))
+
+    xColumnList, yColumnList = seperateByColumn(NETMODEL_subset, XAxisProp, LATENCY, DescriptionString)
+    if hasMatplotlib and len(xColumnList) > 0:
+        
+        ax = boxPlotHelper(515, BoxIndex, xColumnList, yColumnList, PropName, 'Latency\n[ms]', setXTickLabel=True, offset=offset)
+        ax.yaxis.set_major_locator(MaxNLocator(nbins=5))
 
 
-def plot_TopoCon_Drift_BW_Latency(resultsSubset, XAxisProp, PropName, Title, DescriptionString=""):
+    return ax1
+
+
+def plot_TopoCon_Drift_BW_Latency_allModels(resultsSubset, XAxisProp, PropName, Title, DescriptionString=""):
     if hasMatplotlib:
         plot.figure()
 
@@ -190,43 +229,136 @@ def plot_TopoCon_Drift_BW_Latency(resultsSubset, XAxisProp, PropName, Title, Des
 
         print(NET_MODEL_STRINGS[i])
         NETMODEL_subset = subsetByColumnValue(resultsSubset, NET_MODEL, i)
-        xColumnList, yColumnList = seperateByColumn(NETMODEL_subset, XAxisProp, AVG_TOPO_CONS, DescriptionString)
-        print(xColumnList)
-        print(len(xColumnList))
-        if hasMatplotlib and len(xColumnList) > 0:
-            
+        ax1 = plot_TopoCon_Drift_BW_Latency(NETMODEL_subset, i, XAxisProp, PropName, Title, DescriptionString="")
 
-            ax = boxPlotHelper(511, i, xColumnList, yColumnList, '', 'Topo Cons\n[%]')
-            ax.title.set_text(Title)
-            # ax.set_yticks(np.arange(99.2, 100.2, 0.2))
+        from matplotlib.lines import Line2D
+        custom_lines.append(Line2D([0], [0], color=default_colors[i-2], linestyle=default_linestyles[i-2], lw=1))
+        if NET_MODEL_STRINGS[i] == 'net_ace':
+            custom_lines_names.append("TCP")
+        else:
+            custom_lines_names.append(NET_MODEL_STRINGS[i][4:].upper())
+
+        ax1.legend(custom_lines, custom_lines_names, loc='lower left', prop={'size':7})
+
+def plot_TopoCon_Drift_BW_Latency_TCPUDP(resultsSubset, XAxisProp, PropName, Title, DescriptionString=""):
+    if hasMatplotlib:
+        plot.figure()
+
+    custom_lines = list()
+    custom_lines_names = list()
 
 
-            from matplotlib.lines import Line2D
-            custom_lines.append(Line2D([0], [0], color=default_colors[i-2], linestyle=default_linestyles[i-2], lw=1))
-            if NET_MODEL_STRINGS[i] == 'net_ace':
-                custom_lines_names.append("TCP")
+    for i in range(NET_MODEL_STRINGS.index('net_ace'),NET_MODEL_STRINGS.index('net_udp') + 1):
+
+        print(NET_MODEL_STRINGS[i])
+        NETMODEL_subset = subsetByColumnValue(resultsSubset, NET_MODEL, i)
+        ax1 = plot_TopoCon_Drift_BW_Latency(NETMODEL_subset, i, XAxisProp, PropName, Title, DescriptionString="")
+
+        from matplotlib.lines import Line2D
+        custom_lines.append(Line2D([0], [0], color=default_colors[i-2], linestyle=default_linestyles[i-2], lw=1))
+        if NET_MODEL_STRINGS[i] == 'net_ace':
+            custom_lines_names.append("TCP")
+        else:
+            custom_lines_names.append(NET_MODEL_STRINGS[i][4:].upper())
+
+        ax1.legend(custom_lines, custom_lines_names, loc='lower left', prop={'size':7})
+
+def plot_TopoCon_Drift_BW_Latency_UDPUDPNC(resultsSubset, XAxisProp, PropName, Title, DescriptionString=""):
+    if hasMatplotlib:
+        plot.figure()
+
+    custom_lines = list()
+    custom_lines_names = list()
+
+
+    for i in range(NET_MODEL_STRINGS.index('net_udp'),NET_MODEL_STRINGS.index('net_udpNC') + 1):
+
+        print(NET_MODEL_STRINGS[i])
+        NETMODEL_subset = subsetByColumnValue(resultsSubset, NET_MODEL, i)
+        ax1 = plot_TopoCon_Drift_BW_Latency(NETMODEL_subset, i, XAxisProp, PropName, Title, DescriptionString="", offset=-1)
+
+        from matplotlib.lines import Line2D
+        custom_lines.append(Line2D([0], [0], color=default_colors[i-2], linestyle=default_linestyles[i-2], lw=1))
+        if NET_MODEL_STRINGS[i] == 'net_ace':
+            custom_lines_names.append("TCP")
+        else:
+            custom_lines_names.append(NET_MODEL_STRINGS[i][4:].upper())
+
+        ax1.legend(custom_lines, custom_lines_names, loc='lower left', prop={'size':7})
+
+
+# def tabulateByNETMODEL(results_matrix, yColumnIndex, tag):
+#     xColumnList = np.unique(results_matrix[:,NET_MODEL])
+#     # print(xColumnList)
+
+#     line_list = list()
+#     # print(tag, end="\t\t")
+#     line_list.append(tag)
+
+#     for j in range(len(xColumnList)):
+#         # print(NET_MODEL_STRINGS[int(xColumnList[j])])
+#         # print(xColumnList[i], end='\t')
+# #         # print(xColumnList[i], yColumnList[j])
+# #         # print()
+#         xSubset = results_matrix[np.where(results_matrix[:,NET_MODEL] == xColumnList[j])]
+#         # print(xSubset[:,i])
+#         # print(("%3.2f" % np.mean(xSubset[:,yColumnIndex]))[0:5], end="\t")
+
+#         samples = xSubset[:,yColumnIndex]
+#         mean = np.mean(samples)
+#         median = np.median(samples)
+#         conf_req = 0.90
+#         t_value = st.t.ppf(1 - conf_req/2, len(samples)-1)
+#         std_err = np.std(samples)/np.sqrt(len(samples))
+#         margin = t_value * std_err
+#         # conf_int = st.t.interval(0.95, len(xSubset[:,yColumnIndex])-1, loc=np.median(xSubset[:,yColumnIndex]), scale=st.sem(xSubset[:,yColumnIndex]))
+
+#         line_list.append("%3.2f pm %3.2f" % (median, margin))
+# #         ySubset = xSubset[np.where(xSubset[:,yColumnIndex] == yColumnList[j])]
+# #         # print(ySubset)
+# #         # print(len(ySubset))
+# #         countMatrix[i,j] = len(ySubset)
+# #         print(countMatrix[i,j], end='\t')
+#     # print("")
+#     return line_list
+
+def tabulateNETMODELs(results_matrix, NETMODELs, xColumnIndex, yColumnIndex, PropName, XUnitsString="", YUnitsString=""):
+    # print(PropName)
+    # print(NETMODEL_subset[:, [NET_MODEL, DELAY_MS, xColumnIndex, yColumnIndex]])
+
+    xColumnList = np.zeros([0])
+    header = list()
+    line_list = list()
+
+    header = [None]
+    for NETMODEL in NETMODELs:
+        NETMODEL_subset = subsetByColumnValue(results_matrix, NET_MODEL, NETMODEL)
+        xColumnList = np.unique(np.append(xColumnList, NETMODEL_subset[:,xColumnIndex]))
+        header.append(NET_MODEL_STRINGS_THESIS[NETMODEL])
+        # print("results_matrix[:,xColumnIndex]", np.unique(NETMODEL_subset[:,xColumnIndex]))
+    line_list.append(header)
+    
+    # print("xColumnList", xColumnList)
+
+    yColumnList = list()
+    for item in xColumnList:
+        item_subset = subsetByColumnValue(results_matrix, xColumnIndex, item)
+        line = [str(item) + " " + XUnitsString]
+        for NETMODEL in NETMODELs:
+            NETMODEL_subset = subsetByColumnValue(item_subset, NET_MODEL, NETMODEL)
+            samples = NETMODEL_subset[:,yColumnIndex]
+            if len(samples) > 0:
+                mean = np.mean(samples)
+                median = np.median(samples)
+                median = np.median(samples)
+                conf_req = 0.90
+                t_value = st.t.ppf(1 - conf_req/2, len(samples)-1)
+                std_err = np.std(samples)/np.sqrt(len(samples))
+                margin = t_value * std_err
+                line.append("%3.2f pm %3.2f %s" % (median, margin, YUnitsString))
             else:
-                custom_lines_names.append(NET_MODEL_STRINGS[i][4:].upper())
+                line.append(None)
 
-            ax.legend(custom_lines, custom_lines_names, loc='lower left', prop={'size':7})
+        line_list.append(line)
 
-        xColumnList, yColumnList = seperateByColumn(NETMODEL_subset, XAxisProp, AVG_DRIFT, DescriptionString)
-        if hasMatplotlib and len(xColumnList) > 0:
-            
-            ax = boxPlotHelper(512, i, xColumnList, yColumnList, '', 'Drift dist\n[units]')
-            # ax.set_yticks(np.arange(1.5, 4, 0.5))
-
-        xColumnList, yColumnList = seperateByColumn(NETMODEL_subset, XAxisProp, NICSEND_BYTES, DescriptionString)
-        if hasMatplotlib and len(xColumnList) > 0:
-            
-            ax = boxPlotHelper(513, i, xColumnList, yColumnList, '', 'NIC Send\n[kBps]')
-
-        xColumnList, yColumnList = seperateByColumn(NETMODEL_subset, XAxisProp, NICRECV_BYTES, DescriptionString)
-        if hasMatplotlib and len(xColumnList) > 0:
-            
-            ax = boxPlotHelper(514, i, xColumnList, yColumnList, '', 'NIC Recv\n[kBps]')
-
-        xColumnList, yColumnList = seperateByColumn(NETMODEL_subset, XAxisProp, LATENCY, DescriptionString)
-        if hasMatplotlib and len(xColumnList) > 0:
-            
-            ax = boxPlotHelper(515, i, xColumnList, yColumnList, PropName, 'Latency\n[ms]', setXTickLabel=True)
+    return header, line_list, xColumnList

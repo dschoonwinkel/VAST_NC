@@ -1153,6 +1153,7 @@ for SUBSETNODE_COUNT in [10, 20, 30, 40, 50]:
 # SUBSETNODE_COUNT = 20
     print("\nNode count: ", SUBSETNODE_COUNT, "\linebreak")
     MininetSubset = subsetByColumnValue(results_nparray, PLATFORM, MININET)
+    MininetSubset = subsetByColumnValue(MininetSubset, DELAY_MS, 0)
     NODESSubset = subsetByColumnValue(MininetSubset, NODES_COUNT, SUBSETNODE_COUNT)
 
     LOSS0Subset = subsetByColumnValue(NODESSubset, LOSS_PERC, 0)
