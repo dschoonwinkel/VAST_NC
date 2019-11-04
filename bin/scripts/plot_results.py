@@ -301,33 +301,33 @@ if resources_fileexist:
 
 
 
-# events_fileexist = False
-# events_filename = re.sub(r"\.txt", "_events.txt", input_file)
-# if (os.path.isfile(events_filename)):
-#     events_fileexist = True
-#     print("Events file found")
-#     events_text = list()
-#     with open(events_filename, 'r') as csvfile:
-#         spamreader = csv.reader(csvfile, delimiter=",")
-#         for row in spamreader:
-#             events_text.append(row)
-#             # print(",".join(row))
+events_fileexist = False
+events_filename = re.sub(r"\.txt", "_events.txt", input_file)
+if (os.path.isfile(events_filename)):
+    events_fileexist = True
+    print("Events file found")
+    events_text = list()
+    with open(events_filename, 'r') as csvfile:
+        spamreader = csv.reader(csvfile, delimiter=",")
+        for row in spamreader:
+            events_text.append(row)
+            # print(",".join(row))
 
-#     header = events_text[0]
-#     events_text = events_text[1:]
+    header = events_text[0]
+    events_text = events_text[1:]
 
-#     events = list()
+    events = list()
 
-#     for row in events_text:
-#         # print(row)
-#         events.append([float(row[0]), row[1], row[2]])
-#         # print(results[-1])
-#         # print(int(row[0])%10000)
+    for row in events_text:
+        # print(row)
+        events.append([float(row[0]), row[1], row[2]])
+        # print(results[-1])
+        # print(int(row[0])%10000)
 
-#     events_np = np.array(events)
-#     unique_messages = np.unique(events_np[:,2])
-#     for i in range(len(unique_messages)):
-#         print(i, ": ", unique_messages[i])
+    events_np = np.array(events)
+    unique_messages = np.unique(events_np[:,2])
+    for i in range(len(unique_messages)):
+        print(i, ": ", unique_messages[i])
 
 
 mean_nicsendbytes_afterloss = 0
@@ -428,10 +428,10 @@ if latency_fileexists:
     latency_active_nodes = (numpy_latency[:,ACTIVE_NODES_LATENCY])[:len(timestamps)]
     move_latency = (numpy_latency[:,MOVE_LATENCY])[:len(timestamps)]
     normalized_move_latency = move_latency / latency_active_nodes
-
     latency_where_is_finite = np.isfinite(normalized_move_latency)
     mean_normalized_move_latency = np.mean(normalized_move_latency[latency_where_is_finite])
     print("Mean Normalized latency ", mean_normalized_move_latency)
+    max_normalized_move_latency = np.max(normalized_move_latency[latency_where_is_finite])
 
     normalized_move_latency_beforeloss = normalized_move_latency[1:index_aftersetuptime]
     latency_where_is_finite = np.isfinite(normalized_move_latency_beforeloss)
@@ -508,10 +508,12 @@ if (hasMatplotlib and plot_yes):
     if (LABEL_list):
         plot.title(str(LABEL_list))
 
+    subplot_count = 4
+    if mean_rawmcrecv_stat_afterloss > 0:
+        subplot_count += 1
+
     if latency_fileexists:
-        subplot_count = 6
-    else:
-        subplot_count = 5
+        subplot_count += 1
 
     ax1 = plot.subplot(subplot_count,1,1)
     plot.plot(timestamps, active_nodes[:len(timestamps)], 'b')
@@ -579,52 +581,57 @@ if (hasMatplotlib and plot_yes):
         ax4.plot([timestamps[index_aftersetuptime],timestamps[-1]], [mean_nicsendbytes_afterloss, mean_nicsendbytes_afterloss], 'b--')
         # ax4.plot([0,timestamps[-1]], [mean_nicsendbytes, mean_nicsendbytes], 'b--')
         # ax4.text(timestamps[0], mean_nicsendbytes_beforeloss*1.3, "%5.2f" % (mean_nicsendbytes_beforeloss), color='b', bbox=dict(facecolor='white', alpha=1))
-        ax4.text(timestamps[0], mean_nicsendbytes_beforeloss*1.45, "%5.2f" % (mean_nicsendbytes_beforeloss), color='b', bbox=dict(facecolor='white', alpha=1))
-        ax4.text(timestamps[-1], mean_nicsendbytes_afterloss*1.4, "%5.2f" % (mean_nicsendbytes_afterloss), color='b', bbox=dict(facecolor='white', alpha=1))
-        
+                
         ax4.plot(timestamps, nic_recvbytes, 'r')    
         ax4.plot([0,timestamps[index_aftersetuptime]], [mean_nicrecvbytes_beforeloss, mean_nicrecvbytes_beforeloss], 'r--')
         ax4.plot([timestamps[index_aftersetuptime],timestamps[-1]], [mean_nicrecvbytes_afterloss, mean_nicrecvbytes_afterloss], 'r--')
-        # ax4.plot([0,timestamps[-1]], [mean_nicrecvbytes, mean_nicrecvbytes], 'r--')
-        ax4.text(timestamps[0], mean_nicrecvbytes_beforeloss*1.2, "%5.2f" % (mean_nicrecvbytes_beforeloss), color='r', bbox=dict(facecolor='white', alpha=1))
-        ax4.text(timestamps[-1], mean_nicrecvbytes_afterloss*1.3, "%5.2f" % (mean_nicrecvbytes_afterloss), color='r', bbox=dict(facecolor='white', alpha=1))
 
-        # Redraw text so that its on top
-        ax4.text(timestamps[0], mean_sendstat_beforeloss*0.4, "%5.2f" % (mean_sendstat_beforeloss), color='g', bbox=dict(facecolor='white', alpha=1))
-        ax4.text(timestamps[-1], mean_sendstat_afterloss*0.7, "%5.2f" % (mean_sendstat_afterloss), color='g', bbox=dict(facecolor='white', alpha=1))
         from matplotlib.lines import Line2D
         custom_lines = [Line2D([0], [0], color='g', lw=1),
                         Line2D([0], [0], color='b', lw=1),
                         Line2D([0], [0], color='r', lw=1)]
         # ax4.legend(custom_lines, ['Send VAST', 'Send NIC', 'Recv NIC'], loc='lower center')
-        ax4.legend(custom_lines, ['Send VAST', 'Send NIC', 'Recv NIC'], loc='upper left')
+        # ax4.legend(custom_lines, ['Send VAST', 'Send NIC', 'Recv NIC'], loc='upper left', mode="expand")
+        ax4.legend(custom_lines, ['Send VAST', 'Send NIC', 'Recv NIC'], loc='upper left', ncol=3)
 
 
         # ax4.legend(['Send NIC', 'Recv NIC'])
         # ax4.set_ylabel("NIC Send\nRecv Unicast [kBps]")
         ylim = ax4.get_ylim()
         # ylim = (ylim[0], ylim[1]*1.3) # For UDPNC
-        ylim = (ylim[0], ylim[1]*1.7) # For TCP
+        ylim = (ylim[0], ylim[1]*1.3) # For TCP
         print(ylim)
         ax4.set_ylim(ylim)
         
+
+        ypos1 = ((ylim[1] - ylim[0]) + ylim[0])*0.6
+        ypos2 = ((ylim[1] - ylim[0]) + ylim[0])*0.4
+        ypos3 = ((ylim[1] - ylim[0]) + ylim[0])*0.2
+
+        ax4.text(timestamps[0], ypos1, "%5.2f" % (mean_nicsendbytes_beforeloss), color='b', bbox=dict(facecolor='white', alpha=1))
+        ax4.text(timestamps[-1], ypos1, "%5.2f" % (mean_nicsendbytes_afterloss), color='b', bbox=dict(facecolor='white', alpha=1))
+        ax4.text(timestamps[0], ypos2, "%5.2f" % (mean_nicrecvbytes_beforeloss), color='r', bbox=dict(facecolor='white', alpha=1))
+        ax4.text(timestamps[-1], ypos2, "%5.2f" % (mean_nicrecvbytes_afterloss), color='r', bbox=dict(facecolor='white', alpha=1))
+        ax4.text(timestamps[0], ypos3, "%5.2f" % (mean_sendstat_beforeloss), color='g', bbox=dict(facecolor='white', alpha=1))
+        ax4.text(timestamps[-1], ypos3, "%5.2f" % (mean_sendstat_afterloss), color='g', bbox=dict(facecolor='white', alpha=1))
     
     
 
-    ax5 = plot.subplot(subplot_count,1,5)
-    # plot.plot(timestamps, raw_mcrecvbytes, 'r',label='Raw MC Recv')
-    # plot.plot(timestamps, used_mcrecvbytes, 'm', label='MC Recv')
-    plot.plot(timestamps, used_mcrecvbytes, color='m')
-    # plot.plot([0,timestamps[-1]], [mean_rawmcrecv_stat, mean_rawmcrecv_stat], 'r')
-    plot.plot([0,timestamps[index_aftersetuptime]], [mean_usedmcrecv_stat_beforeloss, mean_usedmcrecv_stat_beforeloss], color='m', linestyle='--')
-    plot.plot([timestamps[index_aftersetuptime],timestamps[-1]], [mean_usedmcrecv_stat_afterloss, mean_usedmcrecv_stat_afterloss], color='m', linestyle='--')
-    # plot.plot([0,timestamps[-1]], [mean_usedmcrecv_stat, mean_usedmcrecv_stat], color='m', linestyle='--')
-    plot.plot([TOTAL_SETUPTIME, TOTAL_SETUPTIME],[0, np.max(raw_mcrecvbytes)], 'k')
-    # plot.text(timestamps[-1], mean_rawmcrecv_stat, "%5.2f" % (mean_rawmcrecv_stat), color='r')
-    plot.text(timestamps[0], mean_usedmcrecv_stat_beforeloss, "%5.2f" % (mean_usedmcrecv_stat_beforeloss), color='m', bbox=dict(facecolor='white', alpha=1))
-    plot.text(timestamps[-1], mean_usedmcrecv_stat_afterloss, "%5.2f" % (mean_usedmcrecv_stat_afterloss), color='m', bbox=dict(facecolor='white', alpha=1))
-    plot.xlim(0, MAX_TIMESTAMP)
-    plot.ylabel("MC Recv\n[kBps]")
+    if mean_rawmcrecv_stat_afterloss > 0:
+        ax5 = plot.subplot(subplot_count,1,5)
+        # plot.plot(timestamps, raw_mcrecvbytes, 'r',label='Raw MC Recv')
+        # plot.plot(timestamps, used_mcrecvbytes, 'm', label='MC Recv')
+        plot.plot(timestamps, used_mcrecvbytes, color='m')
+        # plot.plot([0,timestamps[-1]], [mean_rawmcrecv_stat, mean_rawmcrecv_stat], 'r')
+        plot.plot([0,timestamps[index_aftersetuptime]], [mean_usedmcrecv_stat_beforeloss, mean_usedmcrecv_stat_beforeloss], color='m', linestyle='--')
+        plot.plot([timestamps[index_aftersetuptime],timestamps[-1]], [mean_usedmcrecv_stat_afterloss, mean_usedmcrecv_stat_afterloss], color='m', linestyle='--')
+        # plot.plot([0,timestamps[-1]], [mean_usedmcrecv_stat, mean_usedmcrecv_stat], color='m', linestyle='--')
+        plot.plot([TOTAL_SETUPTIME, TOTAL_SETUPTIME],[0, np.max(raw_mcrecvbytes)], 'k')
+        # plot.text(timestamps[-1], mean_rawmcrecv_stat, "%5.2f" % (mean_rawmcrecv_stat), color='r')
+        plot.text(timestamps[0], mean_usedmcrecv_stat_beforeloss, "%5.2f" % (mean_usedmcrecv_stat_beforeloss), color='m', bbox=dict(facecolor='white', alpha=1))
+        plot.text(timestamps[-1], mean_usedmcrecv_stat_afterloss, "%5.2f" % (mean_usedmcrecv_stat_afterloss), color='m', bbox=dict(facecolor='white', alpha=1))
+        plot.xlim(0, MAX_TIMESTAMP)
+        plot.ylabel("MC Recv\n[kBps]")
 
 
 
@@ -634,7 +641,7 @@ if (hasMatplotlib and plot_yes):
         # plot.plot([0,timestamps[-1]], [mean_normalized_move_latency_stat, mean_normalized_move_latency_stat], 'r')
         plot.plot([0,timestamps[index_aftersetuptime]], [mean_normalized_move_latency_beforeloss, mean_normalized_move_latency_beforeloss], color='b', linestyle='--')
         plot.plot([timestamps[index_aftersetuptime],timestamps[-1]], [mean_normalized_move_latency_afterloss, mean_normalized_move_latency_afterloss], color='b', linestyle='--')
-        plot.plot([TOTAL_SETUPTIME, TOTAL_SETUPTIME],[0, np.max(normalized_move_latency)], 'k')
+        plot.plot([TOTAL_SETUPTIME, TOTAL_SETUPTIME],[0, max_normalized_move_latency], 'k')
         plot.text(timestamps[0], mean_usedmcrecv_stat_beforeloss, "%5.2f" % (mean_normalized_move_latency_beforeloss), color='b', bbox=dict(facecolor='white', alpha=1))
         plot.text(timestamps[-1], mean_normalized_move_latency_afterloss, "%5.2f" % (mean_normalized_move_latency_afterloss), color='b', bbox=dict(facecolor='white', alpha=1))
         plot.xlim(0, MAX_TIMESTAMP)
@@ -669,16 +676,16 @@ if (hasMatplotlib and plot_yes):
     #     plot.grid(True)
     #     plot.xlim(0, MAX_TIMESTAMP)
 
-    # if events_fileexist:
-    #     ax1 = plot.subplot(6,1,3)
-    #     for event in events:
-    #         # print(event)
-    #         # print(np.where(unique_messages==event[2])[0][0])
-    #         plot.plot([event[0], event[0]], [0, np.max(normalised_drift_distance[where_is_finite])]) 
-    #         plot.text(event[0], np.max(normalised_drift_distance[where_is_finite]), 
-    #             str(np.where(unique_messages==event[2])[0][0]), rotation=90)
-    #         # plot.xlim(0, MAX_TIMESTAMP)
-    #         # plot.ylim(0, 100)
+    if events_fileexist:
+        ax1 = plot.subplot(6,1,3)
+        for event in events:
+            # print(event)
+            # print(np.where(unique_messages==event[2])[0][0])
+            plot.plot([event[0], event[0]], [0, np.max(normalised_drift_distance[where_is_finite])]) 
+            plot.text(event[0], np.max(normalised_drift_distance[where_is_finite]), 
+                str(np.where(unique_messages==event[2])[0][0]), rotation=90)
+            # plot.xlim(0, MAX_TIMESTAMP)
+            # plot.ylim(0, 100)
 
         
     

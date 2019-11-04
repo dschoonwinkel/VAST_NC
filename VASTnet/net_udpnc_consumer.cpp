@@ -136,7 +136,7 @@ namespace Vast
         else if (recvd_ordering[firstFromID] >= LOWEST_RESET_PACKET_ORDERING_NUMBER
                  && input_message.getOrdering() < HIGHEST_RESET_ACCEPTING_ORDERING_NUMBER)
         {
-            CPPDEBUG("net_udpNC_consumer::process_input Resetting chain for " << firstFromID << std::endl);
+            Logger::debug("net_udpNC_consumer::process_input Resetting chain for " + std::to_string(firstFromID), true);
             recvd_ordering[firstFromID] = 0;
             mchandler->clearPacketPool ();
         }
