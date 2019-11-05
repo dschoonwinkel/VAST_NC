@@ -4,7 +4,8 @@ import csv
 import sys
 from os.path import expanduser
 import os
-from plot_result_utils import parseFilenameLabel
+from plot_result_utils import parseFilenameLabel, NET_MODEL_STRINGS, finite_mean, finite_max
+
 import re
 
 
@@ -203,45 +204,45 @@ print("Mean normalized drift distance:", mean_drift_distance)
 # Show results in kBps -> 10 ticks per second (1000ms / 100ms per tick) / 1000 B per kB
 CONVERSION_FACTOR = (1000 / TIMESTEP_DURATION) / 1000
 
-send_stat = (numpy_results[:,WORLDSENDSTAT]*CONVERSION_FACTOR)[:len(timestamps)]
-recv_stat = (numpy_results[:,WORLDRECVSTAT]*CONVERSION_FACTOR)[:len(timestamps)]
-mean_sendstat = np.mean(send_stat)
-mean_recvstat = np.mean(recv_stat)  
+send_stat = (numpy_results[:,WORLDSENDSTAT]*CONVERSION_FACTOR/active_nodes)[:len(timestamps)]
+recv_stat = (numpy_results[:,WORLDRECVSTAT]*CONVERSION_FACTOR/active_nodes)[:len(timestamps)]
+mean_sendstat = finite_mean(send_stat)
+mean_recvstat = finite_mean(recv_stat)  
 
 print("Mean send_stat:", mean_sendstat)
 print("Mean send_recv:", mean_recvstat)
 
-mean_sendstat_beforeloss = np.mean(send_stat[0:index_aftersetuptime])
-mean_recvstat_beforeloss = np.mean(recv_stat[0:index_aftersetuptime])  
+mean_sendstat_beforeloss = finite_mean(send_stat[0:index_aftersetuptime])
+mean_recvstat_beforeloss = finite_mean(recv_stat[0:index_aftersetuptime])  
 
 print("mean_sendstat_beforeloss:", mean_sendstat_beforeloss)
 print("mean_recvstat_beforeloss:", mean_recvstat_beforeloss)
 
-mean_sendstat_afterloss = np.mean(send_stat[index_aftersetuptime:])
-mean_recvstat_afterloss = np.mean(recv_stat[index_aftersetuptime:])
+mean_sendstat_afterloss = finite_mean(send_stat[index_aftersetuptime:])
+mean_recvstat_afterloss = finite_mean(recv_stat[index_aftersetuptime:])
 
 print("mean_sendstat_afterloss:", mean_sendstat_afterloss)
 print("mean_recvstat_afterloss:", mean_recvstat_afterloss)
 
-raw_mcrecvbytes = (numpy_results[:,RAW_MCRECVBYTES]*CONVERSION_FACTOR)[:len(timestamps)]
-used_mcrecvbytes = (numpy_results[:,USED_MCRECVBYTES]*CONVERSION_FACTOR)[:len(timestamps)]
-mean_rawmcrecv_stat = np.mean(raw_mcrecvbytes)
-mean_usedmcrecv_stat = np.mean(used_mcrecvbytes)
+raw_mcrecvbytes = (numpy_results[:,RAW_MCRECVBYTES]*CONVERSION_FACTOR/active_nodes)[:len(timestamps)]
+used_mcrecvbytes = (numpy_results[:,USED_MCRECVBYTES]*CONVERSION_FACTOR/active_nodes)[:len(timestamps)]
+mean_rawmcrecv_stat = finite_mean(raw_mcrecvbytes)
+mean_usedmcrecv_stat = finite_mean(used_mcrecvbytes)
 
-print("Mean raw_mcrecvbytes:", mean_rawmcrecv_stat)
-print("Mean used_mcrecvbytes:", mean_usedmcrecv_stat)
+print("Mean raw_mcrecv kbytes per node:", mean_rawmcrecv_stat)
+print("Mean used_mcrecv kbytes per node:", mean_usedmcrecv_stat)
 
-mean_rawmcrecv_stat_beforeloss = np.mean(raw_mcrecvbytes[0:index_aftersetuptime])
-mean_usedmcrecv_stat_beforeloss = np.mean(used_mcrecvbytes[0:index_aftersetuptime])
+mean_rawmcrecv_stat_beforeloss = finite_mean(raw_mcrecvbytes[0:index_aftersetuptime])
+mean_usedmcrecv_stat_beforeloss = finite_mean(used_mcrecvbytes[0:index_aftersetuptime])
 
-print("mean_rawmcrecv_stat_beforeloss:", mean_rawmcrecv_stat_beforeloss)
-print("mean_usedmcrecv_stat_beforeloss:", mean_usedmcrecv_stat_beforeloss)
+print("mean_rawmcrecv_stat_beforeloss kBytes/node:", mean_rawmcrecv_stat_beforeloss)
+print("mean_usedmcrecv_stat_beforeloss kBytes/node:", mean_usedmcrecv_stat_beforeloss)
 
-mean_rawmcrecv_stat_afterloss = np.mean(raw_mcrecvbytes[index_aftersetuptime:])
-mean_usedmcrecv_stat_afterloss = np.mean(used_mcrecvbytes[index_aftersetuptime:])
+mean_rawmcrecv_stat_afterloss = finite_mean(raw_mcrecvbytes[index_aftersetuptime:])
+mean_usedmcrecv_stat_afterloss = finite_mean(used_mcrecvbytes[index_aftersetuptime:])
 
-print("mean_rawmcrecv_stat_afterloss:", mean_rawmcrecv_stat_afterloss)
-print("mean_usedmcrecv_stat_afterloss:", mean_usedmcrecv_stat_afterloss)
+print("mean_rawmcrecv_stat_afterloss kBytes/node:", mean_rawmcrecv_stat_afterloss)
+print("mean_usedmcrecv_stat_afterloss kBytes/node:", mean_usedmcrecv_stat_afterloss)
 
 
 resources_filename = re.sub(r"\.txt", "_resources.txt", input_file)
@@ -350,25 +351,25 @@ if tsharksummary_fileexists:
     NIC_SEND_BYTES = 1
     NIC_RECV_BYTES = 2
 
-    nic_sendbytes = (numpy_tsharksummary[:,NIC_SEND_BYTES]*CONVERSION_FACTOR)[:len(timestamps)]
-    nic_recvbytes = (numpy_tsharksummary[:,NIC_RECV_BYTES]*CONVERSION_FACTOR)[:len(timestamps)]
-    mean_nicsendbytes = np.mean(nic_sendbytes)
-    mean_nicrecvbytes = np.mean(nic_recvbytes)
+    nic_sendbytes = (numpy_tsharksummary[:,NIC_SEND_BYTES]*CONVERSION_FACTOR/active_nodes)[:len(timestamps)]
+    nic_recvbytes = (numpy_tsharksummary[:,NIC_RECV_BYTES]*CONVERSION_FACTOR/active_nodes)[:len(timestamps)]
+    mean_nicsendbytes = finite_mean(nic_sendbytes)
+    mean_nicrecvbytes = finite_mean(nic_recvbytes)
 
-    print("Mean NIC send bytes", mean_nicsendbytes)
-    print("Mean NIC recv bytes", mean_nicrecvbytes)
+    print("Mean NIC send kbytes per node", mean_nicsendbytes)
+    print("Mean NIC recv kbytes per node", mean_nicrecvbytes)
 
-    mean_nicsendbytes_beforeloss = np.mean(nic_sendbytes[0:index_aftersetuptime])
-    mean_nicrecvbytes_beforeloss = np.mean(nic_recvbytes[0:index_aftersetuptime])
+    mean_nicsendbytes_beforeloss = finite_mean(nic_sendbytes[0:index_aftersetuptime])
+    mean_nicrecvbytes_beforeloss = finite_mean(nic_recvbytes[0:index_aftersetuptime])
 
-    print("mean_nicsendbytes_beforeloss", mean_nicsendbytes_beforeloss)
-    print("mean_nicrecvbytes_beforeloss", mean_nicrecvbytes_beforeloss)
+    print("mean_nicsendbytes_beforeloss kbytes per node", mean_nicsendbytes_beforeloss)
+    print("mean_nicrecvbytes_beforeloss kbytes per node", mean_nicrecvbytes_beforeloss)
 
-    mean_nicsendbytes_afterloss = np.mean(nic_sendbytes[index_aftersetuptime:])
-    mean_nicrecvbytes_afterloss = np.mean(nic_recvbytes[index_aftersetuptime:])
+    mean_nicsendbytes_afterloss = finite_mean(nic_sendbytes[index_aftersetuptime:])
+    mean_nicrecvbytes_afterloss = finite_mean(nic_recvbytes[index_aftersetuptime:])
 
-    print("mean_nicsendbytes_afterloss", mean_nicsendbytes_afterloss)
-    print("mean_nicrecvbytes_afterloss", mean_nicrecvbytes_afterloss)
+    print("mean_nicsendbytes_afterloss kbytes per node", mean_nicsendbytes_afterloss)
+    print("mean_nicrecvbytes_afterloss kbytes per node", mean_nicrecvbytes_afterloss)
 
 
 
@@ -413,10 +414,10 @@ if latency_fileexists:
     latency_active_nodes = (numpy_latency[:,ACTIVE_NODES_LATENCY])[:len(timestamps)]
     move_latency = (numpy_latency[:,MOVE_LATENCY])[:len(timestamps)]
     normalized_move_latency = move_latency / latency_active_nodes
-
     latency_where_is_finite = np.isfinite(normalized_move_latency)
     mean_normalized_move_latency = np.mean(normalized_move_latency[latency_where_is_finite])
     print("Mean Normalized latency ", mean_normalized_move_latency)
+    max_normalized_move_latency = np.max(normalized_move_latency[latency_where_is_finite])
 
     normalized_move_latency_beforeloss = normalized_move_latency[1:index_aftersetuptime]
     latency_where_is_finite = np.isfinite(normalized_move_latency_beforeloss)

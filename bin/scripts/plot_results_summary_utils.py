@@ -198,14 +198,30 @@ def plot_TopoCon_Drift_BW_Latency(NETMODEL_subset, BoxIndex, XAxisProp, PropName
     xColumnList, yColumnList = seperateByColumn(NETMODEL_subset, XAxisProp, NICSEND_BYTES, DescriptionString)
     if hasMatplotlib and len(xColumnList) > 0:
         
-        ax = boxPlotHelper(513, BoxIndex, xColumnList, yColumnList, '', 'NIC Send\n[kBps]', offset=offset)
-        ax.yaxis.set_major_locator(MaxNLocator(nbins=5))
+        ax3 = boxPlotHelper(513, BoxIndex, xColumnList, yColumnList, '', 'NIC Send\n[kBps]', offset=offset)
+        ax3.yaxis.set_major_locator(MaxNLocator(nbins=5))
+        ax3.relim()
+        ax3.autoscale()
+        ylims_3 = ax3.get_ylim()
+        print("ylims_3", ylims_3)
 
     xColumnList, yColumnList = seperateByColumn(NETMODEL_subset, XAxisProp, NICRECV_BYTES, DescriptionString)
     if hasMatplotlib and len(xColumnList) > 0:
         
-        ax = boxPlotHelper(514, BoxIndex, xColumnList, yColumnList, '', 'NIC Recv\n[kBps]', offset=offset)
-        ax.yaxis.set_major_locator(MaxNLocator(nbins=5))
+        ax4 = boxPlotHelper(514, BoxIndex, xColumnList, yColumnList, '', 'NIC Recv\n[kBps]', offset=offset)
+        ax4.yaxis.set_major_locator(MaxNLocator(nbins=5))
+        ax4.relim()
+        ax4.autoscale()
+
+        ylims_4 = ax4.get_ylim()
+        print("ylims_4", ylims_4)
+        ylims = [np.min([ylims_3[0], ylims_4[0]]), np.max([ylims_3[1], ylims_4[1]])]
+        print("ylims", ylims)
+        ax3.set_ylim(ylims)
+        print("After set ylims:", ax3.get_ylim())
+        ax4.set_ylim(ylims)
+        print("After set ylims:", ax4.get_ylim())
+        
 
     xColumnList, yColumnList = seperateByColumn(NETMODEL_subset, XAxisProp, LATENCY, DescriptionString)
     if hasMatplotlib and len(xColumnList) > 0:

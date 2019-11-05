@@ -4,7 +4,8 @@ import csv
 import sys
 from os.path import expanduser
 import os
-from plot_result_utils import parseFilenameLabel, NET_MODEL_STRINGS
+from plot_result_utils import parseFilenameLabel, NET_MODEL_STRINGS, finite_mean, finite_max
+from matplotlib.ticker import MaxNLocator
 import re
 import glob
 
@@ -218,45 +219,45 @@ print("Mean normalized drift distance:", mean_drift_distance)
 # Show results in kBps -> 10 ticks per second (1000ms / 100ms per tick) / 1000 B per kB
 CONVERSION_FACTOR = (1000 / TIMESTEP_DURATION) / 1000
 
-send_stat = (numpy_results[:,WORLDSENDSTAT]*CONVERSION_FACTOR)[:len(timestamps)]
-recv_stat = (numpy_results[:,WORLDRECVSTAT]*CONVERSION_FACTOR)[:len(timestamps)]
-mean_sendstat = np.mean(send_stat)
-mean_recvstat = np.mean(recv_stat)  
+send_stat = (numpy_results[:,WORLDSENDSTAT]*CONVERSION_FACTOR/active_nodes)[:len(timestamps)]
+recv_stat = (numpy_results[:,WORLDRECVSTAT]*CONVERSION_FACTOR/active_nodes)[:len(timestamps)]
+mean_sendstat = finite_mean(send_stat)
+mean_recvstat = finite_mean(recv_stat)  
 
 print("Mean send_stat:", mean_sendstat)
 print("Mean send_recv:", mean_recvstat)
 
-mean_sendstat_beforeloss = np.mean(send_stat[0:index_aftersetuptime])
-mean_recvstat_beforeloss = np.mean(recv_stat[0:index_aftersetuptime])  
+mean_sendstat_beforeloss = finite_mean(send_stat[0:index_aftersetuptime])
+mean_recvstat_beforeloss = finite_mean(recv_stat[0:index_aftersetuptime])  
 
 print("mean_sendstat_beforeloss:", mean_sendstat_beforeloss)
 print("mean_recvstat_beforeloss:", mean_recvstat_beforeloss)
 
-mean_sendstat_afterloss = np.mean(send_stat[index_aftersetuptime:])
-mean_recvstat_afterloss = np.mean(recv_stat[index_aftersetuptime:])
+mean_sendstat_afterloss = finite_mean(send_stat[index_aftersetuptime:])
+mean_recvstat_afterloss = finite_mean(recv_stat[index_aftersetuptime:])
 
 print("mean_sendstat_afterloss:", mean_sendstat_afterloss)
 print("mean_recvstat_afterloss:", mean_recvstat_afterloss)
 
-raw_mcrecvbytes = (numpy_results[:,RAW_MCRECVBYTES]*CONVERSION_FACTOR)[:len(timestamps)]
-used_mcrecvbytes = (numpy_results[:,USED_MCRECVBYTES]*CONVERSION_FACTOR)[:len(timestamps)]
-mean_rawmcrecv_stat = np.mean(raw_mcrecvbytes)
-mean_usedmcrecv_stat = np.mean(used_mcrecvbytes)
+raw_mcrecvbytes = (numpy_results[:,RAW_MCRECVBYTES]*CONVERSION_FACTOR/active_nodes)[:len(timestamps)]
+used_mcrecvbytes = (numpy_results[:,USED_MCRECVBYTES]*CONVERSION_FACTOR/active_nodes)[:len(timestamps)]
+mean_rawmcrecv_stat = finite_mean(raw_mcrecvbytes)
+mean_usedmcrecv_stat = finite_mean(used_mcrecvbytes)
 
-print("Mean raw_mcrecvbytes:", mean_rawmcrecv_stat)
-print("Mean used_mcrecvbytes:", mean_usedmcrecv_stat)
+print("Mean raw_mcrecv kbytes per node:", mean_rawmcrecv_stat)
+print("Mean used_mcrecv kbytes per node:", mean_usedmcrecv_stat)
 
-mean_rawmcrecv_stat_beforeloss = np.mean(raw_mcrecvbytes[0:index_aftersetuptime])
-mean_usedmcrecv_stat_beforeloss = np.mean(used_mcrecvbytes[0:index_aftersetuptime])
+mean_rawmcrecv_stat_beforeloss = finite_mean(raw_mcrecvbytes[0:index_aftersetuptime])
+mean_usedmcrecv_stat_beforeloss = finite_mean(used_mcrecvbytes[0:index_aftersetuptime])
 
-print("mean_rawmcrecv_stat_beforeloss:", mean_rawmcrecv_stat_beforeloss)
-print("mean_usedmcrecv_stat_beforeloss:", mean_usedmcrecv_stat_beforeloss)
+print("mean_rawmcrecv_stat_beforeloss kBytes/node:", mean_rawmcrecv_stat_beforeloss)
+print("mean_usedmcrecv_stat_beforeloss kBytes/node:", mean_usedmcrecv_stat_beforeloss)
 
-mean_rawmcrecv_stat_afterloss = np.mean(raw_mcrecvbytes[index_aftersetuptime:])
-mean_usedmcrecv_stat_afterloss = np.mean(used_mcrecvbytes[index_aftersetuptime:])
+mean_rawmcrecv_stat_afterloss = finite_mean(raw_mcrecvbytes[index_aftersetuptime:])
+mean_usedmcrecv_stat_afterloss = finite_mean(used_mcrecvbytes[index_aftersetuptime:])
 
-print("mean_rawmcrecv_stat_afterloss:", mean_rawmcrecv_stat_afterloss)
-print("mean_usedmcrecv_stat_afterloss:", mean_usedmcrecv_stat_afterloss)
+print("mean_rawmcrecv_stat_afterloss kBytes/node:", mean_rawmcrecv_stat_afterloss)
+print("mean_usedmcrecv_stat_afterloss kBytes/node:", mean_usedmcrecv_stat_afterloss)
 
 
 resources_filename = re.sub(r"\.txt", "_resources.txt", input_file)
@@ -365,25 +366,25 @@ if tsharksummary_fileexists:
     NIC_SEND_BYTES = 1
     NIC_RECV_BYTES = 2
 
-    nic_sendbytes = (numpy_tsharksummary[:,NIC_SEND_BYTES]*CONVERSION_FACTOR)[:len(timestamps)]
-    nic_recvbytes = (numpy_tsharksummary[:,NIC_RECV_BYTES]*CONVERSION_FACTOR)[:len(timestamps)]
-    mean_nicsendbytes = np.mean(nic_sendbytes)
-    mean_nicrecvbytes = np.mean(nic_recvbytes)
+    nic_sendbytes = (numpy_tsharksummary[:,NIC_SEND_BYTES]*CONVERSION_FACTOR/active_nodes)[:len(timestamps)]
+    nic_recvbytes = (numpy_tsharksummary[:,NIC_RECV_BYTES]*CONVERSION_FACTOR/active_nodes)[:len(timestamps)]
+    mean_nicsendbytes = finite_mean(nic_sendbytes)
+    mean_nicrecvbytes = finite_mean(nic_recvbytes)
 
-    print("Mean NIC send bytes", mean_nicsendbytes)
-    print("Mean NIC recv bytes", mean_nicrecvbytes)
+    print("Mean NIC send kbytes per node", mean_nicsendbytes)
+    print("Mean NIC recv kbytes per node", mean_nicrecvbytes)
 
-    mean_nicsendbytes_beforeloss = np.mean(nic_sendbytes[0:index_aftersetuptime])
-    mean_nicrecvbytes_beforeloss = np.mean(nic_recvbytes[0:index_aftersetuptime])
+    mean_nicsendbytes_beforeloss = finite_mean(nic_sendbytes[0:index_aftersetuptime])
+    mean_nicrecvbytes_beforeloss = finite_mean(nic_recvbytes[0:index_aftersetuptime])
 
-    print("mean_nicsendbytes_beforeloss", mean_nicsendbytes_beforeloss)
-    print("mean_nicrecvbytes_beforeloss", mean_nicrecvbytes_beforeloss)
+    print("mean_nicsendbytes_beforeloss kbytes per node", mean_nicsendbytes_beforeloss)
+    print("mean_nicrecvbytes_beforeloss kbytes per node", mean_nicrecvbytes_beforeloss)
 
-    mean_nicsendbytes_afterloss = np.mean(nic_sendbytes[index_aftersetuptime:])
-    mean_nicrecvbytes_afterloss = np.mean(nic_recvbytes[index_aftersetuptime:])
+    mean_nicsendbytes_afterloss = finite_mean(nic_sendbytes[index_aftersetuptime:])
+    mean_nicrecvbytes_afterloss = finite_mean(nic_recvbytes[index_aftersetuptime:])
 
-    print("mean_nicsendbytes_afterloss", mean_nicsendbytes_afterloss)
-    print("mean_nicrecvbytes_afterloss", mean_nicrecvbytes_afterloss)
+    print("mean_nicsendbytes_afterloss kbytes per node", mean_nicsendbytes_afterloss)
+    print("mean_nicrecvbytes_afterloss kbytes per node", mean_nicrecvbytes_afterloss)
 
 
 
@@ -568,8 +569,8 @@ if (hasMatplotlib and plot_yes):
     # ax4.text(timestamps[0], mean_sendstat*0.9, "%5.2f" % (mean_sendstat), color='g', bbox=dict(facecolor='white', alpha=1))
     # ax4.plot([0,timestamps[-1]], [mean_recvstat, mean_recvstat], 'b')
     # ax4.text(timestamps[-1]*0.95, mean_recvstat*0.6, "%5.2f" % (mean_recvstat), color='b')
-    ax4.set_ylabel("VAST/NIC\nSend/Recv [kBps]")
-    ax4.plot([TOTAL_SETUPTIME, TOTAL_SETUPTIME],[0, np.max(send_stat)], 'k')
+    ax4.set_ylabel("VAST/NIC\nSend/Recv [kBps/node]")
+    ax4.plot([TOTAL_SETUPTIME, TOTAL_SETUPTIME],[0, finite_max(send_stat)], 'k')
     ax4.get_xaxis().set_visible(False)
     plot.xlim(0, MAX_TIMESTAMP)
     ax4.grid(True)
@@ -608,10 +609,11 @@ if (hasMatplotlib and plot_yes):
         ypos2 = ((ylim[1] - ylim[0]) + ylim[0])*0.4
         ypos3 = ((ylim[1] - ylim[0]) + ylim[0])*0.2
 
-        ax4.text(timestamps[0], ypos1, "%5.2f" % (mean_nicsendbytes_beforeloss), color='b', bbox=dict(facecolor='white', alpha=1))
-        ax4.text(timestamps[-1], ypos1, "%5.2f" % (mean_nicsendbytes_afterloss), color='b', bbox=dict(facecolor='white', alpha=1))
+        # UDPNC: nicrecv_bytes should be on top, but for other two should be in the middle.
         ax4.text(timestamps[0], ypos2, "%5.2f" % (mean_nicrecvbytes_beforeloss), color='r', bbox=dict(facecolor='white', alpha=1))
         ax4.text(timestamps[-1], ypos2, "%5.2f" % (mean_nicrecvbytes_afterloss), color='r', bbox=dict(facecolor='white', alpha=1))
+        ax4.text(timestamps[0], ypos1, "%5.2f" % (mean_nicsendbytes_beforeloss), color='b', bbox=dict(facecolor='white', alpha=1))
+        ax4.text(timestamps[-1], ypos1, "%5.2f" % (mean_nicsendbytes_afterloss), color='b', bbox=dict(facecolor='white', alpha=1))
         ax4.text(timestamps[0], ypos3, "%5.2f" % (mean_sendstat_beforeloss), color='g', bbox=dict(facecolor='white', alpha=1))
         ax4.text(timestamps[-1], ypos3, "%5.2f" % (mean_sendstat_afterloss), color='g', bbox=dict(facecolor='white', alpha=1))
     
@@ -626,12 +628,12 @@ if (hasMatplotlib and plot_yes):
         plot.plot([0,timestamps[index_aftersetuptime]], [mean_usedmcrecv_stat_beforeloss, mean_usedmcrecv_stat_beforeloss], color='m', linestyle='--')
         plot.plot([timestamps[index_aftersetuptime],timestamps[-1]], [mean_usedmcrecv_stat_afterloss, mean_usedmcrecv_stat_afterloss], color='m', linestyle='--')
         # plot.plot([0,timestamps[-1]], [mean_usedmcrecv_stat, mean_usedmcrecv_stat], color='m', linestyle='--')
-        plot.plot([TOTAL_SETUPTIME, TOTAL_SETUPTIME],[0, np.max(raw_mcrecvbytes)], 'k')
+        plot.plot([TOTAL_SETUPTIME, TOTAL_SETUPTIME],[0, finite_max(raw_mcrecvbytes)], 'k')
         # plot.text(timestamps[-1], mean_rawmcrecv_stat, "%5.2f" % (mean_rawmcrecv_stat), color='r')
         plot.text(timestamps[0], mean_usedmcrecv_stat_beforeloss, "%5.2f" % (mean_usedmcrecv_stat_beforeloss), color='m', bbox=dict(facecolor='white', alpha=1))
         plot.text(timestamps[-1], mean_usedmcrecv_stat_afterloss, "%5.2f" % (mean_usedmcrecv_stat_afterloss), color='m', bbox=dict(facecolor='white', alpha=1))
         plot.xlim(0, MAX_TIMESTAMP)
-        plot.ylabel("MC Recv\n[kBps]")
+        plot.ylabel("MC Recv\n[kBps/node]")
 
 
 
@@ -642,9 +644,11 @@ if (hasMatplotlib and plot_yes):
         plot.plot([0,timestamps[index_aftersetuptime]], [mean_normalized_move_latency_beforeloss, mean_normalized_move_latency_beforeloss], color='b', linestyle='--')
         plot.plot([timestamps[index_aftersetuptime],timestamps[-1]], [mean_normalized_move_latency_afterloss, mean_normalized_move_latency_afterloss], color='b', linestyle='--')
         plot.plot([TOTAL_SETUPTIME, TOTAL_SETUPTIME],[0, max_normalized_move_latency], 'k')
-        plot.text(timestamps[0], mean_usedmcrecv_stat_beforeloss, "%5.2f" % (mean_normalized_move_latency_beforeloss), color='b', bbox=dict(facecolor='white', alpha=1))
+        plot.text(timestamps[0], mean_normalized_move_latency_beforeloss, "%5.2f" % (mean_normalized_move_latency_beforeloss), color='b', bbox=dict(facecolor='white', alpha=1))
         plot.text(timestamps[-1], mean_normalized_move_latency_afterloss, "%5.2f" % (mean_normalized_move_latency_afterloss), color='b', bbox=dict(facecolor='white', alpha=1))
         plot.xlim(0, MAX_TIMESTAMP)
+        plot.ylim(0, 200)
+        ax5.yaxis.set_major_locator(MaxNLocator(nbins=5))
         plot.ylabel("Latency")
 
 

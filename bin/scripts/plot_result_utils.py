@@ -1,4 +1,5 @@
 import re
+import numpy as np
 
 NET_MODEL_STRINGS = ['', 'net_emu', 'net_ace', 'net_udp', 'net_udpNC']
 NET_MODEL_STRINGS_THESIS = ['', 'net_emu', 'TCP', 'UDP', 'UDPNC']
@@ -41,3 +42,11 @@ def parseFilenameLabel(LABEL_string):
 	DATESTAMP_str = re.search(r'\d+_\d+_\d+-\d+:\d+', LABEL_string).group(0)
 
 	return [NET_MODEL, int(NODECOUNT), int(BW), int(DELAY), int(LOSS), int(STEPS), PLATFORM], DATESTAMP_str
+
+def finite_mean(array):
+	where_isfinite = np.isfinite(array)
+	return np.mean(array[where_isfinite])
+
+def finite_max(array):
+	where_isfinite = np.isfinite(array)
+	return np.max(array[where_isfinite])
