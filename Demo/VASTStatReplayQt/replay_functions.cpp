@@ -448,7 +448,7 @@ void calculateLatencyUpdate()
     }
     if (total_active_nodes > 0)
     {
-        CPPDEBUG("Normalized latency: " << LatencyTotal / total_active_nodes << " active nodes " << total_active_nodes << std::endl);
+//        CPPDEBUG("Normalized latency: " << LatencyTotal / total_active_nodes << " active nodes " << total_active_nodes << std::endl);
     }
 
 //    prevLatencyTotal = tempLatency;

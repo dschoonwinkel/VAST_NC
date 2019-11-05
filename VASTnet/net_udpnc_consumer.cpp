@@ -3,6 +3,7 @@
 #include "net_udpnc_mchandler.h"
 #include "logger.h"
 #include "pthread.h"
+#include "net_udp.h"
 
 namespace Vast
 {
@@ -31,6 +32,14 @@ namespace Vast
         msg.socket_addr = socket_addr;
         _msg_queue.push (msg);
 
+    }
+
+    void net_udpNC_consumer::tick()
+    {
+        //Do stats recording here
+        Logger::debug("net_udpNC_consumer::tick consumer_queue size on " +
+                      std::to_string(abs_netudp->getReal_net_udp()->getID()) +
+                      ": " + std::to_string(_msg_queue.size()), true);
     }
 
     void net_udpNC_consumer::start_consuming()

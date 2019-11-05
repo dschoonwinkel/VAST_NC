@@ -28,6 +28,8 @@ namespace Vast{
                   abstract_net_udp *abs_netudp,
                   net_udpNC_MChandler* mchandler, bool startthread = true);
 
+        void tick();
+
         void close();
         void UDPNC_msg_received (UDPNCMessage msg, IPaddr socket_addr);
 

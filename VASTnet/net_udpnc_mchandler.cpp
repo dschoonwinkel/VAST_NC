@@ -242,6 +242,10 @@ namespace Vast
 
         raw_interval_MCrecv_bytes = 0;
         used_interval_MCrecv_bytes = 0;
+
+        Logger::debug("net_udpNC_MChandler::tick Packet pool size on "
+                     + std::to_string(_udp_manager->getReal_net_udp()->getID()) +
+                     ": " + std::to_string(decoder.getPacketPoolSize()), true);
     }
 
     int net_udpNC_MChandler::close() {

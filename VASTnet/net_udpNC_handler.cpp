@@ -205,6 +205,7 @@ namespace Vast
     void net_udpNC_handler::tick()
     {
         mchandler.tick();
+        consumer.tick();
     }
 
     int net_udpNC_handler::close ()
