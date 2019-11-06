@@ -318,10 +318,14 @@ if (os.path.isfile(events_filename)):
     events_text = events_text[1:]
 
     events = list()
+    net_udpNC_events = list()
 
     for row in events_text:
         # print(row)
-        events.append([float(row[0]), row[1], row[2]])
+        if row[2].find("Packet pool size on") == -1 and row[2].find("consumer_queue size on") == -1:
+            events.append([float(row[0]), row[1], row[2]])
+        else: 
+            net_udpNC_events.append([float(row[0]), row[1], row[2]])
         # print(results[-1])
         # print(int(row[0])%10000)
 
@@ -337,9 +341,9 @@ if (os.path.isfile(events_filename)):
         if timestamps[i] > np.float(events_np[events_index][0]):
             for j in range(len(timestamps)):
                 events_index += 1
-                print("Catching events up: compare timestamps: ", timestamps[i], events_np[events_index][0])
+                # print("Catching events up: compare timestamps: ", timestamps[i], events_np[events_index][0])
                 if np.float(events_np[events_index][0]) > timestamps[i]:
-                    print("Caught up, stopping")
+                    # print("Caught up, stopping")
                     break
 
         if np.float(events_np[events_index][0]) > timestamps[i] and np.float(events_np[events_index][0]) < timestamps[i+1]:
@@ -525,7 +529,7 @@ if (hasMatplotlib and plot_yes):
     if (LABEL_list):
         plot.title(str(LABEL_list))
 
-    subplot_count = 5
+    subplot_count = 6
     if mean_rawmcrecv_stat_afterloss > 0:
         subplot_count += 1
 
@@ -667,7 +671,7 @@ if (hasMatplotlib and plot_yes):
         ax5.yaxis.set_major_locator(MaxNLocator(nbins=5))
         plot.ylabel("Latency")
 
-
+    print("subplot_count", subplot_count)
 
 
     if not resources_fileexist:
@@ -697,29 +701,64 @@ if (hasMatplotlib and plot_yes):
     #     plot.xlim(0, MAX_TIMESTAMP)
 
     if events_fileexist:
-
-        ax1 = plot.subplot(6,1,6)
+        print("Plotting event")
+        ax1 = plot.subplot(subplot_count,1,6)
         for event in events:
+            # if (event[1].find("10.0.0.12") != -1) and event[2].find("Packet pool size on") == -1 and event[2].find("consumer_queue size on") == -1:
             # if (event[2] == "net_udpNC_consumer::process_input Resetting chain for 720575944742207489"):
-                # print(event)
+            # print(event)
                 # print(np.where(unique_messages==event[2])[0][0])
                 # plot.plot([event[0], event[0]], [0, np.max(normalised_drift_distance[where_is_finite])]) 
-            plot.plot([event[0], event[0]], [0, 1], 'b') 
-            plot.text(event[0], np.max(normalised_drift_distance[where_is_finite]), 
-                str(np.where(unique_messages==event[2])[0][0]), rotation=90)
-            plot.xlim(0, MAX_TIMESTAMP)
+            ax1.plot([event[0], event[0]], [0, 1], 'r') 
+            ax1.text(event[0], 1, str(np.where(unique_messages==event[2])[0][0]), rotation=90)
+
+        plot.xlim(0, MAX_TIMESTAMP)
             # plot.ylim(0, 100)
 
-        ax2 = plot.subplot(6,1,5)
+        # ax2 = plot.subplot(6,1,5)    plot.plot([event[0], event[0]], [0, 1], 'b') 
+            # plot.text(event[0], 1, 
+            #     str(np.where(unique_messages==event[2])[0][0]), rotation=90)
 
-        def running_mean(x, N):
-            return np.convolve(x, np.ones((N,))/N, mode='valid')
+        # def running_mean(x, N):
+        #     return np.convolve(x, np.ones((N,))/N, mode='valid')
         
-        running_event_mean = running_mean(events_timeseries, 10)
-        print(running_event_mean.shape)
-        running_event_mean = np.pad(running_event_mean, (9,0), 'constant', constant_values=(0))
-        print("running_event_mean.shape", running_event_mean.shape)
-        plot.plot(timestamps, running_event_mean)
+        # running_event_mean = running_mean(events_timeseries, 10)
+        # print(running_event_mean.shape)
+        # running_event_mean = np.pad(running_event_mean, (9,0), 'constant', constant_values=(0))
+        # print("running_event_mean.shape", running_event_mean.shape)
+        # plot.plot(timestamps, running_event_mean)
+        # plot.xlim(0, MAX_TIMESTAMP)
+
+        packet_pool_timestamps = list()
+        packet_pool_size_values = list()
+        consumer_queue_timestamps = list()
+        consumer_queue_size_values = list()
+
+        print("Processing packet pool size and consumer_queue size")
+        for event in net_udpNC_events:
+            if (event[1].find("10.0.0.1") != -1 and event[2].find("Packet pool size on") != -1):
+                packet_pool_size = re.search(r"Packet pool size on (\d+): (\d+)", event[2]).group(2)
+                # print("Packet pool size: ", np.float(packet_pool_size))
+                packet_pool_timestamps.append(np.float(event[0]))
+                packet_pool_size_values.append(np.float(packet_pool_size))
+                # ax3.plot(np.float(event[0]), np.float(packet_pool_size), '.')
+
+            elif (event[1].find("10.0.0.1") != -1 and event[2].find("consumer_queue size on") != -1):
+                # print(event[2])
+                consumer_queue_size = re.search(r"consumer_queue size on (\d+): (\d+)", event[2]).group(2)
+                # print("Packet pool size: ", np.float(consumer_queue_size))
+                consumer_queue_timestamps.append(np.float(event[0]))
+                consumer_queue_size_values.append(np.float(consumer_queue_size))
+        
+        print("Plotting packet pool size and consumer_queue_size")
+        ax3 = plot.subplot(subplot_count,1,6)
+        ax3.plot(packet_pool_timestamps, packet_pool_size_values)
+        ax3.set_ylabel("Packet pool size")
+        plot.xlim(0, MAX_TIMESTAMP)
+
+        ax4 = plot.subplot(subplot_count,1,7)
+        ax4.plot(consumer_queue_timestamps, consumer_queue_size_values)
+        ax4.set_ylabel("Consumer queue size")
         plot.xlim(0, MAX_TIMESTAMP)
         
     

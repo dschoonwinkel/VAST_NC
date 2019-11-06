@@ -1,7 +1,13 @@
+#!/usr/bin/env python3
 import matplotlib.pyplot as plot
 import numpy as np
 import csv
 import sys
+
+from os.path import expanduser
+
+home_dir = expanduser("~")
+print("Home Dir: ", home_dir)
 
 with open("../VASTreal.ini", 'r') as config:
     data = config.readlines()
@@ -18,7 +24,14 @@ MAX_TIMESTAMP = (SIMULATION_STEPS * TIMESTEP_DURATION)
 
 results_text = list()
 
-with open('../logs/results/individual_drift.txt', 'r') as csvfile:
+input_file = '%s/Development/VAST-0.4.6/bin/logs/results/individual_drift.txt' % home_dir
+
+if (len(sys.argv) > 1):
+    input_file = sys.argv[1]
+
+print("Input file: ", input_file)
+
+with open(input_file, 'r') as csvfile:
     spamreader = csv.reader(csvfile, delimiter=",")
     for row in spamreader:
         results_text.append(row)
