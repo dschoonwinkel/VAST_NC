@@ -43,6 +43,9 @@ def parseFilenameLabel(LABEL_string):
 
 	return [NET_MODEL, int(NODECOUNT), int(BW), int(DELAY), int(LOSS), int(STEPS), PLATFORM], DATESTAMP_str
 
+def parseFilenameNodesTimesteps(LABEL_string):
+	return parseFilenameLabel(LABEL_string)[0][1], parseFilenameLabel(LABEL_string)[0][5]
+
 def finite_mean(array):
 	where_isfinite = np.isfinite(array)
 	return np.mean(array[where_isfinite])

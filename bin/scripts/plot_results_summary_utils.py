@@ -198,17 +198,18 @@ def plot_TopoCon_Drift_BW_Latency(NETMODEL_subset, BoxIndex, XAxisProp, PropName
     xColumnList, yColumnList = seperateByColumn(NETMODEL_subset, XAxisProp, NICSEND_BYTES, DescriptionString)
     if hasMatplotlib and len(xColumnList) > 0:
         
-        ax3 = boxPlotHelper(513, BoxIndex, xColumnList, yColumnList, '', 'NIC Send\n[kBps]', offset=offset)
+        ax3 = boxPlotHelper(513, BoxIndex, xColumnList, yColumnList, '', 'NIC Send\n[kBps/node]', offset=offset)
         ax3.yaxis.set_major_locator(MaxNLocator(nbins=5))
         ax3.relim()
         ax3.autoscale()
         ylims_3 = ax3.get_ylim()
         print("ylims_3", ylims_3)
+        ax3.set_xlim(ax1.get_xlim())
 
     xColumnList, yColumnList = seperateByColumn(NETMODEL_subset, XAxisProp, NICRECV_BYTES, DescriptionString)
     if hasMatplotlib and len(xColumnList) > 0:
         
-        ax4 = boxPlotHelper(514, BoxIndex, xColumnList, yColumnList, '', 'NIC Recv\n[kBps]', offset=offset)
+        ax4 = boxPlotHelper(514, BoxIndex, xColumnList, yColumnList, '', 'NIC Recv\n[kBps/node]', offset=offset)
         ax4.yaxis.set_major_locator(MaxNLocator(nbins=5))
         ax4.relim()
         ax4.autoscale()
@@ -221,6 +222,7 @@ def plot_TopoCon_Drift_BW_Latency(NETMODEL_subset, BoxIndex, XAxisProp, PropName
         print("After set ylims:", ax3.get_ylim())
         ax4.set_ylim(ylims)
         print("After set ylims:", ax4.get_ylim())
+        ax4.set_xlim(ax1.get_xlim())
         
 
     xColumnList, yColumnList = seperateByColumn(NETMODEL_subset, XAxisProp, LATENCY, DescriptionString)
@@ -277,7 +279,8 @@ def plot_TopoCon_Drift_BW_Latency_TCPUDP(resultsSubset, XAxisProp, PropName, Tit
         else:
             custom_lines_names.append(NET_MODEL_STRINGS[i][4:].upper())
 
-        ax1.legend(custom_lines, custom_lines_names, loc='lower left', prop={'size':7})
+        ax1.legend(custom_lines, custom_lines_names, loc='left', prop={'size':7}, ncol=2)
+        # ax1.legend(custom_lines, custom_lines_names, prop={'size':7}, ncol=2)
 
 def plot_TopoCon_Drift_BW_Latency_UDPUDPNC(resultsSubset, XAxisProp, PropName, Title, DescriptionString=""):
     if hasMatplotlib:
@@ -346,7 +349,7 @@ def tabulateNETMODELs(results_matrix, NETMODELs, xColumnIndex, yColumnIndex, Pro
     header = list()
     line_list = list()
 
-    header = [None]
+    header = ["~"]
     for NETMODEL in NETMODELs:
         NETMODEL_subset = subsetByColumnValue(results_matrix, NET_MODEL, NETMODEL)
         xColumnList = np.unique(np.append(xColumnList, NETMODEL_subset[:,xColumnIndex]))

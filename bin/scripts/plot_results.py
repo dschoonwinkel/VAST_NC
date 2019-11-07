@@ -4,14 +4,14 @@ import csv
 import sys
 from os.path import expanduser
 import os
-from plot_result_utils import parseFilenameLabel, NET_MODEL_STRINGS, finite_mean, finite_max
-from matplotlib.ticker import MaxNLocator
+from plot_result_utils import parseFilenameLabel, parseFilenameNodesTimesteps, NET_MODEL_STRINGS, finite_mean, finite_max
 import re
 import glob
 
 hasMatplotlib = True
 try:
     import matplotlib.pyplot as plot
+    from matplotlib.ticker import MaxNLocator
 except ImportError:
     print("Matplotlib not available on this console")
     hasMatplotlib = False
@@ -68,38 +68,12 @@ with open(Mininet_file, 'r') as config:
     LOSS_PERC = (int)(data[data.index('#LOSS_PERC;     // Percentages of packets dropped on downstream link. Upstream link unaffected\n')+1])
     # print ("LOSS_PERC", LOSS_PERC)
 
-# x_axis_interval = 20000
-x_axis_interval = TIMESTEP_DURATION * 1000
-# MAX_TIMESTAMP = 130000
-# Keep all except the last bit, where gateway has probably disconnected and other nodes do not know what's going on
-MAX_TIMESTAMP = (SIMULATION_STEPS * TIMESTEP_DURATION)
-# Use this to see what happens past node 1 leave
-# MAX_TIMESTAMP = (SIMULATION_STEPS * TIMESTEP_DURATION * 2)
 
-TIMESTEP_DURATION_S = TIMESTEP_DURATION / 1000.0
-print("TIMESTEP_DURATION_S", TIMESTEP_DURATION_S)
-print("NODE_COUNT", NODE_COUNT)
-TOTAL_SETUPTIME_S = ((1 + TIMESTEP_DURATION_S * 10)*NODE_COUNT + TIMESTEP_DURATION_S * 1000)
-TOTAL_SETUPTIME = TOTAL_SETUPTIME_S * 1000
-print("Total connection setup time: ", TOTAL_SETUPTIME, 'ms')
-print("Total connection setup time: ", TOTAL_SETUPTIME / 1000, 's')
-
-results_text = list()
 
 input_file = '%s/Development/VAST-0.4.6/bin/logs/results/results1.txt' % home_dir
 
 if (len(sys.argv) > 1):
     input_file = sys.argv[1]
-
-plot_yes = False
-
-if (len(sys.argv) > 2):
-    print(sys.argv[2])
-    print("Plotting")
-    plot_yes = True
-
-
-# print(input_file)
 
 LABEL_list = None
 abspath = os.path.abspath(input_file)
@@ -113,16 +87,49 @@ if LABEL_start != -1:
     # print(LABEL_string)
     LABEL_list, DATESTAMP_str = parseFilenameLabel(LABEL_string)
     print(LABEL_list, DATESTAMP_str)
+
+    NODES_parsed, SIMULATION_STEPS_parsed = parseFilenameNodesTimesteps(LABEL_string)
+    print("parseFilenameNodesTimesteps", (NODES_parsed, SIMULATION_STEPS_parsed))
+
+    if (NODES_parsed != NODE_COUNT or SIMULATION_STEPS != SIMULATION_STEPS_parsed):
+        print("******************************************")
+        print("NODES_parsed or SIMULATION_STEPS_parsed different to Mininet.ini, using parsed values")
+        print("******************************************")
+        NODE_COUNT = NODES_parsed
+        SIMULATION_STEPS = SIMULATION_STEPS_parsed
+
 else:
     print('LABEL_start not found')
 
 
 
 
+# x_axis_interval = 20000
+x_axis_interval = TIMESTEP_DURATION * 1000
+# MAX_TIMESTAMP = 130000
+# Keep all except the last bit, where gateway has probably disconnected and other nodes do not know what's going on
+MAX_TIMESTAMP = (SIMULATION_STEPS * TIMESTEP_DURATION)
+print("MAX TIMESTAMP", MAX_TIMESTAMP)
+# Use this to see what happens past node 1 leave
+# MAX_TIMESTAMP = (SIMULATION_STEPS * TIMESTEP_DURATION * 2)
+
+TIMESTEP_DURATION_S = TIMESTEP_DURATION / 1000.0
+print("TIMESTEP_DURATION_S", TIMESTEP_DURATION_S)
+print("NODE_COUNT", NODE_COUNT)
+TOTAL_SETUPTIME_S = ((1 + TIMESTEP_DURATION_S * 10)*NODE_COUNT + TIMESTEP_DURATION_S * 1000)
+TOTAL_SETUPTIME = TOTAL_SETUPTIME_S * 1000
+print("Total connection setup time: ", TOTAL_SETUPTIME, 'ms')
+print("Total connection setup time: ", TOTAL_SETUPTIME / 1000, 's')
+
+results_text = list()
 
 
+plot_yes = False
 
-
+if (len(sys.argv) > 2):
+    print(sys.argv[2])
+    print("Plotting")
+    plot_yes = True
 
 with open(input_file, 'r') as csvfile:
     spamreader = csv.reader(csvfile, delimiter=",")
@@ -154,8 +161,14 @@ first_timestamp = int(results_text[0][0])
 print("Timestamps:", timestamps)
 after_setuptime_relative_timestamp = timestamps[0]+TOTAL_SETUPTIME
 print("After setuptime relative timestamp", after_setuptime_relative_timestamp)
-index_aftersetuptime = np.where(timestamps>after_setuptime_relative_timestamp)[0][0]
-print("index in timestamps for after setuptime", index_aftersetuptime)
+print("np.where", np.where(timestamps>after_setuptime_relative_timestamp)[0])
+if len(np.where(timestamps>after_setuptime_relative_timestamp)[0]) != 0:
+    index_aftersetuptime = np.where(timestamps>after_setuptime_relative_timestamp)[0][0]
+    print("index in timestamps for after setuptime", index_aftersetuptime)
+else:
+    index_aftersetuptime = len(timestamps) -1
+    print("index in timestamps for after setuptime not available, using last timestamp", index_aftersetuptime)
+
 last_relative_timestamp = timestamps[-1]
 
 if last_relative_timestamp < 0.9 * MAX_TIMESTAMP:
