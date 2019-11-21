@@ -48,7 +48,10 @@ def countByColumn(results_matrix, xColumnIndex, yColumnIndex):
             # print(ySubset)
             # print(len(ySubset))
             countMatrix[i,j] = len(ySubset)
-            print(countMatrix[i,j], end='\t')
+            if (countMatrix[i,j] != 0.0):
+                print(countMatrix[i,j], end='\t')
+            else:
+                print(" ", end='\t')
 
         print("")
 
@@ -119,7 +122,7 @@ print("\n\n\
 Seperated by LOSS_PERC\n\
 *********************")
 MininetSubset = subsetByColumnValue(results_nparray, PLATFORM, MININET)
-MininetSubset = subsetByColumnValue(MininetSubset, STEPS, 5000)
+# MininetSubset = subsetByColumnValue(MininetSubset, STEPS, 5000)
 
 for i in range(NET_MODEL_STRINGS.index('net_ace'),NET_MODEL_STRINGS.index('net_udpNC') + 1):
 

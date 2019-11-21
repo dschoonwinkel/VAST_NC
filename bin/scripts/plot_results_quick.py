@@ -50,7 +50,7 @@ with open(Mininet_file, 'r') as config:
     data = config.readlines()
     NODE_COUNT = int(data[data.index('#NODE_COUNT;    // Nodes started in simulation\n')+1])
     # print("NODE_COUNT", NODE_COUNT)
-    BW = (int)(data[data.index('#BW;            // Bandwidth limit [Mbps], 0 if inifinte\n')+1])
+    BW = (float)(data[data.index('#BW;            // Bandwidth limit [Mbps], 0 if inifinte\n')+1])
     # print ("BW", BW)
     DELAY = (int)(data[data.index('#DELAY;         // Delay in MS\n')+1])
     # print ("DELAY", DELAY)
@@ -465,7 +465,7 @@ if LABEL_list:
     # print(LABEL_list)
     if not in_result_summary:
         with open('%s/Development/VAST-0.4.6/bin/results_summary/results_summary.txt' % home_dir, 'a') as outfile:
-            outfile.write(("%s, %d, %d, %d, %d, %d, %d, %d, %3.2f, %3.2f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %s\n") % 
+            outfile.write(("%s, %d, %d, %2.2f, %d, %d, %d, %d, %3.2f, %3.2f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %s\n") % 
                   tuple(LABEL_list))
 
 

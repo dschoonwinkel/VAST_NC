@@ -18,7 +18,7 @@ def parseFilenameLabel(LABEL_string):
 	NODECOUNT = NODECOUNT_str[len('NODES'):]
 	# print("NODECOUNT:", NODECOUNT)
 
-	BW_str = re.search(r'BW\d+', LABEL_string).group(0)
+	BW_str = re.search(r'BW\d+\.*\d*', LABEL_string).group(0)
 	BW = BW_str[len('BW'):]
 	# print("BW:", BW)
 
@@ -41,7 +41,7 @@ def parseFilenameLabel(LABEL_string):
 
 	DATESTAMP_str = re.search(r'\d+_\d+_\d+-\d+:\d+', LABEL_string).group(0)
 
-	return [NET_MODEL, int(NODECOUNT), int(BW), int(DELAY), int(LOSS), int(STEPS), PLATFORM], DATESTAMP_str
+	return [NET_MODEL, int(NODECOUNT), float(BW), int(DELAY), int(LOSS), int(STEPS), PLATFORM], DATESTAMP_str
 
 def parseFilenameNodesTimesteps(LABEL_string):
 	return parseFilenameLabel(LABEL_string)[0][1], parseFilenameLabel(LABEL_string)[0][5]

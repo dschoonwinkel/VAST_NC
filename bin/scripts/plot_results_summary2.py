@@ -28,6 +28,7 @@ results_header, results_results_nparray = readFileRetNumpyArray(input_file_resul
 print("*******************\nMininet LOSS plot 50 NODES Mininet")
 resultsSubset = subsetByColumnValue(results_results_nparray, PLATFORM, MININET)
 resultsSubset = subsetByColumnValue(resultsSubset, DELAY_MS, 0)
+resultsSubset = subsetByColumnValue(resultsSubset, BW_LIMIT, 0)
 resultsSubset = subsetLessThanByColumnValue(resultsSubset, LOSS_PERC, 15)
 resultsSubset = excludeByColumnValue(resultsSubset, LOSS_PERC, 1)
 resultsSubset = subsetByColumnValue(resultsSubset, NODES_COUNT, 50)
@@ -36,15 +37,26 @@ plot.savefig("results_summary_Mininet_LOSSX_50NODES_TCPUDP.pdf", dpi=1200, pad_i
 
 resultsSubset = subsetByColumnValue(results_results_nparray, PLATFORM, MININET)
 resultsSubset = subsetByColumnValue(resultsSubset, DELAY_MS, 0)
+resultsSubset = subsetByColumnValue(resultsSubset, BW_LIMIT, 0)
 resultsSubset = excludeByColumnValue(resultsSubset, LOSS_PERC, 1)
 resultsSubset = excludeByColumnValue(resultsSubset, LOSS_PERC, 2)
 resultsSubset = subsetByColumnValue(resultsSubset, NODES_COUNT, 50)
-plot_TopoCon_Drift_BW_Latency_UDPUDPNC(resultsSubset, LOSS_PERC, "LOSS_PERC", "UDP vs UDPNC, 50 NODES, 0-10% LOSS_PERC, Mininet")
+plot_TopoCon_Drift_BW_Latency_UDPUDPNC(resultsSubset, LOSS_PERC, "LOSS_PERC", "UDP vs UDPNC, 50 NODES, 0-70% LOSS_PERC, Mininet")
 plot.savefig("results_summary_Mininet_LOSSX_50NODES_UDPUDPNC.pdf", dpi=1200, pad_inches=2)
+
+resultsSubset = subsetByColumnValue(results_results_nparray, PLATFORM, MININET)
+resultsSubset = subsetByColumnValue(resultsSubset, DELAY_MS, 0)
+resultsSubset = subsetByColumnValue(resultsSubset, BW_LIMIT, 0)
+resultsSubset = excludeByColumnValue(resultsSubset, LOSS_PERC, 1)
+resultsSubset = subsetLessThanByColumnValue(resultsSubset, LOSS_PERC, 15)
+resultsSubset = subsetByColumnValue(resultsSubset, NODES_COUNT, 50)
+plot_TopoCon_Drift_BW_Latency_UDPUDPNC(resultsSubset, LOSS_PERC, "LOSS_PERC", "UDP vs UDPNC, 50 NODES, 0-10% LOSS_PERC, Mininet")
+plot.savefig("results_summary_Mininet_LOSS0_10_50NODES_UDPUDPNC.pdf", dpi=1200, pad_inches=2)
 
 print("*******************\nMininet LOSS0, 50 NODES, DELAY0 Mininet")
 resultsSubset = subsetByColumnValue(results_results_nparray, PLATFORM, MININET)
 resultsSubset = subsetByColumnValue(resultsSubset, LOSS_PERC, 0)
+resultsSubset = subsetByColumnValue(resultsSubset, BW_LIMIT, 0)
 resultsSubset = subsetByColumnValue(resultsSubset, DELAY_MS, 0)
 resultsSubset = subsetByColumnValue(resultsSubset, NODES_COUNT, 50)
 plot_TopoCon_Drift_BW_Latency_TCPUDP(resultsSubset, DELAY_MS, "DELAY_MS", "TCP vs UDP, LOSS 0%, 50 NODES, 0 ms Delay, Mininet")
@@ -58,6 +70,7 @@ plot.savefig("results_summary_Mininet_LOSS0_DELAY0_50NODES_allModels.pdf", dpi=1
 print("*******************\nMininet DELAY plot, 10% LOSS 50 NODES Mininet")
 resultsSubset = subsetByColumnValue(results_results_nparray, PLATFORM, MININET)
 resultsSubset = subsetByColumnValue(resultsSubset, LOSS_PERC, 10)
+resultsSubset = subsetByColumnValue(resultsSubset, BW_LIMIT, 0)
 resultsSubset = subsetByColumnValue(resultsSubset, NODES_COUNT, 50)
 plot_TopoCon_Drift_BW_Latency_TCPUDP(resultsSubset, DELAY_MS, "DELAY_MS", "TCP vs UDP, LOSS 10%, 50 NODES, 0-200 ms Delay, Mininet")
 plot.savefig("results_summary_Mininet_LOSS10_DELAYX_50NODES_TCPUDP.pdf", dpi=1200, pad_inches=2)
@@ -65,14 +78,27 @@ plot_TopoCon_Drift_BW_Latency_UDPUDPNC(resultsSubset, DELAY_MS, "DELAY_MS", "UDP
 plot.savefig("results_summary_Mininet_LOSS10_DELAYX_50NODES_UDPUDPNC.pdf", dpi=1200, pad_inches=2)
 
 
-print("*******************\nMininet Scaling plot, 10% LOSS 20-60 NODES Mininet")
+print("*******************\nMininet Scaling plot, 10% LOSS 20-100 NODES Mininet")
 resultsSubset = subsetByColumnValue(results_results_nparray, PLATFORM, MININET)
 resultsSubset = subsetByColumnValue(resultsSubset, LOSS_PERC, 10)
+resultsSubset = subsetByColumnValue(resultsSubset, BW_LIMIT, 0)
 resultsSubset = subsetByColumnValue(resultsSubset, DELAY_MS, 0)
-plot_TopoCon_Drift_BW_Latency_TCPUDP(resultsSubset, NODES_COUNT, "NODES_COUNT", "TCP vs UDP, LOSS 10%, 20-60 NODES, 0 ms Delay, Mininet")
+plot_TopoCon_Drift_BW_Latency_TCPUDP(resultsSubset, NODES_COUNT, "NODES_COUNT", "TCP vs UDP, LOSS 10%, 20-100 NODES, 0 ms Delay, Mininet")
 plot.savefig("results_summary_Mininet_LOSS10_DELAY0_NODESX_TCPUDP.pdf", dpi=1200, pad_inches=2)
-plot_TopoCon_Drift_BW_Latency_UDPUDPNC(resultsSubset, NODES_COUNT, "NODES_COUNT", "UDP vs UDPNC, LOSS 10%, 20-60 NODES, 0 ms Delay, Mininet")
+plot_TopoCon_Drift_BW_Latency_UDPUDPNC(resultsSubset, NODES_COUNT, "NODES_COUNT", "UDP vs UDPNC, LOSS 10%, 20-100 NODES, 0 ms Delay, Mininet")
 plot.savefig("results_summary_Mininet_LOSS10_DELAY0_NODESX_UDPUDPNC.pdf", dpi=1200, pad_inches=2)
+
+
+
+print("*******************\nMininet Scaling plot, 0% LOSS 50 NODES, 0.4 Mbits/s Mininet")
+resultsSubset = subsetByColumnValue(results_results_nparray, PLATFORM, MININET)
+resultsSubset = subsetByColumnValue(resultsSubset, LOSS_PERC, 0)
+resultsSubset = subsetByColumnValue(resultsSubset, BW_LIMIT, 0.4)
+resultsSubset = subsetByColumnValue(resultsSubset, DELAY_MS, 0)
+# plot_TopoCon_Drift_BW_Latency_TCPUDP(resultsSubset, NODES_COUNT, "NODES_COUNT", "TCP vs UDP, LOSS 10%, 20-100 NODES, 0 ms Delay, Mininet")
+# plot.savefig("results_summary_Mininet_LOSS10_DELAY0_NODESX_TCPUDP.pdf", dpi=1200, pad_inches=2)
+plot_TopoCon_Drift_BW_Latency_TCPUDP(resultsSubset, BW_LIMIT, "Bandwidth limit [Mbps]", "TCP vs UDP vs UDPNC, LOSS 0%, 50 NODES, 0 ms Delay, 0.4 Mbps Bandwidth, Mininet", ShowActiveNodes=True)
+plot.savefig("results_summary_Mininet_LOSS0_DELAY0_NODES50_BW0.4_allModels.pdf", dpi=1200, pad_inches=2)
 
 
 

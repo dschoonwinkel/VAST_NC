@@ -61,7 +61,7 @@ with open(Mininet_file, 'r') as config:
     data = config.readlines()
     NODE_COUNT = int(data[data.index('#NODE_COUNT;    // Nodes started in simulation\n')+1])
     # print("NODE_COUNT", NODE_COUNT)
-    BW = (int)(data[data.index('#BW;            // Bandwidth limit [Mbps], 0 if inifinte\n')+1])
+    BW = (float)(data[data.index('#BW;            // Bandwidth limit [Mbps], 0 if inifinte\n')+1])
     # print ("BW", BW)
     DELAY = (int)(data[data.index('#DELAY;         // Delay in MS\n')+1])
     # print ("DELAY", DELAY)
@@ -225,6 +225,11 @@ normalised_drift_distance = drift_distance / drift_nodes
 mean_drift_distance = np.mean(normalised_drift_distance[where_is_finite])
 print("Mean normalized drift distance:", mean_drift_distance)
 
+
+max_drift = numpy_results[:,MAX_DRIFT][:len(timestamps)]
+# Thumb suck: if only one of the nodes have 
+# min_drift = (drift_distance - max_drift) / (drift_nodes - 1)
+min_drift = np.zeros(max_drift.shape)
 
 
 
@@ -493,7 +498,7 @@ if LABEL_list:
     # print(LABEL_list)
     if not plot_yes and not in_result_summary:
         with open('%s/Development/VAST-0.4.6/bin/results_summary/results_summary.txt' % home_dir, 'a') as outfile:
-            outfile.write(("%s, %d, %d, %d, %d, %d, %d, %d, %3.2f, %3.2f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %s\n") % 
+            outfile.write(("%s, %d, %d, %2.2f, %d, %d, %d, %d, %3.2f, %3.2f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %s\n") % 
                   tuple(LABEL_list))
         #         outfile.write("%s, %s, %f, %f, %f, %f, %f\n" 
     #             % (first_timestamp, input_file, np.max(active_nodes), mean_consistency, 
@@ -515,200 +520,218 @@ if LABEL_list:
 #               mean_drift_distance, np.mean(send_stat), np.mean(recv_stat)))
 #         print("Saving test results in results_summary.txt with label " + input_file)
 
+def plot_results(with_ylim=False): 
 
-if (hasMatplotlib and plot_yes):
+    if (hasMatplotlib and plot_yes):
 
-    plot.figure(1, figsize=(12, 10), dpi=80)
-    if (LABEL_list):
-        plot.title(str(LABEL_list))
+        plot.figure(figsize=(12, 10), dpi=80)
+        if (LABEL_list):
+            plot.title(str(LABEL_list))
 
-    subplot_count = 4
-    if mean_rawmcrecv_stat_afterloss > 0:
-        subplot_count += 1
+        subplot_count = 4
 
-    if latency_fileexists:
-        subplot_count += 1
+        if latency_fileexists:
+            subplot_count += 1
 
-    ax1 = plot.subplot(subplot_count,1,1)
-    plot.plot(timestamps, active_nodes[:len(timestamps)], 'b')
-    plot.plot(timestamps, active_matchers[:len(timestamps)], 'r')
-    plot.plot([TOTAL_SETUPTIME, TOTAL_SETUPTIME],[0, max(active_nodes)+1], 'k')
-    plot.text(timestamps[-1], max_nodes, str(max_nodes), color='b', bbox=dict(facecolor='white', alpha=1))
-    plot.text(timestamps[-1], max_matchers, str(max_matchers), color='r', bbox=dict(facecolor='white', alpha=1))
-    plot.ylabel("# Active")
-    plot.legend(['Nodes', 'Matchers'])
-    ax1.get_xaxis().set_visible(False)
-    plot.yticks(np.arange(min(active_nodes),max(active_nodes)+1, max(active_nodes)/5))
-    plot.xlim(0, MAX_TIMESTAMP)
-    plot.grid(True)
+        if mean_rawmcrecv_stat_afterloss > 0:
+            subplot_count += 1
 
 
-    ax2 = plot.subplot(subplot_count,1,2)
-    plot.plot(timestamps, topo_consistency)
-    plot.plot(timestamps[where_are_NaNs], topo_consistency[where_are_NaNs], 'r,')
-    plot.plot([0,timestamps[index_aftersetuptime]], [mean_consistency_beforeloss,mean_consistency_beforeloss], 'r--')
-    plot.plot([timestamps[index_aftersetuptime],timestamps[-1]], [mean_consistency_afterloss,mean_consistency_afterloss], 'r--')
-    # plot.plot([0,timestamps[-1]], [mean_consistency,mean_consistency], 'r--')
-    plot.plot([TOTAL_SETUPTIME, TOTAL_SETUPTIME],[np.min(topo_consistency), 100], 'k')
-    plot.text(timestamps[0], mean_consistency_afterloss, "%5.2f" % mean_consistency_beforeloss, bbox=dict(facecolor='white', alpha=1))
-    plot.text(timestamps[-1], mean_consistency_afterloss, "%5.2f" % mean_consistency_afterloss, bbox=dict(facecolor='white', alpha=1))
-    plot.ylabel("Topo consistency\n[%]")
-    ax2.get_xaxis().set_visible(False)
-    plot.xlim(0, MAX_TIMESTAMP)
-    print("Consistency plot ylims: ", plot.ylim())
-    plot.ylim(96, 100.2)
-    plot.yticks(np.arange(96, 100, 1))
-    plot.grid(True)
-    
-
-    ax3 = plot.subplot(subplot_count,1,3)
-    plot.plot(timestamps, normalised_drift_distance)
-    plot.plot([0,timestamps[index_aftersetuptime]], [mean_drift_distance_beforeloss,mean_drift_distance_beforeloss], 'r--')
-    plot.plot([timestamps[index_aftersetuptime],timestamps[-1]], [mean_drift_distance_afterloss,mean_drift_distance_afterloss], 'r--')
-    # plot.plot([0,timestamps[-1]], [mean_drift_distance,mean_drift_distance], 'r--')
-    plot.plot([TOTAL_SETUPTIME, TOTAL_SETUPTIME],[0, np.max(normalised_drift_distance[where_is_finite])], 'k')
-    plot.ylabel("Norm drift\ndist[VE units]")
-    plot.text(timestamps[0], mean_drift_distance_beforeloss, "%5.2f" % mean_drift_distance_beforeloss, bbox=dict(facecolor='white', alpha=1))
-    plot.text(timestamps[-1], mean_drift_distance_afterloss, "%5.2f" % mean_drift_distance_afterloss, bbox=dict(facecolor='white', alpha=1))
-    plot.xlim(0, MAX_TIMESTAMP)
-    ax3.get_xaxis().set_visible(False)
-    plot.grid(True)
-    
-    ax4 = plot.subplot(subplot_count,1,4)
-    ax4.plot(timestamps, send_stat, 'g',label='Send stat')
-    # ax4.plot(timestamps, recv_stat, 'b', label='Recv stat')
-    ax4.plot([0,timestamps[-1]], [mean_sendstat, mean_sendstat], 'g--')
-    # Text added later
-    # ax4.text(timestamps[0], mean_sendstat*0.9, "%5.2f" % (mean_sendstat), color='g', bbox=dict(facecolor='white', alpha=1))
-    # ax4.plot([0,timestamps[-1]], [mean_recvstat, mean_recvstat], 'b')
-    # ax4.text(timestamps[-1]*0.95, mean_recvstat*0.6, "%5.2f" % (mean_recvstat), color='b')
-    ax4.set_ylabel("VAST/NIC\nSend/Recv [kBps/node]")
-    ax4.plot([TOTAL_SETUPTIME, TOTAL_SETUPTIME],[0, finite_max(send_stat)], 'k')
-    ax4.get_xaxis().set_visible(False)
-    plot.xlim(0, MAX_TIMESTAMP)
-    ax4.grid(True)
-
-    # ax4_b = ax4.twinx()
-    if (tsharksummary_fileexists):
-        ax4.plot(timestamps, nic_sendbytes, 'b')
-        ax4.plot([0, timestamps[index_aftersetuptime]], [mean_nicsendbytes_beforeloss, mean_nicsendbytes_beforeloss], 'b--')
-        ax4.plot([timestamps[index_aftersetuptime],timestamps[-1]], [mean_nicsendbytes_afterloss, mean_nicsendbytes_afterloss], 'b--')
-        # ax4.plot([0,timestamps[-1]], [mean_nicsendbytes, mean_nicsendbytes], 'b--')
-        # ax4.text(timestamps[0], mean_nicsendbytes_beforeloss*1.3, "%5.2f" % (mean_nicsendbytes_beforeloss), color='b', bbox=dict(facecolor='white', alpha=1))
-                
-        ax4.plot(timestamps, nic_recvbytes, 'r')    
-        ax4.plot([0,timestamps[index_aftersetuptime]], [mean_nicrecvbytes_beforeloss, mean_nicrecvbytes_beforeloss], 'r--')
-        ax4.plot([timestamps[index_aftersetuptime],timestamps[-1]], [mean_nicrecvbytes_afterloss, mean_nicrecvbytes_afterloss], 'r--')
-
-        from matplotlib.lines import Line2D
-        custom_lines = [Line2D([0], [0], color='g', lw=1),
-                        Line2D([0], [0], color='b', lw=1),
-                        Line2D([0], [0], color='r', lw=1)]
-        # ax4.legend(custom_lines, ['Send VAST', 'Send NIC', 'Recv NIC'], loc='lower center')
-        # ax4.legend(custom_lines, ['Send VAST', 'Send NIC', 'Recv NIC'], loc='upper left', mode="expand")
-        ax4.legend(custom_lines, ['Send VAST', 'Send NIC', 'Recv NIC'], loc='upper left', ncol=3)
+        ax1 = plot.subplot(subplot_count,1,1)
+        plot.plot(timestamps, active_nodes[:len(timestamps)], 'b')
+        plot.plot(timestamps, active_matchers[:len(timestamps)], 'r')
+        plot.plot([TOTAL_SETUPTIME, TOTAL_SETUPTIME],[0, max(active_nodes)+1], 'k')
+        plot.text(timestamps[-1], max_nodes, str(max_nodes), color='b', bbox=dict(facecolor='white', alpha=1))
+        plot.text(timestamps[-1], max_matchers, str(max_matchers), color='r', bbox=dict(facecolor='white', alpha=1))
+        plot.ylabel("# Active")
+        plot.legend(['Nodes', 'Matchers'])
+        ax1.get_xaxis().set_visible(False)
+        plot.yticks(np.arange(min(active_nodes),max(active_nodes)+1, max(active_nodes)/5))
+        plot.xlim(0, MAX_TIMESTAMP)
+        plot.grid(True)
 
 
-        # ax4.legend(['Send NIC', 'Recv NIC'])
-        # ax4.set_ylabel("NIC Send\nRecv Unicast [kBps]")
-        ylim = ax4.get_ylim()
-        # ylim = (ylim[0], ylim[1]*1.3) # For UDPNC
-        ylim = (ylim[0], ylim[1]*1.3) # For TCP
-        print(ylim)
-        ax4.set_ylim(ylim)
+        ax2 = plot.subplot(subplot_count,1,2)
+        plot.plot(timestamps, topo_consistency)
+        plot.plot(timestamps[where_are_NaNs], topo_consistency[where_are_NaNs], 'r,')
+        plot.plot([0,timestamps[index_aftersetuptime]], [mean_consistency_beforeloss,mean_consistency_beforeloss], 'r--')
+        plot.plot([timestamps[index_aftersetuptime],timestamps[-1]], [mean_consistency_afterloss,mean_consistency_afterloss], 'r--')
+        # plot.plot([0,timestamps[-1]], [mean_consistency,mean_consistency], 'r--')
+        plot.plot([TOTAL_SETUPTIME, TOTAL_SETUPTIME],[np.min(topo_consistency), 100], 'k')
+        plot.text(timestamps[0], mean_consistency_afterloss, "%5.2f" % mean_consistency_beforeloss, bbox=dict(facecolor='white', alpha=1))
+        plot.text(timestamps[-1], mean_consistency_afterloss, "%5.2f" % mean_consistency_afterloss, bbox=dict(facecolor='white', alpha=1))
+        plot.ylabel("Topo consistency\n[%]")
+        ax2.get_xaxis().set_visible(False)
+        plot.xlim(0, MAX_TIMESTAMP)
+        print("Consistency plot ylims: ", plot.ylim())
+        plot.ylim(96, 100.2)
+        plot.yticks(np.arange(96, 100, 1))
+        plot.grid(True)
+
+        ax3 = plot.subplot(subplot_count,1,3)
+        plot.plot(timestamps, normalised_drift_distance)
+        plot.plot([0,timestamps[index_aftersetuptime]], [mean_drift_distance_beforeloss,mean_drift_distance_beforeloss], 'r--')
+        plot.plot([timestamps[index_aftersetuptime],timestamps[-1]], [mean_drift_distance_afterloss,mean_drift_distance_afterloss], 'r--')
+        ylims = plot.ylim()
+
+        # Plot variance...
+        plot.fill_between(timestamps, max_drift, min_drift, color='gray', alpha=0.2)
+        if with_ylim:
+            plot.ylim(ylims)
+
+        # plot.plot([0,timestamps[-1]], [mean_drift_distance,mean_drift_distance], 'r--')
+        plot.plot([TOTAL_SETUPTIME, TOTAL_SETUPTIME],[0, np.max(normalised_drift_distance[where_is_finite])], 'k')
+        plot.ylabel("Norm drift\ndist[VE units]")
+        plot.text(timestamps[0], mean_drift_distance_beforeloss, "%5.2f" % mean_drift_distance_beforeloss, bbox=dict(facecolor='white', alpha=1))
+        plot.text(timestamps[-1], mean_drift_distance_afterloss, "%5.2f" % mean_drift_distance_afterloss, bbox=dict(facecolor='white', alpha=1))
+        plot.xlim(0, MAX_TIMESTAMP)
+        ax3.get_xaxis().set_visible(False)
+        plot.grid(True)
+
+        if (latency_fileexists):
+            ax5 = plot.subplot(subplot_count,1,4)
+            plot.plot(timestamps, normalized_move_latency, color='b')
+            # plot.plot([0,timestamps[-1]], [mean_normalized_move_latency_stat, mean_normalized_move_latency_stat], 'r')
+            plot.plot([0,timestamps[index_aftersetuptime]], [mean_normalized_move_latency_beforeloss, mean_normalized_move_latency_beforeloss], color='r', linestyle='--')
+            plot.plot([timestamps[index_aftersetuptime],timestamps[-1]], [mean_normalized_move_latency_afterloss, mean_normalized_move_latency_afterloss], color='r', linestyle='--')
+            plot.plot([TOTAL_SETUPTIME, TOTAL_SETUPTIME],[0, max_normalized_move_latency], 'k')
+            plot.text(timestamps[0], mean_normalized_move_latency_beforeloss, "%5.2f" % (mean_normalized_move_latency_beforeloss), color='b', bbox=dict(facecolor='white', alpha=1))
+            plot.text(timestamps[-1], mean_normalized_move_latency_afterloss, "%5.2f" % (mean_normalized_move_latency_afterloss), color='b', bbox=dict(facecolor='white', alpha=1))
+            plot.xlim(0, MAX_TIMESTAMP)
+            plot.ylim(0, 200)
+            ax5.yaxis.set_major_locator(MaxNLocator(nbins=5))
+            plot.ylabel("Latency")
+        
+        
+        ax4 = plot.subplot(subplot_count,1,5)
+        ax4.plot(timestamps, send_stat, 'g',label='Send stat')
+        # ax4.plot(timestamps, recv_stat, 'b', label='Recv stat')
+        ax4.plot([0,timestamps[-1]], [mean_sendstat, mean_sendstat], 'g--')
+        # Text added later
+        # ax4.text(timestamps[0], mean_sendstat*0.9, "%5.2f" % (mean_sendstat), color='g', bbox=dict(facecolor='white', alpha=1))
+        # ax4.plot([0,timestamps[-1]], [mean_recvstat, mean_recvstat], 'b')
+        # ax4.text(timestamps[-1]*0.95, mean_recvstat*0.6, "%5.2f" % (mean_recvstat), color='b')
+        ax4.set_ylabel("VAST/NIC\nSend/Recv [kBps/node]")
+        ax4.plot([TOTAL_SETUPTIME, TOTAL_SETUPTIME],[0, finite_max(send_stat)], 'k')
+        ax4.get_xaxis().set_visible(False)
+        plot.xlim(0, MAX_TIMESTAMP)
+        ax4.grid(True)
+
+        # ax4_b = ax4.twinx()
+        if (tsharksummary_fileexists):
+            ax4.plot(timestamps, nic_sendbytes, 'b')
+            ax4.plot([0, timestamps[index_aftersetuptime]], [mean_nicsendbytes_beforeloss, mean_nicsendbytes_beforeloss], 'b--')
+            ax4.plot([timestamps[index_aftersetuptime],timestamps[-1]], [mean_nicsendbytes_afterloss, mean_nicsendbytes_afterloss], 'b--')
+            # ax4.plot([0,timestamps[-1]], [mean_nicsendbytes, mean_nicsendbytes], 'b--')
+            # ax4.text(timestamps[0], mean_nicsendbytes_beforeloss*1.3, "%5.2f" % (mean_nicsendbytes_beforeloss), color='b', bbox=dict(facecolor='white', alpha=1))
+                    
+            ax4.plot(timestamps, nic_recvbytes, 'r')    
+            ax4.plot([0,timestamps[index_aftersetuptime]], [mean_nicrecvbytes_beforeloss, mean_nicrecvbytes_beforeloss], 'r--')
+            ax4.plot([timestamps[index_aftersetuptime],timestamps[-1]], [mean_nicrecvbytes_afterloss, mean_nicrecvbytes_afterloss], 'r--')
+
+            from matplotlib.lines import Line2D
+            custom_lines = [Line2D([0], [0], color='g', lw=1),
+                            Line2D([0], [0], color='b', lw=1),
+                            Line2D([0], [0], color='r', lw=1)]
+            # ax4.legend(custom_lines, ['Send VAST', 'Send NIC', 'Recv NIC'], loc='lower center')
+            # ax4.legend(custom_lines, ['Send VAST', 'Send NIC', 'Recv NIC'], loc='upper left', mode="expand")
+            ax4.legend(custom_lines, ['Send VAST', 'Send NIC', 'Recv NIC'], loc='upper left', ncol=3)
+
+
+            # ax4.legend(['Send NIC', 'Recv NIC'])
+            # ax4.set_ylabel("NIC Send\nRecv Unicast [kBps]")
+            ylim = ax4.get_ylim()
+            # ylim = (ylim[0], ylim[1]*1.3) # For UDPNC
+            ylim = (ylim[0], ylim[1]*1.3) # For TCP
+            print(ylim)
+            ax4.set_ylim(ylim)
+            
+
+            ypos1 = ((ylim[1] - ylim[0]) + ylim[0])*0.6
+            ypos2 = ((ylim[1] - ylim[0]) + ylim[0])*0.4
+            ypos3 = ((ylim[1] - ylim[0]) + ylim[0])*0.2
+
+            # UDPNC: nicrecv_bytes should be on top, but for other two should be in the middle.
+            ax4.text(timestamps[0], ypos2, "%5.2f" % (mean_nicrecvbytes_beforeloss), color='r', bbox=dict(facecolor='white', alpha=1))
+            ax4.text(timestamps[-1], ypos2, "%5.2f" % (mean_nicrecvbytes_afterloss), color='r', bbox=dict(facecolor='white', alpha=1))
+            ax4.text(timestamps[0], ypos1, "%5.2f" % (mean_nicsendbytes_beforeloss), color='b', bbox=dict(facecolor='white', alpha=1))
+            ax4.text(timestamps[-1], ypos1, "%5.2f" % (mean_nicsendbytes_afterloss), color='b', bbox=dict(facecolor='white', alpha=1))
+            ax4.text(timestamps[0], ypos3, "%5.2f" % (mean_sendstat_beforeloss), color='g', bbox=dict(facecolor='white', alpha=1))
+            ax4.text(timestamps[-1], ypos3, "%5.2f" % (mean_sendstat_afterloss), color='g', bbox=dict(facecolor='white', alpha=1))
+        
         
 
-        ypos1 = ((ylim[1] - ylim[0]) + ylim[0])*0.6
-        ypos2 = ((ylim[1] - ylim[0]) + ylim[0])*0.4
-        ypos3 = ((ylim[1] - ylim[0]) + ylim[0])*0.2
+        if mean_rawmcrecv_stat_afterloss > 0:
+            ax5 = plot.subplot(subplot_count,1,subplot_count)
+            # plot.plot(timestamps, raw_mcrecvbytes, 'r',label='Raw MC Recv')
+            # plot.plot(timestamps, used_mcrecvbytes, 'm', label='MC Recv')
+            plot.plot(timestamps, used_mcrecvbytes, color='m')
+            # plot.plot([0,timestamps[-1]], [mean_rawmcrecv_stat, mean_rawmcrecv_stat], 'r')
+            plot.plot([0,timestamps[index_aftersetuptime]], [mean_usedmcrecv_stat_beforeloss, mean_usedmcrecv_stat_beforeloss], color='r', linestyle='--')
+            plot.plot([timestamps[index_aftersetuptime],timestamps[-1]], [mean_usedmcrecv_stat_afterloss, mean_usedmcrecv_stat_afterloss], color='r', linestyle='--')
+            # plot.plot([0,timestamps[-1]], [mean_usedmcrecv_stat, mean_usedmcrecv_stat], color='m', linestyle='--')
+            plot.plot([TOTAL_SETUPTIME, TOTAL_SETUPTIME],[0, finite_max(raw_mcrecvbytes)], 'k')
+            # plot.text(timestamps[-1], mean_rawmcrecv_stat, "%5.2f" % (mean_rawmcrecv_stat), color='r')
+            plot.text(timestamps[0], mean_usedmcrecv_stat_beforeloss, "%5.2f" % (mean_usedmcrecv_stat_beforeloss), color='m', bbox=dict(facecolor='white', alpha=1))
+            plot.text(timestamps[-1], mean_usedmcrecv_stat_afterloss, "%5.2f" % (mean_usedmcrecv_stat_afterloss), color='m', bbox=dict(facecolor='white', alpha=1))
+            plot.xlim(0, MAX_TIMESTAMP)
+            plot.ylabel("MC Recv\n[kBps/node]")
 
-        # UDPNC: nicrecv_bytes should be on top, but for other two should be in the middle.
-        ax4.text(timestamps[0], ypos2, "%5.2f" % (mean_nicrecvbytes_beforeloss), color='r', bbox=dict(facecolor='white', alpha=1))
-        ax4.text(timestamps[-1], ypos2, "%5.2f" % (mean_nicrecvbytes_afterloss), color='r', bbox=dict(facecolor='white', alpha=1))
-        ax4.text(timestamps[0], ypos1, "%5.2f" % (mean_nicsendbytes_beforeloss), color='b', bbox=dict(facecolor='white', alpha=1))
-        ax4.text(timestamps[-1], ypos1, "%5.2f" % (mean_nicsendbytes_afterloss), color='b', bbox=dict(facecolor='white', alpha=1))
-        ax4.text(timestamps[0], ypos3, "%5.2f" % (mean_sendstat_beforeloss), color='g', bbox=dict(facecolor='white', alpha=1))
-        ax4.text(timestamps[-1], ypos3, "%5.2f" % (mean_sendstat_afterloss), color='g', bbox=dict(facecolor='white', alpha=1))
-    
-    
 
-    if mean_rawmcrecv_stat_afterloss > 0:
-        ax5 = plot.subplot(subplot_count,1,5)
-        # plot.plot(timestamps, raw_mcrecvbytes, 'r',label='Raw MC Recv')
-        # plot.plot(timestamps, used_mcrecvbytes, 'm', label='MC Recv')
-        plot.plot(timestamps, used_mcrecvbytes, color='m')
-        # plot.plot([0,timestamps[-1]], [mean_rawmcrecv_stat, mean_rawmcrecv_stat], 'r')
-        plot.plot([0,timestamps[index_aftersetuptime]], [mean_usedmcrecv_stat_beforeloss, mean_usedmcrecv_stat_beforeloss], color='m', linestyle='--')
-        plot.plot([timestamps[index_aftersetuptime],timestamps[-1]], [mean_usedmcrecv_stat_afterloss, mean_usedmcrecv_stat_afterloss], color='m', linestyle='--')
-        # plot.plot([0,timestamps[-1]], [mean_usedmcrecv_stat, mean_usedmcrecv_stat], color='m', linestyle='--')
-        plot.plot([TOTAL_SETUPTIME, TOTAL_SETUPTIME],[0, finite_max(raw_mcrecvbytes)], 'k')
-        # plot.text(timestamps[-1], mean_rawmcrecv_stat, "%5.2f" % (mean_rawmcrecv_stat), color='r')
-        plot.text(timestamps[0], mean_usedmcrecv_stat_beforeloss, "%5.2f" % (mean_usedmcrecv_stat_beforeloss), color='m', bbox=dict(facecolor='white', alpha=1))
-        plot.text(timestamps[-1], mean_usedmcrecv_stat_afterloss, "%5.2f" % (mean_usedmcrecv_stat_afterloss), color='m', bbox=dict(facecolor='white', alpha=1))
+
+
+        if not resources_fileexist:
+            plot.xticks(np.arange(min(timestamps), max(timestamps)+1, x_axis_interval))
+        else:
+            ax5.get_xaxis().set_visible(False)
+        # plot.legend()
+        plot.grid(True)
         plot.xlim(0, MAX_TIMESTAMP)
-        plot.ylabel("MC Recv\n[kBps/node]")
 
+        # if resources_fileexist:
+        #     ax1 = plot.subplot(6,1,6)
+        #     ax1.plot(numpy_resources[:,0], numpy_resources[:,1], 'r',label='CPU %')
+        #     ax1.plot([TOTAL_SETUPTIME, TOTAL_SETUPTIME],[0, np.max(numpy_resources[:,1])], 'k')
+        #     ax1.text(timestamps[-1000], mean_CPU, "%3.2f" % mean_CPU, color='r')
+        #     color = 'tab:red'
+        #     ax1.set_ylabel("CPU % ", color=color)
 
+        #     ax2 = ax1.twinx()
+        #     ax2.plot(numpy_resources[:,0], numpy_resources[:,2], 'b',label='Mem')
+        #     ax2.text(timestamps[-1000], median_MemMB, "%3.2f" % median_MemMB, color='b')
+        #     color = 'tab:blue'
+        #     ax2.set_ylabel("Mem [MB]", color=color)
+        #     plot.xlabel("Timestamp [ms]")
+        #     plot.xticks(np.arange(min(timestamps), max(timestamps)+1, x_axis_interval))
+        #     plot.grid(True)
+        #     plot.xlim(0, MAX_TIMESTAMP)
 
-    if (latency_fileexists):
-        ax5 = plot.subplot(subplot_count,1,subplot_count)
-        plot.plot(timestamps, normalized_move_latency, color='b')
-        # plot.plot([0,timestamps[-1]], [mean_normalized_move_latency_stat, mean_normalized_move_latency_stat], 'r')
-        plot.plot([0,timestamps[index_aftersetuptime]], [mean_normalized_move_latency_beforeloss, mean_normalized_move_latency_beforeloss], color='b', linestyle='--')
-        plot.plot([timestamps[index_aftersetuptime],timestamps[-1]], [mean_normalized_move_latency_afterloss, mean_normalized_move_latency_afterloss], color='b', linestyle='--')
-        plot.plot([TOTAL_SETUPTIME, TOTAL_SETUPTIME],[0, max_normalized_move_latency], 'k')
-        plot.text(timestamps[0], mean_normalized_move_latency_beforeloss, "%5.2f" % (mean_normalized_move_latency_beforeloss), color='b', bbox=dict(facecolor='white', alpha=1))
-        plot.text(timestamps[-1], mean_normalized_move_latency_afterloss, "%5.2f" % (mean_normalized_move_latency_afterloss), color='b', bbox=dict(facecolor='white', alpha=1))
-        plot.xlim(0, MAX_TIMESTAMP)
-        plot.ylim(0, 200)
-        ax5.yaxis.set_major_locator(MaxNLocator(nbins=5))
-        plot.ylabel("Latency")
+        if events_fileexist:
+            ax1 = plot.subplot(6,1,3)
+            for event in events:
+                # print(event)
+                # print(np.where(unique_messages==event[2])[0][0])
+                plot.plot([event[0], event[0]], [0, np.max(normalised_drift_distance[where_is_finite])]) 
+                plot.text(event[0], np.max(normalised_drift_distance[where_is_finite]), 
+                    str(np.where(unique_messages==event[2])[0][0]), rotation=90)
+                # plot.xlim(0, MAX_TIMESTAMP)
+                # plot.ylim(0, 100)
 
+        fig_filename = "VASTreal_results.pdf"
 
+        if (LABEL_list):
+            fig_filename = re.sub("logs_net_", "", LABEL_string)
+            fig_filename = re.sub("/", "", fig_filename)
+            print(fig_filename)
+            
+        if (with_ylim):
+            plot.savefig("%s.pdf" % fig_filename, dpi=300)
+        else:
+            plot.savefig("%s_without_ylim.pdf" % fig_filename, dpi=300)  
 
+        plot.xlabel("Timestamp [ms]")
 
-    if not resources_fileexist:
-        plot.xticks(np.arange(min(timestamps), max(timestamps)+1, x_axis_interval))
-    else:
-        ax5.get_xaxis().set_visible(False)
-    # plot.legend()
-    plot.grid(True)
-    plot.xlim(0, MAX_TIMESTAMP)
+plot_results()
+plot_results(True)
 
-    # if resources_fileexist:
-    #     ax1 = plot.subplot(6,1,6)
-    #     ax1.plot(numpy_resources[:,0], numpy_resources[:,1], 'r',label='CPU %')
-    #     ax1.plot([TOTAL_SETUPTIME, TOTAL_SETUPTIME],[0, np.max(numpy_resources[:,1])], 'k')
-    #     ax1.text(timestamps[-1000], mean_CPU, "%3.2f" % mean_CPU, color='r')
-    #     color = 'tab:red'
-    #     ax1.set_ylabel("CPU % ", color=color)
-
-    #     ax2 = ax1.twinx()
-    #     ax2.plot(numpy_resources[:,0], numpy_resources[:,2], 'b',label='Mem')
-    #     ax2.text(timestamps[-1000], median_MemMB, "%3.2f" % median_MemMB, color='b')
-    #     color = 'tab:blue'
-    #     ax2.set_ylabel("Mem [MB]", color=color)
-    #     plot.xlabel("Timestamp [ms]")
-    #     plot.xticks(np.arange(min(timestamps), max(timestamps)+1, x_axis_interval))
-    #     plot.grid(True)
-    #     plot.xlim(0, MAX_TIMESTAMP)
-
-    if events_fileexist:
-        ax1 = plot.subplot(6,1,3)
-        for event in events:
-            # print(event)
-            # print(np.where(unique_messages==event[2])[0][0])
-            plot.plot([event[0], event[0]], [0, np.max(normalised_drift_distance[where_is_finite])]) 
-            plot.text(event[0], np.max(normalised_drift_distance[where_is_finite]), 
-                str(np.where(unique_messages==event[2])[0][0]), rotation=90)
-            # plot.xlim(0, MAX_TIMESTAMP)
-            # plot.ylim(0, 100)
-
-        
-    
-    plot.savefig("VASTreal_results_%s.pdf" % input_file, dpi=300)
-    # plot.savefig("VASTreal_results_%s.png" % label, dpi=300)
-
-    plot.xlabel("Timestamp [ms]")
-    
-    plot.show()
+plot.show()
