@@ -29,6 +29,8 @@ WORLDSENDSTAT = 8
 WORLDRECVSTAT = 9
 RAW_MCRECVBYTES = 10
 USED_MCRECVBYTES = 11
+MAX_TOPOCONS = 12
+MIN_TOPOCONS = 13
 
 print("Usage: ./plot_results.py <input_file: default = results1.txt>\n\
                  <results label = \"NET_MODEL, nodecount, BW, delay, loss%\">")
@@ -137,15 +139,19 @@ with open(input_file, 'r') as csvfile:
         results_text.append(row)
         # print(",".join(row))
 
-header = results_text[0]
+results_header = results_text[0]
 results_text = results_text[1:]
 
 results = list()
 
 for row in results_text:
     # print(row)
-    results.append([(int(row[0])-int(results_text[0][0])), int(row[1]), int(row[2]), int(row[3]),
-            int(row[4]), int(row[5]), int(row[6]), int(row[7]), int(row[8]), int(row[9]), int(row[10]), int(row[11])])
+    if len(results_header) == MIN_TOPOCONS+1:
+        results.append([(int(row[0])-int(results_text[0][0])), int(row[1]), int(row[2]), int(row[3]),
+                int(row[4]), int(row[5]), int(row[6]), int(row[7]), int(row[8]), int(row[9]), int(row[10]), int(row[11]), float(row[12]), float(row[13])])
+    else:
+        results.append([(int(row[0])-int(results_text[0][0])), int(row[1]), int(row[2]), int(row[3]),
+                int(row[4]), int(row[5]), int(row[6]), int(row[7]), int(row[8]), int(row[9]), int(row[10]), int(row[11])])
     # print(results[-1])
     # print(int(row[0])%10000)
 
@@ -184,6 +190,8 @@ max_matchers = np.max(active_matchers)
 
 # TOPO CONSISTENCY
 topo_consistency = (100* 1.0*numpy_results[:,AN_VISIBLE] / (1.0*numpy_results[:,AN_ACTUAL]))[:len(timestamps)]
+max_topo_consistency = numpy_results[:,MAX_TOPOCONS][:len(timestamps)]
+min_topo_consistency = numpy_results[:,MIN_TOPOCONS][:len(timestamps)]
 where_is_finite = np.isfinite(topo_consistency)
 print("len(where_is_finite)", len(where_is_finite))
 mean_consistency = np.mean(topo_consistency[where_is_finite])
@@ -553,6 +561,7 @@ def plot_results(with_ylim=False):
 
         ax2 = plot.subplot(subplot_count,1,2)
         plot.plot(timestamps, topo_consistency)
+        plot.fill_between(timestamps, max_topo_consistency, min_topo_consistency, color='gray', alpha=0.2)
         plot.plot(timestamps[where_are_NaNs], topo_consistency[where_are_NaNs], 'r,')
         plot.plot([0,timestamps[index_aftersetuptime]], [mean_consistency_beforeloss,mean_consistency_beforeloss], 'r--')
         plot.plot([timestamps[index_aftersetuptime],timestamps[-1]], [mean_consistency_afterloss,mean_consistency_afterloss], 'r--')
@@ -733,5 +742,11 @@ def plot_results(with_ylim=False):
 
 plot_results()
 plot_results(True)
+
+if len(results_header) == MIN_TOPOCONS+1:
+    print("It contains max, min Topo consistency")
+else:
+    print(results_header)
+    print("Len of reesults_header: ", len(results_header))
 
 plot.show()

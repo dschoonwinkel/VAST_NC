@@ -34,7 +34,9 @@ std::ofstream latency_results_file(latency_results);
 
 
 //Variables needed for calc_consistency
-size_t total_AN_actual =0, total_AN_visible =0, total_drift =0, max_drift =0, drift_nodes =0, total_active_nodes =0;
+size_t total_AN_actual =0, total_AN_visible =0;
+double maxTopoConsistency=0, minTopoConsistency = 100.0;
+size_t total_drift =0, max_drift =0, drift_nodes =0, total_active_nodes =0;
 size_t total_active_matchers =0;
 long worldSendStat =0, worldRecvStat = 0;
 long prevWorldSendStat = 0, prevWorldRecvStat = 0;
@@ -48,8 +50,11 @@ long prevRawMCRecvBytes = 0, prevUsedMCRecvBytes = 0;
 
 //LatencyStat variables
 size_t total_latency_nodes = 0;
+size_t total_latency_records = 0;
 bool hasLatencyStat = false;
 long LatencyTotal = 0;
+long minLatency = 0;
+long maxLatency = 0;
 long prevLatencyTotal = 0;
 
 
@@ -206,7 +211,7 @@ void initVariables()
 
     ofs << "timestamp," << "active_nodes," << "active_matchers," << "AN_actual," << "AN_visible,"
         << "Total drift," << "Max drift," << "drift nodes," << "worldSendStat," << "worldRecvStat,"
-        << "rawMCRecvBytes," << "usedMCRecvBytes" << std::endl;
+        << "rawMCRecvBytes," << "usedMCRecvBytes," << "maxTopoConsistency," << "minTopoConsistency" << std::endl;
 
 
 
@@ -240,7 +245,7 @@ void initVariables()
 
     }
 
-    latency_results_file << "timestamp," << "active_nodes," << "MOVElatency" << std::endl;
+    latency_results_file << "timestamp," << "total_records," << "MOVElatency," << "maxLatency" << std::endl;
 
 
 
@@ -263,7 +268,10 @@ void calculateUpdate()
     long tempRawMCRecvBytes = 0, tempUsedMCRecvBytes = 0;
 
     total_active_nodes =0;
-    total_active_matchers =0;
+    total_active_matchers=0;
+
+    maxTopoConsistency = 0;
+    minTopoConsistency = 100;
 
 
     //VASTStatLog approach - instead of working with vectors of entries
@@ -384,6 +392,11 @@ void calculateUpdate()
 
     calculateLatencyUpdate();
 
+    if (total_AN_actual == 0)
+    {
+        maxTopoConsistency = 100;
+    }
+
     latest_timestamp += simpara.TIMESTEP_DURATION;
 
 }
@@ -392,7 +405,10 @@ void calculateLatencyUpdate()
 {
 //    long tempLatency = 0;
     LatencyTotal = 0;
+    total_latency_records = 0;
     total_latency_nodes = 0;
+    maxLatency = 0;
+    minLatency = 100000;
 
 
     //LatencyStat
@@ -423,8 +439,17 @@ void calculateLatencyUpdate()
                 CPPDEBUG("Latency Stat Did not contain any records" << std::endl);
             }
             else {
-                LatencyTotal += restoredLog.getLatencyStat().average;
+                LatencyTotal += restoredLog.getLatencyStat().total;
+                total_latency_records += restoredLog.getLatencyStat().num_records;
                 total_latency_nodes++;
+                if (restoredLog.getLatencyStat().maximum > maxLatency)
+                {
+                    maxLatency = restoredLog.getLatencyStat().maximum;
+                }
+                if (restoredLog.getLatencyStat().minimum < minLatency)
+                {
+                    minLatency = restoredLog.getLatencyStat().minimum;
+                }
             }
 
 
@@ -462,6 +487,8 @@ size_t calc_consistency (const Vast::VASTStatLog &restoredLog, size_t &total_AN_
 //    AN_actual = AN_visible = total_drift = max_drift = drift_nodes = 0;
     size_t node_drift = 0;
     // loop through all nodes
+    size_t local_AN_actual = 0, local_AN_visible  = 0;
+
     for (size_t j=0; j< allRestoredLogs.size (); ++j)
     {
         const VASTStatLog &otherLog = allRestoredLogs[logIDs[j]];
@@ -476,10 +503,12 @@ size_t calc_consistency (const Vast::VASTStatLog &restoredLog, size_t &total_AN_
         if (restoredLog.in_view (otherLog))
         {
             total_AN_actual++;
+            local_AN_actual++;
 
             if (restoredLog.knows (otherLog))
             {
                 total_AN_visible++;
+                local_AN_visible++;
 
                 // calculate drift distance (except self)
                 // NOTE: drift distance is calculated for all known AOI neighbors
@@ -502,6 +531,22 @@ size_t calc_consistency (const Vast::VASTStatLog &restoredLog, size_t &total_AN_
         }
     } // end looping through all other nodes
 
+    if (local_AN_actual > 0)
+    {
+        double localTopoConsistency = 100.0 * local_AN_visible / local_AN_actual;
+        CPPDEBUG("localTopoConsistency: AN visible (" << local_AN_visible <<
+                 ") / AN actual (" << local_AN_actual << ") = "
+                 << localTopoConsistency << std::endl);
+        if (localTopoConsistency >= maxTopoConsistency)
+        {
+            maxTopoConsistency = localTopoConsistency;
+        }
+        if (localTopoConsistency <= minTopoConsistency)
+        {
+            minTopoConsistency = localTopoConsistency;
+        }
+    }
+
     return node_drift;
 
 }
@@ -511,10 +556,10 @@ void outputResults() {
     ofs << latest_timestamp << "," << total_active_nodes << "," << total_active_matchers << "," << total_AN_actual <<
            "," << total_AN_visible << "," << total_drift << "," << max_drift << ","
         << drift_nodes << "," << worldSendStat << "," << worldRecvStat << ","
-        << RawMCRecvBytes << "," << UsedMCRecvBytes << std::endl;
+        << RawMCRecvBytes << "," << UsedMCRecvBytes << "," << maxTopoConsistency << "," << minTopoConsistency << std::endl;
 
     //Save the latency results in a different file
-    latency_results_file << latest_timestamp << "," << total_latency_nodes << "," << LatencyTotal << std::endl;
+    latency_results_file << latest_timestamp << "," << total_latency_records << "," << LatencyTotal << "," << maxLatency << "," << minLatency << std::endl;
 
 
     //Save the individual drift distances seperately
