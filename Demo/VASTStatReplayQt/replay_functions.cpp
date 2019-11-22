@@ -245,7 +245,7 @@ void initVariables()
 
     }
 
-    latency_results_file << "timestamp," << "total_records," << "MOVElatency," << "maxLatency" << std::endl;
+    latency_results_file << "timestamp," << "total_records," << "MOVElatency," << "maxLatency," << "minLatency,"<< std::endl;
 
 
 

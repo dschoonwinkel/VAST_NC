@@ -144,9 +144,13 @@ results_text = results_text[1:]
 
 results = list()
 
+hasTopoConsMinMax = False
+if len(results_header) == MIN_TOPOCONS+1:
+    hasTopoConsMinMax = True
+
 for row in results_text:
     # print(row)
-    if len(results_header) == MIN_TOPOCONS+1:
+    if hasTopoConsMinMax:
         results.append([(int(row[0])-int(results_text[0][0])), int(row[1]), int(row[2]), int(row[3]),
                 int(row[4]), int(row[5]), int(row[6]), int(row[7]), int(row[8]), int(row[9]), int(row[10]), int(row[11]), float(row[12]), float(row[13])])
     else:
@@ -190,8 +194,10 @@ max_matchers = np.max(active_matchers)
 
 # TOPO CONSISTENCY
 topo_consistency = (100* 1.0*numpy_results[:,AN_VISIBLE] / (1.0*numpy_results[:,AN_ACTUAL]))[:len(timestamps)]
-max_topo_consistency = numpy_results[:,MAX_TOPOCONS][:len(timestamps)]
-min_topo_consistency = numpy_results[:,MIN_TOPOCONS][:len(timestamps)]
+if hasTopoConsMinMax:
+    max_topo_consistency = numpy_results[:,MAX_TOPOCONS][:len(timestamps)]
+    min_topo_consistency = numpy_results[:,MIN_TOPOCONS][:len(timestamps)]
+
 where_is_finite = np.isfinite(topo_consistency)
 print("len(where_is_finite)", len(where_is_finite))
 mean_consistency = np.mean(topo_consistency[where_is_finite])
@@ -441,19 +447,32 @@ if latency_fileexists:
 
     latency = list()
 
+    ACTIVE_NODES_LATENCY = 1
+    MOVE_LATENCY = 2
+    MAX_LATENCY = 3
+    MIN_LATENCY = 4
+
+    hasLatencyMinMax = False
+    if len(header) == MIN_LATENCY+1:
+        hasLatencyMinMax = True
+
     for row in latency_text:
         # print(row)
-        latency.append([(int(row[0])-first_timestamp), int(row[1]), int(row[2])])
+        if hasLatencyMinMax:
+            latency.append([(int(row[0])-first_timestamp), int(row[1]), int(row[2]), int(row[3]), int(row[4])])
+        else:
+            latency.append([(int(row[0])-first_timestamp), int(row[1]), int(row[2])])
         # print(results[-1])
         # print(int(row[0])%10000)
 
     numpy_latency = np.array(latency)
 
-    ACTIVE_NODES_LATENCY = 1
-    MOVE_LATENCY = 2
-
     latency_active_nodes = (numpy_latency[:,ACTIVE_NODES_LATENCY])[:len(timestamps)]
     move_latency = (numpy_latency[:,MOVE_LATENCY])[:len(timestamps)]
+    if hasLatencyMinMax:
+        max_latency = (numpy_latency[:,MAX_LATENCY])[:len(timestamps)]
+        min_latency = (numpy_latency[:,MIN_LATENCY])[:len(timestamps)]
+
     normalized_move_latency = move_latency / latency_active_nodes
     latency_where_is_finite = np.isfinite(normalized_move_latency)
     mean_normalized_move_latency = np.mean(normalized_move_latency[latency_where_is_finite])
@@ -561,7 +580,9 @@ def plot_results(with_ylim=False):
 
         ax2 = plot.subplot(subplot_count,1,2)
         plot.plot(timestamps, topo_consistency)
-        plot.fill_between(timestamps, max_topo_consistency, min_topo_consistency, color='gray', alpha=0.2)
+        if (hasTopoConsMinMax):
+            plot.fill_between(timestamps, max_topo_consistency, min_topo_consistency, color='gray', alpha=0.2)
+
         plot.plot(timestamps[where_are_NaNs], topo_consistency[where_are_NaNs], 'r,')
         plot.plot([0,timestamps[index_aftersetuptime]], [mean_consistency_beforeloss,mean_consistency_beforeloss], 'r--')
         plot.plot([timestamps[index_aftersetuptime],timestamps[-1]], [mean_consistency_afterloss,mean_consistency_afterloss], 'r--')
@@ -600,6 +621,8 @@ def plot_results(with_ylim=False):
         if (latency_fileexists):
             ax5 = plot.subplot(subplot_count,1,4)
             plot.plot(timestamps, normalized_move_latency, color='b')
+            if (hasLatencyMinMax):
+                plot.fill_between(timestamps, max_latency, min_latency, color='gray', alpha=0.2)
             # plot.plot([0,timestamps[-1]], [mean_normalized_move_latency_stat, mean_normalized_move_latency_stat], 'r')
             plot.plot([0,timestamps[index_aftersetuptime]], [mean_normalized_move_latency_beforeloss, mean_normalized_move_latency_beforeloss], color='r', linestyle='--')
             plot.plot([timestamps[index_aftersetuptime],timestamps[-1]], [mean_normalized_move_latency_afterloss, mean_normalized_move_latency_afterloss], color='r', linestyle='--')
