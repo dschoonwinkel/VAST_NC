@@ -141,15 +141,18 @@ def boxPlotHelper(subplotLayout, BoxIndex, xColumnList, yColumnList, xlabel, yla
             if color == '':
                 color = default_colors[(BoxIndex-2) % len(default_colors)]
 
-
             if (width == 0):
                 width = 0.03*np.max(xColumnList)  
-            if (width < default_width):
-                width = default_width
+            # if (width < default_width):
+            #     width = default_width
 
             spacing = 0.033*np.max(xColumnList)
-            if spacing < default_spacing:
-                print("Using default_spacing")
+            # if spacing < default_spacing:
+            #     print("Using default_spacing")
+            #     spacing = default_spacing 
+
+            if len(xColumnList) == 1:
+                width = default_width
                 spacing = default_spacing 
 
             xColumnListOffset = xColumnList+spacing*(BoxIndex-2+offset) 
@@ -183,7 +186,7 @@ def boxPlotHelper(subplotLayout, BoxIndex, xColumnList, yColumnList, xlabel, yla
     else:
         print("Matplotlib not installed")
 
-def plot_TopoCon_Drift_BW_Latency(NETMODEL_subset, BoxIndex, XAxisProp, PropName, Title, DescriptionString="", offset=0, color='', ShowActiveNodes=False):
+def plot_TopoCon_Drift_BW_Latency(NETMODEL_subset, BoxIndex, XAxisProp, PropName, Title, DescriptionString="", offset=0, color='', ShowActiveNodes=False, ReverseAxis=False):
 
     if ShowActiveNodes:
         subplot_base = 601
@@ -195,6 +198,9 @@ def plot_TopoCon_Drift_BW_Latency(NETMODEL_subset, BoxIndex, XAxisProp, PropName
             ax1 = boxPlotHelper(611, BoxIndex, xColumnList, yColumnList, '', 'Active Nodes\n[%]', offset=offset, color=color)
             ax1.title.set_text(Title)
             ax1.yaxis.set_major_locator(MaxNLocator(nbins=5))
+
+            if ReverseAxis:
+                ax1.invert_xaxis()
 
     else:
         subplot_base = 500
@@ -211,6 +217,9 @@ def plot_TopoCon_Drift_BW_Latency(NETMODEL_subset, BoxIndex, XAxisProp, PropName
             ax1 = ax
         ax.yaxis.set_major_locator(MaxNLocator(nbins=5))
 
+        if ReverseAxis:
+                ax.invert_xaxis()
+
 
     xColumnList, yColumnList = seperateByColumn(NETMODEL_subset, XAxisProp, AVG_DRIFT, DescriptionString)
     if hasMatplotlib and len(xColumnList) > 0:
@@ -218,11 +227,17 @@ def plot_TopoCon_Drift_BW_Latency(NETMODEL_subset, BoxIndex, XAxisProp, PropName
         ax = boxPlotHelper(subplot_base + 12, BoxIndex, xColumnList, yColumnList, '', 'Drift dist\n[units]', offset=offset, color=color)
         ax.yaxis.set_major_locator(MaxNLocator(nbins=5))
 
+        if ReverseAxis:
+                ax.invert_xaxis()
+
     xColumnList, yColumnList = seperateByColumn(NETMODEL_subset, XAxisProp, LATENCY, DescriptionString)
     if hasMatplotlib and len(xColumnList) > 0:
         
         ax = boxPlotHelper(subplot_base + 13, BoxIndex, xColumnList, yColumnList, '', 'Latency\n[ms]', offset=offset, color=color)
         ax.yaxis.set_major_locator(MaxNLocator(nbins=5))
+
+        if ReverseAxis:
+                ax.invert_xaxis()
 
 
     xColumnList, yColumnList = seperateByColumn(NETMODEL_subset, XAxisProp, NICSEND_BYTES, DescriptionString)
@@ -235,6 +250,9 @@ def plot_TopoCon_Drift_BW_Latency(NETMODEL_subset, BoxIndex, XAxisProp, PropName
         ylims_3 = ax3.get_ylim()
         print("ylims_3", ylims_3)
         ax3.set_xlim(ax1.get_xlim())
+
+        if ReverseAxis:
+                ax3.invert_xaxis()
 
     xColumnList, yColumnList = seperateByColumn(NETMODEL_subset, XAxisProp, NICRECV_BYTES, DescriptionString)
     if hasMatplotlib and len(xColumnList) > 0:
@@ -253,6 +271,9 @@ def plot_TopoCon_Drift_BW_Latency(NETMODEL_subset, BoxIndex, XAxisProp, PropName
         ax4.set_ylim(ylims)
         print("After set ylims:", ax4.get_ylim())
         ax4.set_xlim(ax1.get_xlim())
+
+        if ReverseAxis:
+                ax4.invert_xaxis()
 
 
     return ax1
@@ -318,7 +339,7 @@ def plot_TopoCon_Drift_BW_Latency_twiny(NETMODEL_subset, BoxIndex, XAxisProp, Pr
     # return ax1
 
 
-def plot_TopoCon_Drift_BW_Latency_allModels(resultsSubset, XAxisProp, PropName, Title, DescriptionString="", ShowActiveNodes=False):
+def plot_TopoCon_Drift_BW_Latency_allModels(resultsSubset, XAxisProp, PropName, Title, DescriptionString="", ShowActiveNodes=False, ReverseAxis=False):
     if hasMatplotlib:
         plot.figure()
 
@@ -330,7 +351,7 @@ def plot_TopoCon_Drift_BW_Latency_allModels(resultsSubset, XAxisProp, PropName, 
 
         print(NET_MODEL_STRINGS[i])
         NETMODEL_subset = subsetByColumnValue(resultsSubset, NET_MODEL, i)
-        ax1 = plot_TopoCon_Drift_BW_Latency(NETMODEL_subset, i, XAxisProp, PropName, Title, DescriptionString="", ShowActiveNodes=ShowActiveNodes)
+        ax1 = plot_TopoCon_Drift_BW_Latency(NETMODEL_subset, i, XAxisProp, PropName, Title, DescriptionString="", ShowActiveNodes=ShowActiveNodes, ReverseAxis=ReverseAxis)
 
         from matplotlib.lines import Line2D
         custom_lines.append(Line2D([0], [0], color=default_colors[i-2], linestyle=default_linestyles[i-2], lw=1))
@@ -341,7 +362,7 @@ def plot_TopoCon_Drift_BW_Latency_allModels(resultsSubset, XAxisProp, PropName, 
 
         ax1.legend(custom_lines, custom_lines_names, loc='lower left', prop={'size':7})
 
-def plot_TopoCon_Drift_BW_Latency_TCPUDP(resultsSubset, XAxisProp, PropName, Title, DescriptionString="", ShowActiveNodes=False):
+def plot_TopoCon_Drift_BW_Latency_TCPUDP(resultsSubset, XAxisProp, PropName, Title, DescriptionString="", ShowActiveNodes=False, ReverseAxis=False):
     if hasMatplotlib:
         plot.figure()
 
@@ -353,7 +374,7 @@ def plot_TopoCon_Drift_BW_Latency_TCPUDP(resultsSubset, XAxisProp, PropName, Tit
 
         print(NET_MODEL_STRINGS[i])
         NETMODEL_subset = subsetByColumnValue(resultsSubset, NET_MODEL, i)
-        ax1 = plot_TopoCon_Drift_BW_Latency(NETMODEL_subset, i, XAxisProp, PropName, Title, DescriptionString="", ShowActiveNodes=ShowActiveNodes)
+        ax1 = plot_TopoCon_Drift_BW_Latency(NETMODEL_subset, i, XAxisProp, PropName, Title, DescriptionString="", ShowActiveNodes=ShowActiveNodes, ReverseAxis=ReverseAxis)
 
         from matplotlib.lines import Line2D
         custom_lines.append(Line2D([0], [0], color=default_colors[i-2], linestyle=default_linestyles[i-2], lw=1))
@@ -365,7 +386,7 @@ def plot_TopoCon_Drift_BW_Latency_TCPUDP(resultsSubset, XAxisProp, PropName, Tit
         ax1.legend(custom_lines, custom_lines_names, loc='left', prop={'size':7}, ncol=2)
         # ax1.legend(custom_lines, custom_lines_names, prop={'size':7}, ncol=2)
 
-def plot_TopoCon_Drift_BW_Latency_UDPUDPNC(resultsSubset, XAxisProp, PropName, Title, DescriptionString="", ShowActiveNodes=False):
+def plot_TopoCon_Drift_BW_Latency_UDPUDPNC(resultsSubset, XAxisProp, PropName, Title, DescriptionString="", ShowActiveNodes=False, ReverseAxis=False):
     if hasMatplotlib:
         plot.figure()
 
@@ -377,7 +398,7 @@ def plot_TopoCon_Drift_BW_Latency_UDPUDPNC(resultsSubset, XAxisProp, PropName, T
 
         print(NET_MODEL_STRINGS[i])
         NETMODEL_subset = subsetByColumnValue(resultsSubset, NET_MODEL, i)
-        ax1 = plot_TopoCon_Drift_BW_Latency(NETMODEL_subset, i, XAxisProp, PropName, Title, DescriptionString="", offset=-1, ShowActiveNodes=ShowActiveNodes)
+        ax1 = plot_TopoCon_Drift_BW_Latency(NETMODEL_subset, i, XAxisProp, PropName, Title, DescriptionString="", offset=-1, ShowActiveNodes=ShowActiveNodes, ReverseAxis=ReverseAxis)
 
         from matplotlib.lines import Line2D
         custom_lines.append(Line2D([0], [0], color=default_colors[i-2], linestyle=default_linestyles[i-2], lw=1))

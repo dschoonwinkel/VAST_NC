@@ -15,8 +15,8 @@ SRC = 2
 DEST = 3
 TYPE = 4
 
-SEND_BYTES = 12
-RECV_BYTES = 13
+SEND_BYTES = 14
+RECV_BYTES = 15
 
 
 tsharkpcaps_files = glob.glob("*pcapout.csv")
@@ -45,12 +45,17 @@ with open(results_file, 'r') as csvfile:
     spamreader = csv.reader(csvfile, delimiter=",")
     header = next(spamreader, None)
     for row in spamreader:
-        if len(row) > SEND_BYTES:
-            print("Results already include two extra columns, probably already parsed, exiting")
-            exit(0)
+        # if len(row) > SEND_BYTES:
+        #     print("Results already include two extra columns, probably already parsed, exiting")
+        #     exit(0)
 
         row.extend([0,0])
         results.append(row)
+
+if len(results[0]) < 15:
+    print("Results are too short, using SEND_BYTES == 12")
+    SEND_BYTES = 12
+    RECV_BYTES = 13
 
 
 

@@ -147,7 +147,7 @@ for i in range(NET_MODEL_STRINGS.index('net_ace'),NET_MODEL_STRINGS.index('net_u
 if len(sys.argv) > 3:
 
     prop_key = KEY_TEXT.index(sys.argv[2])
-    prop_value = int(sys.argv[3])
+    prop_value = float(sys.argv[3])
     print("\n\n\
 *********************\n\
 Filtered by %s %s\n\

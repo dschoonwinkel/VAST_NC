@@ -25,14 +25,34 @@ USED_MCRECVBYTES = 11
 home_dir = expanduser("~")
 print("Home Dir: ", home_dir)
 
+input_file = '%s/Development/VAST-0.4.6/bin/logs/results/results1.txt' % home_dir
+results_summary_filename = '%s/Development/VAST-0.4.6/bin/results_summary/results_summary.txt' % home_dir
+
+if (len(sys.argv) > 1):
+    input_file = sys.argv[1]
+
+if (len(sys.argv) > 2):
+    results_summary_filename = sys.argv[2]
+
+
 VASTreal_file = "%s/Development/VAST-0.4.6/bin/VASTreal.ini" % home_dir
 Mininet_file = "%s/Development/VAST-0.4.6/bin/Mininet.ini" % home_dir
+
+alternative_Mininet_file = re.sub("results/results1.txt", "Mininet.ini", input_file)
+alternative_VASTreal_file = re.sub("results/results1.txt", "VASTreal.ini", input_file)
 
 if (os.path.isfile("../VASTreal.ini")):
      VASTreal_file = "../VASTreal.ini"
 
+elif (os.path.isfile(alternative_VASTreal_file)):
+     VASTreal_file = alternative_VASTreal_file
+
 if (os.path.isfile("../Mininet.ini")):
      Mininet_file = "../Mininet.ini"
+
+elif (os.path.isfile(alternative_Mininet_file)):
+     Mininet_file = alternative_Mininet_file
+
 
 print(VASTreal_file, Mininet_file)
 
@@ -75,11 +95,6 @@ print("Total connection setup time: ", TOTAL_SETUPTIME / 1000, 's')
 
 results_text = list()
 
-input_file = '%s/Development/VAST-0.4.6/bin/logs/results/results1.txt' % home_dir
-
-if (len(sys.argv) > 1):
-    input_file = sys.argv[1]
-
 LABEL_list = None
 abspath = os.path.abspath(input_file)
 # print("Absolute path: ", abspath)
@@ -95,7 +110,6 @@ if LABEL_start != -1:
 
     #Check if the result is already in summary
     in_result_summary = False
-    results_summary_filename = '%s/Development/VAST-0.4.6/bin/results_summary/results_summary.txt' % home_dir
     if (os.path.isfile(results_summary_filename)):
         with open(results_summary_filename, 'r') as summary_file:
             data = summary_file.readlines()
@@ -453,18 +467,18 @@ if LABEL_list:
 
     #Check if the result is already in summary
     in_result_summary = False
-    with open('%s/Development/VAST-0.4.6/bin/results_summary/results_summary.txt' % home_dir, 'r') as symmary_file:
+    with open(results_summary_filename, 'r') as symmary_file:
         data = symmary_file.readlines()
 
         for line in data:
             if line.find(DATESTAMP_str) != -1:
                 in_result_summary = True
-                print("Result already in summmary: ", line)
+                # print("Result already in summmary: ", line)
 
 
     # print(LABEL_list)
     if not in_result_summary:
-        with open('%s/Development/VAST-0.4.6/bin/results_summary/results_summary.txt' % home_dir, 'a') as outfile:
+        with open(results_summary_filename, 'a') as outfile:
             outfile.write(("%s, %d, %d, %2.2f, %d, %d, %d, %d, %3.2f, %3.2f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %s\n") % 
                   tuple(LABEL_list))
 
