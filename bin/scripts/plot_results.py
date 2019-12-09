@@ -4,7 +4,7 @@ import csv
 import sys
 from os.path import expanduser
 import os
-from plot_result_utils import parseFilenameLabel, parseFilenameNodesTimesteps, NET_MODEL_STRINGS, finite_mean, finite_max
+from plot_result_utils import parseFilenameLabel, parseFilenameNodesTimesteps, NET_MODEL_STRINGS, finite_mean, finite_max, NET_UDPNC
 import re
 import glob
 
@@ -594,8 +594,10 @@ def plot_results(with_ylim=False):
         ax2.get_xaxis().set_visible(False)
         plot.xlim(0, MAX_TIMESTAMP)
         print("Consistency plot ylims: ", plot.ylim())
-        plot.ylim(96, 100.2)
-        plot.yticks(np.arange(96, 100, 1))
+        if with_ylim:
+            plot.ylim(96, 100.2)
+            plot.yticks(np.arange(96, 100, 1))
+        
         plot.grid(True)
 
         ax3 = plot.subplot(subplot_count,1,3)
@@ -630,22 +632,28 @@ def plot_results(with_ylim=False):
             plot.text(timestamps[0], mean_normalized_move_latency_beforeloss, "%5.2f" % (mean_normalized_move_latency_beforeloss), color='b', bbox=dict(facecolor='white', alpha=1))
             plot.text(timestamps[-1], mean_normalized_move_latency_afterloss, "%5.2f" % (mean_normalized_move_latency_afterloss), color='b', bbox=dict(facecolor='white', alpha=1))
             plot.xlim(0, MAX_TIMESTAMP)
-            plot.ylim(0, 200)
+            if with_ylim:
+                plot.ylim(0, 200)
+            
+            ax5.get_xaxis().set_visible(False)
             ax5.yaxis.set_major_locator(MaxNLocator(nbins=5))
             plot.ylabel("Latency")
         
         
-        ax4 = plot.subplot(subplot_count,1,5)
-        ax4.plot(timestamps, send_stat, 'g',label='Send stat')
+        if mean_rawmcrecv_stat_afterloss > 0:
+            ax4 = plot.subplot(subplot_count,1,subplot_count-1)
+            ax4.get_xaxis().set_visible(False)
+        else:
+            ax4 = plot.subplot(subplot_count,1,subplot_count)
+        # ax4.plot(timestamps, send_stat, 'g',label='Send stat')
         # ax4.plot(timestamps, recv_stat, 'b', label='Recv stat')
-        ax4.plot([0,timestamps[-1]], [mean_sendstat, mean_sendstat], 'g--')
+        # ax4.plot([0,timestamps[-1]], [mean_sendstat, mean_sendstat], 'g--')
         # Text added later
         # ax4.text(timestamps[0], mean_sendstat*0.9, "%5.2f" % (mean_sendstat), color='g', bbox=dict(facecolor='white', alpha=1))
         # ax4.plot([0,timestamps[-1]], [mean_recvstat, mean_recvstat], 'b')
         # ax4.text(timestamps[-1]*0.95, mean_recvstat*0.6, "%5.2f" % (mean_recvstat), color='b')
-        ax4.set_ylabel("VAST/NIC\nSend/Recv [kBps/node]")
+        ax4.set_ylabel("NIC Send/Recv\n[kBps/node]")
         ax4.plot([TOTAL_SETUPTIME, TOTAL_SETUPTIME],[0, finite_max(send_stat)], 'k')
-        ax4.get_xaxis().set_visible(False)
         plot.xlim(0, MAX_TIMESTAMP)
         ax4.grid(True)
 
@@ -662,12 +670,14 @@ def plot_results(with_ylim=False):
             ax4.plot([timestamps[index_aftersetuptime],timestamps[-1]], [mean_nicrecvbytes_afterloss, mean_nicrecvbytes_afterloss], 'r--')
 
             from matplotlib.lines import Line2D
-            custom_lines = [Line2D([0], [0], color='g', lw=1),
-                            Line2D([0], [0], color='b', lw=1),
+            # custom_lines = [Line2D([0], [0], color='g', lw=1),
+            #                 Line2D([0], [0], color='b', lw=1),
+            #                 Line2D([0], [0], color='r', lw=1)]
+            custom_lines = [Line2D([0], [0], color='b', lw=1),
                             Line2D([0], [0], color='r', lw=1)]
             # ax4.legend(custom_lines, ['Send VAST', 'Send NIC', 'Recv NIC'], loc='lower center')
             # ax4.legend(custom_lines, ['Send VAST', 'Send NIC', 'Recv NIC'], loc='upper left', mode="expand")
-            ax4.legend(custom_lines, ['Send VAST', 'Send NIC', 'Recv NIC'], loc='upper left', ncol=3)
+            ax4.legend(custom_lines, ['Send NIC', 'Recv NIC'], loc='upper left', ncol=2)
 
 
             # ax4.legend(['Send NIC', 'Recv NIC'])
@@ -681,6 +691,11 @@ def plot_results(with_ylim=False):
 
             ypos1 = ((ylim[1] - ylim[0]) + ylim[0])*0.6
             ypos2 = ((ylim[1] - ylim[0]) + ylim[0])*0.4
+
+            if LABEL_list[1] == NET_UDPNC:
+                ypos2 = ((ylim[1] - ylim[0]) + ylim[0])*0.5
+                ypos1 = ((ylim[1] - ylim[0]) + ylim[0])*0.2
+
             ypos3 = ((ylim[1] - ylim[0]) + ylim[0])*0.2
 
             # UDPNC: nicrecv_bytes should be on top, but for other two should be in the middle.
@@ -688,8 +703,8 @@ def plot_results(with_ylim=False):
             ax4.text(timestamps[-1], ypos2, "%5.2f" % (mean_nicrecvbytes_afterloss), color='r', bbox=dict(facecolor='white', alpha=1))
             ax4.text(timestamps[0], ypos1, "%5.2f" % (mean_nicsendbytes_beforeloss), color='b', bbox=dict(facecolor='white', alpha=1))
             ax4.text(timestamps[-1], ypos1, "%5.2f" % (mean_nicsendbytes_afterloss), color='b', bbox=dict(facecolor='white', alpha=1))
-            ax4.text(timestamps[0], ypos3, "%5.2f" % (mean_sendstat_beforeloss), color='g', bbox=dict(facecolor='white', alpha=1))
-            ax4.text(timestamps[-1], ypos3, "%5.2f" % (mean_sendstat_afterloss), color='g', bbox=dict(facecolor='white', alpha=1))
+            # ax4.text(timestamps[0], ypos3, "%5.2f" % (mean_sendstat_beforeloss), color='g', bbox=dict(facecolor='white', alpha=1))
+            # ax4.text(timestamps[-1], ypos3, "%5.2f" % (mean_sendstat_afterloss), color='g', bbox=dict(facecolor='white', alpha=1))
         
         
 
@@ -707,7 +722,7 @@ def plot_results(with_ylim=False):
             plot.text(timestamps[0], mean_usedmcrecv_stat_beforeloss, "%5.2f" % (mean_usedmcrecv_stat_beforeloss), color='m', bbox=dict(facecolor='white', alpha=1))
             plot.text(timestamps[-1], mean_usedmcrecv_stat_afterloss, "%5.2f" % (mean_usedmcrecv_stat_afterloss), color='m', bbox=dict(facecolor='white', alpha=1))
             plot.xlim(0, MAX_TIMESTAMP)
-            plot.ylabel("MC Recv\n[kBps/node]")
+            plot.ylabel("Coded Recv\n[kBps/node]")
 
 
 

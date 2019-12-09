@@ -169,7 +169,7 @@ def boxPlotHelper(subplotLayout, BoxIndex, xColumnList, yColumnList, xlabel, yla
 
             # print("scaleX", scaleX)
             if scaleX:
-                plot.xlim([np.min(xColumnList)-spacing, np.max(xColumnList)+spacing*(BoxIndex-2)+spacing])
+                plot.xlim([np.min(xColumnList)-spacing, np.max(xColumnList)+spacing*(BoxIndex-2+offset)+spacing])
                 plot.xticks(xColumnList, xColumnList)
                 plot.tick_params(labelbottom=setXTickLabel)
 
@@ -195,7 +195,7 @@ def plot_TopoCon_Drift_BW_Latency(NETMODEL_subset, BoxIndex, XAxisProp, PropName
         print(len(xColumnList))
         if hasMatplotlib and len(xColumnList) > 0:
 
-            ax1 = boxPlotHelper(611, BoxIndex, xColumnList, yColumnList, '', 'Active Nodes\n[%]', offset=offset, color=color)
+            ax1 = boxPlotHelper(611, BoxIndex, xColumnList, yColumnList, '', 'Active Nodes', offset=offset, color=color)
             ax1.title.set_text(Title)
             ax1.yaxis.set_major_locator(MaxNLocator(nbins=5))
 
@@ -243,7 +243,7 @@ def plot_TopoCon_Drift_BW_Latency(NETMODEL_subset, BoxIndex, XAxisProp, PropName
     xColumnList, yColumnList = seperateByColumn(NETMODEL_subset, XAxisProp, NICSEND_BYTES, DescriptionString)
     if hasMatplotlib and len(xColumnList) > 0:
         
-        ax3 = boxPlotHelper(subplot_base + 14, BoxIndex, xColumnList, yColumnList, '', 'NIC Send\n[kBps/node]', offset=offset, color=color)
+        ax3 = boxPlotHelper(subplot_base + 14, BoxIndex, xColumnList, yColumnList, '', 'NIC Send\n[kBps/N]', offset=offset, color=color)
         ax3.yaxis.set_major_locator(MaxNLocator(nbins=5))
         ax3.relim()
         ax3.autoscale()
@@ -251,13 +251,10 @@ def plot_TopoCon_Drift_BW_Latency(NETMODEL_subset, BoxIndex, XAxisProp, PropName
         print("ylims_3", ylims_3)
         ax3.set_xlim(ax1.get_xlim())
 
-        if ReverseAxis:
-                ax3.invert_xaxis()
-
     xColumnList, yColumnList = seperateByColumn(NETMODEL_subset, XAxisProp, NICRECV_BYTES, DescriptionString)
     if hasMatplotlib and len(xColumnList) > 0:
         
-        ax4 = boxPlotHelper(subplot_base + 15, BoxIndex, xColumnList, yColumnList, PropName, 'NIC Recv\n[kBps/node]', setXTickLabel=True, offset=offset, color=color)
+        ax4 = boxPlotHelper(subplot_base + 15, BoxIndex, xColumnList, yColumnList, PropName, 'NIC Recv\n[kBps/N]', setXTickLabel=True, offset=offset, color=color)
         ax4.yaxis.set_major_locator(MaxNLocator(nbins=5))
         ax4.relim()
         ax4.autoscale()
@@ -266,14 +263,14 @@ def plot_TopoCon_Drift_BW_Latency(NETMODEL_subset, BoxIndex, XAxisProp, PropName
         print("ylims_4", ylims_4)
         ylims = [np.min([ylims_3[0], ylims_4[0]]), np.max([ylims_3[1], ylims_4[1]])]
         print("ylims", ylims)
-        ax3.set_ylim(ylims)
+        # ax3.set_ylim(ylims)
         print("After set ylims:", ax3.get_ylim())
         ax4.set_ylim(ylims)
         print("After set ylims:", ax4.get_ylim())
         ax4.set_xlim(ax1.get_xlim())
 
-        if ReverseAxis:
-                ax4.invert_xaxis()
+        if len(xColumnList) == 1:
+            print("Changing names to ")
 
 
     return ax1
@@ -360,7 +357,21 @@ def plot_TopoCon_Drift_BW_Latency_allModels(resultsSubset, XAxisProp, PropName, 
         else:
             custom_lines_names.append(NET_MODEL_STRINGS[i][4:].upper())
 
-        ax1.legend(custom_lines, custom_lines_names, loc='lower left', prop={'size':7})
+        # ax1.legend(custom_lines, custom_lines_names, loc='lower left', prop={'size':7})
+
+    #Check if we have only one x-axis point
+    xColumnList = np.unique(resultsSubset[:,XAxisProp])
+    if len(xColumnList) == 1:
+        print("Only plotting one x-axis, setting labels")
+        last_ax = plot.gca()
+        last_ax.set_xticks([0, default_spacing, 2*default_spacing])
+        last_ax.set_xticklabels(['TCP', 'UDP', 'UDPNC'])
+        last_ax.set_xlabel('')
+
+    else:
+        ax1.legend(custom_lines, custom_lines_names, loc='left', prop={'size':7}, ncol=2)
+
+
 
 def plot_TopoCon_Drift_BW_Latency_TCPUDP(resultsSubset, XAxisProp, PropName, Title, DescriptionString="", ShowActiveNodes=False, ReverseAxis=False):
     if hasMatplotlib:
@@ -383,8 +394,19 @@ def plot_TopoCon_Drift_BW_Latency_TCPUDP(resultsSubset, XAxisProp, PropName, Tit
         else:
             custom_lines_names.append(NET_MODEL_STRINGS[i][4:].upper())
 
-        ax1.legend(custom_lines, custom_lines_names, loc='left', prop={'size':7}, ncol=2)
         # ax1.legend(custom_lines, custom_lines_names, prop={'size':7}, ncol=2)
+
+    #Check if we have only one x-axis point
+    xColumnList = np.unique(resultsSubset[:,XAxisProp])
+    if len(xColumnList) == 1:
+        print("Only plotting one x-axis, setting labels")
+        last_ax = plot.gca()
+        last_ax.set_xticks([0, default_spacing])
+        last_ax.set_xticklabels(['TCP', 'UDP'])
+        last_ax.set_xlabel('')
+
+    else:
+        ax1.legend(custom_lines, custom_lines_names, loc='left', prop={'size':7}, ncol=2)
 
 def plot_TopoCon_Drift_BW_Latency_UDPUDPNC(resultsSubset, XAxisProp, PropName, Title, DescriptionString="", ShowActiveNodes=False, ReverseAxis=False):
     if hasMatplotlib:
@@ -407,8 +429,19 @@ def plot_TopoCon_Drift_BW_Latency_UDPUDPNC(resultsSubset, XAxisProp, PropName, T
         else:
             custom_lines_names.append(NET_MODEL_STRINGS[i][4:].upper())
 
-        ax1.legend(custom_lines, custom_lines_names, loc='lower left', prop={'size':7})
+        # ax1.legend(custom_lines, custom_lines_names, loc='lower left', prop={'size':7})
 
+    #Check if we have only one x-axis point
+    xColumnList = np.unique(resultsSubset[:,XAxisProp])
+    if len(xColumnList) == 1:
+        print("Only plotting one x-axis, setting labels")
+        last_ax = plot.gca()
+        last_ax.set_xticks([0, default_spacing])
+        last_ax.set_xticklabels(['UDP', 'UDPNC'])
+        last_ax.set_xlabel('')
+
+    else:
+        ax1.legend(custom_lines, custom_lines_names, loc='left', prop={'size':7}, ncol=2)
 
 # def tabulateByNETMODEL(results_matrix, yColumnIndex, tag):
 #     xColumnList = np.unique(results_matrix[:,NET_MODEL])
@@ -445,7 +478,7 @@ def plot_TopoCon_Drift_BW_Latency_UDPUDPNC(resultsSubset, XAxisProp, PropName, T
 #     # print("")
 #     return line_list
 
-def tabulateNETMODELs(results_matrix, NETMODELs, xColumnIndex, yColumnIndex, PropName, XUnitsString="", YUnitsString=""):
+def tabulateNETMODELs(results_matrix, NETMODELs, xColumnIndex, yColumnIndex, PropName, XUnitsString="", YUnitsString="", reverseXAxis=False):
     # print(PropName)
     # print(NETMODEL_subset[:, [NET_MODEL, DELAY_MS, xColumnIndex, yColumnIndex]])
 
@@ -463,6 +496,8 @@ def tabulateNETMODELs(results_matrix, NETMODELs, xColumnIndex, yColumnIndex, Pro
     line_list.append(header)
     
     # print("xColumnList", xColumnList)
+    if reverseXAxis:
+        xColumnList = np.flip(xColumnList)
 
     yColumnList = list()
     for item in xColumnList:
@@ -496,7 +531,69 @@ def tabulateNETMODELs(results_matrix, NETMODELs, xColumnIndex, yColumnIndex, Pro
     return header, line_list, xColumnList
 
 
-def tabulateNETMODELsNICSendReceive(results_matrix, NETMODELs, NODES_COUNT, xColumnIndex, yColumnIndex, PropName, XUnitsString="", YUnitsString=""):
+def tabulateNETMODELs_degradation(results_matrix, NETMODELs, xColumnIndex, yColumnIndex, PropName, XUnitsString="", YUnitsString="", reverseXAxis=False):
+    xColumnList = np.zeros([0])
+    header = list()
+    line_list = list()
+
+    header = ["~"]
+    for NETMODEL in NETMODELs:
+        NETMODEL_subset = subsetByColumnValue(results_matrix, NET_MODEL, NETMODEL)
+        xColumnList = np.unique(np.append(xColumnList, NETMODEL_subset[:,xColumnIndex]))
+        header.append(NET_MODEL_STRINGS_THESIS[NETMODEL])
+        # print("results_matrix[:,xColumnIndex]", np.unique(NETMODEL_subset[:,xColumnIndex]))
+        header.append("degrade \%")
+    line_list.append(header)
+    
+    # print("xColumnList", xColumnList)
+    if reverseXAxis:
+        xColumnList = np.flip(xColumnList)
+
+    all_medians = list()
+
+    yColumnList = list()
+    for item in xColumnList:
+        medians = list()
+        all_medians.append(list())
+        item_subset = subsetByColumnValue(results_matrix, xColumnIndex, item)
+        line = [str(item) + " " + XUnitsString]
+        for NETMODEL in NETMODELs:
+            NETMODEL_subset = subsetByColumnValue(item_subset, NET_MODEL, NETMODEL)
+            samples = NETMODEL_subset[:,yColumnIndex]
+            if len(samples) > 0:
+                mean = np.mean(samples)
+                median = np.median(samples)
+                median = np.median(samples)
+                medians.append(median)
+                all_medians[len(all_medians)-1].append(median)
+                conf_req = 0.90
+                t_value = st.t.ppf(1 - conf_req/2, len(samples)-1)
+                std_err = np.std(samples)/np.sqrt(len(samples))
+                margin = t_value * std_err
+                line.append("%3.2f pm %3.2f %s" % (median, margin, YUnitsString))
+            else:
+                line.append(None)
+
+            currentMedianIndex = len(all_medians) - 1
+            currentNETMODELIndex = NETMODELS.index(NETMODEL)
+            print(all_medians[0][currentNETMODELIndex], end="\t")
+            print(all_medians[currentMedianIndex][currentNETMODELIndex], end="\t")
+
+            perc_degrade = (all_medians[currentMedianIndex][j] - all_medians[0][j]) / all_medians[0][j] * 100
+            print(perc_degrade, end="\%\t")
+
+
+        print("****")    
+            # perc_degrade = (all_medians[np.where(xColumnList == item)][i] - all_medians[0][i]) / all_medians[0][i] * 100
+            # line.append("%3.2f \%%" % (perc_degrade))
+
+
+        line_list.append(line)
+
+    return header, line_list, xColumnList
+
+
+def tabulateNETMODELsNICSendReceive(results_matrix, NETMODELs, NODES_COUNT, xColumnIndex, yColumnIndex, PropName, XUnitsString="", YUnitsString="", reverseXAxis=False):
     # print(PropName)
     # print(NETMODEL_subset[:, [NET_MODEL, DELAY_MS, xColumnIndex, yColumnIndex]])
 
@@ -514,7 +611,8 @@ def tabulateNETMODELsNICSendReceive(results_matrix, NETMODELs, NODES_COUNT, xCol
     header.append("pm \%")
     line_list.append(header)
     
-    # print("xColumnList", xColumnList)
+    if reverseXAxis:
+        xColumnList = np.flip(xColumnList)
 
     yColumnList = list()
     for item in xColumnList:
@@ -549,7 +647,9 @@ def tabulateNETMODELsNICSendReceive(results_matrix, NETMODELs, NODES_COUNT, xCol
 
     return header, line_list, xColumnList
 
-def tabulateNETMODELsNICSendReceive_scaling(results_matrix, NETMODELs, xColumnIndex, yColumnIndex, PropName, XUnitsString="", YUnitsString=""):
+
+
+def tabulateNETMODELsNICSendReceive_scaling(results_matrix, NETMODELs, xColumnIndex, yColumnIndex, PropName, XUnitsString="", YUnitsString="", reverseXAxis=False):
     # print(PropName)
     # print(NETMODEL_subset[:, [NET_MODEL, DELAY_MS, xColumnIndex, yColumnIndex]])
     if xColumnIndex != NODES_COUNT:
@@ -571,12 +671,15 @@ def tabulateNETMODELsNICSendReceive_scaling(results_matrix, NETMODELs, xColumnIn
     line_list.append(header)
     
     # print("xColumnList", xColumnList)
-
+    if reverseXAxis:
+        xColumnList = np.flip(xColumnList)
     yColumnList = list()
     for item in xColumnList:
         medians = list()
+
         item_subset = subsetByColumnValue(results_matrix, xColumnIndex, item)
         line = [str(item) + " " + XUnitsString]
+        
         for NETMODEL in NETMODELs:
             NETMODEL_subset = subsetByColumnValue(item_subset, NET_MODEL, NETMODEL)
             samples = NETMODEL_subset[:,yColumnIndex]
@@ -603,3 +706,62 @@ def tabulateNETMODELsNICSendReceive_scaling(results_matrix, NETMODELs, xColumnIn
         line_list.append(line)
 
     return header, line_list, xColumnList
+
+
+
+
+def tabulateNETMODELs_PLATFORM(results_matrix, NETMODEL, PLATFORMs, xColumnIndex, yColumnIndex, PropName, XUnitsString="", YUnitsString="", reverseXAxis=False):
+    # print(PropName)
+    # print(NETMODEL_subset[:, [NET_MODEL, DELAY_MS, xColumnIndex, yColumnIndex]])
+
+    xColumnList = np.zeros([0])
+    header = list()
+    line_list = list()
+    PLATFORM_STRINGS = ["0", "Mininet", "Docker", "Physical"]
+
+    NETMODEL_subset = subsetByColumnValue(results_matrix, NET_MODEL, NETMODEL)
+
+    header = ["~"]
+    for PLATFORM_num in PLATFORMs:
+        PLATFORM_subset = subsetByColumnValue(NETMODEL_subset, PLATFORM, PLATFORM_num)
+        xColumnList = np.unique(np.append(xColumnList, PLATFORM_subset[:,xColumnIndex]))
+        header.append(PLATFORM_STRINGS[PLATFORM_num])
+        # print("results_matrix[:,xColumnIndex]", np.unique(PLATFORM_subset[:,xColumnIndex]))
+    header.append("pm \%")
+    line_list.append(header)
+    
+    # print("xColumnList", xColumnList)
+    if reverseXAxis:
+        xColumnList = np.flip(xColumnList)
+
+    yColumnList = list()
+    for item in xColumnList:
+        medians = list()
+        item_subset = subsetByColumnValue(NETMODEL_subset, xColumnIndex, item)
+        line = [str(item) + " " + XUnitsString]
+        for PLATFORM_num in PLATFORMs:
+            PLATFORM_subset = subsetByColumnValue(item_subset, PLATFORM, PLATFORM_num)
+            samples = PLATFORM_subset[:,yColumnIndex]
+            if len(samples) > 0:
+                mean = np.mean(samples)
+                median = np.median(samples)
+                median = np.median(samples)
+                medians.append(median)
+                conf_req = 0.90
+                t_value = st.t.ppf(1 - conf_req/2, len(samples)-1)
+                std_err = np.std(samples)/np.sqrt(len(samples))
+                margin = t_value * std_err
+                line.append("%3.2f pm %3.2f %s" % (median, margin, YUnitsString))
+            else:
+                line.append(None)
+
+        if (len(medians) == 2):
+            perc_improvement = (medians[1] - medians[0]) / medians[0] * 100
+            line.append("%3.2f \%%" % (perc_improvement))
+        else:
+            line.append("~")
+
+        line_list.append(line)
+
+    return header, line_list, xColumnList
+
