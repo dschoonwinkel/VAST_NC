@@ -570,20 +570,25 @@ def tabulateNETMODELs_degradation(results_matrix, NETMODELs, xColumnIndex, yColu
                 t_value = st.t.ppf(1 - conf_req/2, len(samples)-1)
                 std_err = np.std(samples)/np.sqrt(len(samples))
                 margin = t_value * std_err
-                line.append("%3.2f pm %3.2f %s" % (median, margin, YUnitsString))
+                line.append("%3.2f %s" % (median, YUnitsString))
+
+                currentMedianIndex = len(all_medians) - 1
+                currentNETMODELIndex = NETMODELs.index(NETMODEL)
+                # print("%3.2f" % all_medians[0][currentNETMODELIndex], end="\t")
+                # print("%3.2f" % all_medians[currentMedianIndex][currentNETMODELIndex], end="\t")
+
+                perc_degrade = (all_medians[currentMedianIndex][currentNETMODELIndex] - all_medians[0][currentNETMODELIndex]) / all_medians[0][currentNETMODELIndex] * 100
+                # print("%3.2f" % perc_degrade, end="\%\t")
+                line.append("%3.2f \%%" % perc_degrade)
+
             else:
                 line.append(None)
+                line.append(None)
 
-            currentMedianIndex = len(all_medians) - 1
-            currentNETMODELIndex = NETMODELS.index(NETMODEL)
-            print(all_medians[0][currentNETMODELIndex], end="\t")
-            print(all_medians[currentMedianIndex][currentNETMODELIndex], end="\t")
-
-            perc_degrade = (all_medians[currentMedianIndex][j] - all_medians[0][j]) / all_medians[0][j] * 100
-            print(perc_degrade, end="\%\t")
+            
 
 
-        print("****")    
+    
             # perc_degrade = (all_medians[np.where(xColumnList == item)][i] - all_medians[0][i]) / all_medians[0][i] * 100
             # line.append("%3.2f \%%" % (perc_degrade))
 

@@ -75,7 +75,7 @@ def tabulate_TopoCon_Drift_BW_Latency_degradation(results_subset, NETMODELs, sub
     header, line_list, xColumnList = tabulateNETMODELs_degradation(NODES_subset, NETMODELs, xProp, AVG_TOPO_CONS, "AVG_TOPO_CONS", XUnitsString=XUnitsString, reverseXAxis=reverseXAxis)
     tabulate_result = tabulate.tabulate(line_list, tablefmt='latex_raw', headers="firstrow")
     tabulate_result = re.sub("pm", r"$\\pm$", tabulate_result)
-    tabulate_result = re.sub("{llll}", r"{|c|cc|c|}", tabulate_result)
+    tabulate_result = re.sub("{lrrrr}", r"{|c|cc|cc|}", tabulate_result)
     print(tabulate_result)
 
     print(r"\begin{flushleft}")
@@ -85,7 +85,7 @@ def tabulate_TopoCon_Drift_BW_Latency_degradation(results_subset, NETMODELs, sub
     header, line_list, xColumnList = tabulateNETMODELs_degradation(NODES_subset, NETMODELs, xProp, AVG_DRIFT, "AVG_DRIFT", XUnitsString=XUnitsString, reverseXAxis=reverseXAxis)
     tabulate_result = tabulate.tabulate(line_list, tablefmt='latex_raw', headers="firstrow")
     tabulate_result = re.sub("pm", r"$\\pm$", tabulate_result)
-    tabulate_result = re.sub("{llll}", r"{|c|cc|c|}", tabulate_result)
+    tabulate_result = re.sub("{lrrrr}", r"{|c|cc|cc|}", tabulate_result)
     print(tabulate_result)
 
     print(r"\begin{flushleft}")
@@ -95,7 +95,7 @@ def tabulate_TopoCon_Drift_BW_Latency_degradation(results_subset, NETMODELs, sub
     header, line_list, xColumnList = tabulateNETMODELs_degradation(NODES_subset, NETMODELs, xProp, LATENCY, "LATENCY", XUnitsString=XUnitsString, reverseXAxis=reverseXAxis)
     tabulate_result = tabulate.tabulate(line_list, tablefmt='latex_raw', headers="firstrow")
     tabulate_result = re.sub("pm", r"$\\pm$", tabulate_result)
-    tabulate_result = re.sub("{llll}", r"{|c|cc|c|}", tabulate_result)
+    tabulate_result = re.sub("{lrrrr}", r"{|c|cc|cc|}", tabulate_result)
     print(tabulate_result)
 
     print(r"\begin{flushleft}")

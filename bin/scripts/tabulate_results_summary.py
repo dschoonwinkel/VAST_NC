@@ -6,7 +6,7 @@ from plot_result_utils import NET_MODEL_STRINGS, NET_ACE, NET_UDP, NET_UDPNC, NE
 from plot_results_summary_utils import *
 import re
 import tabulate
-from tabulate_results_utils import tabulate_TopoCon_Drift_BW_Latency, tabulate_TopoCon_Drift_BW_Latency_scaling, tabulate_TopoCon_Drift_BW_Latency_PLATFORMS
+from tabulate_results_utils import tabulate_TopoCon_Drift_BW_Latency, tabulate_TopoCon_Drift_BW_Latency_scaling, tabulate_TopoCon_Drift_BW_Latency_PLATFORMS,tabulate_TopoCon_Drift_BW_Latency_degradation
 
 
 if len(sys.argv) > 1:
@@ -30,6 +30,19 @@ results_header, results_results_nparray = readFileRetNumpyArray(input_file_resul
 # SUBSETNODE_COUNT = 50
 # tabulate_TopoCon_Drift_BW_Latency(MininetSubset, NETMODELs, SUBSETNODE_COUNT, LOSS_PERC, XUnitsString=r"\%")
 
+
+
+# print(r"TCP vs UDP, 50 Nodes, 0-70\% Packet Loss, 0 Network Delay [ms]")
+# MininetSubset = subsetByColumnValue(results_results_nparray, PLATFORM, MININET)
+# MininetSubset = subsetByColumnValue(MininetSubset, DELAY_MS, 0)
+# MininetSubset = subsetByColumnValue(MininetSubset, BW_LIMIT, 0)
+# MininetSubset = excludeByColumnValue(MininetSubset, NODES_COUNT, 4)
+# NETMODELs = [NET_ACE, NET_UDP]
+
+# SUBSETNODE_COUNT = 50
+# tabulate_TopoCon_Drift_BW_Latency_degradation(MininetSubset, NETMODELs, SUBSETNODE_COUNT, LOSS_PERC, XUnitsString=r"\%")
+
+
 # print("\n\n\n***************************************************\n\n\n")
 # print(r"TCP vs UDP, 50 Nodes, 10\% Packet Loss, 0-200 ms Network Delay [ms]")
 # MininetSubset = subsetByColumnValue(results_results_nparray, PLATFORM, MININET)
@@ -42,6 +55,18 @@ results_header, results_results_nparray = readFileRetNumpyArray(input_file_resul
 # SUBSETNODE_COUNT = 50
 # tabulate_TopoCon_Drift_BW_Latency(MininetSubset, NETMODELs, SUBSETNODE_COUNT, DELAY_MS, XUnitsString=r"ms")
 
+
+# print("\n\n\n***************************************************\n\n\n")
+# print(r"TCP vs UDP, 50 Nodes, 10\% Packet Loss, 0-200 ms Network Delay [ms] Degradation")
+# MininetSubset = subsetByColumnValue(results_results_nparray, PLATFORM, MININET)
+# MininetSubset = subsetByColumnValue(MininetSubset, LOSS_PERC, 10)
+# MininetSubset = subsetByColumnValue(MininetSubset, BW_LIMIT, 0)
+# MininetSubset = excludeByColumnValue(MininetSubset, NODES_COUNT, 4)
+
+# NETMODELs = [NET_ACE, NET_UDP]
+
+# SUBSETNODE_COUNT = 50
+# tabulate_TopoCon_Drift_BW_Latency_degradation(MininetSubset, NETMODELs, SUBSETNODE_COUNT, DELAY_MS, XUnitsString=r"ms")
 
 
 
@@ -56,6 +81,38 @@ results_header, results_results_nparray = readFileRetNumpyArray(input_file_resul
 # MininetSubset = excludeByColumnValue(MininetSubset, NODES_COUNT, 4)
 
 # tabulate_TopoCon_Drift_BW_Latency_scaling(MininetSubset, NETMODELs, NODES_COUNT)
+
+# print("\n\n\n***************************************************\n\n\n")
+# print("TCP vs UDP, 50 Nodes, Packet Loss 0, Bandwidth limit [MBps]")
+# NETMODELs = [NET_ACE, NET_UDP]
+
+# MininetSubset = subsetByColumnValue(results_results_nparray, PLATFORM, MININET)
+# MininetSubset = subsetByColumnValue(MininetSubset, LOSS_PERC, 0)
+# MininetSubset = subsetByColumnValue(MininetSubset, DELAY_MS, 0)
+# MininetSubset = excludeByColumnValue(MininetSubset, NODES_COUNT, 4)
+# MininetSubset = excludeByColumnValue(MininetSubset, BW_LIMIT, 0)
+
+# tabulate_TopoCon_Drift_BW_Latency(MininetSubset, NETMODELs, 50, BW_LIMIT, XUnitsString=r"MBps", reverseXAxis=True)
+
+
+# print("\n\n\n***************************************************\n\n\n")
+# print("TCP vs UDP, 50 Nodes, Packet Loss 0, Bandwidth limit [MBps], Degradation")
+# NETMODELs = [NET_ACE, NET_UDP]
+
+# MininetSubset = subsetByColumnValue(results_results_nparray, PLATFORM, MININET)
+# MininetSubset = subsetByColumnValue(MininetSubset, LOSS_PERC, 0)
+# MininetSubset = subsetByColumnValue(MininetSubset, DELAY_MS, 0)
+# MininetSubset = excludeByColumnValue(MininetSubset, NODES_COUNT, 4)
+# MininetSubset = excludeByColumnValue(MininetSubset, BW_LIMIT, 0)
+
+# tabulate_TopoCon_Drift_BW_Latency_degradation(MininetSubset, NETMODELs, 50, BW_LIMIT, XUnitsString=r"MBps", reverseXAxis=True)
+
+
+
+
+
+
+
 
 
 
@@ -76,6 +133,11 @@ results_header, results_results_nparray = readFileRetNumpyArray(input_file_resul
 
 
 
+
+
+
+
+
 # print("\n\n\n***************************************************\n\n\n")
 # print("UDP vs UDPNC, 50 Nodes 0-70% Packet Loss, 0 Network Delay [ms]")
 # MininetSubset = subsetByColumnValue(results_results_nparray, PLATFORM, MININET)
@@ -85,6 +147,17 @@ results_header, results_results_nparray = readFileRetNumpyArray(input_file_resul
 # SUBSETNODE_COUNT = 50
 # NETMODELs = [NET_UDP, NET_UDPNC]
 # tabulate_TopoCon_Drift_BW_Latency(MininetSubset, NETMODELs, SUBSETNODE_COUNT, LOSS_PERC, XUnitsString=r"\%")
+
+# print("\n\n\n***************************************************\n\n\n")
+# print("UDP vs UDPNC, 50 Nodes 0-70% Packet Loss, 0 Network Delay [ms], DEGRADATION")
+# MininetSubset = subsetByColumnValue(results_results_nparray, PLATFORM, MININET)
+# MininetSubset = subsetByColumnValue(MininetSubset, DELAY_MS, 0)
+# MininetSubset = subsetByColumnValue(MininetSubset, BW_LIMIT, 0)
+# MininetSubset = excludeByColumnValue(MininetSubset, NODES_COUNT, 4)
+# SUBSETNODE_COUNT = 50
+# NETMODELs = [NET_UDP, NET_UDPNC]
+# tabulate_TopoCon_Drift_BW_Latency_degradation(MininetSubset, NETMODELs, SUBSETNODE_COUNT, LOSS_PERC, XUnitsString=r"\%")
+
 
 
 # print("\n\n\n***************************************************\n\n\n")
@@ -96,6 +169,17 @@ results_header, results_results_nparray = readFileRetNumpyArray(input_file_resul
 # SUBSETNODE_COUNT = 50
 # NETMODELs = [NET_UDP, NET_UDPNC]
 # tabulate_TopoCon_Drift_BW_Latency(MininetSubset, NETMODELs, SUBSETNODE_COUNT, DELAY_MS, XUnitsString=r"ms")
+
+
+# print("\n\n\n***************************************************\n\n\n")
+# print("UDP vs UDPNC, 50 Nodes, 10% Packet Loss, 0-200 ms Network Delay [ms] Degradation")
+# MininetSubset = subsetByColumnValue(results_results_nparray, PLATFORM, MININET)
+# MininetSubset = subsetByColumnValue(MininetSubset, LOSS_PERC, 10)
+# MininetSubset = subsetByColumnValue(MininetSubset, BW_LIMIT, 0)
+# MininetSubset = excludeByColumnValue(MininetSubset, NODES_COUNT, 4)
+# SUBSETNODE_COUNT = 50
+# NETMODELs = [NET_UDP, NET_UDPNC]
+# tabulate_TopoCon_Drift_BW_Latency_degradation(MininetSubset, NETMODELs, SUBSETNODE_COUNT, DELAY_MS, XUnitsString=r"ms")
 
 
 print("\n\n\n***************************************************\n\n\n")
@@ -112,9 +196,11 @@ tabulate_TopoCon_Drift_BW_Latency_scaling(MininetSubset, NETMODELs, NODES_COUNT)
 
 
 
+
+
 # print("\n\n\n***************************************************\n\n\n")
 # print("UDP vs UDPNC, 50 Nodes, Packet Loss 0, Bandwidth limit [MBps]")
-# NETMODELs = [NET_UDP, NET_UDPNC]
+# NETMODELs = [NET_UDP, NET_UDP]
 
 # MininetSubset = subsetByColumnValue(results_results_nparray, PLATFORM, MININET)
 # MininetSubset = subsetByColumnValue(MininetSubset, LOSS_PERC, 0)
@@ -123,6 +209,31 @@ tabulate_TopoCon_Drift_BW_Latency_scaling(MininetSubset, NETMODELs, NODES_COUNT)
 # MininetSubset = excludeByColumnValue(MininetSubset, BW_LIMIT, 0)
 
 # tabulate_TopoCon_Drift_BW_Latency(MininetSubset, NETMODELs, 50, BW_LIMIT, XUnitsString=r"MBps", reverseXAxis=True)
+
+
+
+# print("\n\n\n***************************************************\n\n\n")
+# print("UDP vs UDPNC, 50 Nodes, Packet Loss 0, Bandwidth limit [MBps] Degradation")
+# NETMODELs = [NET_UDP, NET_UDPNC]
+
+# MininetSubset = subsetByColumnValue(results_results_nparray, PLATFORM, MININET)
+# MininetSubset = subsetByColumnValue(MininetSubset, LOSS_PERC, 0)
+# MininetSubset = subsetByColumnValue(MininetSubset, DELAY_MS, 0)
+# MininetSubset = excludeByColumnValue(MininetSubset, NODES_COUNT, 4)
+# MininetSubset = excludeByColumnValue(MininetSubset, BW_LIMIT, 0)
+
+# tabulate_TopoCon_Drift_BW_Latency_degradation(MininetSubset, NETMODELs, 50, BW_LIMIT, XUnitsString=r"MBps", reverseXAxis=True)
+
+
+
+
+
+
+
+
+
+
+
 
 
 # print(r"Mininet Hosts vs Physical Hosts, 4 Nodes, 0-20\% Packet Loss, 0 Network Delay [ms] TCP")
